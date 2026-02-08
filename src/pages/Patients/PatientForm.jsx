@@ -59,8 +59,8 @@ const PatientForm = () => {
                 </div>
 
                 <div className="flex justify-end gap-4 pt-4">
-                    <button type="button" onClick={() => navigate(-1)} className="px-6 py-2 rounded-xl text-primary font-medium hover:bg-secondary-dark/20">Cancel</button>
-                    <button type="submit" className="bg-primary text-secondary px-8 py-2 rounded-xl hover:bg-primary-light font-bold shadow-lg shadow-primary/20">Register Patient</button>
+                    <button type="button" onClick={() => navigate(-1)} className="px-6 py-2 rounded-xl text-primary font-medium hover:bg-secondary-dark/20 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]">Cancel</button>
+                    <button type="submit" className="bg-primary text-secondary px-8 py-2 rounded-xl hover:bg-primary-light hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 font-bold shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30">Register Patient</button>
                 </div>
             </form>
         </div>

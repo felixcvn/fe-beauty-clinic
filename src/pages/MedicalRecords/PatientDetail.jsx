@@ -15,9 +15,9 @@ const PatientDetail = () => {
 
     if (!patient) {
         return (
-            <div className="p-8 text-center text-primary-light">
-                <p>Patient not found.</p>
-                <button onClick={() => navigate('/medical-records')} className="mt-4 text-primary font-bold hover:underline">
+            <div className="p-8 text-center text-primary/40">
+                <p className="font-bold text-lg mb-4">Patient not found.</p>
+                <button onClick={() => navigate('/medical-records')} className="text-primary font-black uppercase text-xs tracking-widest hover:underline">
                     Back to List
                 </button>
             </div>
@@ -25,7 +25,7 @@ const PatientDetail = () => {
     }
 
     return (
-        <div className="space-y-6 animate-fade-in">
+        <div className="space-y-10 animate-fade-in pb-12">
             {/* Report Modal */}
             <ReportModal
                 isOpen={!!selectedRecord}
@@ -34,78 +34,92 @@ const PatientDetail = () => {
                 type="patient"
             />
 
-            <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-primary-light hover:text-primary transition-colors font-medium mb-2">
-                <ArrowLeft className="w-4 h-4" /> Back
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-primary/40 hover:text-primary transition-all duration-300 font-bold text-xs uppercase tracking-widest group">
+                <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Back to History
             </button>
 
             {/* Patient Header Profile */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-secondary-dark/20 flex flex-col md:flex-row gap-6 items-start md:items-center justify-between">
-                <div className="flex items-center gap-4">
-                    <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-2xl border-2 border-primary/20">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
+                <div className="flex items-center gap-6">
+                    <div className="w-24 h-24 rounded-3xl bg-secondary shadow-lg flex items-center justify-center text-primary font-black text-3xl border border-primary/5 relative">
                         {patient.name.split(' ').map(n => n[0]).join('')}
+                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-accent-gold rounded-full border-4 border-white" title="Active Patient" />
                     </div>
                     <div>
-                        <h2 className="text-2xl font-bold text-primary">{patient.name}</h2>
-                        <div className="flex flex-wrap gap-4 mt-1 text-sm text-primary-light font-medium">
-                            <span className="flex items-center gap-1"><User className="w-4 h-4" /> {patient.age} Years Old</span>
-                            <span className="flex items-center gap-1"><FileText className="w-4 h-4" /> ID: {patient.id}</span>
+                        <h2 className="text-3xl font-black text-primary tracking-tighter leading-none">{patient.name}</h2>
+                        <div className="flex flex-wrap gap-6 mt-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                            <span className="flex items-center gap-2"><User className="w-4 h-4 text-primary/20" /> {patient.age} Years</span>
+                            <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-primary/20" /> ID: {patient.id}</span>
                         </div>
                     </div>
                 </div>
 
-                <div className="bg-red-50 px-4 py-3 rounded-xl border border-red-100 flex items-start gap-3 max-w-sm">
-                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="bg-red-50/50 px-6 py-5 rounded-[2rem] border border-red-100/50 flex items-start gap-4 max-w-sm">
+                    <div className="p-2 bg-red-100 rounded-xl">
+                        <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                    </div>
                     <div>
-                        <p className="text-sm font-bold text-red-700">Allergies</p>
-                        <p className="text-xs text-red-600">{patient.allergies}</p>
+                        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Critical Allergies</p>
+                        <p className="text-xs font-bold text-red-700">{patient.allergies}</p>
                     </div>
                 </div>
             </div>
 
             {/* Medical History Timeline */}
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-secondary-dark/20">
-                <h3 className="text-xl font-bold text-primary mb-6 flex items-center gap-2">
-                    <Clock className="w-5 h-5" /> Medical History
-                </h3>
+            <div className="bg-white p-10 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+                <div className="flex justify-between items-center mb-10">
+                    <h3 className="text-2xl font-black text-primary tracking-tighter flex items-center gap-3">
+                        <Clock className="w-6 h-6 text-primary/20" /> Medical History
+                    </h3>
+                    <div className="text-[10px] font-black uppercase tracking-widest text-primary/30">
+                        {patient.history?.length || 0} Total Records
+                    </div>
+                </div>
 
-                <div className="space-y-8 relative before:absolute before:left-4 before:top-2 before:bottom-0 before:w-0.5 before:bg-secondary-dark/30">
+                <div className="space-y-12 relative before:absolute before:left-6 before:top-2 before:bottom-0 before:w-0.5 before:bg-primary/5">
                     {patient.history && patient.history.length > 0 ? (
                         patient.history.map((record) => (
-                            <div key={record.id} className="relative pl-10">
+                            <div key={record.id} className="relative pl-14 group">
                                 {/* Timeline Dot */}
-                                <div className="absolute left-1.5 top-1.5 w-5 h-5 bg-secondary-light border-4 border-primary rounded-full z-10"></div>
+                                <div className="absolute left-3 top-2 w-6.5 h-6.5 bg-white border-4 border-secondary shadow-md group-hover:border-primary rounded-2xl z-10 transition-colors duration-500"></div>
 
-                                <div className="bg-secondary-light/30 p-5 rounded-2xl border border-secondary-dark/10 hover:border-primary/20 transition-all">
-                                    <div className="flex flex-wrap justify-between items-start gap-4 mb-4">
+                                <div className="bg-secondary/20 p-8 rounded-[2rem] border border-primary/5 hover:bg-white hover:shadow-2xl hover:shadow-primary/5 transition-all duration-500">
+                                    <div className="flex flex-wrap justify-between items-start gap-6 mb-6">
                                         <div>
-                                            <h4 className="text-lg font-bold text-primary">{record.treatment}</h4>
-                                            <div className="flex gap-4 text-sm text-primary-light mt-1">
-                                                <span className="flex items-center gap-1"><Calendar className="w-4 h-4" /> {record.date}</span>
-                                                <span className="flex items-center gap-1"><User className="w-4 h-4" /> {record.specialist}</span>
+                                            <h4 className="text-xl font-black text-primary tracking-tight mb-2">{record.treatment}</h4>
+                                            <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest text-primary/30">
+                                                <span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-primary/20" /> {record.date}</span>
+                                                <span className="flex items-center gap-2"><User className="w-4 h-4 text-primary/20" /> {record.specialist}</span>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => setSelectedRecord(record)}
-                                            className="px-4 py-2 text-sm font-bold text-primary border border-primary/20 rounded-lg hover:bg-primary hover:text-white transition-colors"
+                                            className="px-6 py-2.5 text-[10px] font-black uppercase tracking-widest text-primary border border-primary/10 rounded-xl hover:bg-primary hover:text-secondary transition-all duration-300 shadow-sm"
                                         >
-                                            View Full Report
+                                            View Report
                                         </button>
                                     </div>
 
-                                    <p className="text-primary-dark/80 mb-4 text-sm leading-relaxed bg-white/50 p-3 rounded-lg border border-secondary-dark/5">
-                                        {record.notes}
-                                    </p>
+                                    <div className="bg-white p-6 rounded-2xl border border-primary/5 shadow-sm">
+                                        <p className="text-primary/60 text-sm leading-relaxed font-medium">
+                                            {record.notes}
+                                        </p>
+                                    </div>
 
                                     {/* Before & After Photos */}
                                     {record.beforeImage && record.afterImage && (
-                                        <div className="mt-4 grid grid-cols-2 gap-4">
-                                            <div className="group relative overflow-hidden rounded-xl">
-                                                <img src={record.beforeImage} alt="Before" className="w-full aspect-square object-cover transition-transform group-hover:scale-105" />
-                                                <span className="absolute top-2 left-2 bg-black/60 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">BEFORE</span>
+                                        <div className="mt-8 grid grid-cols-2 gap-6">
+                                            <div className="group/photo relative overflow-hidden rounded-2xl shadow-lg border border-primary/5">
+                                                <img src={record.beforeImage} alt="Before" className="w-full aspect-video object-cover transition-transform group-hover/photo:scale-110 duration-700" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-4">
+                                                    <span className="text-white text-[9px] font-black uppercase tracking-[0.2em] bg-black/40 px-3 py-1 rounded-full backdrop-blur-md">BEFORE TREATMENT</span>
+                                                </div>
                                             </div>
-                                            <div className="group relative overflow-hidden rounded-xl">
-                                                <img src={record.afterImage} alt="After" className="w-full aspect-square object-cover transition-transform group-hover:scale-105" />
-                                                <span className="absolute top-2 left-2 bg-primary/80 text-white text-xs font-bold px-2 py-1 rounded-md backdrop-blur-sm">AFTER</span>
+                                            <div className="group/photo relative overflow-hidden rounded-2xl shadow-lg border border-primary/5">
+                                                <img src={record.afterImage} alt="After" className="w-full aspect-video object-cover transition-transform group-hover/photo:scale-110 duration-700" />
+                                                <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex items-end p-4">
+                                                    <span className="text-white text-[9px] font-black uppercase tracking-[0.2em] bg-primary/40 px-3 py-1 rounded-full backdrop-blur-md">AFTER TREATMENT</span>
+                                                </div>
                                             </div>
                                         </div>
                                     )}
@@ -113,7 +127,7 @@ const PatientDetail = () => {
                             </div>
                         ))
                     ) : (
-                        <div className="pl-10 text-primary-light italic">No medical history records found.</div>
+                        <div className="pl-14 text-primary/20 font-black uppercase text-xs tracking-widest py-8">No history records found.</div>
                     )}
                 </div>
             </div>

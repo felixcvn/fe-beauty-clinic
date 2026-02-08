@@ -17,113 +17,112 @@ const PatientsPage = () => {
     });
 
     return (
-        <div className="space-y-6 animate-fade-in">
-            <div className="flex justify-between items-center">
+        <div className="space-y-10 animate-fade-in pb-12">
+            <div className="flex justify-between items-end">
                 <div>
-                    <h2 className="text-3xl font-bold text-primary">Data Pasien</h2>
-                    <p className="text-primary-light mt-1">Kelola Seluruh Data Pasien Terdaftar</p>
+                    <h2 className="text-4xl font-black text-primary tracking-tighter leading-none">Data Pasien</h2>
+                    <p className="text-primary/40 mt-3 font-bold text-sm">Kelola seluruh data pasien terdaftar di klinik</p>
                 </div>
                 <button
                     onClick={() => navigate('/patients/new')}
-                    className="flex items-center gap-2 bg-primary text-secondary px-6 py-3 rounded-xl hover:bg-primary-dark transition-all font-medium shadow-lg shadow-primary/20"
+                    className="flex items-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                 >
-                    <Plus className="w-5 h-5" />
-                    <span>Daftarkan Pasien Baru</span>
+                    <Plus className="w-4 h-4" />
+                    <span>Daftar Pasien Baru</span>
                 </button>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-secondary-dark/20 overflow-hidden">
-                <div className="p-4 border-b border-secondary-dark/10 flex items-center gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-light" />
+            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                <div className="p-8 border-b border-primary/5 flex items-center gap-6 bg-primary/5">
+                    <div className="relative flex-1 group">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
                             placeholder="Cari nama pasien atau ID..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2 rounded-lg bg-secondary-light/50 border-none outline-none text-primary placeholder:text-primary-light/70 focus:ring-2 focus:ring-primary/20 transition-all shadow-inner"
+                            className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all"
                         />
                     </div>
-                    <select
-                        value={statusFilter}
-                        onChange={(e) => setStatusFilter(e.target.value)}
-                        className="bg-secondary-light/50 px-4 py-2 rounded-lg text-sm text-primary font-medium border-none outline-none cursor-pointer"
-                    >
-                        <option>All Status</option>
-                        <option>Active</option>
-                        <option>Completed</option>
-                    </select>
+                    <div className="relative">
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className="appearance-none bg-white px-8 py-3.5 pr-12 rounded-2xl text-xs text-primary font-black uppercase tracking-widest border border-primary/5 outline-none cursor-pointer focus:ring-4 focus:ring-primary/5 transition-all"
+                        >
+                            <option>All Status</option>
+                            <option>Active</option>
+                            <option>Completed</option>
+                        </select>
+                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40 pointer-events-none rotate-90" />
+                    </div>
                 </div>
 
-                <table className="w-full">
-                    <thead className="bg-secondary/50">
-                        <tr className="text-left text-sm text-primary font-semibold">
-                            <th className="px-6 py-4 rounded-tl-lg">Nama Pasien</th>
-                            <th className="px-6 py-4">Umur</th>
-                            <th className="px-6 py-4">ID Pasien</th>
-                            <th className="px-6 py-4">Alergi</th>
-                            <th className="px-6 py-4">Status</th>
-                            <th className="px-6 py-4 rounded-tr-lg">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-secondary-dark/10">
-                        {filteredPatients.map((patient) => (
-                            <tr
-                                key={patient.id}
-                                onClick={() => navigate(`/medical-records/${patient.id}`)}
-                                className="hover:bg-secondary-light/30 transition-colors group cursor-pointer"
-                            >
-                                <td className="px-6 py-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                                            {patient.name.split(' ').map(n => n[0]).join('')}
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5">
+                                <th className="px-8 py-6">Nama Pasien</th>
+                                <th className="px-8 py-6">Umur</th>
+                                <th className="px-8 py-6">ID Pasien</th>
+                                <th className="px-8 py-6">Alergi</th>
+                                <th className="px-8 py-6 text-center">Status</th>
+                                <th className="px-8 py-6 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-primary/5">
+                            {filteredPatients.map((patient) => (
+                                <tr
+                                    key={patient.id}
+                                    onClick={() => navigate(`/medical-records/${patient.id}`)}
+                                    className="hover:bg-primary/5 transition-all duration-500 group cursor-pointer"
+                                >
+                                    <td className="px-8 py-6">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 group-hover:bg-primary group-hover:text-secondary transition-all duration-500">
+                                                {patient.name.split(' ').map(n => n[0]).join('')}
+                                            </div>
+                                            <div>
+                                                <div className="font-black text-primary text-sm tracking-tight">{patient.name}</div>
+                                                <div className="text-[10px] text-primary/40 font-bold uppercase tracking-wider">Terakhir: {patient.lastVisit}</div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <div className="font-medium text-primary">{patient.name}</div>
-                                            <div className="text-xs text-primary-light">Terakhir: {patient.lastVisit}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td className="px-6 py-4 text-primary-light font-medium">{patient.age} Thn</td>
-                                <td className="px-6 py-4 text-primary-light font-medium">{patient.id}</td>
-                                <td className="px-6 py-4">
-                                    {patient.allergies && patient.allergies !== 'None' ? (
-                                        <span className="text-red-500 text-sm font-medium flex items-center gap-1">
-                                            {patient.allergies}
+                                    </td>
+                                    <td className="px-8 py-6 text-primary/60 font-bold text-sm tracking-tight">{patient.age} Thn</td>
+                                    <td className="px-8 py-6 text-primary/40 font-black text-xs tracking-widest">{patient.id}</td>
+                                    <td className="px-8 py-6">
+                                        {patient.allergies && patient.allergies !== 'None' ? (
+                                            <span className="text-red-500 text-[10px] font-black uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full">
+                                                {patient.allergies}
+                                            </span>
+                                        ) : (
+                                            <span className="text-primary/20 text-xs">-</span>
+                                        )}
+                                    </td>
+                                    <td className="px-8 py-6 text-center">
+                                        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${patient.status === 'Active' ? 'bg-primary/10 text-primary' :
+                                                patient.status === 'Completed' ? 'bg-accent-gold/10 text-accent-gold' :
+                                                    'bg-red-50 text-red-400'
+                                            }`}>
+                                            {patient.status}
                                         </span>
-                                    ) : (
-                                        <span className="text-primary-light/60 text-sm">-</span>
-                                    )}
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className={`px-3 py-1 text-xs font-semibold rounded-full border ${patient.status === 'Active' ? 'bg-green-50 text-green-700 border-green-200' :
-                                        patient.status === 'Completed' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                                            'bg-orange-50 text-orange-700 border-orange-200'
-                                        }`}>
-                                        {patient.status}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <button className="text-primary-light hover:text-primary transition-colors p-2 rounded-lg hover:bg-secondary-dark/20">
-                                        <ChevronRight className="w-5 h-5" />
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        {filteredPatients.length === 0 && (
-                            <tr>
-                                <td colSpan="6" className="px-6 py-8 text-center text-primary-light">
-                                    Data Pasien Tidak Ditemukan.
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                <div className="p-4 border-t border-secondary-dark/10 flex justify-between items-center text-sm text-primary-light">
+                                    </td>
+                                    <td className="px-8 py-6 text-right">
+                                        <button className="text-primary/40 hover:text-primary transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90">
+                                            <ChevronRight className="w-4 h-4" />
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div className="p-8 border-t border-primary/5 flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Showing {filteredPatients.length} of {patients.length} records</span>
-                    <div className="flex gap-2">
-                        <button className="px-3 py-1 rounded-lg border border-secondary-dark/20 hover:bg-secondary hover:text-primary transition-colors disabled:opacity-50">Previous</button>
-                        <button className="px-3 py-1 rounded-lg border border-secondary-dark/20 hover:bg-secondary hover:text-primary transition-colors">Next</button>
+                    <div className="flex gap-3">
+                        <button className="px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Previous</button>
+                        <button className="px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Next</button>
                     </div>
                 </div>
             </div>

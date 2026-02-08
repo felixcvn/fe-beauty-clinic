@@ -2,6 +2,14 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const AuthContext = createContext();
 
+const USER_SEEDER = [
+    { email: 'admin@clinic.com', password: 'password123', name: 'Super Admin', role: 'Admin' },
+    { email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Sarah Smith', role: 'Dokter' },
+    { email: 'pharmacist@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Apoteker' },
+    { email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },
+    { email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
+];
+
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,22 +25,22 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(false);
     }, []);
 
-    const login = (username, password) => {
-        // Mock Login Logic
-        // In a real app, this would be an API call
-        if (username && password) {
-            // Simulate API delay
+    const login = (email, password) => {
+        // Mock Login Logic with Seeder
+        const foundUser = USER_SEEDER.find(u => u.email === email && u.password === password);
+
+        if (foundUser) {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const mockUser = { name: 'Dr. Sarah Smith', role: 'Dermatologist', email: username };
-                    setUser(mockUser);
+                    const { password, ...userWithoutPassword } = foundUser;
+                    setUser(userWithoutPassword);
                     setIsAuthenticated(true);
-                    localStorage.setItem('user', JSON.stringify(mockUser));
+                    localStorage.setItem('user', JSON.stringify(userWithoutPassword));
                     resolve({ success: true });
                 }, 800);
             });
         }
-        return Promise.resolve({ success: false, message: 'Invalid credentials' });
+        return Promise.resolve({ success: false, message: 'Email atau password salah' });
     };
 
     const logout = () => {

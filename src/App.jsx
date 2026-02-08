@@ -15,6 +15,14 @@ import PatientsPage from './pages/Patients/PatientsPage';
 import PatientForm from './pages/Patients/PatientForm';
 import SettingsPage from './pages/Settings/SettingsPage';
 import Login from './pages/Auth/Login';
+import SalesPage from './pages/Sales/SalesPage';
+import AttendancePage from './pages/Attendance/AttendancePage';
+import ReportsPage from './pages/Reports/ReportsPage';
+import NotificationsPage from './pages/Notifications/NotificationsPage';
+import StaffPage from './pages/Staff/StaffPage';
+import POSPage from './pages/Sales/POSPage';
+
+import { hasPermission } from './utils/rbac';
 
 // Protected Route Component
 const PrivateRoute = ({ children }) => {
@@ -22,11 +30,23 @@ const PrivateRoute = ({ children }) => {
     const location = useLocation();
 
     if (isLoading) {
-        return <div className="min-h-screen flex items-center justify-center bg-secondary-light text-primary">Loading...</div>;
+        return <div className="min-h-screen flex items-center justify-center bg-secondary-light text-primary font-black uppercase tracking-widest animate-pulse">Loading...</div>;
     }
 
     if (!isAuthenticated) {
         return <Navigate to="/login" state={{ from: location }} replace />;
+    }
+
+    return children;
+};
+
+// Role-Based Protected Route
+const RoleProtectedRoute = ({ children }) => {
+    const { user } = useAuth();
+    const location = useLocation();
+
+    if (!hasPermission(user?.role, location.pathname)) {
+        return <Navigate to="/" replace />;
     }
 
     return children;
@@ -47,13 +67,19 @@ function App() {
                                 <PrivateRoute>
                                     <MainLayout>
                                         <Routes>
-                                            <Route path="/" element={<Dashboard />} />
-                                            <Route path="/medical-records" element={<PatientList />} />
-                                            <Route path="/medical-records/new" element={<RecordForm />} />
-                                            <Route path="/medical-records/:id" element={<PatientDetail />} />
-                                            <Route path="/patients" element={<PatientsPage />} />
-                                            <Route path="/patients/new" element={<PatientForm />} />
-                                            <Route path="/settings" element={<SettingsPage />} />
+                                            <Route path="/" element={<RoleProtectedRoute><Dashboard /></RoleProtectedRoute>} />
+                                            <Route path="/medical-records" element={<RoleProtectedRoute><PatientList /></RoleProtectedRoute>} />
+                                            <Route path="/medical-records/new" element={<RoleProtectedRoute><RecordForm /></RoleProtectedRoute>} />
+                                            <Route path="/medical-records/:id" element={<RoleProtectedRoute><PatientDetail /></RoleProtectedRoute>} />
+                                            <Route path="/patients" element={<RoleProtectedRoute><PatientsPage /></RoleProtectedRoute>} />
+                                            <Route path="/patients/new" element={<RoleProtectedRoute><PatientForm /></RoleProtectedRoute>} />
+                                            <Route path="/staff" element={<RoleProtectedRoute><StaffPage /></RoleProtectedRoute>} />
+                                            <Route path="/sales" element={<RoleProtectedRoute><SalesPage /></RoleProtectedRoute>} />
+                                            <Route path="/sales/pos" element={<RoleProtectedRoute><POSPage /></RoleProtectedRoute>} />
+                                            <Route path="/attendance" element={<RoleProtectedRoute><AttendancePage /></RoleProtectedRoute>} />
+                                            <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
+                                            <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
+                                            <Route path="/settings" element={<RoleProtectedRoute><SettingsPage /></RoleProtectedRoute>} />
                                         </Routes>
                                     </MainLayout>
                                 </PrivateRoute>

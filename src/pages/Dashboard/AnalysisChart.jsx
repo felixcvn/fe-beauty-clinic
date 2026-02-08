@@ -25,7 +25,7 @@ const AnalysisChart = () => {
 
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h3 className="text-xl font-bold text-primary">Patient Analysis</h3>
+                    <h3 className="text-xl font-bold text-primary">Analisis Pasien</h3>
                     <p className="text-sm text-primary-light">Monthly patient visits & procedure growth</p>
                 </div>
                 <button

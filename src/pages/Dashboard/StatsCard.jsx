@@ -2,24 +2,31 @@ import React from 'react';
 
 const StatsCard = ({ title, value, change, icon: Icon, trend }) => {
     const isPositive = trend === 'up';
+    const isRevenue = title === 'Revenue' || title.toLowerCase().includes('revenue');
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-sm border border-secondary-dark/20 hover:shadow-md transition-shadow duration-300">
-            <div className="flex justify-between items-start mb-4">
+        <div className="group bg-white p-7 rounded-[2.5rem] border border-primary/5 hover:border-primary/10 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 relative overflow-hidden active:scale-[0.98]">
+            {/* Decorative background element */}
+            <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-10 transition-opacity duration-500 group-hover:opacity-20 ${isPositive ? 'bg-primary' : 'bg-red-500'}`} />
+
+            <div className="flex justify-between items-start relative z-10">
                 <div>
-                    <p className="text-primary-light font-medium text-sm">{title}</p>
-                    <h3 className="text-3xl font-bold text-primary mt-1">{value}</h3>
+                    <p className="text-primary/40 text-[10px] uppercase tracking-[0.2em] font-black mb-2">{title}</p>
+                    <div className="flex items-baseline gap-1">
+                        <h3 className="text-3xl font-black text-primary tracking-tighter leading-none">{value}</h3>
+                        {isRevenue && !value.toString().includes('Rp') && <span className="text-primary/20 text-xs font-bold leading-none ml-0.5">K</span>}
+                    </div>
                 </div>
-                <div className={`p-3 rounded-xl ${isPositive ? 'bg-primary/10 text-primary' : 'bg-red-50 text-red-500'}`}>
-                    <Icon className="w-6 h-6" />
+                <div className={`p-3.5 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-lg ${isPositive ? 'bg-primary text-secondary shadow-primary/20' : 'bg-red-500 text-white shadow-red-500/20'}`}>
+                    <Icon className="w-5 h-5" />
                 </div>
             </div>
 
-            <div className="flex items-center gap-2">
-                <span className={`text-sm font-semibold px-2 py-0.5 rounded-full ${isPositive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                    {isPositive ? '+' : ''}{change}
-                </span>
-                <span className="text-gray-400 text-xs font-medium">vs last month</span>
+            <div className="mt-8 flex items-center gap-3 relative z-10">
+                <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black tracking-wider shadow-sm ${isPositive ? 'bg-primary/10 text-primary' : 'bg-red-50 text-red-600'}`}>
+                    {isPositive ? '↑' : '↓'} {change}
+                </div>
+                <span className="text-primary/30 text-[10px] font-bold uppercase tracking-[0.1em] leading-none">Growth</span>
             </div>
         </div>
     );

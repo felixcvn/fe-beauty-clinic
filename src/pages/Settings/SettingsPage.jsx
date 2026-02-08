@@ -3,53 +3,63 @@ import { ToggleLeft, Bell, Lock, User, Palette } from 'lucide-react';
 
 const SettingsPage = () => {
     return (
-        <div className="space-y-6 animate-fade-in">
-            <div>
-                <h2 className="text-3xl font-bold text-primary">Settings</h2>
-                <p className="text-primary-light mt-1">Manage application preferences</p>
+        <div className="space-y-10 animate-fade-in pb-12">
+            <div className="flex justify-between items-end">
+                <div>
+                    <h2 className="text-4xl font-black text-primary tracking-tighter leading-none">Settings</h2>
+                    <p className="text-primary/40 mt-3 font-bold text-sm">Manage application preferences and clinic configurations</p>
+                </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-sm border border-secondary-dark/20 divide-y divide-secondary-dark/10">
-                {/* Appearance */}
-                <div className="p-6 flex items-start justify-between">
-                    <div className="flex gap-4">
-                        <div className="p-3 bg-secondary-light rounded-xl text-primary">
-                            <Palette className="w-6 h-6" />
+            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                <div className="divide-y divide-primary/5">
+                    {/* Appearance */}
+                    <div className="p-8 flex items-center justify-between group hover:bg-primary/5 transition-all duration-500">
+                        <div className="flex gap-6 items-center">
+                            <div className="w-14 h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary group-hover:rotate-3 transition-all duration-500">
+                                <Palette className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-primary tracking-tight">Appearance</h3>
+                                <p className="text-sm text-primary/40 font-bold">Customize the look and feel (Dark mode coming soon)</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-primary">Appearance</h3>
-                            <p className="text-sm text-primary-light">Customize the look and feel (Dark mode coming soon)</p>
-                        </div>
+                        <button className="px-6 py-2.5 bg-primary text-secondary rounded-xl font-bold text-xs shadow-lg shadow-primary/10 hover:scale-105 active:scale-95 transition-all duration-300">
+                            Configure
+                        </button>
                     </div>
-                    <button className="bg-secondary text-primary px-4 py-2 rounded-lg text-sm font-bold">Manage</button>
-                </div>
 
-                {/* Notifications */}
-                <div className="p-6 flex items-start justify-between">
-                    <div className="flex gap-4">
-                        <div className="p-3 bg-secondary-light rounded-xl text-primary">
-                            <Bell className="w-6 h-6" />
+                    {/* Notifications */}
+                    <div className="p-8 flex items-center justify-between group hover:bg-primary/5 transition-all duration-500">
+                        <div className="flex gap-6 items-center">
+                            <div className="w-14 h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary group-hover:-rotate-3 transition-all duration-500">
+                                <Bell className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-primary tracking-tight">Notifications</h3>
+                                <p className="text-sm text-primary/40 font-bold">Email, push, and patient reminder settings</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-primary">Notifications</h3>
-                            <p className="text-sm text-primary-light">Email and push notification settings</p>
+                        <div className="w-12 h-6 bg-primary/20 rounded-full p-1 cursor-pointer flex items-center justify-start group">
+                            <div className="w-4 h-4 bg-primary rounded-full shadow-sm group-hover:translate-x-6 transition-transform duration-300" />
                         </div>
                     </div>
-                    <ToggleLeft className="w-10 h-10 text-primary cursor-pointer" />
-                </div>
 
-                {/* Security */}
-                <div className="p-6 flex items-start justify-between">
-                    <div className="flex gap-4">
-                        <div className="p-3 bg-secondary-light rounded-xl text-primary">
-                            <Lock className="w-6 h-6" />
+                    {/* Security */}
+                    <div className="p-8 flex items-center justify-between group hover:bg-primary/5 transition-all duration-500">
+                        <div className="flex gap-6 items-center">
+                            <div className="w-14 h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary group-hover:scale-110 transition-all duration-500">
+                                <Lock className="w-6 h-6" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-black text-primary tracking-tight">Security</h3>
+                                <p className="text-sm text-primary/40 font-bold">Password, sessions, and two-factor authentication</p>
+                            </div>
                         </div>
-                        <div>
-                            <h3 className="font-bold text-primary">Security</h3>
-                            <p className="text-sm text-primary-light">Password, 2FA, and sessions</p>
-                        </div>
+                        <button className="px-6 py-2.5 bg-primary text-secondary rounded-xl font-bold text-xs shadow-lg shadow-primary/10 hover:scale-105 active:scale-95 transition-all duration-300">
+                            Updates
+                        </button>
                     </div>
-                    <button className="bg-secondary text-primary px-4 py-2 rounded-lg text-sm font-bold">Manage</button>
                 </div>
             </div>
         </div>
