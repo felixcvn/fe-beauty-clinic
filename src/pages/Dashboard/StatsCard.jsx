@@ -11,7 +11,7 @@ const StatsCard = ({ title, value, change, icon: Icon, trend }) => {
 
             <div className="flex justify-between items-start relative z-10">
                 <div>
-                    <p className="text-primary/40 text-[10px] uppercase tracking-[0.2em] font-black mb-2">{title}</p>
+                    <p className="text-primary/60 text-[10px] uppercase tracking-[0.2em] font-black mb-2">{title}</p>
                     <div className="flex items-baseline gap-1">
                         <h3 className="text-3xl font-black text-primary tracking-tighter leading-none">{value}</h3>
                         {isRevenue && !value.toString().includes('Rp') && <span className="text-primary/20 text-xs font-bold leading-none ml-0.5">K</span>}
@@ -26,7 +26,7 @@ const StatsCard = ({ title, value, change, icon: Icon, trend }) => {
                 <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black tracking-wider shadow-sm ${isPositive ? 'bg-primary/10 text-primary' : 'bg-red-50 text-red-600'}`}>
                     {isPositive ? '↑' : '↓'} {change}
                 </div>
-                <span className="text-primary/30 text-[10px] font-bold uppercase tracking-[0.1em] leading-none">Growth</span>
+                <span className="text-primary/50 text-[10px] font-bold uppercase tracking-[0.1em] leading-none">Growth</span>
             </div>
         </div>
     );

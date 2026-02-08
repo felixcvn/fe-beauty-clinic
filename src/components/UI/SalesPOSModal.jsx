@@ -93,7 +93,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                     <div className="p-8 bg-secondary/10 flex justify-between items-center">
                         <div>
                             <h3 className="text-2xl font-black text-primary tracking-tighter">Katalog POS</h3>
-                            <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mt-1">Pilih Produk atau Layanan</p>
+                            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Produk atau Layanan</p>
                         </div>
                         <button onClick={onClose} className="md:hidden p-3 rounded-2xl hover:bg-secondary transition-all">
                             <X className="w-6 h-6 text-primary" />
@@ -118,7 +118,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                     <button
                                         key={cat}
                                         onClick={() => setActiveCategory(cat)}
-                                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeCategory === cat ? 'bg-primary text-secondary shadow-lg' : 'bg-white border border-primary/5 text-primary/40 hover:bg-secondary'}`}
+                                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeCategory === cat ? 'bg-primary text-secondary shadow-lg' : 'bg-white border border-primary/10 text-primary/60 hover:bg-secondary'}`}
                                     >
                                         {cat}
                                     </button>
@@ -142,7 +142,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                             </div>
                                         </div>
                                         <h4 className="text-[11px] font-black text-primary leading-tight mb-1 truncate">{product.name}</h4>
-                                        <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest mb-3">{product.category}</p>
+                                        <p className="text-[9px] font-bold text-primary/50 uppercase tracking-widest mb-3">{product.category}</p>
                                     </div>
                                     <div className="flex items-center justify-between mt-auto">
                                         <span className="text-xs font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
@@ -211,11 +211,11 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                     {/* Checkout Footer */}
                     <div className="p-8 bg-white border-t border-primary/5 space-y-6">
                         <div className="space-y-3">
-                            <div className="flex justify-between text-primary/40 font-bold text-[10px] uppercase tracking-widest px-1">
+                            <div className="flex justify-between text-primary/60 font-bold text-[10px] uppercase tracking-widest px-1">
                                 <span>Subtotal</span>
                                 <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
                             </div>
-                            <div className="flex justify-between text-primary/40 font-bold text-[10px] uppercase tracking-widest px-1">
+                            <div className="flex justify-between text-primary/60 font-bold text-[10px] uppercase tracking-widest px-1">
                                 <span>Pajak (11%)</span>
                                 <span>Rp {(cartTotal * 0.11).toLocaleString('id-ID')}</span>
                             </div>

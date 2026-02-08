@@ -34,12 +34,12 @@ const PatientDetail = () => {
                 type="patient"
             />
 
-            <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-primary/40 hover:text-primary transition-all duration-300 font-bold text-xs uppercase tracking-widest group">
+            <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-primary/60 hover:text-primary transition-all duration-300 font-bold text-xs uppercase tracking-widest group">
                 <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" /> Back to History
             </button>
 
             {/* Patient Header Profile */}
-            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
+            <div className="bg-white p-8 rounded-[2.5rem] border border-primary/15 shadow-2xl shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
                 <div className="flex items-center gap-6">
                     <div className="w-24 h-24 rounded-3xl bg-secondary shadow-lg flex items-center justify-center text-primary font-black text-3xl border border-primary/5 relative">
                         {patient.name.split(' ').map(n => n[0]).join('')}
@@ -47,7 +47,7 @@ const PatientDetail = () => {
                     </div>
                     <div>
                         <h2 className="text-3xl font-black text-primary tracking-tighter leading-none">{patient.name}</h2>
-                        <div className="flex flex-wrap gap-6 mt-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                        <div className="flex flex-wrap gap-6 mt-4 text-[10px] font-black uppercase tracking-widest text-primary/60">
                             <span className="flex items-center gap-2"><User className="w-4 h-4 text-primary/20" /> {patient.age} Years</span>
                             <span className="flex items-center gap-2"><FileText className="w-4 h-4 text-primary/20" /> ID: {patient.id}</span>
                         </div>
@@ -66,17 +66,17 @@ const PatientDetail = () => {
             </div>
 
             {/* Medical History Timeline */}
-            <div className="bg-white p-10 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+            <div className="bg-white p-10 rounded-[2.5rem] border border-primary/15 shadow-2xl shadow-primary/5">
                 <div className="flex justify-between items-center mb-10">
                     <h3 className="text-2xl font-black text-primary tracking-tighter flex items-center gap-3">
                         <Clock className="w-6 h-6 text-primary/20" /> Medical History
                     </h3>
-                    <div className="text-[10px] font-black uppercase tracking-widest text-primary/30">
+                    <div className="text-[10px] font-black uppercase tracking-widest text-primary/50">
                         {patient.history?.length || 0} Total Records
                     </div>
                 </div>
 
-                <div className="space-y-12 relative before:absolute before:left-6 before:top-2 before:bottom-0 before:w-0.5 before:bg-primary/5">
+                <div className="space-y-12 relative before:absolute before:left-6 before:top-2 before:bottom-0 before:w-0.5 before:bg-primary/20">
                     {patient.history && patient.history.length > 0 ? (
                         patient.history.map((record) => (
                             <div key={record.id} className="relative pl-14 group">
@@ -87,7 +87,7 @@ const PatientDetail = () => {
                                     <div className="flex flex-wrap justify-between items-start gap-6 mb-6">
                                         <div>
                                             <h4 className="text-xl font-black text-primary tracking-tight mb-2">{record.treatment}</h4>
-                                            <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest text-primary/30">
+                                            <div className="flex gap-6 text-[10px] font-black uppercase tracking-widest text-primary/50">
                                                 <span className="flex items-center gap-2"><Calendar className="w-4 h-4 text-primary/20" /> {record.date}</span>
                                                 <span className="flex items-center gap-2"><User className="w-4 h-4 text-primary/20" /> {record.specialist}</span>
                                             </div>
