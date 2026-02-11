@@ -70,30 +70,32 @@ const RecordForm = () => {
     ];
 
     return (
-        <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 animate-fade-in overflow-hidden pb-12">
-            <div className="p-10 border-b border-primary/5 bg-primary/5">
-                <h2 className="text-3xl font-black text-primary tracking-tighter leading-none">New Treatment Record</h2>
-                <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Enter detailed consultation and treatment record for the patient</p>
+        <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 animate-fade-in overflow-hidden pb-12 w-full">
+            <div className="p-6 md:p-12 border-b border-primary/5 bg-primary/5 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 md:gap-0">
+                <div>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Rekam Medis Baru</h2>
+                    <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Masukkan detail konsultasi dan perawatan pasien</p>
+                </div>
             </div>
 
-            <form className="p-10 space-y-12" onSubmit={handleSubmit}>
+            <form className="p-6 md:p-12 space-y-10 md:space-y-16" onSubmit={handleSubmit}>
 
                 {/* Patient & Date Info */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1">Patient Name</label>
+                        <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Nama Pasien</label>
                         <CustomSelect
                             options={patientOptions}
                             value={selectedPatientId}
                             onChange={(val) => setSelectedPatientId(val)}
-                            placeholder="Select Patient..."
+                            placeholder="Pilih Pasien..."
                             searchable={true}
                             required
                             icon={User}
                         />
                     </div>
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1">Date of Visit</label>
+                        <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Tanggal Kunjungan</label>
                         <div className="relative group">
                             <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors group-focus-within:text-primary text-primary/30">
                                 <Calendar className="w-5 h-5" />
@@ -110,24 +112,24 @@ const RecordForm = () => {
                 </div>
 
                 {/* Treatment Details */}
-                <div className="space-y-8 bg-secondary/20 p-8 rounded-[2rem] border border-primary/5">
-                    <h3 className="text-lg font-black text-primary tracking-tight flex items-center gap-2">
-                        <Activity className="w-5 h-5 text-primary/20" /> Treatment Details
+                <div className="space-y-8 md:space-y-10 bg-secondary/10 p-6 md:p-10 rounded-[2rem] border border-primary/5">
+                    <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter flex items-center gap-3">
+                        <Activity className="w-6 h-6 text-primary/20" /> Detail Perawatan
                     </h3>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1">Treatment Type</label>
+                            <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Tipe Perawatan</label>
                             <CustomSelect
                                 options={treatmentOptions}
                                 value={treatmentType}
                                 onChange={(val) => setTreatmentType(val)}
-                                placeholder="Select Treatment..."
+                                placeholder="Pilih Perawatan..."
                                 icon={Activity}
                             />
                         </div>
                         <div className="space-y-3">
-                            <label className="text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1">Attending Specialist</label>
+                            <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Dokter / Spesialis</label>
                             <div className="relative group">
                                 <Stethoscope className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30 group-focus-within:text-primary transition-colors" />
                                 <input
@@ -141,63 +143,71 @@ const RecordForm = () => {
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1">Diagnosis / Observation</label>
+                        <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Diagnosa / Observasi</label>
                         <textarea
                             value={diagnosis}
                             onChange={(e) => setDiagnosis(e.target.value)}
-                            className="w-full p-6 rounded-[1.5rem] bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-32 resize-none text-sm font-medium text-primary placeholder:text-primary/20"
-                            placeholder="Enter detailed observations..."
+                            className="w-full p-6 sm:p-8 rounded-[1.5rem] bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-36 resize-none text-sm md:text-base font-medium text-primary placeholder:text-primary/20"
+                            placeholder="Masukkan hasil observasi detail..."
                         ></textarea>
                     </div>
 
                     <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1">Treatment Notes</label>
+                        <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Catatan Tindakan</label>
                         <textarea
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
-                            className="w-full p-6 rounded-[1.5rem] bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-32 resize-none text-sm font-medium text-primary placeholder:text-primary/20"
-                            placeholder="Procedures performed, customer feedback, etc..."
+                            className="w-full p-6 sm:p-8 rounded-[1.5rem] bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-36 resize-none text-sm md:text-base font-medium text-primary placeholder:text-primary/20"
+                            placeholder="Prosedur yang dilakukan, feedback pasien, dll..."
                         ></textarea>
                     </div>
                 </div>
 
                 {/* Before & After Photos */}
-                <div className="space-y-8">
-                    <h3 className="text-lg font-black text-primary tracking-tight">Treatment Photos</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                        <ImageUpload label="Before Treatment" onImageChange={setBeforeImage} />
-                        <ImageUpload label="After Treatment" onImageChange={setAfterImage} />
+                <div className="space-y-8 md:space-y-10">
+                    <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Foto Hasil Perawatan</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                        <ImageUpload label="Sebelum Perawatan" onImageChange={setBeforeImage} />
+                        <ImageUpload label="Sesudah Perawatan" onImageChange={setAfterImage} />
                     </div>
                 </div>
 
                 {/* Prescriptions */}
                 <div className="space-y-8">
-                    <div className="flex justify-between items-center border-b border-primary/5 pb-4">
-                        <h3 className="text-lg font-black text-primary tracking-tight">Prescriptions / Products</h3>
-                        <button type="button" onClick={addPrescription} className="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2 hover:bg-primary/5 px-4 py-2 rounded-full transition-all">
-                            <Plus className="w-4 h-4" /> Add Item
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-primary/5 pb-6 gap-4">
+                        <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Resep / Produk</h3>
+                        <button type="button" onClick={addPrescription} className="w-full sm:w-auto text-[10px] font-black text-primary uppercase tracking-widest flex items-center justify-center gap-2 bg-primary/5 hover:bg-primary hover:text-secondary px-6 py-3 rounded-2xl transition-all duration-500 border border-primary/5">
+                            <Plus className="w-5 h-5" /> Tambah Item
                         </button>
                     </div>
 
-                    <div className="space-y-6">
+                    <div className="space-y-8 sm:space-y-6">
                         {prescriptions.map((item, index) => (
-                            <div key={item.id} className="flex gap-6 items-center animate-fade-in group">
-                                <span className="text-[10px] font-black text-primary/20 w-8">{index + 1}.</span>
-                                <input
-                                    type="text"
-                                    placeholder="Product Name"
-                                    value={item.name}
-                                    onChange={(e) => handlePrescriptionChange(item.id, 'name', e.target.value)}
-                                    className="flex-1 px-6 py-4 rounded-2xl bg-primary/5 border border-primary/5 outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
-                                />
-                                <input
-                                    type="text"
-                                    placeholder="Dosage / Instructions"
-                                    value={item.dosage}
-                                    onChange={(e) => handlePrescriptionChange(item.id, 'dosage', e.target.value)}
-                                    className="flex-1 px-6 py-4 rounded-2xl bg-primary/5 border border-primary/5 outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
-                                />
-                                <button type="button" onClick={() => removePrescription(item.id)} className="p-3 text-red-400 hover:bg-red-50 rounded-2xl transition-all duration-300 hover:scale-110 active:scale-90 opacity-0 group-hover:opacity-100">
+                            <div key={item.id} className="flex flex-col sm:flex-row gap-4 sm:gap-6 sm:items-center animate-fade-in group relative bg-secondary/10 sm:bg-transparent p-6 sm:p-0 rounded-3xl sm:rounded-none border border-primary/5 sm:border-transparent">
+                                <span className="hidden sm:block text-[10px] font-black text-primary/20 sm:w-8">{index + 1}.</span>
+                                <div className="flex-1 space-y-4 sm:space-y-0 sm:flex sm:gap-6">
+                                    <div className="flex-1 space-y-2">
+                                        <label className="sm:hidden text-[9px] font-black text-primary/30 uppercase tracking-widest ml-1">Nama Produk</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Nama Produk"
+                                            value={item.name}
+                                            onChange={(e) => handlePrescriptionChange(item.id, 'name', e.target.value)}
+                                            className="w-full px-6 py-4 rounded-2xl bg-white sm:bg-primary/5 border border-primary/5 outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
+                                        />
+                                    </div>
+                                    <div className="flex-1 space-y-2">
+                                        <label className="sm:hidden text-[9px] font-black text-primary/30 uppercase tracking-widest ml-1">Dosis / Instruksi</label>
+                                        <input
+                                            type="text"
+                                            placeholder="Dosis / Instruksi"
+                                            value={item.dosage}
+                                            onChange={(e) => handlePrescriptionChange(item.id, 'dosage', e.target.value)}
+                                            className="w-full px-6 py-4 rounded-2xl bg-white sm:bg-primary/5 border border-primary/5 outline-none focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
+                                        />
+                                    </div>
+                                </div>
+                                <button type="button" onClick={() => removePrescription(item.id)} className="absolute top-4 right-4 sm:static p-3 text-red-400 hover:bg-red-50 rounded-2xl transition-all duration-300 hover:scale-110 active:scale-90 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                                     <Trash2 className="w-5 h-5" />
                                 </button>
                             </div>
@@ -206,16 +216,16 @@ const RecordForm = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-center justify-end gap-6 pt-10 border-t border-primary/5">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-4 sm:gap-6 pt-10 border-t border-primary/5">
                     <button
                         type="button"
                         onClick={() => navigate(-1)}
-                        className="px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/40 hover:bg-primary/5 transition-all duration-300 active:scale-95"
+                        className="px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/40 hover:bg-primary/5 transition-all duration-300 active:scale-95 text-center order-2 sm:order-1"
                     >
-                        Cancel
+                        Batal
                     </button>
-                    <button type="submit" className="bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
-                        Save Complete Record
+                    <button type="submit" className="bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 order-1 sm:order-2">
+                        Simpan Rekam Medis
                     </button>
                 </div>
             </form>

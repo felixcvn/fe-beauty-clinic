@@ -81,7 +81,7 @@ const NotificationsPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-6 bg-secondary/10">
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 lg:pb-0">
                         {['all', 'unread', 'important'].map((opt) => (
@@ -107,8 +107,8 @@ const NotificationsPage = () => {
 
                 <div className="divide-y divide-primary/5">
                     {notifications.map((notif) => (
-                        <div key={notif.id} className={`p-6 md:p-8 hover:bg-secondary/10 transition-all duration-500 cursor-pointer group flex flex-col xs:flex-row gap-6 md:gap-8 items-start ${!notif.read ? 'bg-secondary/20' : ''}`}>
-                            <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${notif.bg} flex items-center justify-center ${notif.color} shadow-sm group-hover:scale-110 transition-transform duration-500`}>
+                        <div key={notif.id} className={`p-6 md:p-8 hover:bg-secondary/10 transition-all duration-500 cursor-pointer group flex flex-col sm:flex-row gap-6 md:gap-8 items-start ${!notif.read ? 'bg-secondary/20' : ''}`}>
+                            <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl ${notif.bg} flex items-center justify-center ${notif.color} shadow-sm group-hover:scale-110 transition-transform duration-500 shrink-0`}>
                                 <notif.icon className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div className="flex-1 w-full">
@@ -124,9 +124,9 @@ const NotificationsPage = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="flex flex-row xs:flex-col items-center gap-4 ml-auto xs:ml-0">
+                            <div className="flex flex-row sm:flex-col items-center gap-4 ml-auto sm:ml-0">
                                 {!notif.read && <div className="w-2.5 h-2.5 bg-red-500 rounded-full shadow-[0_0_12px_rgba(239,68,68,0.5)]" title="Unread" />}
-                                <button className="p-2 text-primary/10 hover:text-red-400 transition-all opacity-100 xs:opacity-0 xs:group-hover:opacity-100">
+                                <button className="p-2 text-primary/10 hover:text-red-400 transition-all opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
                                     <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                                 </button>
                             </div>

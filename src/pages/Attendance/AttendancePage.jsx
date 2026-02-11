@@ -120,7 +120,7 @@ const AttendancePage = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 {attendanceStats.map((stat, index) => (
                     <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
                         <div className="flex justify-between items-start mb-4">
@@ -131,8 +131,8 @@ const AttendancePage = () => {
                         <div>
                             <p className="text-primary/40 text-[10px] font-black uppercase tracking-widest mb-1">{stat.title}</p>
                             <div className="flex items-baseline gap-2">
-                                <h3 className="text-2xl font-black text-primary tracking-tighter">{stat.value}</h3>
-                                {stat.total && <span className="text-xs font-bold text-primary/20">/ {stat.total} Staff</span>}
+                                <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">{stat.value}</h3>
+                                {stat.total && <span className="text-[10px] font-bold text-primary/20">/ {stat.total} Staff</span>}
                             </div>
                         </div>
                     </div>
@@ -161,8 +161,8 @@ const AttendancePage = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto scrollbar-hide">
-                    <table className="w-full text-left border-collapse min-w-[800px]">
+                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                    <table className="w-full text-left border-collapse min-w-[900px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5">
                                 <th className="px-8 py-6">Staff</th>
@@ -234,6 +234,62 @@ const AttendancePage = () => {
                             ))}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-primary/5">
+                    {staffAttendance.map((staff) => (
+                        <div
+                            key={staff.id}
+                            onClick={() => handleOpenDetail(staff)}
+                            className="p-6 hover:bg-secondary/10 transition-all duration-300 flex flex-col gap-4 cursor-pointer active:bg-secondary/20"
+                        >
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[10px] font-black text-primary border border-primary/5">
+                                        {staff.name.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-primary tracking-tight">{staff.name}</p>
+                                        <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{staff.role}</p>
+                                    </div>
+                                </div>
+                                <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${staff.status === 'Hadir' ? 'bg-green-100 text-green-700' :
+                                    staff.status === 'Terlambat' ? 'bg-red-100 text-red-700' :
+                                        'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                    {staff.status}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4 bg-primary/5 p-4 rounded-2xl">
+                                <div className="space-y-1">
+                                    <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest flex items-center gap-1.5">
+                                        <Clock className="w-2.5 h-2.5" /> Masuk
+                                    </p>
+                                    <p className="text-xs font-bold text-primary">{staff.checkIn}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest flex items-center gap-1.5">
+                                        <LogOut className="w-2.5 h-2.5" /> Keluar
+                                    </p>
+                                    <p className="text-xs font-bold text-primary">{staff.checkOut}</p>
+                                </div>
+                            </div>
+
+                            {staff.checkOut === '--:--' && staff.status !== 'Izin' && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenScan('out', staff.id);
+                                    }}
+                                    className="w-full py-3 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-lg shadow-primary/10"
+                                >
+                                    Check-out Sekarang
+                                </button>
+                            )}
+                        </div>
+                    ))}
                 </div>
 
                 <div className="p-8 bg-secondary/5 border-t border-primary/5 flex justify-between items-center text-[10px] font-black text-primary/30 uppercase tracking-widest">

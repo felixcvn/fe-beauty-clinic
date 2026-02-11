@@ -1,6 +1,7 @@
 import React from 'react';
 import { LayoutDashboard, FileText, Settings, LogOut, User, ShoppingCart, CalendarDays, BarChart3, Bell, X, Users } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
+import logo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
 import { hasPermission } from '../../utils/rbac';
 
@@ -35,14 +36,14 @@ const Sidebar = ({ isOpen, toggle }) => {
                 <div>
                     <div className="p-8 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 bg-primary rounded-2xl flex items-center justify-center shadow-xl shadow-primary/20 border border-white/20">
-                                <span className="text-secondary font-serif text-2xl font-bold italic tracking-tighter -rotate-3">PB</span>
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden">
+                                <img src={logo} alt="Personal Beauty Logo" className="w-full h-full object-cover" />
                             </div>
                             <div>
-                                <h1 className="text-lg font-black text-primary tracking-tighter leading-[0.8]">
+                                <h1 className="text-xl font-black text-primary tracking-tighter leading-[0.8]">
                                     Personal
                                 </h1>
-                                <span className="text-accent-gold text-base font-serif italic leading-none">Beauty</span>
+                                <span className="text-accent-gold text-xl font-serif italic leading-none">Beauty</span>
                             </div>
                         </div>
                         {/* Mobile Close Button */}

@@ -93,9 +93,9 @@ const StaffPage = () => {
             </div>
 
             {/* Controls */}
-            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-8 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
-                <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
+            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-8 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
+                <div className="relative flex-1 group">
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
                         placeholder="Cari pegawai..."
@@ -104,14 +104,14 @@ const StaffPage = () => {
                         className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                     />
                 </div>
-                <button className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white border border-primary/5 text-primary text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm">
+                <button className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white border border-primary/5 text-primary text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm">
                     <Filter className="w-4 h-4" />
                     <span>Filter Role</span>
                 </button>
             </div>
 
             {/* Staff Table */}
-            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
@@ -185,9 +185,9 @@ const StaffPage = () => {
 
             {/* Form Modal */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 animate-fade-in">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 animate-fade-in">
                     <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
-                    <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-primary/5 animate-fade-in-up">
+                    <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-primary/5 animate-fade-in-up">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-2xl font-black text-primary tracking-tighter italic">
                                 {editingStaff ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru'}

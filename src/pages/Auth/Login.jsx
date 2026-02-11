@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Lock, User, ArrowRight } from 'lucide-react';
+import logo from '../../assets/logo.png';
 
 const Login = () => {
     const [email, setEmail] = useState('');
@@ -49,15 +50,15 @@ const Login = () => {
                         className="absolute inset-0 w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-primary/40 backdrop-blur-[2px] flex flex-col justify-end p-12 text-white">
-                        
+
                     </div>
                 </div>
 
                 {/* Form Side */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative bg-white">
                     <div className="text-center mb-8">
-                        <div className="w-16 h-16 bg-primary text-accent-gold rounded-2xl flex items-center justify-center text-3xl font-bold mx-auto mb-4 shadow-lg shadow-primary/20">
-                            B
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                            <img src={logo} alt="Personal Beauty Logo" className="w-full h-full object-cover" />
                         </div>
                         <h1 className="text-2xl font-bold text-primary">Welcome Back</h1>
                         <p className="text-primary-light mt-1">Sign in to access medical records</p>
@@ -112,10 +113,6 @@ const Login = () => {
                             )}
                         </button>
                     </form>
-
-                    <div className="mt-6 text-center text-sm text-primary-light">
-                        <p>Demo Account: Any email & password works!</p>
-                    </div>
                 </div>
             </div>
         </div>

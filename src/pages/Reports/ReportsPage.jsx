@@ -47,12 +47,12 @@ const ReportsPage = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                 {reportCards.map((card, index) => (
-                    <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
+                    <div key={index} className="bg-white p-6 md:p-7 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
                         <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-secondary rounded-2xl text-primary group-hover:bg-primary group-hover:text-secondary transition-all duration-500">
-                                <card.icon className="w-6 h-6" />
+                            <div className="p-3 bg-secondary rounded-xl md:rounded-2xl text-primary group-hover:bg-primary group-hover:text-secondary transition-all duration-500">
+                                <card.icon className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${card.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
                                 {card.trend === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
@@ -60,8 +60,8 @@ const ReportsPage = () => {
                             </div>
                         </div>
                         <div>
-                            <p className="text-primary/40 text-[10px] font-black uppercase tracking-widest mb-1">{card.title}</p>
-                            <h3 className="text-2xl font-black text-primary tracking-tighter">{card.value}</h3>
+                            <p className="text-primary/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">{card.title}</p>
+                            <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">{card.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -69,13 +69,13 @@ const ReportsPage = () => {
 
             {/* Charts Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div className="lg:col-span-2 bg-white p-10 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
-                    <div className="flex flex-col xs:flex-row justify-between items-start xs:items-center gap-6 mb-10">
+                <div className="lg:col-span-2 bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tighter">Performa Pendapatan</h3>
                             <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Estimasi pendapatan bulanan (jutaan)</p>
                         </div>
-                        <div className="flex gap-4">
+                        <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-primary" />
                                 <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Revenue</span>
@@ -86,7 +86,7 @@ const ReportsPage = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="h-[350px] w-full">
+                    <div className="h-[250px] md:h-[350px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={data}>
                                 <defs>
@@ -100,13 +100,13 @@ const ReportsPage = () => {
                                     dataKey="name"
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fontSize: 10, fontWeight: 900, fill: '#1B4D3E', opacity: 0.3 }}
-                                    dy={15}
+                                    tick={{ fontSize: 9, fontWeight: 900, fill: '#1B4D3E', opacity: 0.3 }}
+                                    dy={10}
                                 />
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
-                                    tick={{ fontSize: 10, fontWeight: 900, fill: '#1B4D3E', opacity: 0.3 }}
+                                    tick={{ fontSize: 9, fontWeight: 900, fill: '#1B4D3E', opacity: 0.3 }}
                                 />
                                 <Tooltip
                                     contentStyle={{
@@ -122,9 +122,9 @@ const ReportsPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-white p-10 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
                     <h3 className="text-xl font-black text-primary tracking-tighter mb-10">Popular Treatment</h3>
-                    <div className="h-[250px] w-full mb-10">
+                    <div className="h-[200px] md:h-[250px] w-full mb-10">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={treatmentData}>
                                 <XAxis

@@ -98,43 +98,43 @@ const POSPage = () => {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row h-[calc(100vh-140px)] gap-6 animate-fade-in relative z-10">
+        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-140px)] lg:h-[calc(100vh-140px)] gap-6 animate-fade-in relative z-10 pb-24 lg:pb-0">
             {/* Left Side: Product Selection */}
-            <div className="flex-1 flex flex-col bg-white rounded-[2.5rem] border border-primary/15 shadow-2xl shadow-primary/5 overflow-hidden min-h-0">
-                <div className="p-6 md:p-8 bg-secondary/10 border-b border-primary/5 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
+            <div className="flex-1 flex flex-col bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden min-h-0">
+                <div className="p-5 md:p-8 bg-secondary/10 border-b border-primary/5 flex items-center justify-between">
+                    <div className="flex items-center gap-3 md:gap-4">
                         <button
                             onClick={() => navigate('/sales')}
-                            className="p-3 rounded-2xl bg-white text-primary/40 hover:text-primary transition-all shadow-sm"
+                            className="p-2 md:p-3 rounded-xl md:rounded-2xl bg-white text-primary/40 hover:text-primary transition-all shadow-sm hover:scale-105 active:scale-95 border border-primary/5"
                         >
-                            <ArrowLeft className="w-5 h-5" />
+                            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                         <div>
-                            <h2 className="text-2xl font-black text-primary tracking-tighter">Sistem Kasir (POS)</h2>
-                            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Produk atau Layanan</p>
+                            <h2 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Sistem Kasir</h2>
+                            <p className="hidden sm:block text-[9px] md:text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Produk atau Layanan</p>
                         </div>
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8 scrollbar-hide">
                     {/* Search & Categories */}
                     <div className="flex flex-col md:flex-row gap-4">
                         <div className="relative flex-1 group">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/50 group-focus-within:text-primary transition-colors" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Cari obat, skincare, treatment..."
+                                placeholder="Cari nama produk..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-secondary/20 border border-primary/10 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/10 transition-all text-sm"
+                                className="w-full pl-12 pr-6 py-3.5 md:py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all text-xs md:text-sm shadow-sm"
                             />
                         </div>
-                        <div className="flex gap-2 min-w-max">
+                        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 md:pb-0">
                             {categories.map(cat => (
                                 <button
                                     key={cat}
                                     onClick={() => setActiveCategory(cat)}
-                                    className={`px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeCategory === cat ? 'bg-primary text-secondary shadow-lg' : 'bg-white border border-primary/10 text-primary/60 hover:bg-secondary'}`}
+                                    className={`px-4 py-3 md:px-6 md:py-4 rounded-xl md:rounded-2xl text-[8px] md:text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeCategory === cat ? 'bg-primary text-secondary shadow-lg shadow-primary/20 scale-105' : 'bg-white border border-primary/5 text-primary/40 hover:bg-secondary/50 hover:text-primary'}`}
                                 >
                                     {cat}
                                 </button>
@@ -143,27 +143,27 @@ const POSPage = () => {
                     </div>
 
                     {/* Product Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                         {filteredProducts.map(product => (
                             <button
                                 key={product.id}
                                 onClick={() => addToCart(product)}
-                                className="p-4 rounded-3xl bg-white border border-primary/10 hover:bg-secondary/10 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full"
+                                className="p-4 rounded-[2rem] bg-white border border-primary/5 hover:bg-secondary/10 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-500 text-left group flex flex-col justify-between h-full"
                             >
                                 <div>
-                                    <div className="aspect-square rounded-2xl bg-secondary/20 overflow-hidden mb-4 shadow-sm relative">
-                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-                                        <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-white/80 backdrop-blur-sm border border-primary/5 text-[8px] font-black text-primary uppercase">
+                                    <div className="aspect-square rounded-2xl md:rounded-3xl bg-secondary/20 overflow-hidden mb-4 shadow-sm relative">
+                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
+                                        <div className="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-sm border border-primary/5 text-[7px] md:text-[8px] font-black text-primary uppercase tracking-tighter">
                                             {product.stock} Tersedia
                                         </div>
                                     </div>
-                                    <h4 className="text-[11px] font-black text-primary leading-tight mb-1 truncate">{product.name}</h4>
-                                    <p className="text-[9px] font-bold text-primary/50 uppercase tracking-widest mb-3">{product.category}</p>
+                                    <h4 className="text-[10px] md:text-[11px] font-black text-primary leading-tight mb-1 line-clamp-2">{product.name}</h4>
+                                    <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-widest mb-3">{product.category}</p>
                                 </div>
-                                <div className="flex items-center justify-between mt-auto pt-4">
-                                    <span className="text-xs font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
-                                    <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
-                                        <Plus className="w-4 h-4" />
+                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5">
+                                    <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
+                                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+                                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                     </div>
                                 </div>
                             </button>
@@ -173,11 +173,11 @@ const POSPage = () => {
             </div>
 
             {/* Right Side: Unified Cart & Summary */}
-            <div className="w-full lg:w-[420px] bg-white rounded-[3rem] border border-primary/15 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-full">
+            <div className="w-full lg:w-[420px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit lg:h-full">
 
                 {/* 1. Header & Customer Selection */}
-                <div className="p-7 bg-secondary/10 border-b border-primary/5">
-                    <div className="flex items-center gap-3 mb-6">
+                <div className="p-5 md:p-7 bg-secondary/10 border-b border-primary/5">
+                    <div className="flex items-center gap-3 mb-5 md:mb-6">
                         <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary relative">
                             <ShoppingCart className="w-5 h-5" />
                             {cart.length > 0 && (
@@ -186,31 +186,31 @@ const POSPage = () => {
                                 </span>
                             )}
                         </div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter">Ringkasan Pesanan</h3>
+                        <h3 className="text-lg md:text-xl font-black text-primary tracking-tighter">Ringkasan Pesanan</h3>
                     </div>
 
                     <div className="relative">
                         {selectedCustomer ? (
-                            <div className="p-4 rounded-2xl bg-white border border-primary/5 flex justify-between items-center animate-fade-in shadow-sm">
+                            <div className="p-4 rounded-xl md:rounded-2xl bg-white border border-primary/5 flex justify-between items-center animate-fade-in shadow-sm">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary">
+                                    <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-[10px] font-black text-primary border border-primary/5">
                                         {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
                                     </div>
                                     <div>
-                                        <p className="text-[11px] font-black text-primary">{selectedCustomer.name}</p>
-                                        <p className="text-[9px] font-bold text-primary/60 leading-none">{selectedCustomer.id}</p>
+                                        <p className="text-[10px] md:text-[11px] font-black text-primary">{selectedCustomer.name}</p>
+                                        <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-tighter">{selectedCustomer.id}</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setSelectedCustomer(null)}
-                                    className="p-2 rounded-xl text-primary/20 hover:text-red-500 hover:bg-red-50 transition-all font-black text-[9px] uppercase tracking-widest"
+                                    className="px-3 py-1.5 rounded-lg text-primary/30 hover:text-red-500 hover:bg-red-50 transition-all font-black text-[8px] md:text-[9px] uppercase tracking-widest border border-transparent hover:border-red-100"
                                 >
                                     Ubah
                                 </button>
                             </div>
                         ) : (
                             <div className="relative group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary/50 group-focus-within:text-primary transition-colors" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary/30 group-focus-within:text-primary transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="Cari customer..."
@@ -220,7 +220,7 @@ const POSPage = () => {
                                         setIsCustomerDropdownOpen(true);
                                     }}
                                     onFocus={() => setIsCustomerDropdownOpen(true)}
-                                    className="w-full pl-11 pr-6 py-3.5 rounded-2xl bg-white border border-primary/10 outline-none text-[11px] font-bold text-primary focus:ring-4 focus:ring-primary/10 transition-all"
+                                    className="w-full pl-11 pr-6 py-3 md:py-3.5 rounded-xl md:rounded-2xl bg-white border border-primary/10 outline-none text-[10px] md:text-[11px] font-bold text-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                                 />
                                 {isCustomerDropdownOpen && (
                                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden max-h-[160px] overflow-y-auto scrollbar-hide animate-fade-in">
@@ -233,10 +233,10 @@ const POSPage = () => {
                                                         setIsCustomerDropdownOpen(false);
                                                         setCustomerSearch('');
                                                     }}
-                                                    className="w-full p-3.5 text-left hover:bg-secondary/20 transition-all border-b border-primary/5 last:border-0 group"
+                                                    className="w-full p-3 md:p-3.5 text-left hover:bg-secondary/20 transition-all border-b border-primary/5 last:border-0 group"
                                                 >
-                                                    <p className="text-[11px] font-black text-primary group-hover:translate-x-1 transition-transform">{customer.name}</p>
-                                                    <p className="text-[9px] font-bold text-primary/60 mt-0.5">{customer.id} • {customer.phone}</p>
+                                                    <p className="text-[10px] md:text-[11px] font-black text-primary group-hover:translate-x-1 transition-transform">{customer.name}</p>
+                                                    <p className="text-[8px] md:text-[9px] font-bold text-primary/30 mt-0.5 uppercase tracking-tighter">{customer.id} • {customer.phone}</p>
                                                 </button>
                                             ))
                                         ) : (
@@ -252,15 +252,15 @@ const POSPage = () => {
                 </div>
 
                 {/* 2. Cart Items (Scrollable Area) */}
-                <div className="flex-1 overflow-y-auto p-7 space-y-4 scrollbar-hide bg-white shadow-inner">
-                    <div className="flex justify-between items-center mb-2">
-                        <p className="text-[9px] font-black text-primary/50 uppercase tracking-[0.2em]">Daftar Item ({cart.length})</p>
+                <div className="flex-1 overflow-y-auto p-5 md:p-7 space-y-4 scrollbar-hide bg-white shadow-inner">
+                    <div className="flex justify-between items-center mb-1">
+                        <p className="text-[8px] md:text-[9px] font-black text-primary/30 uppercase tracking-[0.2em]">Daftar Item ({cart.length})</p>
                         {cart.length > 0 && (
                             <button
                                 onClick={() => setCart([])}
-                                className="text-[8px] font-black text-primary/40 hover:text-red-500 uppercase tracking-widest transition-all"
+                                className="text-[8px] font-black text-primary/30 hover:text-red-500 uppercase tracking-widest transition-all"
                             >
-                                Hapus Semua
+                                Hapus
                             </button>
                         )}
                     </div>
@@ -271,24 +271,24 @@ const POSPage = () => {
                         </div>
                     ) : (
                         cart.map(item => (
-                            <div key={item.id} className="p-4 rounded-2xl bg-secondary/5 border border-primary/10 shadow-sm animate-fade-in flex gap-4">
-                                <div className="w-12 h-12 rounded-xl overflow-hidden shadow-sm flex-shrink-0">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                            <div key={item.id} className="p-3 md:p-4 rounded-2xl bg-secondary/5 border border-primary/5 shadow-sm animate-fade-in flex gap-3 md:gap-4 group">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden shadow-sm flex-shrink-0 border border-primary/5">
+                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
                                 </div>
                                 <div className="flex-1 flex flex-col justify-between">
                                     <div className="flex justify-between items-start">
-                                        <h4 className="text-[10px] font-black text-primary tracking-tight leading-tight uppercase w-[120px]">{item.name}</h4>
-                                        <button onClick={() => removeFromCart(item.id)} className="p-1 text-red-300 hover:text-red-500 transition-all">
-                                            <Trash2 className="w-3.5 h-3.5" />
+                                        <h4 className="text-[9px] md:text-[10px] font-black text-primary tracking-tight leading-tight uppercase w-[120px] md:w-[150px] line-clamp-1">{item.name}</h4>
+                                        <button onClick={() => removeFromCart(item.id)} className="p-1 text-primary/20 hover:text-red-500 transition-all">
+                                            <Trash2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
                                         </button>
                                     </div>
-                                    <div className="flex justify-between items-center mt-2">
-                                        <div className="flex items-center gap-2.5 bg-white rounded-lg px-2 py-0.5 shadow-sm border border-primary/5">
-                                            <button onClick={() => updateQuantity(item.id, -1)} className="p-0.5 hover:bg-secondary rounded transition-all text-primary/40 hover:text-primary"><Minus className="w-2.5 h-2.5" /></button>
-                                            <span className="text-[10px] font-black text-primary min-w-[15px] text-center">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:bg-secondary rounded transition-all text-primary/40 hover:text-primary"><Plus className="w-2.5 h-2.5" /></button>
+                                    <div className="flex justify-between items-center mt-1.5 md:mt-2">
+                                        <div className="flex items-center gap-2 md:gap-2.5 bg-white rounded-lg px-2 py-0.5 shadow-sm border border-primary/5">
+                                            <button onClick={() => updateQuantity(item.id, -1)} className="p-0.5 hover:bg-secondary rounded transition-all text-primary/30 hover:text-primary"><Minus className="w-2 md:w-2.5 h-2 md:h-2.5" /></button>
+                                            <span className="text-[9px] md:text-[10px] font-black text-primary min-w-[15px] text-center">{item.quantity}</span>
+                                            <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:bg-secondary rounded transition-all text-primary/30 hover:text-primary"><Plus className="w-2 md:w-2.5 h-2 md:h-2.5" /></button>
                                         </div>
-                                        <span className="text-[10px] font-black text-primary tracking-tighter">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                        <span className="text-[10px] md:text-[11px] font-black text-primary tracking-tighter">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
                             </div>
@@ -297,36 +297,36 @@ const POSPage = () => {
                 </div>
 
                 {/* 3. Checkout Section (Fixed at bottom) */}
-                <div className="p-7 bg-secondary/10 border-t border-primary/5 space-y-5">
-                    <div className="space-y-3">
-                        <div className="flex justify-between text-primary/60 font-bold text-[9px] uppercase tracking-widest px-1">
+                <div className="p-5 md:p-7 bg-secondary/10 border-t border-primary/5 space-y-4 md:space-y-5">
+                    <div className="space-y-2 md:space-y-3">
+                        <div className="flex justify-between text-primary/40 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
                             <span>Subtotal</span>
                             <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
                         </div>
-                        <div className="flex justify-between text-primary/60 font-bold text-[9px] uppercase tracking-widest px-1">
+                        <div className="flex justify-between text-primary/40 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
                             <span>Pajak (11%)</span>
                             <span>Rp {(cartTotal * 0.11).toLocaleString('id-ID')}</span>
                         </div>
                         <div className="flex justify-between items-center pt-3 border-t border-primary/5 px-1">
-                            <span className="text-[9px] font-black text-primary uppercase tracking-[0.2em]">Total Tagihan</span>
-                            <span className="text-2xl font-black text-primary tracking-tighter">Rp {(cartTotal * 1.11).toLocaleString('id-ID')}</span>
+                            <span className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em]">Total</span>
+                            <span className="text-xl md:text-2xl font-black text-primary tracking-tighter">Rp {(cartTotal * 1.11).toLocaleString('id-ID')}</span>
                         </div>
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-3 md:space-y-4">
                         <div className="grid grid-cols-2 gap-3">
                             <button
                                 onClick={() => setPaymentMethod('Tunai')}
-                                className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'Tunai' ? 'bg-primary text-secondary shadow-lg active:scale-95' : 'bg-white text-primary/40 border border-primary/5 hover:bg-white'}`}
+                                className={`flex items-center justify-center gap-2 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'Tunai' ? 'bg-primary text-secondary shadow-lg shadow-primary/20 active:scale-95 border border-primary' : 'bg-white text-primary/30 border border-primary/5 hover:bg-white hover:text-primary hover:border-primary/20 shadow-sm'}`}
                             >
-                                <Banknote className="w-4 h-4" />
+                                <Banknote className="w-3.5 md:w-4 h-3.5 md:h-4" />
                                 <span>Tunai</span>
                             </button>
                             <button
                                 onClick={() => setPaymentMethod('E-Wallet')}
-                                className={`flex items-center justify-center gap-2 py-3.5 rounded-2xl text-[9px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'E-Wallet' ? 'bg-primary text-secondary shadow-lg active:scale-95' : 'bg-white text-primary/40 border border-primary/5 hover:bg-white'}`}
+                                className={`flex items-center justify-center gap-2 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'E-Wallet' ? 'bg-primary text-secondary shadow-lg shadow-primary/20 active:scale-95 border border-primary' : 'bg-white text-primary/30 border border-primary/5 hover:bg-white hover:text-primary hover:border-primary/20 shadow-sm'}`}
                             >
-                                <CreditCard className="w-4 h-4" />
+                                <CreditCard className="w-3.5 md:w-4 h-3.5 md:h-4" />
                                 <span>E-Wallet</span>
                             </button>
                         </div>
@@ -334,14 +334,14 @@ const POSPage = () => {
                         <button
                             disabled={cart.length === 0 || isProcessing}
                             onClick={handleCheckout}
-                            className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 relative overflow-hidden group ${cart.length === 0 ? 'bg-primary/10 text-primary/20 pointer-events-none' : 'bg-primary text-secondary hover:scale-[1.02] active:scale-95 shadow-secondary/20 hover:shadow-secondary/40'}`}
+                            className={`w-full py-4 md:py-5 rounded-[1.5rem] md:rounded-[2rem] font-black text-[10px] md:text-xs uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 relative overflow-hidden group ${cart.length === 0 ? 'bg-primary/5 text-primary/10 pointer-events-none' : 'bg-primary text-secondary hover:scale-[1.02] active:scale-95 shadow-primary/20 hover:shadow-primary/40'}`}
                         >
-                            <div className="relative z-10 flex items-center justify-center gap-3">
+                            <div className="relative z-10 flex items-center justify-center gap-2 md:gap-3">
                                 {isProcessing ? (
-                                    <div className="w-5 h-5 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" />
+                                    <div className="w-4 h-4 md:w-5 md:h-5 border-2 border-secondary/20 border-t-secondary rounded-full animate-spin" />
                                 ) : (
                                     <>
-                                        <CheckCircle2 className="w-5 h-5" />
+                                        <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
                                         <span>Proses Transaksi</span>
                                     </>
                                 )}

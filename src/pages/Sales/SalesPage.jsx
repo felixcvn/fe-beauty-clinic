@@ -22,15 +22,15 @@ const SalesPage = () => {
     ];
 
     return (
-        <div className="space-y-10 animate-fade-in pb-12">
+        <div className="space-y-8 md:space-y-12 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Penjualan</h2>
-                    <p className="text-primary/40 mt-3 font-bold text-sm">Monitor dan kelola seluruh transaksi penjualan klinik</p>
+                    <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tighter leading-none">Penjualan</h2>
+                    <p className="text-primary/40 mt-3 md:mt-4 font-bold text-sm tracking-tight">Monitor dan kelola seluruh transaksi penjualan klinik</p>
                 </div>
                 <button
                     onClick={() => navigate('/sales/pos')}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                    className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-8 py-4 md:py-5 rounded-2xl md:rounded-[2rem] hover:scale-105 active:scale-95 transition-all duration-500 font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/20"
                 >
                     <ShoppingCart className="w-4 h-4" />
                     <span>Transaksi Baru</span>
@@ -38,21 +38,21 @@ const SalesPage = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {salesStats.map((stat, index) => (
                     <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-secondary rounded-2xl text-primary group-hover:bg-primary group-hover:text-secondary transition-all duration-500">
-                                <stat.icon className="w-6 h-6" />
+                        <div className="flex justify-between items-start mb-5">
+                            <div className="p-3.5 bg-secondary rounded-2xl text-primary group-hover:bg-primary group-hover:text-secondary transition-all duration-500 shadow-sm">
+                                <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
-                            <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
+                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
                                 {stat.trend === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                                 {stat.change}
                             </div>
                         </div>
                         <div>
-                            <p className="text-primary/40 text-[10px] font-black uppercase tracking-widest mb-1">{stat.title}</p>
-                            <h3 className="text-2xl font-black text-primary tracking-tighter">{stat.value}</h3>
+                            <p className="text-primary/30 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1.5">{stat.title}</p>
+                            <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">{stat.value}</h3>
                         </div>
                     </div>
                 ))}
@@ -60,27 +60,32 @@ const SalesPage = () => {
 
             {/* Recent Sales Table */}
             <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
-                <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
-                    <h3 className="text-xl font-black text-primary tracking-tighter">Riwayat Penjualan</h3>
-                    <div className="flex flex-1 gap-4 items-center">
+                <div className="p-6 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row items-stretch lg:items-center gap-6 bg-secondary/10">
+                    <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Riwayat Penjualan</h3>
+                    <div className="flex flex-col sm:flex-row flex-1 gap-4 items-stretch sm:items-center">
                         <div className="relative group flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/20 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Cari invoice, konsumen..."
+                                placeholder="Cari invoice atau konsumen..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-6 py-3 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-xs font-bold text-primary"
+                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm"
                             />
                         </div>
-                        <button className="p-3.5 rounded-2xl bg-white border border-primary/5 text-primary/40 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm">
-                            <Filter className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center gap-3">
+                            <button className="flex-1 sm:flex-none p-4 rounded-2xl bg-white border border-primary/5 text-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm">
+                                <Filter className="w-5 h-5 mx-auto" />
+                            </button>
+                            <button className="flex-1 sm:flex-none px-6 py-4 rounded-2xl bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm">
+                                Export Log
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="overflow-x-auto scrollbar-hide">
-                    <table className="w-full text-left min-w-[900px]">
+                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                    <table className="w-full text-left min-w-[1000px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5">
                                 <th className="px-8 py-6">ID Invoice</th>
@@ -94,26 +99,26 @@ const SalesPage = () => {
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase())).map((sale) => (
-                                <tr key={sale.id} className="group hover:bg-secondary/20 transition-all duration-300">
+                                <tr key={sale.id} className="group hover:bg-secondary/20 transition-all duration-300 cursor-pointer">
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-black text-primary tracking-tight">{sale.id}</span>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-black text-primary">
+                                            <div className="w-9 h-9 rounded-2xl bg-primary/5 border border-primary/5 flex items-center justify-center text-[10px] font-black text-primary shadow-sm group-hover:bg-white transition-all">
                                                 {sale.customer.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <span className="text-xs font-bold text-primary">{sale.customer}</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="text-xs font-medium text-primary/60">{sale.product}</span>
+                                        <span className="text-xs font-bold text-primary/40 uppercase tracking-widest text-[10px]">{sale.product}</span>
                                     </td>
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-black text-primary">{sale.amount}</span>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className={`inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${sale.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                                        <span className={`inline-flex px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${sale.status === 'Completed' ? 'bg-green-100 text-green-700' :
                                             sale.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
                                                 'bg-red-100 text-red-700'
                                             }`}>
@@ -121,7 +126,7 @@ const SalesPage = () => {
                                         </span>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="text-[10px] font-black text-primary/30 uppercase tracking-widest">{sale.date}</span>
+                                        <span className="text-[10px] font-black text-primary/20 uppercase tracking-widest">{sale.date}</span>
                                     </td>
                                     <td className="px-8 py-6 text-center">
                                         <button className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300">
@@ -134,11 +139,60 @@ const SalesPage = () => {
                     </table>
                 </div>
 
-                <div className="p-8 bg-secondary/5 border-t border-primary/5 flex justify-between items-center">
-                    <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest">Showing {recentSales.length} items</p>
-                    <div className="flex gap-2">
-                        <button className="px-4 py-2 rounded-xl bg-white border border-primary/5 text-[10px] font-black uppercase tracking-widest text-primary/30 hover:text-primary transition-all shadow-sm">Previous</button>
-                        <button className="px-4 py-2 rounded-xl bg-primary text-secondary text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-primary/10">Next</button>
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-primary/5">
+                    {recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase())).map((sale) => (
+                        <div key={sale.id} className="p-6 hover:bg-secondary/10 transition-all duration-300 flex flex-col gap-5 cursor-pointer active:bg-secondary/20">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[10px] font-black text-primary border border-primary/5">
+                                        {sale.customer.split(' ').map(n => n[0]).join('')}
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-black text-primary tracking-tight">{sale.customer}</p>
+                                        <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{sale.id}</p>
+                                    </div>
+                                </div>
+                                <span className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sale.status === 'Completed' ? 'bg-green-100 text-green-700' :
+                                    sale.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                        'bg-red-100 text-red-700'
+                                    }`}>
+                                    {sale.status}
+                                </span>
+                            </div>
+
+                            <div className="space-y-3 bg-secondary/30 p-4 rounded-2xl border border-primary/5">
+                                <div className="flex justify-between items-center">
+                                    <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan/Produk</p>
+                                    <p className="text-[10px] font-bold text-primary">{sale.product}</p>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Total Bayar</p>
+                                    <p className="text-sm font-black text-primary">{sale.amount}</p>
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-primary/5">
+                                    <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Tanggal</p>
+                                    <p className="text-[10px] font-bold text-primary/60">{sale.date}</p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3">
+                                <button className="flex-1 py-3 text-[9px] font-black text-primary/40 uppercase tracking-widest border border-primary/5 rounded-xl hover:bg-white transition-all">
+                                    Detail Invoice
+                                </button>
+                                <button className="p-3 text-primary/40 hover:text-primary transition-all rounded-xl border border-primary/5 hover:bg-white">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="p-8 bg-secondary/5 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-6">
+                    <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest order-2 sm:order-1">Showing {recentSales.length} items of {recentSales.length}</p>
+                    <div className="flex gap-3 order-1 sm:order-2 w-full sm:w-auto">
+                        <button className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl bg-white border border-primary/5 text-[10px] font-black uppercase tracking-widest text-primary/20 hover:text-primary transition-all shadow-sm">Previous</button>
+                        <button className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl bg-primary text-secondary text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20">Next Page</button>
                     </div>
                 </div>
             </div>
