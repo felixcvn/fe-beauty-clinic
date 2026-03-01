@@ -125,7 +125,7 @@ const StaffPage = () => {
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {staffList.filter(s => s.name.toLowerCase().includes(searchTerm.toLowerCase())).map((staff) => (
-                                <tr key={staff.id} className="group hover:bg-secondary/20 transition-all duration-300">
+                                <tr key={staff.id} className="border-b border-primary/5 last:border-0">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-2xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-lg shadow-primary/20 border border-white/20">
@@ -164,13 +164,13 @@ const StaffPage = () => {
                                         <div className="flex justify-end gap-2">
                                             <button
                                                 onClick={() => handleOpenEdit(staff)}
-                                                className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all shadow-sm"
+                                                className="p-2 rounded-xl text-primary/40 transition-all shadow-sm"
                                             >
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
                                             <button
                                                 onClick={() => handleOpenDelete(staff)}
-                                                className="p-2 rounded-xl text-primary/20 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm"
+                                                className="p-2 rounded-xl text-red-400 transition-all shadow-sm"
                                             >
                                                 <Trash2 className="w-4 h-4" />
                                             </button>

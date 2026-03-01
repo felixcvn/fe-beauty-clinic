@@ -164,7 +164,7 @@ const RecordForm = () => {
                 </div>
 
                 {/* Before & After Photos */}
-                <div className="space-y-8 md:space-y-10">
+                <div className="space-y-6 md:space-y-10">
                     <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Foto Hasil Perawatan</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                         <ImageUpload label="Sebelum Perawatan" onImageChange={setBeforeImage} />

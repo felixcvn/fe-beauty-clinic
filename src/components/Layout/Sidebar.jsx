@@ -1,5 +1,18 @@
 import React from 'react';
-import { LayoutDashboard, FileText, Settings, LogOut, User, ShoppingCart, CalendarDays, BarChart3, Bell, X, Users } from 'lucide-react';
+import {
+    Squares2X2Icon,
+    DocumentTextIcon,
+    UserIcon,
+    UsersIcon,
+    ShoppingCartIcon,
+    CalendarDaysIcon,
+    ChartBarIcon,
+    BellIcon,
+    Cog6ToothIcon,
+    ArrowRightStartOnRectangleIcon,
+    KeyIcon,
+    XMarkIcon,
+} from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 import { useAuth } from '../../context/AuthContext';
@@ -9,15 +22,15 @@ const Sidebar = ({ isOpen, toggle }) => {
     const { logout, user } = useAuth();
 
     const allNavItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: FileText, label: 'Rekam Medis', path: '/medical-records' },
-        { icon: User, label: 'Pasien', path: '/patients' },
-        { icon: Users, label: 'Manajemen Pegawai', path: '/staff' },
-        { icon: ShoppingCart, label: 'Penjualan', path: '/sales' },
-        { icon: CalendarDays, label: 'Absensi', path: '/attendance' },
-        { icon: BarChart3, label: 'Laporan', path: '/reports' },
-        { icon: Bell, label: 'Notifikasi', path: '/notifications' },
-        { icon: Settings, label: 'Pengaturan', path: '/settings' },
+        { icon: Squares2X2Icon, label: 'Dashboard', path: '/' },
+        { icon: DocumentTextIcon, label: 'Rekam Medis', path: '/medical-records' },
+        { icon: UserIcon, label: 'Pasien', path: '/patients' },
+        { icon: UsersIcon, label: 'Manajemen Pegawai', path: '/staff' },
+        { icon: ShoppingCartIcon, label: 'Penjualan', path: '/sales' },
+        { icon: CalendarDaysIcon, label: 'Absensi', path: '/attendance' },
+        { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
+        { icon: BellIcon, label: 'Notifikasi', path: '/notifications' },
+        { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
     ];
 
     const navItems = allNavItems.filter(item => hasPermission(user?.role, item.path));
@@ -27,66 +40,77 @@ const Sidebar = ({ isOpen, toggle }) => {
             {/* Mobile Backdrop */}
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-primary/20 backdrop-blur-sm z-[45] md:hidden animate-fade-in"
+                    className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] md:hidden animate-fade-in"
                     onClick={toggle}
                 />
             )}
 
-            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white/40 backdrop-blur-xl border-r border-primary/5 flex flex-col justify-between shadow-2xl z-50 transition-transform duration-500 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white flex flex-col justify-between z-50 border-r border-gray-200 transition-transform duration-500 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+
+                {/* ── Dark Green Logo Header ── */}
                 <div>
-                    <div className="p-8 flex items-center justify-between">
+                    <div className="bg-primary px-6 py-2 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden">
+                            <div className="w-11 h-11 rounded-xl flex items-center justify-center overflow-hidden bg-white/10 border border-white/20">
                                 <img src={logo} alt="Personal Beauty Logo" className="w-full h-full object-cover" />
                             </div>
                             <div>
-                                <h1 className="text-xl font-black text-primary tracking-tighter leading-[0.8]">
+                                <h1 className="text-base font-black text-white tracking-tight leading-none">
                                     Personal
                                 </h1>
-                                <span className="text-accent-gold text-xl font-serif italic leading-none">Beauty</span>
+                                <span className="text-accent-gold text-base font-serif italic leading-none">Beauty</span>
                             </div>
                         </div>
                         {/* Mobile Close Button */}
-                        <button onClick={toggle} className="md:hidden p-2 text-primary/40 hover:text-primary transition-colors">
-                            <X className="w-6 h-6" />
+                        <button onClick={toggle} className="md:hidden p-2 text-white/50 hover:text-white transition-colors">
+                            <XMarkIcon className="w-5 h-5" />
                         </button>
                     </div>
 
-                    <nav className="px-4 space-y-1.5 mt-8 overflow-y-auto max-h-[calc(100vh-250px)] scrollbar-hide">
+                    {/* ── White Navigation Area ── */}
+                    <nav className="px-3 py-8 space-y-2 overflow-y-auto max-h-[calc(100vh-210px)] scrollbar-hide">
                         {navItems.map((item) => (
                             <NavLink
                                 key={item.path}
                                 to={item.path}
                                 onClick={() => window.innerWidth < 768 && toggle()}
                                 className={({ isActive }) =>
-                                    `flex items-center gap-3 px-5 py-3.5 rounded-2xl transition-all duration-500 group relative overflow-hidden ${isActive
-                                        ? 'bg-primary text-secondary shadow-xl shadow-primary/20'
-                                        : 'text-primary/70 hover:text-primary hover:bg-white/60'
+                                    `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
+                                        ? 'text-gray-100 font-semibold bg-primary'
+                                        : 'text-gray-500 hover:text-primary hover:bg-primary/5'
                                     }`
                                 }
                             >
-                                <item.icon className={`w-5 h-5 transition-transform duration-500 group-hover:scale-110`} />
-                                <span className="font-semibold tracking-wide text-sm">{item.label}</span>
-
-                                {/* Subtle hover indicator for non-active items */}
-                                <div className="absolute left-0 w-1 h-0 bg-accent-gold transition-all duration-300 group-hover:h-full top-0 opacity-0 group-hover:opacity-100" />
+                                <item.icon className="w-5 h-5 flex-shrink-0" />
+                                <span className="text-sm font-medium">{item.label}</span>
                             </NavLink>
                         ))}
                     </nav>
                 </div>
 
-                <div className="p-6">
-                    <div className="p-4 bg-primary/5 rounded-3xl border border-primary/10 mb-6">
-                        <p className="text-[10px] uppercase tracking-widest text-primary/40 font-bold mb-3 px-1">Support</p>
-                        <button
-                            onClick={logout}
-                            className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-primary/60 hover:bg-red-50 hover:text-red-500 transition-all duration-300 font-bold text-sm group"
-                        >
-                            <LogOut className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-                            <span>Sign Out</span>
-                        </button>
-                    </div>
-                    <p className="text-center text-[10px] text-primary/30 font-medium">v1.2.0 • Premium Access</p>
+                {/* ── White Bottom Section ── */}
+                <div className="border-t border-gray-100 px-3 py-4 space-y-0.5">
+                    <NavLink
+                        to="/change-password"
+                        onClick={() => window.innerWidth < 768 && toggle()}
+                        className={({ isActive }) =>
+                            `flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-200 ${isActive
+                                ? 'text-primary font-semibold bg-primary/10'
+                                : 'text-gray-500 hover:text-primary hover:bg-primary/5'
+                            }`
+                        }
+                    >
+                        <KeyIcon className="w-5 h-5 flex-shrink-0" />
+                        <span className="text-sm font-medium">Ganti Password</span>
+                    </NavLink>
+
+                    <button
+                        onClick={logout}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all duration-200"
+                    >
+                        <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
+                        <span className="text-sm font-medium">Logout</span>
+                    </button>
                 </div>
             </aside>
         </>

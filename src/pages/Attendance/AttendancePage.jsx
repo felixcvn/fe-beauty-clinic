@@ -122,9 +122,9 @@ const AttendancePage = () => {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
                 {attendanceStats.map((stat, index) => (
-                    <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
+                    <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
                         <div className="flex justify-between items-start mb-4">
-                            <div className={`p-3 bg-secondary rounded-2xl ${stat.color} group-hover:bg-primary group-hover:text-secondary transition-all duration-500`}>
+                            <div className={`p-3 bg-secondary rounded-2xl ${stat.color}`}>
                                 <stat.icon className="w-6 h-6" />
                             </div>
                         </div>
@@ -178,11 +178,11 @@ const AttendancePage = () => {
                                 <tr
                                     key={staff.id}
                                     onClick={() => handleOpenDetail(staff)}
-                                    className="group hover:bg-secondary/20 transition-all duration-300 cursor-pointer"
+                                    className="border-b border-primary/5 last:border-0 cursor-pointer"
                                 >
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary shadow-sm group-hover:bg-white transition-all">
+                                            <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary shadow-sm">
                                                 {staff.name.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <div>
@@ -242,7 +242,7 @@ const AttendancePage = () => {
                         <div
                             key={staff.id}
                             onClick={() => handleOpenDetail(staff)}
-                            className="p-6 hover:bg-secondary/10 transition-all duration-300 flex flex-col gap-4 cursor-pointer active:bg-secondary/20"
+                            className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-4 cursor-pointer"
                         >
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">

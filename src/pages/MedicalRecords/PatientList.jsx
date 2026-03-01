@@ -75,11 +75,11 @@ const PatientList = () => {
                                 <tr
                                     key={patient.id}
                                     onClick={() => navigate(`/medical-records/${patient.id}`)}
-                                    className="hover:bg-primary/5 transition-all duration-500 group cursor-pointer"
+                                    className="border-b border-primary/5 last:border-0 cursor-pointer"
                                 >
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 group-hover:bg-primary group-hover:text-secondary transition-all duration-500">
+                                            <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5">
                                                 {patient.name.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <div className="font-black text-primary text-sm tracking-tight">{patient.name}</div>
@@ -118,7 +118,7 @@ const PatientList = () => {
                         <div
                             key={patient.id}
                             onClick={() => navigate(`/medical-records/${patient.id}`)}
-                            className="p-6 hover:bg-primary/5 transition-all duration-300 flex items-center gap-4 cursor-pointer active:bg-primary/5"
+                            className="p-6 border-b border-primary/5 last:border-0 flex items-center gap-4 cursor-pointer"
                         >
                             <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
                                 {patient.name.split(' ').map(n => n[0]).join('')}

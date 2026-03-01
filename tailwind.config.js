@@ -8,9 +8,9 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#1B4D3E', // Dark Green
-          light: '#2C6E5A',
-          dark: '#113329',
+          DEFAULT: '#0D3B28', // Darker, deeper green
+          light: '#1A5C3A',
+          dark: '#082818',
         },
         secondary: {
           DEFAULT: '#F5F5DC', // Beige
@@ -22,7 +22,7 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // Professional look
+        sans: ['General Sans', 'system-ui', 'sans-serif'],
       },
     },
   },

@@ -59,7 +59,7 @@ const ImageUpload = ({ label, onImageChange }) => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`
-            relative w-full h-48 rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden group
+            relative w-full aspect-square rounded-xl border-2 border-dashed transition-all cursor-pointer flex flex-col items-center justify-center gap-3 overflow-hidden group
             ${isDragging
                         ? 'border-primary bg-primary/5'
                         : 'border-secondary-dark/40 hover:border-primary/50 hover:bg-secondary-light/50 bg-white'

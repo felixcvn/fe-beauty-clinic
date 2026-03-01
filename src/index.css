@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Import Modern Professional Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400..900;1,400..900&display=swap');
+/* Import General Sans from Fontshare */
+@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap');
 
 @theme {
   --color-primary: #1B4D3E;
@@ -14,7 +14,7 @@
 
   --color-accent-gold: #D4AF37;
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'General Sans', system-ui, -apple-system, sans-serif;
   --font-serif: 'Playfair Display', serif;
 
   --shadow-premium: 0 20px 50px rgba(27, 77, 62, 0.1);

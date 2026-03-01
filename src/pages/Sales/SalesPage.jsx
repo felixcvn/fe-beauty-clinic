@@ -40,9 +40,9 @@ const SalesPage = () => {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {salesStats.map((stat, index) => (
-                    <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
+                    <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
                         <div className="flex justify-between items-start mb-5">
-                            <div className="p-3.5 bg-secondary rounded-2xl text-primary group-hover:bg-primary group-hover:text-secondary transition-all duration-500 shadow-sm">
+                            <div className="p-3.5 bg-secondary rounded-2xl text-primary shadow-sm">
                                 <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
@@ -99,13 +99,13 @@ const SalesPage = () => {
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase())).map((sale) => (
-                                <tr key={sale.id} className="group hover:bg-secondary/20 transition-all duration-300 cursor-pointer">
+                                <tr key={sale.id} className="border-b border-primary/5 last:border-0">
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-black text-primary tracking-tight">{sale.id}</span>
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-2xl bg-primary/5 border border-primary/5 flex items-center justify-center text-[10px] font-black text-primary shadow-sm group-hover:bg-white transition-all">
+                                            <div className="w-9 h-9 rounded-2xl bg-primary/5 border border-primary/5 flex items-center justify-center text-[10px] font-black text-primary shadow-sm">
                                                 {sale.customer.split(' ').map(n => n[0]).join('')}
                                             </div>
                                             <span className="text-xs font-bold text-primary">{sale.customer}</span>
@@ -142,7 +142,7 @@ const SalesPage = () => {
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-primary/5">
                     {recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase())).map((sale) => (
-                        <div key={sale.id} className="p-6 hover:bg-secondary/10 transition-all duration-300 flex flex-col gap-5 cursor-pointer active:bg-secondary/20">
+                        <div key={sale.id} className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-5">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[10px] font-black text-primary border border-primary/5">

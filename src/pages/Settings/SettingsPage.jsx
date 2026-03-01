@@ -14,9 +14,9 @@ const SettingsPage = () => {
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="divide-y divide-primary/5">
                     {/* Appearance */}
-                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 group hover:bg-primary/5 transition-all duration-500">
+                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                         <div className="flex gap-4 md:gap-6 items-center">
-                            <div className="w-12 h-12 md:w-14 md:h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary group-hover:rotate-3 transition-all duration-500 shrink-0">
+                            <div className="w-12 h-12 md:w-14 md:h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary shrink-0">
                                 <Palette className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div>
@@ -30,9 +30,9 @@ const SettingsPage = () => {
                     </div>
 
                     {/* Notifications */}
-                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 group hover:bg-primary/5 transition-all duration-500">
+                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                         <div className="flex gap-4 md:gap-6 items-center">
-                            <div className="w-12 h-12 md:w-14 md:h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary group-hover:-rotate-3 transition-all duration-500 shrink-0">
+                            <div className="w-12 h-12 md:w-14 md:h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary shrink-0">
                                 <Bell className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div>
@@ -46,9 +46,9 @@ const SettingsPage = () => {
                     </div>
 
                     {/* Security */}
-                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 group hover:bg-primary/5 transition-all duration-500">
+                    <div className="p-6 md:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                         <div className="flex gap-4 md:gap-6 items-center">
-                            <div className="w-12 h-12 md:w-14 md:h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary group-hover:scale-110 transition-all duration-500 shrink-0">
+                            <div className="w-12 h-12 md:w-14 md:h-14 bg-secondary shadow-sm rounded-2xl flex items-center justify-center text-primary shrink-0">
                                 <Lock className="w-5 h-5 md:w-6 md:h-6" />
                             </div>
                             <div>
