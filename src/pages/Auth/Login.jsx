@@ -60,18 +60,18 @@ const Login = () => {
                         <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 overflow-hidden">
                             <img src={logo} alt="Personal Beauty Logo" className="w-full h-full object-cover" />
                         </div>
-                        <h1 className="text-2xl font-bold text-primary">Welcome Back</h1>
-                        <p className="text-primary-light mt-1">Sign in to access medical records</p>
+                        <h1 className="text-2xl font-bold text-primary">Selamat Datang!</h1>
+                        <p className="text-primary-light mt-1">Masuk untuk mengakses sistem rekam medis...</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-primary">Email Address</label>
+                            <label className="text-sm font-bold text-primary">Alamat Email</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-light" />
                                 <input
                                     type="text"
-                                    placeholder="Enter your email"
+                                    placeholder="Masukkan Email Anda"
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-secondary-dark/20 outline-none focus:ring-2 focus:ring-primary/20 bg-secondary-light/30 transition-all font-medium text-primary"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -86,7 +86,7 @@ const Login = () => {
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-light" />
                                 <input
                                     type="password"
-                                    placeholder="Enter your password"
+                                    placeholder="Masukkan Password Anda"
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-secondary-dark/20 outline-none focus:ring-2 focus:ring-primary/20 bg-secondary-light/30 transition-all font-medium text-primary"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
