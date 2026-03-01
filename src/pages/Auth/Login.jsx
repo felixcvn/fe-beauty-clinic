@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Lock, User, ArrowRight } from 'lucide-react';
+import myImage from '../../assets/gambar-pb.png';
 import logo from '../../assets/logo.png';
 
 const Login = () => {
@@ -45,7 +46,7 @@ const Login = () => {
                 {/* Image Side */}
                 <div className="hidden md:block w-1/2 relative">
                     <img
-                        src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800"
+                        src={myImage}
                         alt="Beauty Clinic Interior"
                         className="absolute inset-0 w-full h-full object-cover"
                     />
