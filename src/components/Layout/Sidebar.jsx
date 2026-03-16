@@ -15,6 +15,7 @@ import {
 } from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/logo.png';
+import logo1 from '../../assets/logo-1.png';
 import { useAuth } from '../../context/AuthContext';
 import { hasPermission } from '../../utils/rbac';
 
@@ -51,14 +52,11 @@ const Sidebar = ({ isOpen, toggle }) => {
                 <div>
                     <div className="bg-primary px-6 py-2 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="w-11 h-11 rounded-xl flex items-center justify-center overflow-hidden bg-white/10 border border-white/20">
+                            <div className="w-11 h-11 rounded-full flex items-center justify-center overflow-hidden border border-white/20">
                                 <img src={logo} alt="Personal Beauty Logo" className="w-full h-full object-cover" />
                             </div>
                             <div>
-                                <h1 className="text-base font-black text-white tracking-tight leading-none">
-                                    Personal
-                                </h1>
-                                <span className="text-accent-gold text-base font-serif italic leading-none">Beauty</span>
+                                <img src={logo1} alt="Personal Beauty Logo" className="w-36 h-full object-cover" />
                             </div>
                         </div>
                         {/* Mobile Close Button */}

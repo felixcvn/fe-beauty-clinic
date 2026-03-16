@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
-import { Users, Search, Plus, Filter, MoreHorizontal, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 
 const StaffPage = () => {
     const { showToast } = useToast();
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [editingStaff, setEditingStaff] = useState(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-    // Confirmation Modals State
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, staff: null });
     const [saveConfirm, setSaveConfirm] = useState({ open: false, data: null });
 
@@ -27,21 +28,10 @@ const StaffPage = () => {
         phone: '',
     });
 
-    const handleOpenAdd = () => {
-        setEditingStaff(null);
-        setFormState({ name: '', role: 'Dokter', email: '', phone: '' });
-        setIsModalOpen(true);
-    };
-
     const handleOpenEdit = (staff) => {
         setEditingStaff(staff);
-        setFormState({
-            name: staff.name,
-            role: staff.role,
-            email: staff.email,
-            phone: staff.phone,
-        });
-        setIsModalOpen(true);
+        setFormState({ name: staff.name, role: staff.role, email: staff.email, phone: staff.phone });
+        setIsEditModalOpen(true);
     };
 
     const handleSubmitRequest = (e) => {
@@ -50,19 +40,9 @@ const StaffPage = () => {
     };
 
     const confirmSave = () => {
-        if (editingStaff) {
-            setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...formState } : s));
-            showToast('Data pegawai berhasil diperbarui', 'success');
-        } else {
-            const staff = {
-                ...formState,
-                id: `STF-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-                status: 'Active'
-            };
-            setStaffList([...staffList, staff]);
-            showToast('Pegawai baru berhasil ditambahkan', 'success');
-        }
-        setIsModalOpen(false);
+        setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...formState } : s));
+        showToast('Data pegawai berhasil diperbarui', 'success');
+        setIsEditModalOpen(false);
         setSaveConfirm({ open: false, data: null });
     };
 
@@ -84,7 +64,7 @@ const StaffPage = () => {
                     <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Kelola rincian dan akses seluruh staff klinik</p>
                 </div>
                 <button
-                    onClick={handleOpenAdd}
+                    onClick={() => navigate('/staff/new')}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                 >
                     <Plus className="w-4 h-4" />
@@ -93,7 +73,7 @@ const StaffPage = () => {
             </div>
 
             {/* Controls */}
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-8 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
+            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-8 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6">
                 <div className="relative flex-1 group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                     <input
@@ -162,16 +142,10 @@ const StaffPage = () => {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => handleOpenEdit(staff)}
-                                                className="p-2 rounded-xl text-primary/40 transition-all shadow-sm"
-                                            >
+                                            <button onClick={() => handleOpenEdit(staff)} className="p-2 rounded-xl text-primary/40 transition-all shadow-sm">
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
-                                            <button
-                                                onClick={() => handleOpenDelete(staff)}
-                                                className="p-2 rounded-xl text-red-400 transition-all shadow-sm"
-                                            >
+                                            <button onClick={() => handleOpenDelete(staff)} className="p-2 rounded-xl text-red-400 transition-all shadow-sm">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -183,40 +157,28 @@ const StaffPage = () => {
                 </div>
             </div>
 
-            {/* Form Modal */}
-            {isModalOpen && (
+            {/* Edit Modal */}
+            {isEditModalOpen && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" onClick={() => setIsModalOpen(false)} />
+                    <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" onClick={() => setIsEditModalOpen(false)} />
                     <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-primary/5 animate-fade-in-up">
                         <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-2xl font-black text-primary tracking-tighter italic">
-                                {editingStaff ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru'}
-                            </h3>
-                            <button onClick={() => setIsModalOpen(false)} className="p-3 rounded-2xl hover:bg-secondary/40 transition-all">
+                            <h3 className="text-2xl font-black text-primary tracking-tighter italic">Edit Data Pegawai</h3>
+                            <button onClick={() => setIsEditModalOpen(false)} className="p-3 rounded-2xl hover:bg-secondary/40 transition-all">
                                 <X className="w-5 h-5 text-primary/30" />
                             </button>
                         </div>
-
                         <form onSubmit={handleSubmitRequest} className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Nama Lengkap</label>
-                                <input
-                                    required
-                                    type="text"
-                                    value={formState.name}
+                                <input required type="text" value={formState.name}
                                     onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                    className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all"
-                                    placeholder="Enter full name..."
-                                />
+                                    className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all" />
                             </div>
-
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Role Pegawai</label>
-                                <select
-                                    value={formState.role}
-                                    onChange={(e) => setFormState({ ...formState, role: e.target.value })}
-                                    className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold appearance-none cursor-pointer focus:ring-4 focus:ring-primary/5 transition-all"
-                                >
+                                <select value={formState.role} onChange={(e) => setFormState({ ...formState, role: e.target.value })}
+                                    className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold appearance-none cursor-pointer focus:ring-4 focus:ring-primary/5 transition-all">
                                     <option value="Admin">Admin</option>
                                     <option value="Dokter">Dokter</option>
                                     <option value="Apoteker">Apoteker</option>
@@ -224,37 +186,22 @@ const StaffPage = () => {
                                     <option value="Manager">Manager</option>
                                 </select>
                             </div>
-
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Email</label>
-                                    <input
-                                        required
-                                        type="email"
-                                        value={formState.email}
+                                    <input required type="email" value={formState.email}
                                         onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                                        className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all"
-                                        placeholder="email@clinic.com"
-                                    />
+                                        className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all" />
                                 </div>
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">No. Telp</label>
-                                    <input
-                                        required
-                                        type="tel"
-                                        value={formState.phone}
+                                    <input required type="tel" value={formState.phone}
                                         onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
-                                        className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all"
-                                        placeholder="08xx-xxxx-xxxx"
-                                    />
+                                        className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all" />
                                 </div>
                             </div>
-
-                            <button
-                                type="submit"
-                                className="w-full py-5 bg-primary text-secondary rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 mt-4"
-                            >
-                                {editingStaff ? 'Simpan Perubahan' : 'Simpan Data Pegawai'}
+                            <button type="submit" className="w-full py-5 bg-primary text-secondary rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 mt-4">
+                                Simpan Perubahan
                             </button>
                         </form>
                     </div>
@@ -272,18 +219,8 @@ const StaffPage = () => {
                         <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Simpan</h3>
                         <p className="text-sm text-primary/40 font-bold mb-8">Apakah Anda yakin ingin menyimpan perubahan data pegawai ini?</p>
                         <div className="flex gap-3">
-                            <button
-                                onClick={() => setSaveConfirm({ open: false, data: null })}
-                                className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all"
-                            >
-                                Batal
-                            </button>
-                            <button
-                                onClick={confirmSave}
-                                className="flex-1 py-4 rounded-2xl bg-primary text-secondary font-black text-[10px] uppercase tracking-widest hover:shadow-lg transition-all"
-                            >
-                                Ya, Simpan
-                            </button>
+                            <button onClick={() => setSaveConfirm({ open: false, data: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
+                            <button onClick={confirmSave} className="flex-1 py-4 rounded-2xl bg-primary text-secondary font-black text-[10px] uppercase tracking-widest hover:shadow-lg transition-all">Ya, Simpan</button>
                         </div>
                     </div>
                 </div>
@@ -302,18 +239,8 @@ const StaffPage = () => {
                             Tindakan ini permanen. Yakin ingin menghapus data <span className="text-primary">{deleteConfirm.staff.name}</span>?
                         </p>
                         <div className="flex gap-3">
-                            <button
-                                onClick={() => setDeleteConfirm({ open: false, staff: null })}
-                                className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all"
-                            >
-                                Batal
-                            </button>
-                            <button
-                                onClick={confirmDelete}
-                                className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all"
-                            >
-                                Ya, Hapus
-                            </button>
+                            <button onClick={() => setDeleteConfirm({ open: false, staff: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
+                            <button onClick={confirmDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all">Ya, Hapus</button>
                         </div>
                     </div>
                 </div>

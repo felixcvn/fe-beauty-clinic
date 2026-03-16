@@ -23,7 +23,7 @@ const PatientForm = () => {
     };
 
     return (
-        <div className="max-w-3xl mx-auto pb-12">
+        <div className="w-full mx-auto pb-12">
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden animate-fade-in">
                 <div className="p-8 md:p-12 border-b border-primary/5 bg-primary/5 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                     <div>
@@ -33,18 +33,34 @@ const PatientForm = () => {
                 </div>
 
                 <form className="p-8 md:p-12 space-y-8" onSubmit={handleSubmit}>
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Nama Lengkap</label>
-                        <div className="relative group">
-                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Nama Lengkap Pasien"
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
-                                value={formData.name}
-                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                required
-                            />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Nama Lengkap</label>
+                            <div className="relative group">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30 group-focus-within:text-primary transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Nama Lengkap Pasien"
+                                    className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-semibold text-primary"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Nomer Identitas Diri</label>
+                            <div className="relative group">
+                                <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30 group-focus-within:text-primary transition-colors" />
+                                <input
+                                    type="text"
+                                    placeholder="Nomer Identitas Diri"
+                                    className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-semibold text-primary"
+                                    value={formData.identityNumber}
+                                    onChange={(e) => setFormData({ ...formData, identityNumber: e.target.value })}
+                                    required
+                                />
+                            </div>
                         </div>
                     </div>
 
@@ -54,7 +70,7 @@ const PatientForm = () => {
                             <input
                                 type="number"
                                 placeholder="Contoh: 25"
-                                className="w-full px-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
+                                className="w-full px-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-semibold text-primary"
                                 value={formData.age}
                                 onChange={(e) => setFormData({ ...formData, age: e.target.value })}
                                 required
@@ -65,7 +81,7 @@ const PatientForm = () => {
                             <input
                                 type="text"
                                 placeholder="Contoh: Debu, Kacang"
-                                className="w-full px-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary"
+                                className="w-full px-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-semibold text-primary"
                                 value={formData.allergies}
                                 onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
                             />

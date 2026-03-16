@@ -1,8 +1,10 @@
 import { BellIcon, Bars3Icon, UserCircleIcon } from '@heroicons/react/24/solid';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 const Header = ({ toggleSidebar }) => {
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     return (
         <header className="h-15 px-4 md:px-6 flex items-center justify-between sticky top-0 z-40 bg-primary shadow-md">
@@ -32,8 +34,15 @@ const Header = ({ toggleSidebar }) => {
                         <p className="text-sm font-semibold text-white leading-none">{user?.name || 'Astuti Setiawan'}</p>
                         <p className="text-xs text-white/50 mt-0.5">{user?.email || 'astuti@gmail.com'}</p>
                     </div>
-                    <div className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/15 border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all duration-200 cursor-pointer overflow-hidden">
-                        <UserCircleIcon className="w-5 h-5 md:w-6 md:h-6 text-white/80" />
+                    <div
+                        onClick={() => navigate('/profile')}
+                        className="w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/15 border border-white/20 flex items-center justify-center hover:bg-white/25 transition-all duration-200 cursor-pointer overflow-hidden"
+                    >
+                        {user?.avatar ? (
+                            <img src={user.avatar} alt="Avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            <UserCircleIcon className="w-5 h-5 md:w-6 md:h-6 text-white/80" />
+                        )}
                     </div>
                 </div>
             </div>

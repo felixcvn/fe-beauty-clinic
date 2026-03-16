@@ -20,7 +20,9 @@ import AttendancePage from './pages/Attendance/AttendancePage';
 import ReportsPage from './pages/Reports/ReportsPage';
 import NotificationsPage from './pages/Notifications/NotificationsPage';
 import StaffPage from './pages/Staff/StaffPage';
+import StaffForm from './pages/Staff/StaffForm';
 import POSPage from './pages/Sales/POSPage';
+import ProfilePage from './pages/Profile/ProfilePage';
 
 import { hasPermission } from './utils/rbac';
 
@@ -74,12 +76,14 @@ function App() {
                                             <Route path="/patients" element={<RoleProtectedRoute><PatientsPage /></RoleProtectedRoute>} />
                                             <Route path="/patients/new" element={<RoleProtectedRoute><PatientForm /></RoleProtectedRoute>} />
                                             <Route path="/staff" element={<RoleProtectedRoute><StaffPage /></RoleProtectedRoute>} />
+                                            <Route path="/staff/new" element={<RoleProtectedRoute><StaffForm /></RoleProtectedRoute>} />
                                             <Route path="/sales" element={<RoleProtectedRoute><SalesPage /></RoleProtectedRoute>} />
                                             <Route path="/sales/pos" element={<RoleProtectedRoute><POSPage /></RoleProtectedRoute>} />
                                             <Route path="/attendance" element={<RoleProtectedRoute><AttendancePage /></RoleProtectedRoute>} />
                                             <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
                                             <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
                                             <Route path="/settings" element={<RoleProtectedRoute><SettingsPage /></RoleProtectedRoute>} />
+                                            <Route path="/profile" element={<ProfilePage />} />
                                         </Routes>
                                     </MainLayout>
                                 </PrivateRoute>
