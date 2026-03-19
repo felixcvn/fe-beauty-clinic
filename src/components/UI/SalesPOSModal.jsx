@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, Star, Filter } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
@@ -82,11 +83,10 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 animate-fade-in">
-            <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" onClick={onClose} />
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+            <div className="relative w-full h-full md:h-auto md:max-w-6xl md:rounded-[3.5rem] bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row animate-fade-in-up border border-primary/5" onClick={(e) => e.stopPropagation()}>
 
-            <div className="relative w-full h-full md:h-auto md:max-w-6xl md:rounded-[3.5rem] bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row animate-fade-in-up border border-primary/5">
 
                 {/* Left Side: Product Selection */}
                 <div className="flex-1 flex flex-col h-full overflow-hidden border-r border-primary/5">
@@ -266,7 +266,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                 </div>
             </div>
         </div>
-    );
+    , document.body);
 };
 
 export default SalesPOSModal;

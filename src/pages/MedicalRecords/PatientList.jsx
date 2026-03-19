@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Plus, FileText, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
+import CustomSelect from '../../components/UI/CustomSelect';
 
 const PatientList = () => {
     const { patients } = useMockData();
@@ -44,17 +45,16 @@ const PatientList = () => {
                             className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all"
                         />
                     </div>
-                    <div className="relative group">
-                        <select
+                    <div className="w-48 relative z-50">
+                        <CustomSelect
                             value={statusFilter}
-                            onChange={(e) => setStatusFilter(e.target.value)}
-                            className="w-full appearance-none bg-white px-8 py-3.5 pr-12 rounded-2xl text-[10px] md:text-xs text-primary font-black uppercase tracking-widest border border-primary/5 outline-none cursor-pointer focus:ring-4 focus:ring-primary/5 transition-all"
-                        >
-                            <option>All Status</option>
-                            <option>Active</option>
-                            <option>Completed</option>
-                        </select>
-                        <ChevronRight className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/40 pointer-events-none rotate-90" />
+                            onChange={setStatusFilter}
+                            options={[
+                                { value: 'All Status', label: 'All Status' },
+                                { value: 'Active', label: 'Active' },
+                                { value: 'Completed', label: 'Completed' }
+                            ]}
+                        />
                     </div>
                 </div>
 

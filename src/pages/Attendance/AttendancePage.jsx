@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CalendarDays, Clock, UserCheck, UserMinus, Search, Filter, MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera, Calendar } from 'lucide-react';
 import FaceScanModal from '../../components/UI/FaceScanModal';
 import AttendanceDetailModal from '../../components/UI/AttendanceDetailModal';
+import LeaveRequestModal from '../../components/UI/LeaveRequestModal';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 
@@ -13,6 +14,7 @@ const AttendancePage = () => {
     const [selectedStaffId, setSelectedStaffId] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [detailStaff, setDetailStaff] = useState(null);
+    const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
 
     const [attendanceStats, setAttendanceStats] = useState([
         { title: 'Hadir Hari Ini', value: '24', total: '26', icon: UserCheck, color: 'text-green-500' },
@@ -103,18 +105,33 @@ const AttendancePage = () => {
                 staffData={detailStaff}
             />
 
+            <LeaveRequestModal
+                isOpen={isLeaveModalOpen}
+                onClose={() => setIsLeaveModalOpen(false)}
+                onSubmit={(data) => {
+                    console.log('Leave requested:', data);
+                }}
+            />
+
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Kehadiran Staff</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Monitoring Absensi dan Jam Kerja Real-time</p>
                 </div>
-                <div className="flex items-center gap-3 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    <button
+                        onClick={() => setIsLeaveModalOpen(true)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-8 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm"
+                    >
+                        <CalendarDays className="w-4 h-4" />
+                        <span>Pengajuan Cuti</span>
+                    </button>
                     <button
                         onClick={() => handleOpenScan('in')}
-                        className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                     >
                         <Camera className="w-4 h-4" />
-                        <span>Face Scan Masuk</span>
+                        <span>Absen Sekarang</span>
                     </button>
                 </div>
             </div>

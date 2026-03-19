@@ -1,19 +1,20 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X, Clock, MapPin, Camera, User, BadgeCheck, Calendar } from 'lucide-react';
 
 const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
     if (!isOpen || !staffData) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-primary/40 backdrop-blur-md animate-fade-in"
-                onClick={onClose}
-            />
-
+    return createPortal(
+        <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+        >
             {/* Modal Content */}
-            <div className="relative w-full max-w-2xl bg-white rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up">
+            <div 
+                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                onClick={(e) => e.stopPropagation()}
+            >
                 {/* Header Profile */}
                 <div className="relative h-40 bg-primary overflow-hidden">
                     <div className="absolute inset-0 opacity-10">
@@ -138,7 +139,7 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
                 </div>
             </div>
         </div>
-    );
+    , document.body);
 };
 
 export default AttendanceDetailModal;

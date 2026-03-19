@@ -5,7 +5,7 @@ const AuthContext = createContext();
 const USER_SEEDER = [
     { email: 'admin@clinic.com', password: 'password123', name: 'Super Admin', role: 'Admin' },
     { email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Sarah Smith', role: 'Dokter' },
-    { email: 'pharmacist@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Apoteker' },
+    { email: 'cs@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Customer Service' },
     { email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },
     { email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
 ];

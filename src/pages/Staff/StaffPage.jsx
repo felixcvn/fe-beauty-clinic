@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
+import CustomSelect from '../../components/UI/CustomSelect';
 
 const StaffPage = () => {
     const { showToast } = useToast();
@@ -16,7 +18,7 @@ const StaffPage = () => {
     const [staffList, setStaffList] = useState([
         { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', status: 'Active' },
         { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'doctor@clinic.com', phone: '0812-9876-5432', status: 'Active' },
-        { id: 'STF-003', name: 'Budi Santoso', role: 'Apoteker', email: 'pharmacist@clinic.com', phone: '0813-1122-3344', status: 'Active' },
+        { id: 'STF-003', name: 'Budi Santoso', role: 'Customer Service', email: 'cs@clinic.com', phone: '0813-1122-3344', status: 'Active' },
         { id: 'STF-004', name: 'Linda Rahayu', role: 'HRD', email: 'hrd@clinic.com', phone: '0811-5566-7788', status: 'Active' },
         { id: 'STF-005', name: 'Andi Pratama', role: 'Manager', email: 'manager@clinic.com', phone: '0815-9900-1122', status: 'Active' },
     ]);
@@ -158,9 +160,9 @@ const StaffPage = () => {
             </div>
 
             {/* Edit Modal */}
-            {isEditModalOpen && (
+            {isEditModalOpen && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" onClick={() => setIsEditModalOpen(false)} />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)} />
                     <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-primary/5 animate-fade-in-up">
                         <div className="flex justify-between items-center mb-8">
                             <h3 className="text-2xl font-black text-primary tracking-tighter italic">Edit Data Pegawai</h3>
@@ -177,14 +179,17 @@ const StaffPage = () => {
                             </div>
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Role Pegawai</label>
-                                <select value={formState.role} onChange={(e) => setFormState({ ...formState, role: e.target.value })}
-                                    className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold appearance-none cursor-pointer focus:ring-4 focus:ring-primary/5 transition-all">
-                                    <option value="Admin">Admin</option>
-                                    <option value="Dokter">Dokter</option>
-                                    <option value="Apoteker">Apoteker</option>
-                                    <option value="HRD">HRD</option>
-                                    <option value="Manager">Manager</option>
-                                </select>
+                                <CustomSelect 
+                                    value={formState.role} 
+                                    onChange={(value) => setFormState({ ...formState, role: value })}
+                                    options={[
+                                        { value: 'Admin', label: 'Admin' },
+                                        { value: 'Dokter', label: 'Dokter' },
+                                        { value: 'Customer Service', label: 'Customer Service' },
+                                        { value: 'HRD', label: 'HRD' },
+                                        { value: 'Manager', label: 'Manager' }
+                                    ]}
+                                />
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
@@ -206,12 +211,12 @@ const StaffPage = () => {
                         </form>
                     </div>
                 </div>
-            )}
+            , document.body)}
 
             {/* Save Confirmation Modal */}
-            {saveConfirm.open && (
+            {saveConfirm.open && createPortal(
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
                     <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
                         <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
                             <CheckCircle2 className="w-8 h-8" />
@@ -224,12 +229,12 @@ const StaffPage = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            , document.body)}
 
             {/* Delete Confirmation Modal */}
-            {deleteConfirm.open && (
+            {deleteConfirm.open && createPortal(
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-primary/40 backdrop-blur-md" />
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
                     <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
                         <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
                             <AlertTriangle className="w-8 h-8" />
@@ -244,7 +249,7 @@ const StaffPage = () => {
                         </div>
                     </div>
                 </div>
-            )}
+            , document.body)}
         </div>
     );
 };

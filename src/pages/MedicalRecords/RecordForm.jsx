@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Trash2, User, Calendar, Activity, Stethoscope } from 'lucide-react';
 import ImageUpload from '../../components/UI/ImageUpload';
 import CustomSelect from '../../components/UI/CustomSelect';
+import CustomDatePicker from '../../components/UI/CustomDatePicker';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import { useNavigate } from 'react-router-dom';
@@ -94,21 +95,12 @@ const RecordForm = () => {
                             icon={User}
                         />
                     </div>
-                    <div className="space-y-3">
-                        <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Tanggal Kunjungan</label>
-                        <div className="relative group">
-                            <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none z-10 transition-colors group-focus-within:text-primary text-primary/30">
-                                <Calendar className="w-5 h-5" />
-                            </div>
-                            <input
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary cursor-pointer"
-                                required
-                            />
-                        </div>
-                    </div>
+                        <CustomDatePicker
+                            label="Tanggal Kunjungan"
+                            value={date}
+                            onChange={setDate}
+                            required
+                        />
                 </div>
 
                 {/* Treatment Details */}

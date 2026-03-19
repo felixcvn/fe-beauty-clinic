@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, FileText, Download, Printer } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -65,10 +66,15 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
         }
     };
 
-    return (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 animate-in fade-in duration-200">
-            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose}></div>
-            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative z-10 animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]">
+    return createPortal(
+        <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+            onClick={onClose}
+        >
+            <div 
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl relative animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()}
+            >
 
                 {/* Header */}
                 <div className="p-6 border-b border-secondary-dark/10 flex justify-between items-center bg-secondary-light/30">
@@ -174,7 +180,7 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
                 </div>
             </div>
         </div>
-    );
+    , document.body);
 };
 
 export default ReportModal;

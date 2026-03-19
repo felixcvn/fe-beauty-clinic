@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Camera, X, CheckCircle2, AlertCircle, Loader2, ScanLine } from 'lucide-react';
 
 const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
@@ -28,8 +29,14 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
             }
-            setScanStatus('scanning');
-            startScanningSimulation();
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    () => setScanStatus('ready'),
+                    () => setScanStatus('ready')
+                );
+            } else {
+                setScanStatus('ready');
+            }
         } catch (err) {
             console.error("Error accessing camera:", err);
             setScanStatus('error');
@@ -44,6 +51,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
     };
 
     const startScanningSimulation = () => {
+        setScanStatus('scanning');
         let currentProgress = 0;
         const interval = setInterval(() => {
             currentProgress += Math.random() * 15;
@@ -69,18 +77,18 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
 
     if (!isOpen) return null;
 
-    return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-primary/40 backdrop-blur-md animate-fade-in"
-                onClick={onClose}
-            />
-
+    return createPortal(
+        <div 
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm"
+            onClick={onClose}
+        >
             {/* Modal Content */}
-            <div className="relative w-full max-w-xl bg-white rounded-[2.5rem] md:rounded-[3rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up">
+            <div 
+                className="relative w-full max-w-md bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+                onClick={(e) => e.stopPropagation()}
+            >
                 {/* Header */}
-                <div className="p-6 md:p-8 border-b border-primary/5 flex justify-between items-center bg-secondary/10">
+                <div className="p-5 md:p-6 border-b border-primary/5 flex justify-between items-center bg-secondary/10 shrink-0">
                     <div>
                         <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter leading-none">
                             Face Scan Attendance
@@ -98,8 +106,8 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
                 </div>
 
                 {/* Camera View */}
-                <div className="p-6 md:p-8">
-                    <div className="relative aspect-[4/5] sm:aspect-square rounded-[1.5rem] md:rounded-[2rem] bg-secondary/20 border-4 border-primary/5 overflow-hidden group shadow-inner">
+                <div className="p-5 md:p-8 flex-1 overflow-y-auto scrollbar-hide">
+                    <div className="relative aspect-[3/4] sm:aspect-[4/5] mx-auto w-full max-w-sm rounded-[1.5rem] md:rounded-[2rem] bg-secondary/20 border-4 border-primary/5 overflow-hidden group shadow-inner">
                         {/* Video Feed */}
                         <video
                             ref={videoRef}
@@ -109,23 +117,25 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
                         />
 
                         {/* Scanning Overlays */}
-                        {scanStatus === 'scanning' && (
+                        {(scanStatus === 'scanning' || scanStatus === 'ready') && (
                             <>
-                                <div className="absolute inset-0 border-[20px] md:border-[40px] border-black/20" />
+                                <div className="absolute inset-0 border-[16px] sm:border-[24px] border-black/20" />
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="w-48 h-48 md:w-64 md:h-64 border-2 border-primary/40 rounded-full animate-pulse shadow-[0_0_30px_rgba(27,77,62,0.2)]" />
+                                    <div className="w-40 h-40 sm:w-56 sm:h-56 border-2 border-primary/40 rounded-full animate-pulse shadow-[0_0_30px_rgba(27,77,62,0.2)]" />
                                 </div>
                                 {/* Scanning Line */}
-                                <div className="absolute left-1/2 -translate-x-1/2 w-56 md:w-72 h-0.5 bg-primary/60 shadow-[0_0_15px_rgba(27,77,62,0.6)] animate-[scan_3s_ease-in-out_infinite]" />
+                                <div className="absolute left-1/2 -translate-x-1/2 w-48 sm:w-64 h-0.5 bg-primary/60 shadow-[0_0_15px_rgba(27,77,62,0.6)] animate-[scan_3s_ease-in-out_infinite]" />
 
                                 {/* UI Decorations */}
                                 <div className="absolute top-4 left-4 md:top-6 md:left-6 flex items-center gap-2">
                                     <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                                     <span className="text-[8px] md:text-[10px] font-black text-white px-2 py-1 bg-black/40 rounded-md uppercase tracking-widest backdrop-blur-sm">REC LIVE</span>
                                 </div>
-                                <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6">
-                                    <span className="text-[8px] md:text-[10px] font-black text-white px-2.5 py-1.5 bg-primary/60 rounded-full uppercase tracking-widest backdrop-blur-md">Scanning...</span>
-                                </div>
+                                {scanStatus === 'scanning' && (
+                                    <div className="absolute bottom-4 right-4 md:bottom-6 md:right-6">
+                                        <span className="text-[8px] md:text-[10px] font-black text-white px-2.5 py-1.5 bg-primary/60 rounded-full uppercase tracking-widest backdrop-blur-md">Scanning...</span>
+                                    </div>
+                                )}
                             </>
                         )}
 
@@ -164,23 +174,35 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
                         )}
                     </div>
 
-                    {/* Progress Bar */}
+                    {/* Progress Bar & Actions */}
                     <div className="mt-6 md:mt-8 space-y-3">
-                        <div className="flex justify-between items-center text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary/40 px-1">
-                            <span>Recognition Progress</span>
-                            <span>{Math.round(progress)}%</span>
-                        </div>
-                        <div className="h-1.5 md:h-2 w-full bg-secondary/40 rounded-full overflow-hidden p-0.5 border border-primary/5">
-                            <div
-                                className="h-full bg-primary rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(27,77,62,0.3)]"
-                                style={{ width: `${progress}%` }}
-                            />
-                        </div>
+                        {scanStatus === 'ready' ? (
+                            <button
+                                onClick={startScanningSimulation}
+                                className="w-full flex justify-center items-center py-4 bg-primary text-secondary rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20"
+                            >
+                                <Camera className="w-4 h-4 mr-2" />
+                                Ambil Gambar & Lokasi
+                            </button>
+                        ) : (
+                            <>
+                                <div className="flex justify-between items-center text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary/40 px-1">
+                                    <span>Recognition Progress</span>
+                                    <span>{Math.round(progress)}%</span>
+                                </div>
+                                <div className="h-1.5 md:h-2 w-full bg-secondary/40 rounded-full overflow-hidden p-0.5 border border-primary/5">
+                                    <div
+                                        className="h-full bg-primary rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(27,77,62,0.3)]"
+                                        style={{ width: `${progress}%` }}
+                                    />
+                                </div>
+                            </>
+                        )}
                     </div>
                 </div>
 
                 {/* Footer Message */}
-                <div className="p-4 md:p-6 bg-secondary/5 border-t border-primary/5 flex justify-center text-[8px] md:text-[9px] font-black text-primary/20 uppercase tracking-[0.2em] md:tracking-[0.3em] text-center">
+                <div className="p-4 bg-secondary/5 border-t border-primary/5 flex justify-center text-[8px] md:text-[9px] font-black text-primary/20 uppercase tracking-[0.2em] md:tracking-[0.3em] text-center shrink-0">
                     Ensuring secure attendance tracking
                 </div>
             </div>
@@ -194,7 +216,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
                 }
             `}</style>
         </div>
-    );
+    , document.body);
 };
 
 export default FaceScanModal;

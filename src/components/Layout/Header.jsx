@@ -1,6 +1,7 @@
 import { BellIcon, Bars3Icon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { hasPermission } from '../../utils/rbac';
 
 const Header = ({ toggleSidebar }) => {
     const { user } = useAuth();
@@ -20,10 +21,15 @@ const Header = ({ toggleSidebar }) => {
 
             <div className="flex items-center gap-3 md:gap-4 ml-auto">
                 {/* Bell Notification */}
-                <button className="relative p-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 active:scale-90">
-                    <BellIcon className="w-5 h-5" />
-                    <span className="absolute top-2 right-2 w-2 h-2 bg-accent-gold rounded-full border-2 border-primary animate-pulse"></span>
-                </button>
+                {hasPermission(user?.role, '/notifications') && (
+                    <button 
+                        onClick={() => navigate('/notifications')}
+                        className="relative p-2.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 active:scale-90"
+                    >
+                        <BellIcon className="w-5 h-5" />
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-accent-gold rounded-full border-2 border-primary animate-pulse"></span>
+                    </button>
+                )}
 
                 {/* Divider */}
                 <div className="w-px h-8 bg-white/15"></div>

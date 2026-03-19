@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import { User, Mail, Phone, ShieldCheck } from 'lucide-react';
+import CustomSelect from '../../components/UI/CustomSelect';
 
 const StaffForm = ({ onAdd }) => {
     const { showToast } = useToast();
@@ -57,22 +58,20 @@ const StaffForm = ({ onAdd }) => {
                     </div>
 
                     {/* Role */}
-                    <div className="space-y-3">
+                    <div className="space-y-3 relative z-50">
                         <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Role Pegawai</label>
-                        <div className="relative group">
-                            <ShieldCheck className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30 group-focus-within:text-primary transition-colors pointer-events-none" />
-                            <select
-                                value={formState.role}
-                                onChange={(e) => setFormState({ ...formState, role: e.target.value })}
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-bold appearance-none cursor-pointer focus:ring-4 focus:ring-primary/5 transition-all text-sm"
-                            >
-                                <option value="Admin">Admin</option>
-                                <option value="Dokter">Dokter</option>
-                                <option value="Apoteker">Apoteker</option>
-                                <option value="HRD">HRD</option>
-                                <option value="Manager">Manager</option>
-                            </select>
-                        </div>
+                        <CustomSelect 
+                            value={formState.role} 
+                            onChange={(value) => setFormState({ ...formState, role: value })}
+                            icon={ShieldCheck}
+                            options={[
+                                { value: 'Admin', label: 'Admin' },
+                                { value: 'Dokter', label: 'Dokter' },
+                                { value: 'Customer Service', label: 'Customer Service' },
+                                { value: 'HRD', label: 'HRD' },
+                                { value: 'Manager', label: 'Manager' }
+                            ]}
+                        />
                     </div>
 
                     {/* Email & Phone */}

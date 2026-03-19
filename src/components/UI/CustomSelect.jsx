@@ -1,24 +1,24 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Search } from 'lucide-react';
 
-const CustomSelect = ({ label, value, onChange, options, placeholder, icon: Icon, required, searchable = false }) => {
+const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih salah satu...", icon: Icon, required, searchable = false, className = "" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const dropdownRef = useRef(null);
+    const selectRef = useRef(null);
 
-    // Close dropdown when clicking outside
+    // Close when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+            if (selectRef.current && !selectRef.current.contains(event.target)) {
                 setIsOpen(false);
+                setSearchTerm('');
             }
         };
-
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const selectedOption = options.find(opt => opt.value === value);
+    const selectedOption = options.find(opt => opt.value === value) || null;
 
     const filteredOptions = options.filter(opt =>
         opt.label.toLowerCase().includes(searchTerm.toLowerCase())
@@ -31,75 +31,94 @@ const CustomSelect = ({ label, value, onChange, options, placeholder, icon: Icon
     };
 
     return (
-        <div className="space-y-2 relative" ref={dropdownRef}>
-            {label && <label className="text-sm font-medium text-primary">{label}</label>}
-
-            <div
+        <div ref={selectRef} className={`relative w-full ${className}`}>
+            {label && <label className="block text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 mb-2">{label}</label>}
+            
+            <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`w-full p-3 rounded-xl border border-secondary-dark/20 bg-secondary-light/30 flex items-center justify-between cursor-pointer transition-all hover:border-primary/30 ${isOpen ? 'ring-2 ring-primary/20 border-primary/40' : ''}`}
+                className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-all duration-300 shadow-sm outline-none bg-secondary/20 hover:bg-white ${
+                    isOpen 
+                        ? 'border-primary ring-4 ring-primary/5 bg-white' 
+                        : 'border-primary/5 hover:border-primary/20'
+                }`}
             >
-                <div className="flex items-center gap-2 truncate">
-                    {Icon && <Icon className="w-5 h-5 text-primary-light" />}
-                    {selectedOption ? (
-                        <span className="text-primary font-medium">{selectedOption.label}</span>
-                    ) : (
-                        <span className="text-primary-light/70">{placeholder || 'Select...'}</span>
-                    )}
+                <div className="flex items-center gap-3 w-full">
+                    {Icon && <Icon className="w-5 h-5 text-primary/40 shrink-0" />}
+                    <span className={`font-bold text-sm truncate ${selectedOption ? 'text-primary' : 'text-primary/40'}`}>
+                        {selectedOption ? selectedOption.label : placeholder}
+                    </span>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-primary-light transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
-            </div>
+                <ChevronDown className={`w-5 h-5 text-primary/40 shrink-0 ml-2 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+            </button>
 
             {/* Dropdown Menu */}
-            {isOpen && (
-                <div className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-secondary-dark/10 max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200">
+            <div 
+                className={`absolute z-[100] w-full mt-2 bg-white border border-primary/5 rounded-[1.5rem] shadow-2xl shadow-primary/10 overflow-hidden transition-all duration-300 transform origin-top ${
+                    isOpen 
+                        ? 'opacity-100 scale-y-100 translate-y-0 visible' 
+                        : 'opacity-0 scale-y-95 -translate-y-2 invisible'
+                }`}
+            >
+                {/* Search Bar */}
+                {searchable && (
+                    <div className="p-3 border-b border-primary/5 bg-secondary/10">
+                        <div className="relative">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
+                            <input
+                                type="text"
+                                placeholder="Search..."
+                                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-primary/5 text-xs font-bold text-primary placeholder:text-primary/30 focus:ring-2 focus:ring-primary/10 outline-none transition-all shadow-sm"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                onClick={(e) => e.stopPropagation()}
+                                autoFocus
+                            />
+                        </div>
+                    </div>
+                )}
 
-                    {/* Search Bar (if enabled) */}
-                    {searchable && (
-                        <div className="p-2 border-b border-secondary-dark/10">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-light" />
-                                <input
-                                    type="text"
-                                    placeholder="Search..."
-                                    className="w-full pl-9 pr-3 py-2 rounded-lg bg-secondary-light border-none text-sm text-primary placeholder:text-primary-light/50 focus:ring-1 focus:ring-primary/20"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    onClick={(e) => e.stopPropagation()}
-                                    autoFocus
-                                />
-                            </div>
+                <div className="max-h-[250px] overflow-y-auto scrollbar-hide py-2">
+                    {filteredOptions.length > 0 ? (
+                        filteredOptions.map((option, index) => {
+                            const isSelected = option.value === value;
+                            return (
+                                <button
+                                    key={index}
+                                    type="button"
+                                    onClick={() => handleSelect(option.value)}
+                                    className={`w-full flex items-center justify-between px-5 py-3.5 text-left transition-all duration-200 hover:bg-primary/5 group ${
+                                        isSelected ? 'bg-primary/5' : ''
+                                    }`}
+                                >
+                                    <span className={`font-bold text-sm group-hover:text-primary transition-colors ${
+                                        isSelected ? 'text-primary' : 'text-primary/60'
+                                    }`}>
+                                        {option.label}
+                                    </span>
+                                    {isSelected && (
+                                        <Check className="w-5 h-5 text-primary animate-fade-in" />
+                                    )}
+                                </button>
+                            );
+                        })
+                    ) : (
+                        <div className="px-5 py-6 text-center text-xs font-bold text-primary/40 uppercase tracking-widest">
+                            Tidak ada pilihan
                         </div>
                     )}
-
-                    {/* Options List */}
-                    <div className="overflow-y-auto max-h-48 p-1">
-                        {filteredOptions.length > 0 ? (
-                            filteredOptions.map((option) => (
-                                <div
-                                    key={option.value}
-                                    onClick={() => handleSelect(option.value)}
-                                    className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${value === option.value ? 'bg-primary/5 text-primary font-semibold' : 'text-primary hover:bg-secondary-light'}`}
-                                >
-                                    <span>{option.label}</span>
-                                    {value === option.value && <Check className="w-4 h-4 text-primary" />}
-                                </div>
-                            ))
-                        ) : (
-                            <div className="p-4 text-center text-sm text-primary-light">No options found</div>
-                        )}
-                    </div>
                 </div>
-            )}
+            </div>
 
-            {/* Hidden native input for required validation if needed, though typically handled by state */}
+            {/* Hidden native input for required validation */}
             {required && (
                 <input
                     type="text"
                     className="absolute opacity-0 h-0 w-0 bottom-0"
-                    value={value}
+                    value={value || ''}
                     onChange={() => { }}
                     required={required}
-                    onInvalid={(e) => e.target.setCustomValidity('Please select an option')}
+                    onInvalid={(e) => e.target.setCustomValidity('Harap pilih salah satu')}
                     onInput={(e) => e.target.setCustomValidity('')}
                 />
             )}

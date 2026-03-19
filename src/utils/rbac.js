@@ -1,7 +1,7 @@
 export const ROLES = {
     ADMIN: 'Admin',
     DOCTOR: 'Dokter',
-    PHARMACIST: 'Apoteker',
+    CUSTOMER_SERVICE: 'Customer Service',
     HRD: 'HRD',
     MANAGER: 'Manager'
 };
@@ -16,7 +16,6 @@ export const ROLE_PERMISSIONS = {
         '/sales/pos',
         '/attendance',
         '/reports',
-        '/notifications',
         '/settings'
     ],
     [ROLES.DOCTOR]: [
@@ -27,7 +26,7 @@ export const ROLE_PERMISSIONS = {
         '/notifications',
         '/settings'
     ],
-    [ROLES.PHARMACIST]: [
+    [ROLES.CUSTOMER_SERVICE]: [
         '/',
         '/medical-records',
         '/sales',
@@ -40,7 +39,6 @@ export const ROLE_PERMISSIONS = {
         '/',
         '/staff',
         '/attendance',
-        '/notifications',
         '/settings'
     ],
     [ROLES.MANAGER]: [
@@ -50,7 +48,6 @@ export const ROLE_PERMISSIONS = {
         '/sales/pos',
         '/attendance',
         '/reports',
-        '/notifications',
         '/settings'
     ]
 };

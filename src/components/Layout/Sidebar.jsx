@@ -30,7 +30,6 @@ const Sidebar = ({ isOpen, toggle }) => {
         { icon: ShoppingCartIcon, label: 'Penjualan', path: '/sales' },
         { icon: CalendarDaysIcon, label: 'Absensi', path: '/attendance' },
         { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
-        { icon: BellIcon, label: 'Notifikasi', path: '/notifications' },
         { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
     ];
 
