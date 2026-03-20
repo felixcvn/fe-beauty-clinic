@@ -8,6 +8,8 @@ const USER_SEEDER = [
     { email: 'cs@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Customer Service' },
     { email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },
     { email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
+    { email: 'gudang@clinic.com', password: 'password123', name: 'Zulkifli', role: 'Gudang Umum' },
+    { email: 'owner@clinic.com', password: 'password123', name: 'dr.Mega Endahlestari', role: 'Owner' },
 ];
 
 export const AuthProvider = ({ children }) => {

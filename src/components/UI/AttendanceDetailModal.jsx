@@ -7,7 +7,7 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
 
     return createPortal(
         <div 
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30"
             onClick={onClose}
         >
             {/* Modal Content */}

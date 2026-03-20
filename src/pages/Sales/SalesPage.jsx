@@ -25,7 +25,7 @@ const SalesPage = () => {
         <div className="space-y-8 md:space-y-12 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tighter leading-none">Penjualan</h2>
+                    <h2 className="text-3xl md:text-5xl font-black text-primary tracking-tighter leading-none">Transaksi</h2>
                     <p className="text-primary/40 mt-3 md:mt-4 font-bold text-sm tracking-tight">Monitor dan kelola seluruh transaksi penjualan klinik</p>
                 </div>
                 <button

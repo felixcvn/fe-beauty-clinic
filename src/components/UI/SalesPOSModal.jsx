@@ -84,7 +84,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={onClose}>
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 md:p-6 bg-black/30 animate-fade-in" onClick={onClose}>
             <div className="relative w-full h-full md:h-auto md:max-w-6xl md:rounded-[3.5rem] bg-white shadow-2xl overflow-hidden flex flex-col md:flex-row animate-fade-in-up border border-primary/5" onClick={(e) => e.stopPropagation()}>
 
 

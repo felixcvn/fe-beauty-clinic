@@ -16,7 +16,7 @@ const Toast = () => {
         } else {
             setIsAnimating(false);
             // Delay unmounting until transition completes (300ms matches duration-300)
-            const timer = setTimeout(() => setShouldRender(false), 300);
+            const timer = setTimeout(() => setShouldRender(false), 400);
             return () => clearTimeout(timer);
         }
     }, [toast.isVisible]);

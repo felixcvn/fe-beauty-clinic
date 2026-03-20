@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
-import CustomSelect from '../../components/UI/CustomSelect';
+import StaffFormModal from '../../components/UI/StaffFormModal';
 
 const StaffPage = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    
+    // Modal Edit State
     const [editingStaff, setEditingStaff] = useState(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+    // Confirmation Modals State
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, staff: null });
     const [saveConfirm, setSaveConfirm] = useState({ open: false, data: null });
 
@@ -23,31 +26,26 @@ const StaffPage = () => {
         { id: 'STF-005', name: 'Andi Pratama', role: 'Manager', email: 'manager@clinic.com', phone: '0815-9900-1122', status: 'Active' },
     ]);
 
-    const [formState, setFormState] = useState({
-        name: '',
-        role: 'Dokter',
-        email: '',
-        phone: '',
-    });
-
+    // Handle klik tombol Edit (Buka Form Modal)
     const handleOpenEdit = (staff) => {
         setEditingStaff(staff);
-        setFormState({ name: staff.name, role: staff.role, email: staff.email, phone: staff.phone });
         setIsEditModalOpen(true);
     };
 
-    const handleSubmitRequest = (e) => {
-        e.preventDefault();
-        setSaveConfirm({ open: true, data: formState });
+    // Handle ketika tombol submit di Form Modal ditekan (Munculkan Konfirmasi Yes/No)
+    const handleRequestSave = (formData) => {
+        setSaveConfirm({ open: true, data: formData });
     };
 
+    // Handle persetujuan akhir simpan data
     const confirmSave = () => {
-        setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...formState } : s));
+        setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...saveConfirm.data } : s));
         showToast('Data pegawai berhasil diperbarui', 'success');
-        setIsEditModalOpen(false);
-        setSaveConfirm({ open: false, data: null });
+        setIsEditModalOpen(false); // Tutup form modal
+        setSaveConfirm({ open: false, data: null }); // Tutup konfirmasi
     };
 
+    // Handle Delete
     const handleOpenDelete = (staff) => {
         setDeleteConfirm({ open: true, staff });
     };
@@ -60,6 +58,53 @@ const StaffPage = () => {
 
     return (
         <div className="space-y-10 animate-fade-in pb-12">
+            
+            {/* Modal Eksternal Edit Staff */}
+            <StaffFormModal 
+                isOpen={isEditModalOpen} 
+                onClose={() => setIsEditModalOpen(false)} 
+                onSave={handleRequestSave} 
+                initialData={editingStaff} 
+            />
+
+            {/* Save Confirmation Modal */}
+            {saveConfirm.open && createPortal(
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSaveConfirm({ open: false, data: null })} />
+                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
+                        <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <CheckCircle2 className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Simpan</h3>
+                        <p className="text-sm text-primary/40 font-bold mb-8">Apakah Anda yakin ingin menyimpan perubahan data pegawai ini?</p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setSaveConfirm({ open: false, data: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
+                            <button onClick={confirmSave} className="flex-1 py-4 rounded-2xl bg-primary text-secondary font-black text-[10px] uppercase tracking-widest hover:shadow-lg transition-all">Ya, Simpan</button>
+                        </div>
+                    </div>
+                </div>
+            , document.body)}
+
+            {/* Delete Confirmation Modal */}
+            {deleteConfirm.open && createPortal(
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, staff: null })} />
+                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
+                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <AlertTriangle className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Hapus</h3>
+                        <p className="text-sm text-primary/40 font-bold mb-8">
+                            Tindakan ini permanen. Yakin ingin menghapus data <span className="text-primary">{deleteConfirm.staff.name}</span>?
+                        </p>
+                        <div className="flex gap-3">
+                            <button onClick={() => setDeleteConfirm({ open: false, staff: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
+                            <button onClick={confirmDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all">Ya, Hapus</button>
+                        </div>
+                    </div>
+                </div>
+            , document.body)}
+
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Manajemen Pegawai</h2>
@@ -144,10 +189,10 @@ const StaffPage = () => {
                                     </td>
                                     <td className="px-8 py-6">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => handleOpenEdit(staff)} className="p-2 rounded-xl text-primary/40 transition-all shadow-sm">
+                                            <button onClick={() => handleOpenEdit(staff)} className="p-2 rounded-xl text-primary/40 hover:text-primary transition-all shadow-sm">
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => handleOpenDelete(staff)} className="p-2 rounded-xl text-red-400 transition-all shadow-sm">
+                                            <button onClick={() => handleOpenDelete(staff)} className="p-2 rounded-xl text-red-400 hover:text-red-600 transition-all shadow-sm">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -158,98 +203,6 @@ const StaffPage = () => {
                     </table>
                 </div>
             </div>
-
-            {/* Edit Modal */}
-            {isEditModalOpen && createPortal(
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsEditModalOpen(false)} />
-                    <div className="relative w-full max-w-lg bg-white rounded-[2.5rem] p-6 md:p-12 shadow-2xl border border-primary/5 animate-fade-in-up">
-                        <div className="flex justify-between items-center mb-8">
-                            <h3 className="text-2xl font-black text-primary tracking-tighter italic">Edit Data Pegawai</h3>
-                            <button onClick={() => setIsEditModalOpen(false)} className="p-3 rounded-2xl hover:bg-secondary/40 transition-all">
-                                <X className="w-5 h-5 text-primary/30" />
-                            </button>
-                        </div>
-                        <form onSubmit={handleSubmitRequest} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Nama Lengkap</label>
-                                <input required type="text" value={formState.name}
-                                    onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                    className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all" />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Role Pegawai</label>
-                                <CustomSelect 
-                                    value={formState.role} 
-                                    onChange={(value) => setFormState({ ...formState, role: value })}
-                                    options={[
-                                        { value: 'Admin', label: 'Admin' },
-                                        { value: 'Dokter', label: 'Dokter' },
-                                        { value: 'Customer Service', label: 'Customer Service' },
-                                        { value: 'HRD', label: 'HRD' },
-                                        { value: 'Manager', label: 'Manager' }
-                                    ]}
-                                />
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">Email</label>
-                                    <input required type="email" value={formState.email}
-                                        onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                                        className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] block pl-1">No. Telp</label>
-                                    <input required type="tel" value={formState.phone}
-                                        onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
-                                        className="w-full px-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all" />
-                                </div>
-                            </div>
-                            <button type="submit" className="w-full py-5 bg-primary text-secondary rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20 mt-4">
-                                Simpan Perubahan
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            , document.body)}
-
-            {/* Save Confirmation Modal */}
-            {saveConfirm.open && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                            <CheckCircle2 className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Simpan</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">Apakah Anda yakin ingin menyimpan perubahan data pegawai ini?</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setSaveConfirm({ open: false, data: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={confirmSave} className="flex-1 py-4 rounded-2xl bg-primary text-secondary font-black text-[10px] uppercase tracking-widest hover:shadow-lg transition-all">Ya, Simpan</button>
-                        </div>
-                    </div>
-                </div>
-            , document.body)}
-
-            {/* Delete Confirmation Modal */}
-            {deleteConfirm.open && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                            <AlertTriangle className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Hapus</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">
-                            Tindakan ini permanen. Yakin ingin menghapus data <span className="text-primary">{deleteConfirm.staff.name}</span>?
-                        </p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setDeleteConfirm({ open: false, staff: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={confirmDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all">Ya, Hapus</button>
-                        </div>
-                    </div>
-                </div>
-            , document.body)}
         </div>
     );
 };

@@ -1,66 +1,39 @@
 export const ROLES = {
     ADMIN: 'Admin',
+    OWNER: 'Owner',
     DOCTOR: 'Dokter',
-    CUSTOMER_SERVICE: 'Customer Service',
+    CS: 'Customer Service',
     HRD: 'HRD',
-    MANAGER: 'Manager'
+    MANAGER: 'Manager',
+    GUDANG_UMUM: 'Gudang Umum'
 };
 
 export const ROLE_PERMISSIONS = {
-    [ROLES.ADMIN]: [
-        '/',
-        '/medical-records',
-        '/patients',
-        '/staff',
-        '/sales',
-        '/sales/pos',
-        '/attendance',
-        '/reports',
-        '/settings'
-    ],
-    [ROLES.DOCTOR]: [
-        '/',
-        '/medical-records',
-        '/patients',
-        '/attendance',
-        '/notifications',
-        '/settings'
-    ],
-    [ROLES.CUSTOMER_SERVICE]: [
-        '/',
-        '/medical-records',
-        '/sales',
-        '/sales/pos',
-        '/attendance',
-        '/notifications',
-        '/settings'
-    ],
-    [ROLES.HRD]: [
-        '/',
-        '/staff',
-        '/attendance',
-        '/settings'
-    ],
-    [ROLES.MANAGER]: [
-        '/',
-        '/staff',
-        '/sales',
-        '/sales/pos',
-        '/attendance',
-        '/reports',
-        '/settings'
-    ]
+    [ROLES.ADMIN]: ['/', '/medical-records', '/patients', '/staff', '/sales', '/attendance', '/reports', '/settings', '/promos', '/management', '/products', '/treatments'],
+    [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance', '/settings'],
+    [ROLES.CS]: ['/', '/medical-records', '/patients', '/sales', '/attendance', '/settings'],
+    [ROLES.HRD]: ['/', '/staff', '/attendance', '/settings'],
+    [ROLES.MANAGER]: ['/', '/promos'],
+    [ROLES.OWNER]: ['/', '/patients', '/staff', '/sales', '/reports', '/settings', '/attendance', '/promos', '/management', '/products', '/treatments'],
+    [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/settings', '/management'],
 };
 
-export const hasPermission = (role, path) => {
-    if (!role || !ROLE_PERMISSIONS[role]) return false;
-
-    // Special case for root
-    if (path === '/') return ROLE_PERMISSIONS[role].includes('/');
-
-    return ROLE_PERMISSIONS[role].some(allowedPath => {
-        if (allowedPath === '/') return false;
-        // Match if exact match or if path is a sub-segment (e.g. /patients/new matches /patients)
-        return path === allowedPath || path.startsWith(allowedPath + '/');
+export const hasPermission = (userRole, path) => {
+    if (!userRole || !path) return false; 
+    
+    const roleKey = Object.keys(ROLE_PERMISSIONS).find(key => 
+        key.toLowerCase().trim() === userRole.toLowerCase().trim()
+    );
+    
+    if (!roleKey) return false;
+    
+    const allowedPaths = ROLE_PERMISSIONS[roleKey];
+    
+    if (path === '/') return allowedPaths.includes('/');
+    
+    return allowedPaths.some(allowed => {
+        if (allowed === '/') return false;
+        // Cek path secara exact (persis)
+        return path === allowed || path.startsWith(allowed + '/');
     });
 };

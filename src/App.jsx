@@ -1,3 +1,5 @@
+// File: src/App.jsx (atau App.js)
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import MainLayout from './components/Layout/MainLayout';
@@ -11,7 +13,10 @@ import Toast from './components/UI/Toast';
 
 import PatientDetail from './pages/MedicalRecords/PatientDetail';
 import RecordForm from './pages/MedicalRecords/RecordForm';
+
 import PatientsPage from './pages/Patients/PatientsPage';
+import PatientDetailPage from './pages/Patients/PatientDetailPage'; 
+
 import PatientForm from './pages/Patients/PatientForm';
 import SettingsPage from './pages/Settings/SettingsPage';
 import Login from './pages/Auth/Login';
@@ -24,9 +29,13 @@ import StaffForm from './pages/Staff/StaffForm';
 import POSPage from './pages/Sales/POSPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 
+import WarehouseDashboard from './pages/Warehouse/WarehouseDashboard';
+import ProductManagementPage from './pages/Warehouse/ProductManagementPage';
+import TreatmentManagementPage from './pages/Warehouse/TreatmentManagementPage';
+import PromoManagementPage from './pages/Promos/PromoManagementPage';
+
 import { hasPermission } from './utils/rbac';
 
-// Protected Route Component
 const PrivateRoute = ({ children }) => {
     const { isAuthenticated, isLoading } = useAuth();
     const location = useLocation();
@@ -42,7 +51,6 @@ const PrivateRoute = ({ children }) => {
     return children;
 };
 
-// Role-Based Protected Route
 const RoleProtectedRoute = ({ children }) => {
     const { user } = useAuth();
     const location = useLocation();
@@ -52,6 +60,16 @@ const RoleProtectedRoute = ({ children }) => {
     }
 
     return children;
+};
+
+const DashboardSwitcher = () => {
+    const { user } = useAuth();
+    
+    if (user?.role === 'Gudang Umum') {
+        return <WarehouseDashboard />;
+    }
+    
+    return <Dashboard />;
 };
 
 function App() {
@@ -64,25 +82,28 @@ function App() {
                         <Routes>
                             <Route path="/login" element={<Login />} />
 
-                            {/* Protected Routes */}
                             <Route path="/*" element={
                                 <PrivateRoute>
                                     <MainLayout>
                                         <Routes>
-                                            <Route path="/" element={<RoleProtectedRoute><Dashboard /></RoleProtectedRoute>} />
+                                            <Route path="/" element={<RoleProtectedRoute><DashboardSwitcher /></RoleProtectedRoute>} />
                                             <Route path="/medical-records" element={<RoleProtectedRoute><PatientList /></RoleProtectedRoute>} />
                                             <Route path="/medical-records/new" element={<RoleProtectedRoute><RecordForm /></RoleProtectedRoute>} />
                                             <Route path="/medical-records/:id" element={<RoleProtectedRoute><PatientDetail /></RoleProtectedRoute>} />
                                             <Route path="/patients" element={<RoleProtectedRoute><PatientsPage /></RoleProtectedRoute>} />
                                             <Route path="/patients/new" element={<RoleProtectedRoute><PatientForm /></RoleProtectedRoute>} />
+                                            <Route path="/patients/detail/:id" element={<RoleProtectedRoute><PatientDetailPage /></RoleProtectedRoute>} />
                                             <Route path="/staff" element={<RoleProtectedRoute><StaffPage /></RoleProtectedRoute>} />
                                             <Route path="/staff/new" element={<RoleProtectedRoute><StaffForm /></RoleProtectedRoute>} />
                                             <Route path="/sales" element={<RoleProtectedRoute><SalesPage /></RoleProtectedRoute>} />
                                             <Route path="/sales/pos" element={<RoleProtectedRoute><POSPage /></RoleProtectedRoute>} />
+                                            <Route path="/promos" element={<RoleProtectedRoute><PromoManagementPage /></RoleProtectedRoute>} />
                                             <Route path="/attendance" element={<RoleProtectedRoute><AttendancePage /></RoleProtectedRoute>} />
                                             <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
                                             <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
                                             <Route path="/settings" element={<RoleProtectedRoute><SettingsPage /></RoleProtectedRoute>} />
+                                            <Route path="/products" element={<RoleProtectedRoute><ProductManagementPage /></RoleProtectedRoute>} />
+                                            <Route path="/treatments" element={<RoleProtectedRoute><TreatmentManagementPage /></RoleProtectedRoute>} />
                                             <Route path="/profile" element={<ProfilePage />} />
                                         </Routes>
                                     </MainLayout>

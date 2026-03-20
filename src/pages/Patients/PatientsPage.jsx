@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, User, ChevronRight } from 'lucide-react';
+import { Search, Plus, ChevronRight, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import CustomSelect from '../../components/UI/CustomSelect';
@@ -8,13 +8,26 @@ const PatientsPage = () => {
     const { patients } = useMockData();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All Status');
+    const [memberFilter, setMemberFilter] = useState('Semua Tipe');
+
+    // SABUK PENGAMAN 1: Fungsi untuk ambil inisial nama dengan aman
+    const getInitials = (name) => {
+        if (!name) return 'NN'; // No Name cadangan
+        return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    };
 
     const filteredPatients = patients.filter(patient => {
-        const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            patient.id.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'All Status' || patient.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        // SABUK PENGAMAN 2: Antisipasi perbedaan nama key (name vs namaLengkap)
+        const patientName = patient.namaLengkap || patient.name || '';
+        const patientId = patient.id || patient.noIdentitas || patient.noMember || '';
+        
+        const matchesSearch = patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            patientId.toLowerCase().includes(searchTerm.toLowerCase());
+            
+        const patientMemberType = patient.tipeMember || 'GOLD';
+        const matchesMemberType = memberFilter === 'Semua Tipe' || patientMemberType === memberFilter;
+        
+        return matchesSearch && matchesMemberType;
     });
 
     return (
@@ -47,119 +60,158 @@ const PatientsPage = () => {
                     </div>
                     <div className="w-48 relative z-50">
                         <CustomSelect
-                            value={statusFilter}
-                            onChange={setStatusFilter}
+                            value={memberFilter}
+                            onChange={setMemberFilter}
                             options={[
-                                { value: 'All Status', label: 'All Status' },
-                                { value: 'Active', label: 'Active' },
-                                { value: 'Completed', label: 'Completed' }
+                                { value: 'Semua Tipe', label: 'Semua Tipe' },
+                                { value: 'SILVER', label: 'Silver' },
+                                { value: 'GOLD', label: 'Gold' },
+                                { value: 'PLATINUM', label: 'Platinum' }
                             ]}
                         />
                     </div>
                 </div>
 
+                {/* Desktop View */}
                 <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left min-w-[800px]">
                         <thead>
-                            <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5">
-                                <th className="px-8 py-6">Nama Pasien</th>
-                                <th className="px-8 py-6">Umur</th>
-                                <th className="px-8 py-6">ID Pasien</th>
-                                <th className="px-8 py-6">Alergi</th>
-                                <th className="px-8 py-6 text-center">Status</th>
-                                <th className="px-8 py-6 text-right">Aksi</th>
+                            <tr className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/50">
+                                <th className="px-8 py-5 rounded-tl-xl">ID</th>
+                                <th className="px-8 py-5">Nama</th>
+                                <th className="px-8 py-5">No. Member</th>
+                                <th className="px-8 py-5">No. RM</th>
+                                <th className="px-8 py-5">Tipe Member</th>
+                                <th className="px-8 py-5 text-right rounded-tr-xl">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredPatients.map((patient) => (
-                                <tr
-                                    key={patient.id}
-                                    onClick={() => navigate(`/medical-records/${patient.id}`)}
-                                    className="border-b border-primary/5 last:border-0 cursor-pointer"
-                                >
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5">
-                                                {patient.name.split(' ').map(n => n[0]).join('')}
+                            {filteredPatients.map((patient, index) => {
+                                // Ambil data dengan aman
+                                const pName = patient.namaLengkap || patient.name || '-';
+                                const pId = patient.id || patient.noIdentitas || `ID-${index}`;
+                                
+                                return (
+                                    <tr
+                                        key={pId}
+                                        onClick={() => navigate(`/patients/detail/${pId}`)}
+                                        className="border-b border-primary/5 last:border-0 cursor-pointer hover:bg-primary/[0.02] transition-colors"
+                                    >
+                                        <td className="px-8 py-4">
+                                            <span className="font-bold text-blue-500 text-sm tracking-tight">{pId}</span>
+                                        </td>
+                                        <td className="px-8 py-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
+                                                    {getInitials(pName)}
+                                                </div>
+                                                <div>
+                                                    <div className="font-black text-primary text-sm tracking-tight">{pName}</div>
+                                                    <div className="text-[11px] text-primary/40 font-bold mt-0.5">{patient.noTelepon || patient.phone || '-'}</div>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="font-black text-primary text-sm tracking-tight">{patient.name}</div>
-                                                <div className="text-[10px] text-primary/40 font-bold uppercase tracking-wider">Terakhir: {patient.lastVisit}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td className="px-8 py-6 text-primary/60 font-bold text-sm tracking-tight">{patient.age} Thn</td>
-                                    <td className="px-8 py-6 text-primary/40 font-black text-xs tracking-widest">{patient.id}</td>
-                                    <td className="px-8 py-6">
-                                        {patient.allergies && patient.allergies !== 'None' ? (
-                                            <span className="text-red-500 text-[10px] font-black uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full">
-                                                {patient.allergies}
-                                            </span>
-                                        ) : (
-                                            <span className="text-primary/20 text-xs">-</span>
-                                        )}
-                                    </td>
-                                    <td className="px-8 py-6 text-center">
-                                        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${patient.status === 'Active' ? 'bg-primary/10 text-primary' :
-                                            patient.status === 'Completed' ? 'bg-accent-gold/10 text-accent-gold' :
-                                                'bg-red-50 text-red-400'
+                                        </td>
+                                        <td className="px-8 py-4 text-primary/60 font-bold text-sm tracking-tight">
+                                            {patient.noMember || '-'}
+                                        </td>
+                                        <td className="px-8 py-4 text-primary/60 font-bold text-sm tracking-tight">
+                                            {patient.noRM || '-'}
+                                        </td>
+                                        <td className="px-8 py-4">
+                                            <span className={`font-black text-xs tracking-widest uppercase px-3 py-1 rounded-full ${
+                                                (patient.tipeMember || 'GOLD') === 'PLATINUM' ? 'bg-slate-100 text-slate-600' :
+                                                (patient.tipeMember || 'GOLD') === 'GOLD' ? 'bg-accent-gold/10 text-accent-gold' :
+                                                'bg-gray-100 text-gray-500' 
                                             }`}>
-                                            {patient.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <button className="text-primary/40 hover:text-primary transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90">
-                                            <ChevronRight className="w-4 h-4" />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
+                                                {patient.tipeMember || 'GOLD'}
+                                            </span>
+                                        </td>
+                                        <td className="px-8 py-4">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <button 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        navigate(`/patients/edit/${pId}`);
+                                                    }}
+                                                    className="text-primary/40 hover:text-accent-gold transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90"
+                                                >
+                                                    <Pencil className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )
+                            })}
                         </tbody>
                     </table>
                 </div>
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-primary/5">
-                    {filteredPatients.map((patient) => (
-                        <div
-                            key={patient.id}
-                            onClick={() => navigate(`/medical-records/${patient.id}`)}
-                            className="p-6 border-b border-primary/5 last:border-0 flex items-center gap-4 cursor-pointer"
-                        >
-                            <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
-                                {patient.name.split(' ').map(n => n[0]).join('')}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <div className="flex justify-between items-start mb-1 gap-2">
-                                    <h4 className="font-black text-primary text-sm tracking-tight truncate">{patient.name}</h4>
-                                    <span className={`px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm shrink-0 ${patient.status === 'Active' ? 'bg-primary/10 text-primary' :
-                                        patient.status === 'Completed' ? 'bg-accent-gold/10 text-accent-gold' :
-                                            'bg-red-50 text-red-400'
-                                        }`}>
-                                        {patient.status}
+                    {filteredPatients.map((patient, index) => {
+                        const pName = patient.namaLengkap || patient.name || '-';
+                        const pId = patient.id || patient.noIdentitas || `ID-${index}`;
+                        
+                        return (
+                            <div
+                                key={pId}
+                                onClick={() => navigate(`/patients/detail/${pId}`)}
+                                className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-3 cursor-pointer hover:bg-primary/[0.02]"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
+                                            {getInitials(pName)}
+                                        </div>
+                                        <div>
+                                            <span className="font-bold text-blue-500 text-xs tracking-tight">{pId}</span>
+                                            <h4 className="font-black text-primary text-sm tracking-tight mt-0.5">{pName}</h4>
+                                            <p className="text-[10px] text-primary/40 font-bold">{patient.noTelepon || patient.phone || '-'}</p>
+                                        </div>
+                                    </div>
+                                    <span className={`font-black text-[10px] tracking-widest uppercase px-2 py-1 rounded-md mt-1 ${
+                                        (patient.tipeMember || 'GOLD') === 'PLATINUM' ? 'bg-slate-100 text-slate-600' :
+                                        (patient.tipeMember || 'GOLD') === 'GOLD' ? 'bg-accent-gold/10 text-accent-gold' :
+                                        'bg-gray-100 text-gray-500'
+                                    }`}>
+                                        {patient.tipeMember || 'GOLD'}
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center text-[10px] text-primary/40 font-bold uppercase tracking-wider">
-                                    <span>ID: {patient.id} • {patient.age} Thn</span>
-                                    <ChevronRight className="w-3 h-3" />
-                                </div>
-                                {patient.allergies && patient.allergies !== 'None' && (
-                                    <div className="mt-2">
-                                        <span className="text-red-500 text-[8px] font-black uppercase tracking-widest bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
-                                            ⚠️ {patient.allergies}
-                                        </span>
+                                
+                                <div className="grid grid-cols-2 gap-2 text-[11px] font-bold text-primary/60 mt-2 bg-gray-50 p-3 rounded-xl border border-primary/5">
+                                    <div>
+                                        <span className="text-[9px] text-primary/40 uppercase tracking-widest block mb-0.5">No Member</span>
+                                        {patient.noMember || '-'}
                                     </div>
-                                )}
+                                    <div>
+                                        <span className="text-[9px] text-primary/40 uppercase tracking-widest block mb-0.5">No RM</span>
+                                        {patient.noRM || '-'}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-2 mt-2">
+                                    <button 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/patients/edit/${pId}`);
+                                        }}
+                                        className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
+                                    >
+                                        <Pencil className="w-3 h-3" /> Edit
+                                    </button>
+                                    <button className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95">
+                                        Detail <ChevronRight className="w-3 h-3" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        )
+                    })}
                 </div>
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Showing {filteredPatients.length} of {patients.length} records</span>
                     <div className="flex gap-3 w-full sm:w-auto">
                         <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Previous</button>
-                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Next</button>
                     </div>
                 </div>
             </div>
