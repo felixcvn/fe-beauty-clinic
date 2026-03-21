@@ -5,41 +5,49 @@ const MockDataContext = createContext();
 export const MockDataProvider = ({ children }) => {
     const [patients, setPatients] = useState([
         {
-            id: 'P-10024',
-            name: 'Emma Watson',
-            age: 24,
-            lastVisit: 'Oct 24, 2023',
-            condition: 'Acne Treatment',
-            status: 'Active',
-            allergies: 'Penicillin, Latex',
+            id: 'P-10024', name: 'Emma Watson', namaLengkap: 'Emma Watson', age: 24, lastVisit: 'Okt 24, 2025', condition: 'Acne Treatment', status: 'Active', allergies: 'Penicillin',
+            noMember: 'M-001', noRM: 'RM-001', noIdentitas: '3201010101010001', tempatLahir: 'Jakarta', tanggalLahir: '2000-01-01', jenisKelamin: 'Perempuan', alamat: 'Jl. Sudirman No 1', email: 'emma@email.com', noTelepon: '081234567890', tipeMember: 'GOLD',
             history: [
-                {
-                    id: 1,
-                    date: 'Oct 24, 2023',
-                    treatment: 'Acne Treatment',
-                    specialist: 'Dr. Sarah Smith',
-                    notes: 'Patient responded well to the chemical peel. Redness subsided after 2 hours.',
-                    beforeImage: 'https://images.unsplash.com/photo-1548810756-12a9792182c4?auto=format&fit=crop',
-                    afterImage: 'https://images.unsplash.com/photo-1552693673-1bf958298935?auto=format&fit=crop'
-                }
+                { id: 1, date: 'Okt 24, 2025', treatment: 'Acne Treatment', specialist: 'Dr. Sarah Smith', notes: 'Respon baik terhadap facial.', beforeImage: 'https://images.unsplash.com/photo-1548810756-12a9792182c4', afterImage: 'https://images.unsplash.com/photo-1552693673-1bf958298935' }
             ]
         },
-        { id: 'P-10025', name: 'John Doe', age: 32, lastVisit: 'Oct 22, 2023', condition: 'Laser Therapy', status: 'Completed', allergies: 'None', history: [] },
-        { id: 'P-10026', name: 'Sarah Parker', age: 29, lastVisit: 'Oct 20, 2023', condition: 'Skin Rejuvenation', status: 'Active', allergies: 'Peanuts', history: [] },
+        { id: 'P-10025', name: 'Budi Santoso', namaLengkap: 'Budi Santoso', age: 32, lastVisit: 'Okt 22, 2025', condition: 'Laser Therapy', status: 'Completed', allergies: 'Tidak ada', noMember: 'M-002', noRM: 'RM-002', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10026', name: 'Siti Rahma', namaLengkap: 'Siti Rahma', age: 29, lastVisit: 'Okt 20, 2025', condition: 'Skin Rejuvenation', status: 'Active', allergies: 'Kacang', noMember: 'M-003', noRM: 'RM-003', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10027', name: 'Arief Rahman', namaLengkap: 'Arief Rahman', age: 45, lastVisit: 'Okt 15, 2025', condition: 'Peeling', status: 'Active', allergies: 'Tidak ada', noMember: 'M-004', noRM: 'RM-004', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10028', name: 'Rina Wijaya', namaLengkap: 'Rina Wijaya', age: 21, lastVisit: 'Sep 30, 2025', condition: 'Facial Wash', status: 'Completed', allergies: 'Debu', noMember: 'M-005', noRM: 'RM-005', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10029', name: 'Ahmad Dahlan', namaLengkap: 'Ahmad Dahlan', age: 38, lastVisit: 'Sep 25, 2025', condition: 'Botox', status: 'Active', allergies: 'Seafood', noMember: 'M-006', noRM: 'RM-006', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10030', name: 'Dewi Lestari', namaLengkap: 'Dewi Lestari', age: 27, lastVisit: 'Sep 20, 2025', condition: 'Acne Treatment', status: 'Completed', allergies: 'Udang', noMember: 'M-007', noRM: 'RM-007', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10031', name: 'Hendra Saputra', namaLengkap: 'Hendra Saputra', age: 50, lastVisit: 'Agt 15, 2025', condition: 'Laser Therapy', status: 'Active', allergies: 'Paracetamol', noMember: 'M-008', noRM: 'RM-008', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10032', name: 'Maya Sari', namaLengkap: 'Maya Sari', age: 33, lastVisit: 'Agt 10, 2025', condition: 'Skin Rejuvenation', status: 'Active', allergies: 'Tidak ada', noMember: 'M-009', noRM: 'RM-009', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10033', name: 'Riko Pratama', namaLengkap: 'Riko Pratama', age: 26, lastVisit: 'Jul 05, 2025', condition: 'Peeling', status: 'Completed', allergies: 'Coklat', noMember: 'M-010', noRM: 'RM-010', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10034', name: 'Putri Andriani', namaLengkap: 'Putri Andriani', age: 22, lastVisit: 'Sep 01, 2025', condition: 'Facial Acne', status: 'Active', allergies: 'Tidak ada', noMember: 'M-011', noRM: 'RM-011', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10035', name: 'Fajar Nugroho', namaLengkap: 'Fajar Nugroho', age: 41, lastVisit: 'Agt 01, 2025', condition: 'Pigmentation', status: 'Active', allergies: 'Debu', noMember: 'M-012', noRM: 'RM-012', tipeMember: 'PLATINUM', history: [] },
     ]);
 
     const [products, setProducts] = useState([
         { id: 'PRD-001', name: 'Acne Treatment Pack', category: 'Skincare', price: 450000, stock: 15, minStock: 20, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-004', name: 'Skin Glow Kit', category: 'Skincare', price: 850000, stock: 12, minStock: 10, image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-005', name: 'Sunscreen SPF 50', category: 'Skincare', price: 150000, stock: 25, minStock: 20, image: 'https://images.unsplash.com/photo-1598440499033-547b19615c0a?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-005', name: 'Sunscreen Gel SPF 50', category: 'Skincare', price: 150000, stock: 25, minStock: 20, image: 'https://images.unsplash.com/photo-1598440499033-547b19615c0a?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-006', name: 'Paracetamol 500mg', category: 'Obat', price: 15000, stock: 100, minStock: 50, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-007', name: 'Night Cream Retinol', category: 'Skincare', price: 250000, stock: 10, minStock: 15, image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-007', name: 'Night Cream Retinol', category: 'Skincare', price: 250000, stock: 8, minStock: 15, image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-008', name: 'Amoxicillin Syrup', category: 'Obat', price: 45000, stock: 20, minStock: 30, image: 'https://images.unsplash.com/photo-1471864190281-ad5f9f30d947?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-009', name: 'Vitamin C Serum', category: 'Skincare', price: 320000, stock: 45, minStock: 20, image: 'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-010', name: 'Moisturizer Ceramide', category: 'Skincare', price: 180000, stock: 30, minStock: 15, image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-011', name: 'Antibacterial Soap', category: 'Obat', price: 35000, stock: 80, minStock: 40, image: 'https://images.unsplash.com/photo-1600857062241-98e5dba7f214?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-012', name: 'Toner BHA/AHA', category: 'Skincare', price: 195000, stock: 22, minStock: 15, image: 'https://images.unsplash.com/photo-1615397323755-63b71f9cf714?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-013', name: 'Cough Syrup (Herbal)', category: 'Obat', price: 55000, stock: 50, minStock: 25, image: 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-014', name: 'Anti-aging Cream', category: 'Skincare', price: 550000, stock: 5, minStock: 10, image: 'https://images.unsplash.com/photo-1599305090598-fe179d501227?q=80&w=200&h=200&auto=format&fit=crop' },
     ]);
 
     const [treatments, setTreatments] = useState([
         { id: 'TRT-001', name: 'Laser Therapy Session', category: 'Treatment', price: 1200000, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'TRT-002', name: 'Chemical Peel', category: 'Treatment', price: 350000, image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-003', name: 'Acne Extraction', category: 'Treatment', price: 250000, image: 'https://images.unsplash.com/photo-1590424744257-fce752f9b1b4?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-004', name: 'Microdermabrasion', category: 'Treatment', price: 500000, image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-005', name: 'Botox Injection', category: 'Treatment', price: 2500000, image: 'https://images.unsplash.com/photo-1606902965551-dce093cda6e7?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-006', name: 'Skin Rejuvenation Therapy', category: 'Treatment', price: 800000, image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-007', name: 'Facial Whitening', category: 'Treatment', price: 400000, image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-008', name: 'Radio Frequency (RF) Set', category: 'Treatment', price: 650000, image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=200&h=200&auto=format&fit=crop' },
     ]);
 
     const addPatient = (patient) => {

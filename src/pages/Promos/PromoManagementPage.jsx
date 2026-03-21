@@ -19,10 +19,16 @@ const PromoManagementPage = () => {
 
     // Mock Data Promo
     const [promos, setPromos] = useState([
-        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 45, status: 'Aktif' },
+        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 85, status: 'Aktif' },
         { id: 'PRM-002', code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', quota: 50, used: 12, status: 'Aktif' },
         { id: 'PRM-003', code: 'VALENTINE20', name: 'Kasih Sayang Diskon', type: 'Persen', value: 20, startDate: '2026-02-10', endDate: '2026-02-20', quota: 200, used: 200, status: 'Berakhir' },
-        { id: 'PRM-004', code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 120, status: 'Aktif' },
+        { id: 'PRM-004', code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 320, status: 'Aktif' },
+        { id: 'PRM-005', code: 'LEBARANCERIA', name: 'Promo Lebaran', type: 'Persen', value: 30, startDate: '2026-04-01', endDate: '2026-04-15', quota: 150, used: 0, status: 'Draf' },
+        { id: 'PRM-006', code: 'CANTIK100', name: 'Potongan Facial 100k', type: 'Nominal', value: 100000, startDate: '2026-03-10', endDate: '2026-05-10', quota: 100, used: 45, status: 'Aktif' },
+        { id: 'PRM-007', code: 'FLASHMONDAY', name: 'Flash Sale Senin', type: 'Persen', value: 15, startDate: '2026-03-16', endDate: '2026-03-17', quota: 50, used: 50, status: 'Berakhir' },
+        { id: 'PRM-008', code: 'WEEKENDGLOW', name: 'Diskon Akhir Pekan', type: 'Nominal', value: 75000, startDate: '2026-03-21', endDate: '2026-03-23', quota: 200, used: 0, status: 'Draf' },
+        { id: 'PRM-009', code: 'BEAUTYFEST', name: 'Beauty Festival 2026', type: 'Persen', value: 40, startDate: '2026-05-01', endDate: '2026-05-31', quota: 500, used: 0, status: 'Draf' },
+        { id: 'PRM-010', code: 'ULTAH24', name: 'Diskon Bulan Ulang Tahun', type: 'Persen', value: 24, startDate: '2026-07-01', endDate: '2026-07-31', quota: 1000, used: 54, status: 'Berakhir' },
     ]);
 
     const filteredPromos = promos.filter(promo => {

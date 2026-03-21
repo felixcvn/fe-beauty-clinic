@@ -20,10 +20,20 @@ const StaffPage = () => {
 
     const [staffList, setStaffList] = useState([
         { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', status: 'Active' },
-        { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'doctor@clinic.com', phone: '0812-9876-5432', status: 'Active' },
-        { id: 'STF-003', name: 'Budi Santoso', role: 'Customer Service', email: 'cs@clinic.com', phone: '0813-1122-3344', status: 'Active' },
-        { id: 'STF-004', name: 'Linda Rahayu', role: 'HRD', email: 'hrd@clinic.com', phone: '0811-5566-7788', status: 'Active' },
-        { id: 'STF-005', name: 'Andi Pratama', role: 'Manager', email: 'manager@clinic.com', phone: '0815-9900-1122', status: 'Active' },
+        { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', status: 'Active' },
+        { id: 'STF-003', name: 'Dr. Andi Pratama', role: 'Dokter', email: 'andi.p@clinic.com', phone: '0813-1122-3344', status: 'Active' },
+        { id: 'STF-004', name: 'Dr. Linda Kusuma', role: 'Dokter', email: 'linda.k@clinic.com', phone: '0811-5566-7788', status: 'Cuti' },
+        { id: 'STF-005', name: 'Budi Santoso', role: 'Customer Service', email: 'budi.cs@clinic.com', phone: '0815-9900-1122', status: 'Active' },
+        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', email: 'ayu.cs@clinic.com', phone: '0812-3344-5566', status: 'Active' },
+        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', email: 'dewi.hrd@clinic.com', phone: '0813-7788-9900', status: 'Active' },
+        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', email: 'fajar.m@clinic.com', phone: '0811-2233-4455', status: 'Active' },
+        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', email: 'rina.p@clinic.com', phone: '0815-6677-8899', status: 'Active' },
+        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', email: 'agus.p@clinic.com', phone: '0812-4455-6677', status: 'Active' },
+        { id: 'STF-011', name: 'Siti Aminah', role: 'Perawat', email: 'siti.p@clinic.com', phone: '0813-9988-7766', status: 'Resigned' },
+        { id: 'STF-012', name: 'Hendra Saputra', role: 'Staff Gudang', email: 'hendra.g@clinic.com', phone: '0811-1122-3344', status: 'Active' },
+        { id: 'STF-013', name: 'Maya Indah', role: 'Staff Gudang', email: 'maya.g@clinic.com', phone: '0815-4455-6677', status: 'Active' },
+        { id: 'STF-014', name: 'Reza Pahlevi', role: 'Kasir', email: 'reza.k@clinic.com', phone: '0812-7788-9900', status: 'Active' },
+        { id: 'STF-015', name: 'Nina Wulandari', role: 'Kasir', email: 'nina.k@clinic.com', phone: '0813-2233-4455', status: 'Cuti' },
     ]);
 
     const filteredStaff = staffList.filter(s => 

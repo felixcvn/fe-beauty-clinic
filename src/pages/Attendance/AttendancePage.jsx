@@ -45,17 +45,29 @@ const AttendancePage = () => {
     ]);
 
     const [staffAttendance, setStaffAttendance] = useState([
-        { id: 'STF-001', name: 'Dr. Sarah Smith', role: 'Dermatologist', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2024-02-08', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-002', name: 'Linda Rahayu', role: 'Nurse', checkIn: '08:55', checkOut: '17:05', status: 'Hadir', date: '2024-02-08', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-003', name: 'Andi Pratama', role: 'Receptionist', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2024-02-08', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
-        { id: 'STF-004', name: 'Maya Sari', role: 'Therapist', checkIn: '--:--', checkOut: '--:--', status: 'Izin', date: '2024-02-08', photoIn: null, photoOut: null },
-        { id: 'STF-005', name: 'Bambang Heru', role: 'Security', checkIn: '07:30', checkOut: '15:30', status: 'Hadir', date: '2024-02-08', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-001', name: 'Dr. Sarah Smith', role: 'Dokter', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-002', name: 'Linda Rahayu', role: 'Perawat', checkIn: '08:55', checkOut: '17:05', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-003', name: 'Andi Pratama', role: 'Customer Service', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { id: 'STF-004', name: 'Maya Sari', role: 'Perawat', checkIn: '--:--', checkOut: '--:--', status: 'Izin', date: '2026-03-24', photoIn: null, photoOut: null },
+        { id: 'STF-005', name: 'Bambang Heru', role: 'Staff Gudang', checkIn: '07:30', checkOut: '15:30', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', checkIn: '08:50', checkOut: '17:00', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', checkIn: '08:00', checkOut: '16:00', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', checkIn: '08:40', checkOut: '16:45', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', checkIn: '--:--', checkOut: '--:--', status: 'Sakit', date: '2026-03-24', photoIn: null, photoOut: null },
+        { id: 'STF-011', name: 'Reza Pahlevi', role: 'Kasir', checkIn: '08:58', checkOut: '--:--', status: 'Hadir', date: '2026-03-24', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { id: 'STF-012', name: 'Nina Wulandari', role: 'Kasir', checkIn: '--:--', checkOut: '--:--', status: 'Cuti', date: '2026-03-24', photoIn: null, photoOut: null },
     ]);
 
     const [leaveRequests, setLeaveRequests] = useState([
-        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2024-03-25', endDate: '2024-03-27', reason: 'Liburan keluarga', status: 'Pending' },
-        { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2024-03-20', endDate: '2024-03-21', reason: 'Demam tinggi', status: 'Disetujui' },
-        { id: 'LR-003', staffName: 'Maya Sari', role: 'Therapist', type: 'Izin Lainnya', startDate: '2024-03-22', endDate: '2024-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
+        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Pending' },
+        { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui' },
+        { id: 'LR-003', staffName: 'Maya Sari', role: 'Perawat', type: 'Izin Lainnya', startDate: '2026-03-22', endDate: '2026-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
+        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Pending' },
+        { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui' },
+        { id: 'LR-006', staffName: 'Rina Kartika', role: 'Perawat', type: 'Cuti Melahirkan', startDate: '2026-05-01', endDate: '2026-07-31', reason: 'Persiapan persalinan', status: 'Disetujui' },
+        { id: 'LR-007', staffName: 'Hendra Saputra', role: 'Staff Gudang', type: 'Izin Lainnya', startDate: '2026-03-28', endDate: '2026-03-28', reason: 'Mengurus perpanjangan SIM', status: 'Pending' },
+        { id: 'LR-008', staffName: 'Nina Wulandari', role: 'Kasir', type: 'Cuti Tahunan', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Menjenguk keluarga', status: 'Disetujui' },
     ]);
 
     // Handlers
