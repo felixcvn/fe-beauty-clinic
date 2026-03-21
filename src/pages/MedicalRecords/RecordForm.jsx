@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Plus, Trash2, User, Calendar, Activity, Stethoscope } from 'lucide-react';
 import ImageUpload from '../../components/UI/ImageUpload';
 import CustomSelect from '../../components/UI/CustomSelect';
+import CustomMultiSelect from '../../components/UI/CustomMultiSelect';
 import CustomDatePicker from '../../components/UI/CustomDatePicker';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
@@ -12,10 +13,9 @@ const RecordForm = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
 
-    // Form State
     const [selectedPatientId, setSelectedPatientId] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
-    const [treatmentType, setTreatmentType] = useState('');
+    const [selectedTreatments, setSelectedTreatments] = useState([]);
     const [specialist, setSpecialist] = useState('Dr. Sarah Smith');
     const [diagnosis, setDiagnosis] = useState('');
     const [notes, setNotes] = useState('');
@@ -46,7 +46,7 @@ const RecordForm = () => {
         const newRecord = {
             id: Date.now(),
             date: date,
-            treatment: treatmentType || 'General Consultation',
+            treatment: selectedTreatments.length > 0 ? selectedTreatments.join(', ') : 'General Consultation',
             specialist: specialist,
             notes: notes,
             beforeImage: beforeImage ? URL.createObjectURL(beforeImage) : null,
@@ -112,11 +112,12 @@ const RecordForm = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10">
                         <div className="space-y-3">
                             <label className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1">Tipe Perawatan</label>
-                            <CustomSelect
+                            <CustomMultiSelect
                                 options={treatmentOptions}
-                                value={treatmentType}
-                                onChange={(val) => setTreatmentType(val)}
-                                placeholder="Pilih Perawatan..."
+                                values={selectedTreatments}
+                                onChange={(val) => setSelectedTreatments(val)}
+                                placeholder="Cari & Pilih Perawatan..."
+                                searchable={true}
                                 icon={Activity}
                             />
                         </div>
