@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
     CalendarDays, Clock, UserCheck, UserMinus, Search, Filter, 
     MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera, 
@@ -128,6 +128,36 @@ const AttendancePage = () => {
         }
     };
 
+    // Pagination & Search Logic
+    const finalAttendance = isOwner ? filteredOwnerAttendance : staffAttendance.filter(record => 
+        record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        record.role.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const [attendancePage, setAttendancePage] = useState(1);
+    const [leavePage, setLeavePage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setAttendancePage(1);
+        setLeavePage(1);
+    }, [searchTerm, statusFilter, monthFilter, activeTab]);
+
+    const idxLastAttendance = attendancePage * itemsPerPage;
+    const idxFirstAttendance = idxLastAttendance - itemsPerPage;
+    const currentAttendance = finalAttendance.slice(idxFirstAttendance, idxLastAttendance);
+    const totalAttendancePages = Math.ceil(finalAttendance.length / itemsPerPage);
+
+    const filteredLeave = leaveRequests.filter(req => 
+        req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        req.type.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const idxLastLeave = leavePage * itemsPerPage;
+    const idxFirstLeave = idxLastLeave - itemsPerPage;
+    const currentLeave = filteredLeave.slice(idxFirstLeave, idxLastLeave);
+    const totalLeavePages = Math.ceil(filteredLeave.length / itemsPerPage);
+
     return (
         <div className="space-y-10 animate-fade-in pb-12">
             {/* Modals */}
@@ -249,7 +279,7 @@ const AttendancePage = () => {
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
                                 <div className="relative flex-1">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                                    <input type="text" placeholder="Cari nama staff atau divisi..." className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                                    <input type="text" placeholder="Cari nama staff atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button className="flex-1 md:flex-none p-3.5 rounded-2xl border border-primary/5 bg-white text-primary/60 hover:text-primary transition-all shadow-sm">
@@ -278,7 +308,7 @@ const AttendancePage = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
-                                    {(isOwner ? filteredOwnerAttendance : staffAttendance).map((record) => (
+                                    {currentAttendance.map((record) => (
                                         <tr key={record.id} onClick={() => handleOpenDetail(record)} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors cursor-pointer">
                                             <td className="px-8 py-4">
                                                 <div className="flex items-center gap-4">
@@ -330,6 +360,26 @@ const AttendancePage = () => {
                                 </tbody>
                             </table>
                         </div>
+                        
+                        <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
+                            <span>Showing {finalAttendance.length === 0 ? 0 : idxFirstAttendance + 1} to {Math.min(idxLastAttendance, finalAttendance.length)} of {finalAttendance.length} records</span>
+                            <div className="flex gap-3 w-full sm:w-auto">
+                                <button 
+                                    onClick={() => setAttendancePage(p => Math.max(1, p - 1))} 
+                                    disabled={attendancePage === 1}
+                                    className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                                >
+                                    Sebelumnya
+                                </button>
+                                <button 
+                                    onClick={() => setAttendancePage(p => Math.min(totalAttendancePages, p + 1))} 
+                                    disabled={attendancePage === totalAttendancePages || totalAttendancePages === 0}
+                                    className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                                >
+                                    Next
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (
@@ -338,7 +388,7 @@ const AttendancePage = () => {
                     <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
                         <div className="relative flex-1">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                            <input type="text" placeholder="Cari data pengajuan..." className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                            <input type="text" placeholder="Cari data pengajuan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
                         </div>
                     </div>
 
@@ -355,7 +405,7 @@ const AttendancePage = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-primary/5">
-                                {leaveRequests.map((req) => (
+                                {currentLeave.map((req) => (
                                     <tr key={req.id} className="border-b border-primary/5 last:border-0 hover:bg-secondary/5 transition-colors">
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-3">
@@ -408,6 +458,26 @@ const AttendancePage = () => {
                                 ))}
                             </tbody>
                         </table>
+                    </div>
+                    
+                    <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
+                        <span>Showing {filteredLeave.length === 0 ? 0 : idxFirstLeave + 1} to {Math.min(idxLastLeave, filteredLeave.length)} of {filteredLeave.length} records</span>
+                        <div className="flex gap-3 w-full sm:w-auto">
+                            <button 
+                                onClick={() => setLeavePage(p => Math.max(1, p - 1))} 
+                                disabled={leavePage === 1}
+                                className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                            >
+                                Sebelumnya
+                            </button>
+                            <button 
+                                onClick={() => setLeavePage(p => Math.min(totalLeavePages, p + 1))} 
+                                disabled={leavePage === totalLeavePages || totalLeavePages === 0}
+                                className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                            >
+                                Next
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

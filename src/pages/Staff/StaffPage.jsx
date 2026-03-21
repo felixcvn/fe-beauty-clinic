@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -40,6 +40,27 @@ const StaffPage = () => {
         s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         s.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Pagination Logic
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentStaff = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredStaff.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
 
     // Handlers
     const handleOpenEdit = (staff) => {
@@ -159,7 +180,7 @@ const StaffPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredStaff.map((staff) => (
+                            {currentStaff.map((staff) => (
                                 <tr key={staff.id} className="hover:bg-primary/[0.02] transition-colors">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
@@ -201,7 +222,7 @@ const StaffPage = () => {
 
                 {/* Mobile Card View (Show only on mobile) */}
                 <div className="md:hidden divide-y divide-primary/5">
-                    {filteredStaff.map((staff) => (
+                    {currentStaff.map((staff) => (
                         <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-4">
@@ -251,14 +272,24 @@ const StaffPage = () => {
                     ))}
                 </div>
 
-                {/* Info Footer Mobile */}
-                <div className="p-6 md:p-8 bg-gray-50/30 border-t border-primary/5 flex justify-between items-center">
-                    <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest">
-                        Total {filteredStaff.length} Pegawai
-                    </p>
-                    <div className="flex gap-2">
-                         <button className="p-2 rounded-lg border border-primary/5 bg-white text-primary/40 hover:text-primary transition-all"><ChevronRight className="w-4 h-4 rotate-180" /></button>
-                         <button className="p-2 rounded-lg border border-primary/5 bg-white text-primary/40 hover:text-primary transition-all"><ChevronRight className="w-4 h-4" /></button>
+                {/* Info Footer */}
+                <div className="p-6 md:p-8 bg-gray-50/30 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                    <span>Showing {filteredStaff.length === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredStaff.length)} of {filteredStaff.length} records</span>
+                    <div className="flex gap-3 w-full sm:w-auto">
+                        <button 
+                            onClick={handlePrevPage} 
+                            disabled={currentPage === 1}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Sebelumnya
+                        </button>
+                        <button 
+                            onClick={handleNextPage} 
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

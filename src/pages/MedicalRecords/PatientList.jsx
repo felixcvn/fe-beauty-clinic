@@ -151,7 +151,7 @@ const PatientList = () => {
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Showing {filteredPatients.length} of {patients.length} records</span>
                     <div className="flex gap-3 w-full sm:w-auto">
-                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Previous</button>
+                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
                         <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Next</button>
                     </div>
                 </div>

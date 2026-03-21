@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom'; // Untuk modal konfirmasi
 import { Search, Plus, Tag, CheckCircle2, XCircle, Edit3, Trash2, AlertTriangle } from 'lucide-react';
 import CustomSelect from '../../components/UI/CustomSelect';
@@ -37,6 +37,27 @@ const PromoManagementPage = () => {
         const matchesStatus = statusFilter === 'Semua Status' || promo.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
+
+    // Pagination Logic
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, statusFilter]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentPromos = filteredPromos.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredPromos.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
 
     const getStatusStyle = (status) => {
         switch (status) {
@@ -188,7 +209,7 @@ const PromoManagementPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredPromos.map((promo) => (
+                            {currentPromos.map((promo) => (
                                 <tr key={promo.id} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
                                     <td className="px-8 py-4">
                                         <div className="flex items-center gap-4">
@@ -238,8 +259,24 @@ const PromoManagementPage = () => {
                     </table>
                 </div>
 
-                <div className="p-6 md:p-8 border-t border-primary/5 flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                    <span>Showing {filteredPromos.length} of {promos.length} records</span>
+                <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
+                    <span>Showing {filteredPromos.length === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredPromos.length)} of {filteredPromos.length} records</span>
+                    <div className="flex gap-3 w-full sm:w-auto">
+                        <button 
+                            onClick={handlePrevPage} 
+                            disabled={currentPage === 1}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Sebelumnya
+                        </button>
+                        <button 
+                            onClick={handleNextPage} 
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

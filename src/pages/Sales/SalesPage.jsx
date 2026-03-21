@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -30,6 +30,29 @@ const SalesPage = () => {
         { title: 'Customers', value: '850', change: '+5.4%', trend: 'up', icon: Users },
         { title: 'Products Sold', value: '3,120', change: '-2.1%', trend: 'down', icon: Package },
     ];
+
+    const filteredSales = recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    // Pagination Logic
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentSales = filteredSales.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredSales.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
 
     return (
         <div className="space-y-8 md:space-y-12 animate-fade-in pb-12">
@@ -108,7 +131,7 @@ const SalesPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase())).map((sale) => (
+                            {currentSales.map((sale) => (
                                 <tr key={sale.id} className="border-b border-primary/5 last:border-0">
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-black text-primary tracking-tight">{sale.id}</span>
@@ -151,7 +174,7 @@ const SalesPage = () => {
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-primary/5">
-                    {recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase())).map((sale) => (
+                    {currentSales.map((sale) => (
                         <div key={sale.id} className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-5">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
@@ -198,11 +221,23 @@ const SalesPage = () => {
                     ))}
                 </div>
 
-                <div className="p-8 bg-secondary/5 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-6">
-                    <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest order-2 sm:order-1">Showing {recentSales.length} items of {recentSales.length}</p>
-                    <div className="flex gap-3 order-1 sm:order-2 w-full sm:w-auto">
-                        <button className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl bg-white border border-primary/5 text-[10px] font-black uppercase tracking-widest text-primary/20 hover:text-primary transition-all shadow-sm">Previous</button>
-                        <button className="flex-1 sm:flex-none px-6 py-3.5 rounded-2xl bg-primary text-secondary text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-primary/20">Next Page</button>
+                <div className="p-8 bg-secondary/5 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
+                    <span>Showing {filteredSales.length === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredSales.length)} of {filteredSales.length} records</span>
+                    <div className="flex gap-3 w-full sm:w-auto">
+                        <button 
+                            onClick={handlePrevPage} 
+                            disabled={currentPage === 1}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Sebelumnya
+                        </button>
+                        <button 
+                            onClick={handleNextPage} 
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Next
+                        </button>
                     </div>
                 </div>
             </div>

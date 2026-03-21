@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
@@ -31,6 +31,27 @@ const ItemManagementPage = () => {
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    // Pagination Logic
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, activeFilter]);
+
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+    const handleNextPage = () => {
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
+
+    const handlePrevPage = () => {
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
 
     const toggleFilter = (type) => {
         if (activeFilter === type) {
@@ -173,7 +194,7 @@ const ItemManagementPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredData.map((item) => (
+                            {currentItems.map((item) => (
                                 <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-4">
@@ -233,7 +254,7 @@ const ItemManagementPage = () => {
 
                 {/* Mobile Card View */}
                 <div className="md:hidden divide-y divide-primary/5">
-                    {filteredData.map((item) => (
+                    {currentItems.map((item) => (
                         <div key={`${item._type}-${item.id}`} className="p-6 space-y-4">
                             <div className="flex items-start gap-4">
                                 <div className="w-20 h-20 rounded-2xl bg-secondary overflow-hidden border border-primary/5 shrink-0">
@@ -296,6 +317,26 @@ const ItemManagementPage = () => {
                             <p className="text-primary/40 font-bold text-sm">Tidak ada data yang ditemukan.</p>
                         </div>
                     )}
+                </div>
+
+                <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
+                    <span>Showing {filteredData.length === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} entries</span>
+                    <div className="flex gap-3 w-full sm:w-auto">
+                        <button 
+                            onClick={handlePrevPage} 
+                            disabled={currentPage === 1}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Sebelumnya
+                        </button>
+                        <button 
+                            onClick={handleNextPage} 
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
+                        >
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
 
