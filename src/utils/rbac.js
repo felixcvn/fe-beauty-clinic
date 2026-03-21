@@ -13,7 +13,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance', '/settings'],
     [ROLES.CS]: ['/', '/medical-records', '/patients', '/sales', '/attendance', '/settings'],
     [ROLES.HRD]: ['/', '/staff', '/attendance', '/settings'],
-    [ROLES.MANAGER]: ['/', '/promos'],
+    [ROLES.MANAGER]: ['/', '/promos', '/attendance'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/sales', '/reports', '/settings', '/attendance', '/promos', '/management', '/products', '/treatments'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/settings', '/management'],
 };

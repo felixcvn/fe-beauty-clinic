@@ -34,7 +34,7 @@ const AttendancePage = () => {
 
     // Cek Role
     const isOwner = user?.role?.toLowerCase() === 'owner';
-    const canApproveLeave = ['HRD', 'Admin', 'Manager', 'Owner'].includes(user?.role);
+    const canApproveLeave = ['HRD', 'Admin'].includes(user?.role);
 
     // Mock Data
     const [attendanceStats, setAttendanceStats] = useState([

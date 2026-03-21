@@ -28,12 +28,8 @@ const ALL_NAV_ITEMS = [
     { icon: UsersIcon, label: 'Pegawai', path: '/staff' },
     { 
         icon: UsersIcon, 
-        label: 'Manajemen', 
-        path: '/management',
-        subItems: [
-            { label: 'Produk', path: '/products' },
-            { label: 'Treatment', path: '/treatments' },
-        ]
+        label: 'Manajemen Gudang', 
+        path: '/management'
     },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
     { icon: CalendarDaysIcon, label: 'Absensi', path: '/attendance' },

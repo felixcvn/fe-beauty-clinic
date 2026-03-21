@@ -2,13 +2,24 @@ import React, { useState } from 'react';
 import { Search, Plus, ChevronRight, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
+import { useToast } from '../../context/ToastContext';
 import CustomSelect from '../../components/UI/CustomSelect';
+import PatientEditModal from '../../components/UI/PatientEditModal';
 
 const PatientsPage = () => {
-    const { patients } = useMockData();
+    const { patients, updatePatient } = useMockData();
+    const { showToast } = useToast();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [memberFilter, setMemberFilter] = useState('Semua Tipe');
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [selectedPatient, setSelectedPatient] = useState(null);
+
+    const handleSaveEdit = (updatedData) => {
+        updatePatient(updatedData);
+        setIsEditModalOpen(false);
+        showToast('Data pasien berhasil diperbarui!', 'success');
+    };
 
     // SABUK PENGAMAN 1: Fungsi untuk ambil inisial nama dengan aman
     const getInitials = (name) => {
@@ -131,7 +142,8 @@ const PatientsPage = () => {
                                                 <button 
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        navigate(`/patients/edit/${pId}`);
+                                                        setSelectedPatient(patient);
+                                                        setIsEditModalOpen(true);
                                                     }}
                                                     className="text-primary/40 hover:text-accent-gold transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90"
                                                 >
@@ -193,7 +205,8 @@ const PatientsPage = () => {
                                     <button 
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            navigate(`/patients/edit/${pId}`);
+                                            setSelectedPatient(patient);
+                                            setIsEditModalOpen(true);
                                         }}
                                         className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
                                     >
@@ -215,6 +228,13 @@ const PatientsPage = () => {
                     </div>
                 </div>
             </div>
+
+            <PatientEditModal 
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                onSave={handleSaveEdit}
+                initialData={selectedPatient}
+            />
         </div>
     );
 };

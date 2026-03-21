@@ -29,19 +29,21 @@ const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus }) =>
                 className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
             >
+                <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
                 {/* Header */}
-                <div className="relative p-8 pb-6 bg-primary overflow-hidden">
+                <div className="relative p-8 pb-6 bg-primary overflow-hidden shrink-0">
                     <div className="absolute inset-0 opacity-10">
                         <div className="absolute top-0 left-0 w-full h-full animate-[pulse_4s_infinite]" style={{ background: 'radial-gradient(circle, #E5D5B0 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all z-10"
-                    >
-                        <X className="w-4 h-4" />
-                    </button>
 
-                    <div className="relative z-10 flex items-center gap-4">
+                    <div className="relative z-10 flex items-center gap-4 pr-12">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10">
                             <CalendarDays className="w-6 h-6" />
                         </div>

@@ -15,19 +15,21 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
             >
+                <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-black/20 backdrop-blur-md text-white hover:bg-black/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
                 {/* Header Profile */}
-                <div className="relative h-40 bg-primary overflow-hidden">
+                <div className="relative h-40 bg-primary overflow-hidden shrink-0">
                     <div className="absolute inset-0 opacity-10">
                         <div className="absolute top-0 left-0 w-full h-full animate-[pulse_4s_infinite]" style={{ background: 'radial-gradient(circle, #E5D5B0 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                     </div>
-                    <button
-                        onClick={onClose}
-                        className="absolute top-6 right-6 p-3 rounded-2xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-all z-10"
-                    >
-                        <X className="w-5 h-5" />
-                    </button>
 
-                    <div className="absolute -bottom-12 left-8 md:left-12 flex items-end gap-6">
+                    <div className="absolute -bottom-12 left-8 md:left-12 flex items-end gap-6 pr-12">
                         <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] md:rounded-[2.5rem] bg-white p-2 shadow-2xl">
                             <div className="w-full h-full rounded-[1.5rem] md:rounded-[2rem] bg-secondary-light flex items-center justify-center text-2xl md:text-4xl font-black text-primary border border-primary/5 overflow-hidden">
                                 {staffData.name.split(' ').map(n => n[0]).join('')}
