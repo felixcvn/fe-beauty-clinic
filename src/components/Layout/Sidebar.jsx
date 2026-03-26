@@ -25,7 +25,7 @@ const ALL_NAV_ITEMS = [
     { icon: Squares2X2Icon, label: 'Dashboard', path: '/' },
     { icon: DocumentTextIcon, label: 'Rekam Medis', path: '/medical-records' },
     { icon: UserIcon, label: 'Pasien', path: '/patients' },
-    { icon: UsersIcon, label: 'Pegawai', path: '/staff' },
+    { icon: UsersIcon, label: 'Manajemen Karyawan', path: '/staff' },
     { 
         icon: UsersIcon, 
         label: 'Manajemen Gudang', 

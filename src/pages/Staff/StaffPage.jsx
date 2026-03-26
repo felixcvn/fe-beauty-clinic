@@ -4,6 +4,7 @@ import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, Alert
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import StaffFormModal from '../../components/UI/StaffFormModal';
+import StaffDetailModal from '../../components/UI/StaffDetailModal';
 
 const StaffPage = () => {
     const { showToast } = useToast();
@@ -13,27 +14,28 @@ const StaffPage = () => {
     // Modal State
     const [editingStaff, setEditingStaff] = useState(null);
     const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+    const [detailStaff, setDetailStaff] = useState(null);
 
     // Confirmation Modals State
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, staff: null });
     const [saveConfirm, setSaveConfirm] = useState({ open: false, data: null });
 
     const [staffList, setStaffList] = useState([
-        { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', status: 'Active' },
-        { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', status: 'Active' },
-        { id: 'STF-003', name: 'Dr. Andi Pratama', role: 'Dokter', email: 'andi.p@clinic.com', phone: '0813-1122-3344', status: 'Active' },
-        { id: 'STF-004', name: 'Dr. Linda Kusuma', role: 'Dokter', email: 'linda.k@clinic.com', phone: '0811-5566-7788', status: 'Cuti' },
-        { id: 'STF-005', name: 'Budi Santoso', role: 'Customer Service', email: 'budi.cs@clinic.com', phone: '0815-9900-1122', status: 'Active' },
-        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', email: 'ayu.cs@clinic.com', phone: '0812-3344-5566', status: 'Active' },
-        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', email: 'dewi.hrd@clinic.com', phone: '0813-7788-9900', status: 'Active' },
-        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', email: 'fajar.m@clinic.com', phone: '0811-2233-4455', status: 'Active' },
-        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', email: 'rina.p@clinic.com', phone: '0815-6677-8899', status: 'Active' },
-        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', email: 'agus.p@clinic.com', phone: '0812-4455-6677', status: 'Active' },
-        { id: 'STF-011', name: 'Siti Aminah', role: 'Perawat', email: 'siti.p@clinic.com', phone: '0813-9988-7766', status: 'Resigned' },
-        { id: 'STF-012', name: 'Hendra Saputra', role: 'Staff Gudang', email: 'hendra.g@clinic.com', phone: '0811-1122-3344', status: 'Active' },
-        { id: 'STF-013', name: 'Maya Indah', role: 'Staff Gudang', email: 'maya.g@clinic.com', phone: '0815-4455-6677', status: 'Active' },
-        { id: 'STF-014', name: 'Reza Pahlevi', role: 'Kasir', email: 'reza.k@clinic.com', phone: '0812-7788-9900', status: 'Active' },
-        { id: 'STF-015', name: 'Nina Wulandari', role: 'Kasir', email: 'nina.k@clinic.com', phone: '0813-2233-4455', status: 'Cuti' },
+        { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', status: 'Active', nik: '3171011202900001', tanggal_lahir: '1990-02-12', alamat: 'Jl. Merdeka No. 1, Jakarta Selatan', tanggal_bergabung: '2023-01-15' },
+        { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', status: 'Active', nik: '3172021504920002', tanggal_lahir: '1992-04-15', alamat: 'Apartemen Sudirman Tower A/12', tanggal_bergabung: '2023-03-01' },
+        { id: 'STF-003', name: 'Dr. Andi Pratama', role: 'Dokter', email: 'andi.p@clinic.com', phone: '0813-1122-3344', status: 'Active', nik: '3201012308850003', tanggal_lahir: '1985-08-23', alamat: 'Komp. Pesona Indah Blok B4', tanggal_bergabung: '2022-11-10' },
+        { id: 'STF-004', name: 'Dr. Linda Kusuma', role: 'Dokter', email: 'linda.k@clinic.com', phone: '0811-5566-7788', status: 'Cuti', nik: '3374021110890004', tanggal_lahir: '1989-10-11', alamat: 'Jl. Melati Raya No. 45, Bintaro', tanggal_bergabung: '2023-05-20' },
+        { id: 'STF-005', name: 'Budi Santoso', role: 'Customer Service', email: 'budi.cs@clinic.com', phone: '0815-9900-1122', status: 'Active', nik: '3578010506950005', tanggal_lahir: '1995-06-05', alamat: 'Jl. Pahlawan Karya 12A', tanggal_bergabung: '2024-01-05' },
+        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', email: 'ayu.cs@clinic.com', phone: '0812-3344-5566', status: 'Active', nik: '3173022512960006', tanggal_lahir: '1996-12-25', alamat: 'Jl. Teratai Indah Blok C1/2', tanggal_bergabung: '2024-02-14' },
+        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', email: 'dewi.hrd@clinic.com', phone: '0813-7788-9900', status: 'Active', nik: '3271011402880007', tanggal_lahir: '1988-02-14', alamat: 'Komp. Graha Raya Kav. 88', tanggal_bergabung: '2022-09-01' },
+        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', email: 'fajar.m@clinic.com', phone: '0811-2233-4455', status: 'Active', nik: '3174022005840008', tanggal_lahir: '1984-05-20', alamat: 'Townhouse Pondok Indah Unit 3', tanggal_bergabung: '2021-12-01' },
+        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', email: 'rina.p@clinic.com', phone: '0815-6677-8899', status: 'Active', nik: '3573010707940009', tanggal_lahir: '1994-07-07', alamat: 'Jl. Anggrek Selatan No. 22', tanggal_bergabung: '2023-08-15' },
+        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', email: 'agus.p@clinic.com', phone: '0812-4455-6677', status: 'Active', nik: '3273012211930010', tanggal_lahir: '1993-11-22', alamat: 'Jl. Pemuda No. 109', tanggal_bergabung: '2023-06-10' },
+        { id: 'STF-011', name: 'Siti Aminah', role: 'Perawat', email: 'siti.p@clinic.com', phone: '0813-9988-7766', status: 'Resigned', nik: '3175021803960011', tanggal_lahir: '1996-03-18', alamat: 'Jl. Kebon Jeruk VI No. 8', tanggal_bergabung: '2022-10-15' },
+        { id: 'STF-012', name: 'Hendra Saputra', role: 'Staff Gudang', email: 'hendra.g@clinic.com', phone: '0811-1122-3344', status: 'Active', nik: '3372010109900012', tanggal_lahir: '1990-09-01', alamat: 'Komp. Meruya Ilir Blok A/5', tanggal_bergabung: '2023-02-28' },
+        { id: 'STF-013', name: 'Maya Indah', role: 'Staff Gudang', email: 'maya.g@clinic.com', phone: '0815-4455-6677', status: 'Active', nik: '3274021404970013', tanggal_lahir: '1997-04-14', alamat: 'Jl. Raden Saleh Gg. 2 No. 14', tanggal_bergabung: '2024-03-01' },
+        { id: 'STF-014', name: 'Reza Pahlevi', role: 'Kasir', email: 'reza.k@clinic.com', phone: '0812-7788-9900', status: 'Active', nik: '3171012901980014', tanggal_lahir: '1998-01-29', alamat: 'Jl. Karet Pedurenan No. 71', tanggal_bergabung: '2024-01-15' },
+        { id: 'STF-015', name: 'Nina Wulandari', role: 'Kasir', email: 'nina.k@clinic.com', phone: '0813-2233-4455', status: 'Cuti', nik: '3276020508950015', tanggal_lahir: '1995-08-05', alamat: 'Jl. Cempaka Putih Tengah Blok B', tanggal_bergabung: '2023-07-25' },
     ]);
 
     const filteredStaff = staffList.filter(s => 
@@ -113,6 +115,11 @@ const StaffPage = () => {
                 onClose={() => setIsStaffModalOpen(false)} 
                 onSave={handleRequestSave} 
                 initialData={editingStaff} 
+            />
+            <StaffDetailModal 
+                isOpen={!!detailStaff} 
+                onClose={() => setDetailStaff(null)} 
+                staff={detailStaff} 
             />
 
             {/* Modal Konfirmasi Simpan & Hapus (Code disederhanakan untuk keterbacaan) */}
@@ -196,7 +203,7 @@ const StaffPage = () => {
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {currentStaff.map((staff) => (
-                                <tr key={staff.id} className="hover:bg-primary/[0.02] transition-colors">
+                                <tr key={staff.id} className="hover:bg-primary/[0.02] transition-colors cursor-pointer" onClick={() => setDetailStaff(staff)}>
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-lg shadow-primary/20 border border-white/20">
@@ -225,8 +232,8 @@ const StaffPage = () => {
                                     </td>
                                     <td className="px-8 py-6 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={() => handleOpenEdit(staff)} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary hover:shadow-lg transition-all active:scale-90"><Edit3 className="w-4 h-4" /></button>
-                                            <button onClick={() => handleOpenDelete(staff)} className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-600 hover:shadow-lg transition-all active:scale-90"><Trash2 className="w-4 h-4" /></button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary hover:shadow-lg transition-all active:scale-90"><Edit3 className="w-4 h-4" /></button>
+                                            <button onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }} className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-600 hover:shadow-lg transition-all active:scale-90"><Trash2 className="w-4 h-4" /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -238,7 +245,7 @@ const StaffPage = () => {
                 {/* Mobile Card View (Show only on mobile) */}
                 <div className="md:hidden divide-y divide-primary/5">
                     {currentStaff.map((staff) => (
-                        <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
+                        <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => setDetailStaff(staff)}>
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-secondary shadow-lg shadow-primary/20">
@@ -271,13 +278,13 @@ const StaffPage = () => {
 
                             <div className="flex gap-3">
                                 <button 
-                                    onClick={() => handleOpenEdit(staff)}
+                                    onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
                                 >
                                     <Edit3 className="w-3.5 h-3.5" /> Edit
                                 </button>
                                 <button 
-                                    onClick={() => handleOpenDelete(staff)}
+                                    onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" /> Hapus
