@@ -67,7 +67,7 @@ const Dashboard = () => {
                             { name: 'Emma Watson', treatment: 'Skin Care', time: '10:00', status: 'Confirmed' },
                             { name: 'James Wilson', treatment: 'Dermatology', time: '11:15', status: 'Waiting' },
                             { name: 'Sarah Parker', treatment: 'Botox', time: '14:30', status: 'Confirmed' },
-                            { name: 'Robert Fox', treatment: 'Consultation', time: '16:00', status: 'Pending' }
+                            { name: 'Robert Fox', treatment: 'Consultation', time: '16:00', status: 'Menunggu' }
                         ].map((item, index) => (
                             <div key={index} className="flex items-center gap-4 p-4 hover:bg-primary/5 rounded-3xl transition-all duration-500 group cursor-pointer border border-transparent hover:border-primary/5 hover:translate-x-1">
                                 <div className="w-14 h-14 rounded-2xl bg-secondary shadow-sm flex flex-col items-center justify-center text-primary border border-primary/5 group-hover:bg-primary group-hover:text-secondary group-hover:border-primary transition-all duration-500">

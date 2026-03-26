@@ -93,7 +93,7 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
                             <input
                                 type="text"
-                                placeholder="Search..."
+                                placeholder="Cari..."
                                 className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-primary/5 text-xs font-bold text-primary placeholder:text-primary/30 focus:ring-2 focus:ring-primary/10 outline-none transition-all shadow-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}

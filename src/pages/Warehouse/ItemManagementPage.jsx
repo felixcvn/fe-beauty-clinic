@@ -320,7 +320,7 @@ const ItemManagementPage = () => {
                 </div>
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                    <span>Showing {filteredData.length === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredData.length)} of {filteredData.length} entries</span>
+                    <span>Menampilkan {filteredData.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredData.length)} dari {filteredData.length} data</span>
                     <div className="flex gap-3 w-full sm:w-auto">
                         <button 
                             onClick={handlePrevPage} 
@@ -333,9 +333,7 @@ const ItemManagementPage = () => {
                             onClick={handleNextPage} 
                             disabled={currentPage === totalPages || totalPages === 0}
                             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
-                        >
-                            Next
-                        </button>
+                        >Selanjutnya</button>
                     </div>
                 </div>
             </div>

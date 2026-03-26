@@ -45,7 +45,7 @@ const Toast = () => {
 
                 <div className="flex flex-col pr-2">
                     <p className={`text-xs font-bold uppercase tracking-wider ${toast.type === 'success' ? 'text-primary' : 'text-red-500'}`}>
-                        {toast.type === 'success' ? 'Success' : 'Error'}
+                        {toast.type === 'success' ? 'Sukses' : 'Gagal'}
                     </p>
                     <p className="text-sm font-medium text-primary-dark opacity-90">{toast.message}</p>
                 </div>

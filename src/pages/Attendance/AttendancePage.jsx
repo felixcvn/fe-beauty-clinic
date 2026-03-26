@@ -60,13 +60,13 @@ const AttendancePage = () => {
     ]);
 
     const [leaveRequests, setLeaveRequests] = useState([
-        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Pending' },
+        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
         { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui' },
         { id: 'LR-003', staffName: 'Maya Sari', role: 'Perawat', type: 'Izin Lainnya', startDate: '2026-03-22', endDate: '2026-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
-        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Pending' },
+        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Menunggu' },
         { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui' },
         { id: 'LR-006', staffName: 'Rina Kartika', role: 'Perawat', type: 'Cuti Melahirkan', startDate: '2026-05-01', endDate: '2026-07-31', reason: 'Persiapan persalinan', status: 'Disetujui' },
-        { id: 'LR-007', staffName: 'Hendra Saputra', role: 'Staff Gudang', type: 'Izin Lainnya', startDate: '2026-03-28', endDate: '2026-03-28', reason: 'Mengurus perpanjangan SIM', status: 'Pending' },
+        { id: 'LR-007', staffName: 'Hendra Saputra', role: 'Staff Gudang', type: 'Izin Lainnya', startDate: '2026-03-28', endDate: '2026-03-28', reason: 'Mengurus perpanjangan SIM', status: 'Menunggu' },
         { id: 'LR-008', staffName: 'Nina Wulandari', role: 'Kasir', type: 'Cuti Tahunan', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Menjenguk keluarga', status: 'Disetujui' },
     ]);
 
@@ -165,7 +165,7 @@ const AttendancePage = () => {
             <AttendanceDetailModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} staffData={detailStaff} />
             <LeaveApprovalModal isOpen={isApprovalModalOpen} onClose={() => setIsApprovalModalOpen(false)} requestData={selectedLeaveRequest} onUpdateStatus={(id, status) => setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req))} />
             <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={(data) => {
-                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, status: 'Pending' };
+                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, status: 'Menunggu' };
                 setLeaveRequests([newRequest, ...leaveRequests]);
             }} />
 
@@ -362,7 +362,7 @@ const AttendancePage = () => {
                         </div>
                         
                         <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                            <span>Showing {finalAttendance.length === 0 ? 0 : idxFirstAttendance + 1} to {Math.min(idxLastAttendance, finalAttendance.length)} of {finalAttendance.length} records</span>
+                            <span>Menampilkan {finalAttendance.length === 0 ? 0 : idxFirstAttendance + 1} hingga {Math.min(idxLastAttendance, finalAttendance.length)} dari {finalAttendance.length} data</span>
                             <div className="flex gap-3 w-full sm:w-auto">
                                 <button 
                                     onClick={() => setAttendancePage(p => Math.max(1, p - 1))} 
@@ -375,9 +375,7 @@ const AttendancePage = () => {
                                     onClick={() => setAttendancePage(p => Math.min(totalAttendancePages, p + 1))} 
                                     disabled={attendancePage === totalAttendancePages || totalAttendancePages === 0}
                                     className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
-                                >
-                                    Next
-                                </button>
+                                >Selanjutnya</button>
                             </div>
                         </div>
                     </div>
@@ -461,7 +459,7 @@ const AttendancePage = () => {
                     </div>
                     
                     <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                        <span>Showing {filteredLeave.length === 0 ? 0 : idxFirstLeave + 1} to {Math.min(idxLastLeave, filteredLeave.length)} of {filteredLeave.length} records</span>
+                        <span>Menampilkan {filteredLeave.length === 0 ? 0 : idxFirstLeave + 1} hingga {Math.min(idxLastLeave, filteredLeave.length)} dari {filteredLeave.length} data</span>
                         <div className="flex gap-3 w-full sm:w-auto">
                             <button 
                                 onClick={() => setLeavePage(p => Math.max(1, p - 1))} 
@@ -474,9 +472,7 @@ const AttendancePage = () => {
                                 onClick={() => setLeavePage(p => Math.min(totalLeavePages, p + 1))} 
                                 disabled={leavePage === totalLeavePages || totalLeavePages === 0}
                                 className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
-                            >
-                                Next
-                            </button>
+                            >Selanjutnya</button>
                         </div>
                     </div>
                 </div>

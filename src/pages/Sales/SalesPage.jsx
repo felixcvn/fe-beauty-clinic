@@ -7,21 +7,21 @@ const SalesPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
 
     const [recentSales, setRecentSales] = useState([
-        { id: 'INV-1001', customer: 'Siti Aminah', product: 'Acne Treatment Pack', amount: 'Rp 450.000', status: 'Completed', date: '2024-02-08' },
-        { id: 'INV-1002', customer: 'Budi Santoso', product: 'Laser Therapy Session', amount: 'Rp 1.200.000', status: 'Pending', date: '2024-02-08' },
-        { id: 'INV-1003', customer: 'Dewi Lestari', product: 'Chemical Peel', amount: 'Rp 350.000', status: 'Completed', date: '2024-02-07' },
-        { id: 'INV-1004', customer: 'Ahmad Fauzi', product: 'Skin Glow Kit', amount: 'Rp 850.000', status: 'Completed', date: '2024-02-07' },
+        { id: 'INV-1001', customer: 'Siti Aminah', product: 'Acne Treatment Pack', amount: 'Rp 450.000', status: 'Selesai', date: '2024-02-08' },
+        { id: 'INV-1002', customer: 'Budi Santoso', product: 'Laser Therapy Session', amount: 'Rp 1.200.000', status: 'Menunggu', date: '2024-02-08' },
+        { id: 'INV-1003', customer: 'Dewi Lestari', product: 'Chemical Peel', amount: 'Rp 350.000', status: 'Selesai', date: '2024-02-07' },
+        { id: 'INV-1004', customer: 'Ahmad Fauzi', product: 'Skin Glow Kit', amount: 'Rp 850.000', status: 'Selesai', date: '2024-02-07' },
         { id: 'INV-1005', customer: 'Rina Wijaya', product: 'Microdermabrasion', amount: 'Rp 600.000', status: 'Cancelled', date: '2024-02-06' },
-        { id: 'INV-1006', customer: 'Dian Permata', product: 'Sunscreen Gel SPF 50', amount: 'Rp 150.000', status: 'Completed', date: '2024-02-06' },
-        { id: 'INV-1007', customer: 'Kiki Amalia', product: 'Night Cream Retinol', amount: 'Rp 250.000', status: 'Completed', date: '2024-02-05' },
-        { id: 'INV-1008', customer: 'Farhan Rizki', product: 'Acne Extraction', amount: 'Rp 250.000', status: 'Pending', date: '2024-02-05' },
-        { id: 'INV-1009', customer: 'Gita Savitri', product: 'Botox Injection', amount: 'Rp 2.500.000', status: 'Completed', date: '2024-02-04' },
-        { id: 'INV-1010', customer: 'Hasan Basri', product: 'Vitamin C Serum', amount: 'Rp 320.000', status: 'Completed', date: '2024-02-04' },
-        { id: 'INV-1011', customer: 'Indah Kusuma', product: 'Facial Whitening', amount: 'Rp 400.000', status: 'Completed', date: '2024-02-03' },
+        { id: 'INV-1006', customer: 'Dian Permata', product: 'Sunscreen Gel SPF 50', amount: 'Rp 150.000', status: 'Selesai', date: '2024-02-06' },
+        { id: 'INV-1007', customer: 'Kiki Amalia', product: 'Night Cream Retinol', amount: 'Rp 250.000', status: 'Selesai', date: '2024-02-05' },
+        { id: 'INV-1008', customer: 'Farhan Rizki', product: 'Acne Extraction', amount: 'Rp 250.000', status: 'Menunggu', date: '2024-02-05' },
+        { id: 'INV-1009', customer: 'Gita Savitri', product: 'Botox Injection', amount: 'Rp 2.500.000', status: 'Selesai', date: '2024-02-04' },
+        { id: 'INV-1010', customer: 'Hasan Basri', product: 'Vitamin C Serum', amount: 'Rp 320.000', status: 'Selesai', date: '2024-02-04' },
+        { id: 'INV-1011', customer: 'Indah Kusuma', product: 'Facial Whitening', amount: 'Rp 400.000', status: 'Selesai', date: '2024-02-03' },
         { id: 'INV-1012', customer: 'Joko Anwar', product: 'Moisturizer Ceramide', amount: 'Rp 180.000', status: 'Cancelled', date: '2024-02-03' },
-        { id: 'INV-1013', customer: 'Kartika Putri', product: 'Skin Rejuvenation Therapy', amount: 'Rp 800.000', status: 'Completed', date: '2024-02-02' },
-        { id: 'INV-1014', customer: 'Lestari Ayu', product: 'Antibacterial Soap', amount: 'Rp 35.000', status: 'Completed', date: '2024-02-02' },
-        { id: 'INV-1015', customer: 'Mirza Ghulam', product: 'Toner BHA/AHA', amount: 'Rp 195.000', status: 'Pending', date: '2024-02-01' },
+        { id: 'INV-1013', customer: 'Kartika Putri', product: 'Skin Rejuvenation Therapy', amount: 'Rp 800.000', status: 'Selesai', date: '2024-02-02' },
+        { id: 'INV-1014', customer: 'Lestari Ayu', product: 'Antibacterial Soap', amount: 'Rp 35.000', status: 'Selesai', date: '2024-02-02' },
+        { id: 'INV-1015', customer: 'Mirza Ghulam', product: 'Toner BHA/AHA', amount: 'Rp 195.000', status: 'Menunggu', date: '2024-02-01' },
     ]);
 
     const salesStats = [
@@ -151,8 +151,8 @@ const SalesPage = () => {
                                         <span className="text-xs font-black text-primary">{sale.amount}</span>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className={`inline-flex px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${sale.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                            sale.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                        <span className={`inline-flex px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${sale.status === 'Selesai' ? 'bg-green-100 text-green-700' :
+                                            sale.status === 'Menunggu' ? 'bg-yellow-100 text-yellow-700' :
                                                 'bg-red-100 text-red-700'
                                             }`}>
                                             {sale.status}
@@ -186,8 +186,8 @@ const SalesPage = () => {
                                         <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{sale.id}</p>
                                     </div>
                                 </div>
-                                <span className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sale.status === 'Completed' ? 'bg-green-100 text-green-700' :
-                                    sale.status === 'Pending' ? 'bg-yellow-100 text-yellow-700' :
+                                <span className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sale.status === 'Selesai' ? 'bg-green-100 text-green-700' :
+                                    sale.status === 'Menunggu' ? 'bg-yellow-100 text-yellow-700' :
                                         'bg-red-100 text-red-700'
                                     }`}>
                                     {sale.status}
@@ -222,7 +222,7 @@ const SalesPage = () => {
                 </div>
 
                 <div className="p-8 bg-secondary/5 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
-                    <span>Showing {filteredSales.length === 0 ? 0 : indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredSales.length)} of {filteredSales.length} records</span>
+                    <span>Menampilkan {filteredSales.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredSales.length)} dari {filteredSales.length} data</span>
                     <div className="flex gap-3 w-full sm:w-auto">
                         <button 
                             onClick={handlePrevPage} 
@@ -235,9 +235,7 @@ const SalesPage = () => {
                             onClick={handleNextPage} 
                             disabled={currentPage === totalPages || totalPages === 0}
                             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
-                        >
-                            Next
-                        </button>
+                        >Selanjutnya</button>
                     </div>
                 </div>
             </div>

@@ -122,9 +122,7 @@ const ProfilePage = () => {
                                 onClick={handleCancel}
                                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl border border-primary/15 text-primary/60 font-bold text-xs hover:bg-primary/5 active:scale-95 transition-all duration-200"
                             >
-                                <XMarkIcon className="w-4 h-4" />
-                                Cancel
-                            </button>
+                                <XMarkIcon className="w-4 h-4" />Batal</button>
                             <button
                                 onClick={handleSave}
                                 className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-xs shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300"

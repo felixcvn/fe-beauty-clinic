@@ -51,8 +51,8 @@ const PatientList = () => {
                             onChange={setStatusFilter}
                             options={[
                                 { value: 'All Status', label: 'All Status' },
-                                { value: 'Active', label: 'Active' },
-                                { value: 'Completed', label: 'Completed' }
+                                { value: 'Aktif', label: 'Aktif' },
+                                { value: 'Selesai', label: 'Selesai' }
                             ]}
                         />
                     </div>
@@ -94,8 +94,8 @@ const PatientList = () => {
                                         </div>
                                     </td>
                                     <td className="px-8 py-6 text-center">
-                                        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${patient.status === 'Active' ? 'bg-primary/10 text-primary' :
-                                            patient.status === 'Completed' ? 'bg-accent-gold/10 text-accent-gold' :
+                                        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${patient.status === 'Aktif' ? 'bg-primary/10 text-primary' :
+                                            patient.status === 'Selesai' ? 'bg-accent-gold/10 text-accent-gold' :
                                                 'bg-red-50 text-red-400'
                                             }`}>
                                             {patient.status}
@@ -126,8 +126,8 @@ const PatientList = () => {
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start mb-1 gap-2">
                                     <h4 className="font-black text-primary text-sm tracking-tight truncate">{patient.name}</h4>
-                                    <span className={`px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm shrink-0 ${patient.status === 'Active' ? 'bg-primary/10 text-primary' :
-                                        patient.status === 'Completed' ? 'bg-accent-gold/10 text-accent-gold' :
+                                    <span className={`px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm shrink-0 ${patient.status === 'Aktif' ? 'bg-primary/10 text-primary' :
+                                        patient.status === 'Selesai' ? 'bg-accent-gold/10 text-accent-gold' :
                                             'bg-red-50 text-red-400'
                                         }`}>
                                         {patient.status}
@@ -149,10 +149,10 @@ const PatientList = () => {
                 </div>
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                    <span>Showing {filteredPatients.length} of {patients.length} records</span>
+                    <span>Menampilkan {filteredPatients.length} dari {patients.length} data</span>
                     <div className="flex gap-3 w-full sm:w-auto">
                         <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
-                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Next</button>
+                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Selanjutnya</button>
                     </div>
                 </div>
             </div>

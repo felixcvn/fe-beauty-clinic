@@ -147,7 +147,7 @@ const Sidebar = ({ isOpen, toggle }) => {
                     </NavLink>
                     <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                         <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
-                        <span className="text-sm font-medium">Logout</span>
+                        <span className="text-sm font-medium">Keluar</span>
                     </button>
                 </div>
             </aside>

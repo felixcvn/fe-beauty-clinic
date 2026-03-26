@@ -5,23 +5,23 @@ const MockDataContext = createContext();
 export const MockDataProvider = ({ children }) => {
     const [patients, setPatients] = useState([
         {
-            id: 'P-10024', name: 'Emma Watson', namaLengkap: 'Emma Watson', age: 24, lastVisit: 'Okt 24, 2025', condition: 'Acne Treatment', status: 'Active', allergies: 'Penicillin',
+            id: 'P-10024', name: 'Emma Watson', namaLengkap: 'Emma Watson', age: 24, lastVisit: 'Okt 24, 2025', condition: 'Acne Treatment', status: 'Aktif', allergies: 'Penicillin',
             noMember: 'M-001', noRM: 'RM-001', noIdentitas: '3201010101010001', tempatLahir: 'Jakarta', tanggalLahir: '2000-01-01', jenisKelamin: 'Perempuan', alamat: 'Jl. Sudirman No 1', email: 'emma@email.com', noTelepon: '081234567890', tipeMember: 'GOLD',
             history: [
                 { id: 1, date: 'Okt 24, 2025', treatment: 'Acne Treatment', specialist: 'Dr. Sarah Smith', notes: 'Respon baik terhadap facial.', beforeImage: 'https://images.unsplash.com/photo-1548810756-12a9792182c4', afterImage: 'https://images.unsplash.com/photo-1552693673-1bf958298935' }
             ]
         },
-        { id: 'P-10025', name: 'Budi Santoso', namaLengkap: 'Budi Santoso', age: 32, lastVisit: 'Okt 22, 2025', condition: 'Laser Therapy', status: 'Completed', allergies: 'Tidak ada', noMember: 'M-002', noRM: 'RM-002', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10026', name: 'Siti Rahma', namaLengkap: 'Siti Rahma', age: 29, lastVisit: 'Okt 20, 2025', condition: 'Skin Rejuvenation', status: 'Active', allergies: 'Kacang', noMember: 'M-003', noRM: 'RM-003', tipeMember: 'PLATINUM', history: [] },
-        { id: 'P-10027', name: 'Arief Rahman', namaLengkap: 'Arief Rahman', age: 45, lastVisit: 'Okt 15, 2025', condition: 'Peeling', status: 'Active', allergies: 'Tidak ada', noMember: 'M-004', noRM: 'RM-004', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10028', name: 'Rina Wijaya', namaLengkap: 'Rina Wijaya', age: 21, lastVisit: 'Sep 30, 2025', condition: 'Facial Wash', status: 'Completed', allergies: 'Debu', noMember: 'M-005', noRM: 'RM-005', tipeMember: 'GOLD', history: [] },
-        { id: 'P-10029', name: 'Ahmad Dahlan', namaLengkap: 'Ahmad Dahlan', age: 38, lastVisit: 'Sep 25, 2025', condition: 'Botox', status: 'Active', allergies: 'Seafood', noMember: 'M-006', noRM: 'RM-006', tipeMember: 'PLATINUM', history: [] },
-        { id: 'P-10030', name: 'Dewi Lestari', namaLengkap: 'Dewi Lestari', age: 27, lastVisit: 'Sep 20, 2025', condition: 'Acne Treatment', status: 'Completed', allergies: 'Udang', noMember: 'M-007', noRM: 'RM-007', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10031', name: 'Hendra Saputra', namaLengkap: 'Hendra Saputra', age: 50, lastVisit: 'Agt 15, 2025', condition: 'Laser Therapy', status: 'Active', allergies: 'Paracetamol', noMember: 'M-008', noRM: 'RM-008', tipeMember: 'GOLD', history: [] },
-        { id: 'P-10032', name: 'Maya Sari', namaLengkap: 'Maya Sari', age: 33, lastVisit: 'Agt 10, 2025', condition: 'Skin Rejuvenation', status: 'Active', allergies: 'Tidak ada', noMember: 'M-009', noRM: 'RM-009', tipeMember: 'PLATINUM', history: [] },
-        { id: 'P-10033', name: 'Riko Pratama', namaLengkap: 'Riko Pratama', age: 26, lastVisit: 'Jul 05, 2025', condition: 'Peeling', status: 'Completed', allergies: 'Coklat', noMember: 'M-010', noRM: 'RM-010', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10034', name: 'Putri Andriani', namaLengkap: 'Putri Andriani', age: 22, lastVisit: 'Sep 01, 2025', condition: 'Facial Acne', status: 'Active', allergies: 'Tidak ada', noMember: 'M-011', noRM: 'RM-011', tipeMember: 'GOLD', history: [] },
-        { id: 'P-10035', name: 'Fajar Nugroho', namaLengkap: 'Fajar Nugroho', age: 41, lastVisit: 'Agt 01, 2025', condition: 'Pigmentation', status: 'Active', allergies: 'Debu', noMember: 'M-012', noRM: 'RM-012', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10025', name: 'Budi Santoso', namaLengkap: 'Budi Santoso', age: 32, lastVisit: 'Okt 22, 2025', condition: 'Laser Therapy', status: 'Selesai', allergies: 'Tidak ada', noMember: 'M-002', noRM: 'RM-002', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10026', name: 'Siti Rahma', namaLengkap: 'Siti Rahma', age: 29, lastVisit: 'Okt 20, 2025', condition: 'Skin Rejuvenation', status: 'Aktif', allergies: 'Kacang', noMember: 'M-003', noRM: 'RM-003', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10027', name: 'Arief Rahman', namaLengkap: 'Arief Rahman', age: 45, lastVisit: 'Okt 15, 2025', condition: 'Peeling', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-004', noRM: 'RM-004', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10028', name: 'Rina Wijaya', namaLengkap: 'Rina Wijaya', age: 21, lastVisit: 'Sep 30, 2025', condition: 'Facial Wash', status: 'Selesai', allergies: 'Debu', noMember: 'M-005', noRM: 'RM-005', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10029', name: 'Ahmad Dahlan', namaLengkap: 'Ahmad Dahlan', age: 38, lastVisit: 'Sep 25, 2025', condition: 'Botox', status: 'Aktif', allergies: 'Seafood', noMember: 'M-006', noRM: 'RM-006', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10030', name: 'Dewi Lestari', namaLengkap: 'Dewi Lestari', age: 27, lastVisit: 'Sep 20, 2025', condition: 'Acne Treatment', status: 'Selesai', allergies: 'Udang', noMember: 'M-007', noRM: 'RM-007', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10031', name: 'Hendra Saputra', namaLengkap: 'Hendra Saputra', age: 50, lastVisit: 'Agt 15, 2025', condition: 'Laser Therapy', status: 'Aktif', allergies: 'Paracetamol', noMember: 'M-008', noRM: 'RM-008', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10032', name: 'Maya Sari', namaLengkap: 'Maya Sari', age: 33, lastVisit: 'Agt 10, 2025', condition: 'Skin Rejuvenation', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-009', noRM: 'RM-009', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10033', name: 'Riko Pratama', namaLengkap: 'Riko Pratama', age: 26, lastVisit: 'Jul 05, 2025', condition: 'Peeling', status: 'Selesai', allergies: 'Coklat', noMember: 'M-010', noRM: 'RM-010', tipeMember: 'SILVER', history: [] },
+        { id: 'P-10034', name: 'Putri Andriani', namaLengkap: 'Putri Andriani', age: 22, lastVisit: 'Sep 01, 2025', condition: 'Facial Acne', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-011', noRM: 'RM-011', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10035', name: 'Fajar Nugroho', namaLengkap: 'Fajar Nugroho', age: 41, lastVisit: 'Agt 01, 2025', condition: 'Pigmentation', status: 'Aktif', allergies: 'Debu', noMember: 'M-012', noRM: 'RM-012', tipeMember: 'PLATINUM', history: [] },
     ]);
 
     const [products, setProducts] = useState([
@@ -56,7 +56,7 @@ export const MockDataProvider = ({ children }) => {
             id: `P-${10024 + patients.length}`,
             lastVisit: 'New',
             condition: 'None',
-            status: 'Active',
+            status: 'Aktif',
             history: []
         };
         setPatients([...patients, newPatient]);

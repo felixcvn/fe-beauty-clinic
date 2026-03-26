@@ -69,7 +69,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                 customer: 'Walk-in Customer',
                 product: cart.length > 1 ? `${cart[0].name} & ${cart.length - 1} lainnya` : cart[0].name,
                 amount: `Rp ${cartTotal.toLocaleString('id-ID')}`,
-                status: 'Completed',
+                status: 'Selesai',
                 date: new Date().toISOString().split('T')[0]
             };
 

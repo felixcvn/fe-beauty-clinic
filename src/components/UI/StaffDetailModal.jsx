@@ -48,7 +48,7 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                             </h3>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                    staff.status === 'Active' ? 'bg-green-100 text-green-800' :
+                                    staff.status === 'Aktif' ? 'bg-green-100 text-green-800' :
                                     staff.status === 'Cuti' ? 'bg-yellow-100 text-yellow-800' :
                                     'bg-red-100 text-red-800'
                                 }`}>
