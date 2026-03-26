@@ -1,6 +1,7 @@
 // File: src/App.jsx (atau App.js)
 
 import React from 'react';
+import { Analytics } from "@vercel/analytics/next"
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import MainLayout from './components/Layout/MainLayout';
 import Dashboard from './pages/Dashboard/Dashboard';
