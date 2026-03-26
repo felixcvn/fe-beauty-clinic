@@ -11,6 +11,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         nik: '',
         tanggal_lahir: '',
         role: 'Dokter',
+        cabang: 'Jember',
         email: '',
         phone: '',
     });
@@ -23,6 +24,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     nik: initialData.nik || '',
                     tanggal_lahir: initialData.tanggal_lahir || '',
                     role: initialData.role || 'Dokter',
+                    cabang: initialData.cabang || 'Jember',
                     email: initialData.email || '',
                     phone: initialData.phone || '',
                 });
@@ -32,6 +34,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     nik: '',
                     tanggal_lahir: '',
                     role: 'Dokter',
+                    cabang: 'Jember',
                     email: '',
                     phone: '',
                 });
@@ -125,22 +128,35 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                             </div>
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Role Pegawai</label>
-                            <CustomSelect 
-                                value={formState.role} 
-                                onChange={(value) => setFormState({ ...formState, role: value })}
-                                options={[
-                                    { value: 'Admin', label: 'Admin' },
-                                    { value: 'Dokter', label: 'Dokter' },
-                                    { value: 'Customer Service', label: 'Customer Service' },
-                                    { value: 'HRD', label: 'HRD' },
-                                    { value: 'Manager', label: 'Manager' },
-                                    { value: 'Perawat', label: 'Perawat' },
-                                    { value: 'Staff Gudang', label: 'Staff Gudang' },
-                                    { value: 'Kasir', label: 'Kasir' },
-                                ]}
-                            />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Role Pegawai</label>
+                                <CustomSelect 
+                                    value={formState.role} 
+                                    onChange={(value) => setFormState({ ...formState, role: value })}
+                                    options={[
+                                        { value: 'Admin', label: 'Admin' },
+                                        { value: 'Dokter', label: 'Dokter' },
+                                        { value: 'Customer Service', label: 'Customer Service' },
+                                        { value: 'HRD', label: 'HRD' },
+                                        { value: 'Manager', label: 'Manager' },
+                                        { value: 'Perawat', label: 'Perawat' },
+                                        { value: 'Staff Gudang', label: 'Staff Gudang' },
+                                        { value: 'Kasir', label: 'Kasir' },
+                                    ]}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Cabang Penempatan</label>
+                                <CustomSelect 
+                                    value={formState.cabang} 
+                                    onChange={(value) => setFormState({ ...formState, cabang: value })}
+                                    options={[
+                                        { value: 'Jember', label: 'Klinik Cabang Jember' },
+                                        { value: 'Lumajang', label: 'Klinik Cabang Lumajang' },
+                                    ]}
+                                />
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

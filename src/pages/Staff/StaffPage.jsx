@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
+import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2, ChevronRight, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import StaffFormModal from '../../components/UI/StaffFormModal';
@@ -21,21 +21,21 @@ const StaffPage = () => {
     const [saveConfirm, setSaveConfirm] = useState({ open: false, data: null });
 
     const [staffList, setStaffList] = useState([
-        { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', status: 'Active', nik: '3171011202900001', tanggal_lahir: '1990-02-12', alamat: 'Jl. Merdeka No. 1, Jakarta Selatan', tanggal_bergabung: '2023-01-15' },
-        { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', status: 'Active', nik: '3172021504920002', tanggal_lahir: '1992-04-15', alamat: 'Apartemen Sudirman Tower A/12', tanggal_bergabung: '2023-03-01' },
-        { id: 'STF-003', name: 'Dr. Andi Pratama', role: 'Dokter', email: 'andi.p@clinic.com', phone: '0813-1122-3344', status: 'Active', nik: '3201012308850003', tanggal_lahir: '1985-08-23', alamat: 'Komp. Pesona Indah Blok B4', tanggal_bergabung: '2022-11-10' },
-        { id: 'STF-004', name: 'Dr. Linda Kusuma', role: 'Dokter', email: 'linda.k@clinic.com', phone: '0811-5566-7788', status: 'Cuti', nik: '3374021110890004', tanggal_lahir: '1989-10-11', alamat: 'Jl. Melati Raya No. 45, Bintaro', tanggal_bergabung: '2023-05-20' },
-        { id: 'STF-005', name: 'Budi Santoso', role: 'Customer Service', email: 'budi.cs@clinic.com', phone: '0815-9900-1122', status: 'Active', nik: '3578010506950005', tanggal_lahir: '1995-06-05', alamat: 'Jl. Pahlawan Karya 12A', tanggal_bergabung: '2024-01-05' },
-        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', email: 'ayu.cs@clinic.com', phone: '0812-3344-5566', status: 'Active', nik: '3173022512960006', tanggal_lahir: '1996-12-25', alamat: 'Jl. Teratai Indah Blok C1/2', tanggal_bergabung: '2024-02-14' },
-        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', email: 'dewi.hrd@clinic.com', phone: '0813-7788-9900', status: 'Active', nik: '3271011402880007', tanggal_lahir: '1988-02-14', alamat: 'Komp. Graha Raya Kav. 88', tanggal_bergabung: '2022-09-01' },
-        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', email: 'fajar.m@clinic.com', phone: '0811-2233-4455', status: 'Active', nik: '3174022005840008', tanggal_lahir: '1984-05-20', alamat: 'Townhouse Pondok Indah Unit 3', tanggal_bergabung: '2021-12-01' },
-        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', email: 'rina.p@clinic.com', phone: '0815-6677-8899', status: 'Active', nik: '3573010707940009', tanggal_lahir: '1994-07-07', alamat: 'Jl. Anggrek Selatan No. 22', tanggal_bergabung: '2023-08-15' },
-        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', email: 'agus.p@clinic.com', phone: '0812-4455-6677', status: 'Active', nik: '3273012211930010', tanggal_lahir: '1993-11-22', alamat: 'Jl. Pemuda No. 109', tanggal_bergabung: '2023-06-10' },
-        { id: 'STF-011', name: 'Siti Aminah', role: 'Perawat', email: 'siti.p@clinic.com', phone: '0813-9988-7766', status: 'Resigned', nik: '3175021803960011', tanggal_lahir: '1996-03-18', alamat: 'Jl. Kebon Jeruk VI No. 8', tanggal_bergabung: '2022-10-15' },
-        { id: 'STF-012', name: 'Hendra Saputra', role: 'Staff Gudang', email: 'hendra.g@clinic.com', phone: '0811-1122-3344', status: 'Active', nik: '3372010109900012', tanggal_lahir: '1990-09-01', alamat: 'Komp. Meruya Ilir Blok A/5', tanggal_bergabung: '2023-02-28' },
-        { id: 'STF-013', name: 'Maya Indah', role: 'Staff Gudang', email: 'maya.g@clinic.com', phone: '0815-4455-6677', status: 'Active', nik: '3274021404970013', tanggal_lahir: '1997-04-14', alamat: 'Jl. Raden Saleh Gg. 2 No. 14', tanggal_bergabung: '2024-03-01' },
-        { id: 'STF-014', name: 'Reza Pahlevi', role: 'Kasir', email: 'reza.k@clinic.com', phone: '0812-7788-9900', status: 'Active', nik: '3171012901980014', tanggal_lahir: '1998-01-29', alamat: 'Jl. Karet Pedurenan No. 71', tanggal_bergabung: '2024-01-15' },
-        { id: 'STF-015', name: 'Nina Wulandari', role: 'Kasir', email: 'nina.k@clinic.com', phone: '0813-2233-4455', status: 'Cuti', nik: '3276020508950015', tanggal_lahir: '1995-08-05', alamat: 'Jl. Cempaka Putih Tengah Blok B', tanggal_bergabung: '2023-07-25' },
+        { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', status: 'Active', nik: '3171011202900001', tanggal_lahir: '1990-02-12', alamat: 'Jl. Merdeka No. 1, Jakarta Selatan', tanggal_bergabung: '2023-01-15', cabang: 'Jember' },
+        { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', status: 'Active', nik: '3172021504920002', tanggal_lahir: '1992-04-15', alamat: 'Apartemen Sudirman Tower A/12', tanggal_bergabung: '2023-03-01', cabang: 'Jember' },
+        { id: 'STF-003', name: 'Dr. Andi Pratama', role: 'Dokter', email: 'andi.p@clinic.com', phone: '0813-1122-3344', status: 'Active', nik: '3201012308850003', tanggal_lahir: '1985-08-23', alamat: 'Komp. Pesona Indah Blok B4', tanggal_bergabung: '2022-11-10', cabang: 'Lumajang' },
+        { id: 'STF-004', name: 'Dr. Linda Kusuma', role: 'Dokter', email: 'linda.k@clinic.com', phone: '0811-5566-7788', status: 'Cuti', nik: '3374021110890004', tanggal_lahir: '1989-10-11', alamat: 'Jl. Melati Raya No. 45, Bintaro', tanggal_bergabung: '2023-05-20', cabang: 'Jember' },
+        { id: 'STF-005', name: 'Budi Santoso', role: 'Customer Service', email: 'budi.cs@clinic.com', phone: '0815-9900-1122', status: 'Active', nik: '3578010506950005', tanggal_lahir: '1995-06-05', alamat: 'Jl. Pahlawan Karya 12A', tanggal_bergabung: '2024-01-05', cabang: 'Lumajang' },
+        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', email: 'ayu.cs@clinic.com', phone: '0812-3344-5566', status: 'Active', nik: '3173022512960006', tanggal_lahir: '1996-12-25', alamat: 'Jl. Teratai Indah Blok C1/2', tanggal_bergabung: '2024-02-14', cabang: 'Jember' },
+        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', email: 'dewi.hrd@clinic.com', phone: '0813-7788-9900', status: 'Active', nik: '3271011402880007', tanggal_lahir: '1988-02-14', alamat: 'Komp. Graha Raya Kav. 88', tanggal_bergabung: '2022-09-01', cabang: 'Lumajang' },
+        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', email: 'fajar.m@clinic.com', phone: '0811-2233-4455', status: 'Active', nik: '3174022005840008', tanggal_lahir: '1984-05-20', alamat: 'Townhouse Pondok Indah Unit 3', tanggal_bergabung: '2021-12-01', cabang: 'Jember' },
+        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', email: 'rina.p@clinic.com', phone: '0815-6677-8899', status: 'Active', nik: '3573010707940009', tanggal_lahir: '1994-07-07', alamat: 'Jl. Anggrek Selatan No. 22', tanggal_bergabung: '2023-08-15', cabang: 'Lumajang' },
+        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', email: 'agus.p@clinic.com', phone: '0812-4455-6677', status: 'Active', nik: '3273012211930010', tanggal_lahir: '1993-11-22', alamat: 'Jl. Pemuda No. 109', tanggal_bergabung: '2023-06-10', cabang: 'Jember' },
+        { id: 'STF-011', name: 'Siti Aminah', role: 'Perawat', email: 'siti.p@clinic.com', phone: '0813-9988-7766', status: 'Resigned', nik: '3175021803960011', tanggal_lahir: '1996-03-18', alamat: 'Jl. Kebon Jeruk VI No. 8', tanggal_bergabung: '2022-10-15', cabang: 'Lumajang' },
+        { id: 'STF-012', name: 'Hendra Saputra', role: 'Staff Gudang', email: 'hendra.g@clinic.com', phone: '0811-1122-3344', status: 'Active', nik: '3372010109900012', tanggal_lahir: '1990-09-01', alamat: 'Komp. Meruya Ilir Blok A/5', tanggal_bergabung: '2023-02-28', cabang: 'Jember' },
+        { id: 'STF-013', name: 'Maya Indah', role: 'Staff Gudang', email: 'maya.g@clinic.com', phone: '0815-4455-6677', status: 'Active', nik: '3274021404970013', tanggal_lahir: '1997-04-14', alamat: 'Jl. Raden Saleh Gg. 2 No. 14', tanggal_bergabung: '2024-03-01', cabang: 'Lumajang' },
+        { id: 'STF-014', name: 'Reza Pahlevi', role: 'Kasir', email: 'reza.k@clinic.com', phone: '0812-7788-9900', status: 'Active', nik: '3171012901980014', tanggal_lahir: '1998-01-29', alamat: 'Jl. Karet Pedurenan No. 71', tanggal_bergabung: '2024-01-15', cabang: 'Jember' },
+        { id: 'STF-015', name: 'Nina Wulandari', role: 'Kasir', email: 'nina.k@clinic.com', phone: '0813-2233-4455', status: 'Cuti', nik: '3276020508950015', tanggal_lahir: '1995-08-05', alamat: 'Jl. Cempaka Putih Tengah Blok B', tanggal_bergabung: '2023-07-25', cabang: 'Lumajang' },
     ]);
 
     const filteredStaff = staffList.filter(s => 
@@ -196,7 +196,7 @@ const StaffPage = () => {
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-8 py-6">Pegawai</th>
                                 <th className="px-8 py-6">Kontak</th>
-                                <th className="px-8 py-6">Role</th>
+                                <th className="px-8 py-6">Role & Cabang</th>
                                 <th className="px-8 py-6">Status</th>
                                 <th className="px-8 py-6 text-right">Aksi</th>
                             </tr>
@@ -222,9 +222,15 @@ const StaffPage = () => {
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary border border-primary/5 w-fit">
-                                            <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" />
-                                            <span className="text-[9px] font-black text-primary uppercase tracking-widest">{staff.role}</span>
+                                        <div className="space-y-2">
+                                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary border border-primary/5 w-fit">
+                                                <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" />
+                                                <span className="text-[9px] font-black text-primary uppercase tracking-widest">{staff.role}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-primary/60 px-3">
+                                                <Building2 className="w-3.5 h-3.5" />
+                                                <span className="text-[10px] font-bold tracking-tight">Cabang {staff.cabang}</span>
+                                            </div>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
@@ -262,10 +268,14 @@ const StaffPage = () => {
                             </div>
 
                             <div className="grid grid-cols-1 gap-2 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
-                                <div className="flex items-center gap-3 text-primary/60">
-                                    <ShieldCheck className="w-4 h-4 text-accent-gold" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">{staff.role}</span>
-                                </div>
+                                        <div className="flex items-center gap-3 text-primary/60">
+                                            <ShieldCheck className="w-4 h-4 text-accent-gold" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest">{staff.role}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-primary/60">
+                                            <Building2 className="w-4 h-4" />
+                                            <span className="text-[10px] font-black tracking-tight">{staff.cabang}</span>
+                                        </div>
                                 <div className="flex items-center gap-3 text-primary/60">
                                     <Mail className="w-4 h-4" />
                                     <span className="text-[11px] font-bold">{staff.email}</span>

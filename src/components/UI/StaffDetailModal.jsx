@@ -46,7 +46,7 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tight leading-loose">
                                 {staff.name}
                             </h3>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-2">
                                 <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest ${
                                     staff.status === 'Active' ? 'bg-green-100 text-green-800' :
                                     staff.status === 'Cuti' ? 'bg-yellow-100 text-yellow-800' :
@@ -55,6 +55,9 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                                     {staff.status}
                                 </span>
                                 <span className="text-white/80 text-[10px] font-bold tracking-widest uppercase border border-white/20 px-2 py-0.5 rounded-full">{staff.id}</span>
+                                <span className="text-white/90 text-[10px] font-bold tracking-widest uppercase bg-secondary/20 px-2 py-0.5 rounded-full flex items-center gap-1">
+                                    <Building2 className="w-3 h-3" /> {staff.cabang}
+                                </span>
                             </div>
                         </div>
                     </div>
@@ -70,7 +73,7 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                             <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-primary/40 pb-2 border-b border-primary/5">
                                 <BriefcaseIcon /> Posisi & Pekerjaan
                             </h4>
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
                                     <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-1">Role Utama</p>
                                     <p className="text-sm font-black text-primary flex items-center gap-2">
@@ -78,7 +81,14 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                                     </p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-1">Tanggal Bergabung</p>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-1">Penempatan</p>
+                                    <p className="text-sm font-bold text-primary flex items-center gap-2">
+                                        <Building2 className="w-4 h-4 text-primary/40" /> 
+                                        Klinik {staff.cabang}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-1">Tgl Bergabung</p>
                                     <p className="text-sm font-bold text-primary flex items-center gap-2">
                                         <Calendar className="w-4 h-4 text-primary/40" /> {formatDate(staff.tanggal_bergabung)}
                                     </p>
