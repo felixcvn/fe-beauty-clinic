@@ -10,9 +10,9 @@ const StaffPage = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     
-    // Modal Edit State
+    // Modal State
     const [editingStaff, setEditingStaff] = useState(null);
-    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
 
     // Confirmation Modals State
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, staff: null });
@@ -63,9 +63,14 @@ const StaffPage = () => {
     };
 
     // Handlers
+    const handleOpenAdd = () => {
+        setEditingStaff(null);
+        setIsStaffModalOpen(true);
+    };
+
     const handleOpenEdit = (staff) => {
         setEditingStaff(staff);
-        setIsEditModalOpen(true);
+        setIsStaffModalOpen(true);
     };
 
     const handleRequestSave = (formData) => {
@@ -73,9 +78,19 @@ const StaffPage = () => {
     };
 
     const confirmSave = () => {
-        setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...saveConfirm.data } : s));
-        showToast('Data pegawai berhasil diperbarui', 'success');
-        setIsEditModalOpen(false);
+        if (editingStaff) {
+            setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...saveConfirm.data } : s));
+            showToast('Data pegawai berhasil diperbarui', 'success');
+        } else {
+            const newStaff = {
+                ...saveConfirm.data,
+                id: `STF-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
+                status: 'Active'
+            };
+            setStaffList(prev => [newStaff, ...prev]);
+            showToast('Pegawai baru berhasil ditambahkan', 'success');
+        }
+        setIsStaffModalOpen(false);
         setSaveConfirm({ open: false, data: null });
     };
 
@@ -94,8 +109,8 @@ const StaffPage = () => {
             
             {/* Modals tetap menggunakan Portal agar tidak terpengaruh layout */}
             <StaffFormModal 
-                isOpen={isEditModalOpen} 
-                onClose={() => setIsEditModalOpen(false)} 
+                isOpen={isStaffModalOpen} 
+                onClose={() => setIsStaffModalOpen(false)} 
                 onSave={handleRequestSave} 
                 initialData={editingStaff} 
             />
@@ -138,7 +153,7 @@ const StaffPage = () => {
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola rincian dan akses seluruh staff klinik</p>
                 </div>
                 <button
-                    onClick={() => navigate('/staff/new')}
+                    onClick={handleOpenAdd}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                 >
                     <Plus className="w-4 h-4" />

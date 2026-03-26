@@ -1,24 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User } from 'lucide-react';
+import { X, CheckCircle2, User, UserPlus } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
 const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
+    const isEdit = !!initialData;
+
     const [formState, setFormState] = useState({
         name: '',
+        nik: '',
+        tanggal_lahir: '',
         role: 'Dokter',
         email: '',
         phone: '',
     });
 
     useEffect(() => {
-        if (isOpen && initialData) {
-            setFormState({
-                name: initialData.name || '',
-                role: initialData.role || 'Dokter',
-                email: initialData.email || '',
-                phone: initialData.phone || '',
-            });
+        if (isOpen) {
+            if (initialData) {
+                setFormState({
+                    name: initialData.name || '',
+                    nik: initialData.nik || '',
+                    tanggal_lahir: initialData.tanggal_lahir || '',
+                    role: initialData.role || 'Dokter',
+                    email: initialData.email || '',
+                    phone: initialData.phone || '',
+                });
+            } else {
+                setFormState({
+                    name: '',
+                    nik: '',
+                    tanggal_lahir: '',
+                    role: 'Dokter',
+                    email: '',
+                    phone: '',
+                });
+            }
         }
     }, [isOpen, initialData]);
 
@@ -35,7 +52,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
             onClick={onClose}
         >
             <div 
-                className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                className="relative w-full max-w-xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Tombol Silang Luar (z-index tinggi) */}
@@ -55,22 +72,23 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
 
                     <div className="relative z-10 flex items-center gap-4 pr-12">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10 shrink-0">
-                            <User className="w-6 h-6" />
+                            {isEdit ? <User className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />}
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                Edit Data Pegawai
+                                {isEdit ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                Perbarui Informasi Staff
+                                {isEdit ? 'Perbarui Informasi Staff' : 'Masukkan Rincian Staff Baru'}
                             </p>
                         </div>
                     </div>
                 </div>
                 
                 {/* Body Form */}
-                <div className="p-8 max-h-[70vh] overflow-y-auto">
+                <div className="p-8 max-h-[70vh] overflow-y-auto custom-scrollbar">
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Nama Lengkap</label>
                             <input 
@@ -78,8 +96,33 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 type="text" 
                                 value={formState.name}
                                 onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                placeholder="Masukkan nama lengkap pegawai"
+                                className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm placeholder:text-primary/20" 
                             />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">NIK</label>
+                                <input 
+                                    required 
+                                    type="text" 
+                                    value={formState.nik}
+                                    onChange={(e) => setFormState({ ...formState, nik: e.target.value })}
+                                    placeholder="Nomor Induk Kependudukan"
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm placeholder:text-primary/20" 
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Tanggal Lahir</label>
+                                <input 
+                                    required 
+                                    type="date" 
+                                    value={formState.tanggal_lahir}
+                                    onChange={(e) => setFormState({ ...formState, tanggal_lahir: e.target.value })}
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                />
+                            </div>
                         </div>
 
                         <div className="space-y-2">
@@ -93,7 +136,9 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     { value: 'Customer Service', label: 'Customer Service' },
                                     { value: 'HRD', label: 'HRD' },
                                     { value: 'Manager', label: 'Manager' },
-                                    { value: 'Gudang', label: 'Gudang' },
+                                    { value: 'Perawat', label: 'Perawat' },
+                                    { value: 'Staff Gudang', label: 'Staff Gudang' },
+                                    { value: 'Kasir', label: 'Kasir' },
                                 ]}
                             />
                         </div>
@@ -106,7 +151,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     type="email" 
                                     value={formState.email}
                                     onChange={(e) => setFormState({ ...formState, email: e.target.value })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                    placeholder="email@contoh.com"
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm placeholder:text-primary/20" 
                                 />
                             </div>
                             <div className="space-y-2">
@@ -116,7 +162,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     type="tel" 
                                     value={formState.phone}
                                     onChange={(e) => setFormState({ ...formState, phone: e.target.value })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                    placeholder="08xx-xxxx-xxxx"
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm placeholder:text-primary/20" 
                                 />
                             </div>
                         </div>
@@ -126,7 +173,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                             className="w-full mt-4 flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                         >
                             <CheckCircle2 className="w-4 h-4" />
-                            Lanjutkan Simpan
+                            {isEdit ? 'Simpan Perubahan' : 'Tambahkan Pegawai'}
                         </button>
                     </form>
                 </div>

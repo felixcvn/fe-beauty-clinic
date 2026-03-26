@@ -6,7 +6,7 @@ import myImage from '../../assets/gambar-pb.png';
 import logo from '../../assets/logo.png';
 
 const Login = () => {
-    const [email, setEmail] = useState('');
+    const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
@@ -19,7 +19,7 @@ const Login = () => {
         setError('');
         setLoading(true);
 
-        const result = await login(email, password);
+        const result = await login(username, password);
 
         if (result.success) {
             navigate('/');
@@ -67,15 +67,15 @@ const Login = () => {
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-primary">Alamat Email</label>
+                            <label className="text-sm font-bold text-primary">Username</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-light" />
                                 <input
                                     type="text"
-                                    placeholder="Masukkan Email Anda"
+                                    placeholder="Masukkan Username Anda"
                                     className="w-full pl-10 pr-4 py-3 rounded-xl border border-secondary-dark/20 outline-none focus:ring-2 focus:ring-primary/20 bg-secondary-light/30 transition-all font-medium text-primary"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
                                     required
                                 />
                             </div>

@@ -3,13 +3,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 const USER_SEEDER = [
-    { email: 'admin@clinic.com', password: 'password123', name: 'Super Admin', role: 'Admin' },
-    { email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Sarah Smith', role: 'Dokter' },
-    { email: 'cs@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Customer Service' },
-    { email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },
-    { email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
-    { email: 'gudang@clinic.com', password: 'password123', name: 'Zulkifli', role: 'Gudang Umum' },
-    { email: 'owner@clinic.com', password: 'password123', name: 'dr.Mega Endahlestari', role: 'Owner' },
+    { username: 'admin', email: 'admin@clinic.com', password: 'password123', name: 'Super Admin', role: 'Admin' },
+    { username: 'doctor', email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Sarah Smith', role: 'Dokter' },
+    { username: 'cs', email: 'cs@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Customer Service' },
+    { username: 'hrd', email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },
+    { username: 'manager', email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
+    { username: 'gudang', email: 'gudang@clinic.com', password: 'password123', name: 'Zulkifli', role: 'Gudang Umum' },
+    { username: 'owner', email: 'owner@clinic.com', password: 'password123', name: 'dr.Mega Endahlestari', role: 'Owner' },
 ];
 
 export const AuthProvider = ({ children }) => {
@@ -27,9 +27,9 @@ export const AuthProvider = ({ children }) => {
         setIsLoading(false);
     }, []);
 
-    const login = (email, password) => {
+    const login = (username, password) => {
         // Mock Login Logic with Seeder
-        const foundUser = USER_SEEDER.find(u => u.email === email && u.password === password);
+        const foundUser = USER_SEEDER.find(u => u.username === username && u.password === password);
 
         if (foundUser) {
             return new Promise((resolve) => {
@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
                 }, 800);
             });
         }
-        return Promise.resolve({ success: false, message: 'Email atau password salah' });
+        return Promise.resolve({ success: false, message: 'Username atau password salah' });
     };
 
     const logout = () => {

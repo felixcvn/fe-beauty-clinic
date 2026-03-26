@@ -25,7 +25,6 @@ import AttendancePage from './pages/Attendance/AttendancePage';
 import ReportsPage from './pages/Reports/ReportsPage';
 import NotificationsPage from './pages/Notifications/NotificationsPage';
 import StaffPage from './pages/Staff/StaffPage';
-import StaffForm from './pages/Staff/StaffForm';
 import POSPage from './pages/Sales/POSPage';
 import ProfilePage from './pages/Profile/ProfilePage';
 
@@ -93,7 +92,6 @@ function App() {
                                             <Route path="/patients/new" element={<RoleProtectedRoute><PatientForm /></RoleProtectedRoute>} />
                                             <Route path="/patients/detail/:id" element={<RoleProtectedRoute><PatientDetailPage /></RoleProtectedRoute>} />
                                             <Route path="/staff" element={<RoleProtectedRoute><StaffPage /></RoleProtectedRoute>} />
-                                            <Route path="/staff/new" element={<RoleProtectedRoute><StaffForm /></RoleProtectedRoute>} />
                                             <Route path="/sales" element={<RoleProtectedRoute><SalesPage /></RoleProtectedRoute>} />
                                             <Route path="/sales/pos" element={<RoleProtectedRoute><POSPage /></RoleProtectedRoute>} />
                                             <Route path="/promos" element={<RoleProtectedRoute><PromoManagementPage /></RoleProtectedRoute>} />
