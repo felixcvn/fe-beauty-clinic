@@ -20,7 +20,8 @@ const AttendancePage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('attendance');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
-    const [monthFilter, setMonthFilter] = useState('Maret 2026');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     
     // Modal States
     const [isScanModalOpen, setIsScanModalOpen] = useState(false);
@@ -115,7 +116,15 @@ const AttendancePage = () => {
         const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               record.role.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'Semua Status' || record.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        let matchesDate = true;
+        if (startDate && endDate) {
+            matchesDate = record.date >= startDate && record.date <= endDate;
+        } else if (startDate) {
+            matchesDate = record.date >= startDate;
+        } else if (endDate) {
+            matchesDate = record.date <= endDate;
+        }
+        return matchesSearch && matchesStatus && matchesDate;
     });
 
     const getStatusStyle = (status) => {
@@ -141,7 +150,7 @@ const AttendancePage = () => {
     useEffect(() => {
         setAttendancePage(1);
         setLeavePage(1);
-    }, [searchTerm, statusFilter, monthFilter, activeTab]);
+    }, [searchTerm, statusFilter, startDate, endDate, activeTab]);
 
     const idxLastAttendance = attendancePage * itemsPerPage;
     const idxFirstAttendance = idxLastAttendance - itemsPerPage;
@@ -157,6 +166,31 @@ const AttendancePage = () => {
     const idxFirstLeave = idxLastLeave - itemsPerPage;
     const currentLeave = filteredLeave.slice(idxFirstLeave, idxLastLeave);
     const totalLeavePages = Math.ceil(filteredLeave.length / itemsPerPage);
+
+    const handleExport = () => {
+        let csvContent = "sep=,\n";
+        if (activeTab === 'attendance') {
+            csvContent += "ID,Nama Pegawai,Role,Tanggal,Jam Masuk,Jam Keluar,Status\n";
+            finalAttendance.forEach(record => {
+                csvContent += `${record.id},"${record.name}","${record.role}",${record.date},${record.checkIn},${record.checkOut},${record.status}\n`;
+            });
+        } else {
+            csvContent += "ID,Nama Pegawai,Role,Jenis Pengajuan,Tanggal Mulai,Tanggal Selesai,Alasan,Status\n";
+            filteredLeave.forEach(req => {
+                csvContent += `${req.id},"${req.staffName}","${req.role}","${req.type}",${req.startDate},${req.endDate},"${req.reason}",${req.status}\n`;
+            });
+        }
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Laporan_${activeTab === 'attendance' ? 'Kehadiran' : 'Cuti'}_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        showToast('Laporan berhasil diexport ke format Excel', 'success');
+    };
 
     return (
         <div className="space-y-10 animate-fade-in pb-12">
@@ -176,7 +210,10 @@ const AttendancePage = () => {
                         <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Rekap Absensi</h2>
                         <p className="text-primary/40 mt-3 font-bold text-sm">Pantau kehadiran dan kedisiplinan seluruh pegawai klinik</p>
                     </div>
-                    <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                    <button 
+                        onClick={handleExport}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                    >
                         <Download className="w-4 h-4" />
                         <span>Export Laporan</span>
                     </button>
@@ -267,8 +304,11 @@ const AttendancePage = () => {
                                     <input type="text" placeholder="Cari nama pegawai atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all" />
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
-                                    <div className="w-full sm:w-48 relative z-50">
-                                        <CustomSelect value={monthFilter} onChange={setMonthFilter} options={[{ value: 'Maret 2026', label: 'Maret 2026' }, { value: 'Februari 2026', label: 'Februari 2026' }]} />
+                                    <div className="flex items-center gap-2 relative z-50 bg-white border border-primary/5 rounded-2xl px-4 py-2 opacity-100 shadow-sm focus-within:ring-4 focus-within:ring-primary/5 transition-all">
+                                        <Calendar className="w-4 h-4 text-primary/30" />
+                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
+                                        <span className="text-primary/30 text-xs font-bold">-</span>
+                                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
                                     </div>
                                     <div className="w-full sm:w-48 relative z-40">
                                         <CustomSelect value={statusFilter} onChange={setStatusFilter} options={[ { value: 'Semua Status', label: 'Semua Status' }, { value: 'Hadir', label: 'Hadir' }, { value: 'Terlambat', label: 'Terlambat' }, { value: 'Sakit', label: 'Sakit' }, { value: 'Cuti', label: 'Cuti' }, { value: 'Alpa', label: 'Alpa' }]} />

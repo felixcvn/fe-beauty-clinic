@@ -51,6 +51,11 @@ const Sidebar = ({ isOpen, toggle }) => {
             return item.subItems.some(sub => hasPermission(user?.role, sub.path));
         }
         return hasPermission(user?.role, item.path);
+    }).map(item => {
+        if (item.path === '/staff' && user?.role === 'Owner') {
+            return { ...item, label: 'Data Karyawan' };
+        }
+        return item;
     });
 
     return (

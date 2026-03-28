@@ -1,5 +1,5 @@
-import React from 'react';
-import { BarChart3, TrendingUp, PieChart, Calendar, Download, ArrowUpRight, ArrowDownRight, Users, DollarSign, Activity } from 'lucide-react';
+import React, { useState } from 'react';
+import { BarChart3, TrendingUp, PieChart, Calendar, Download, ArrowUpRight, ArrowDownRight, Users, DollarSign, Activity, Search } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
 
 const data = [
@@ -19,6 +19,15 @@ const treatmentData = [
     { name: 'Peeling', value: 200, color: '#E5D5B0' },
 ];
 
+const mockTransactions = [
+    { id: 'INV-20260301', date: '2026-03-28', patient: 'Ayu Lestari', treatment: 'Facial Acne', amount: 450000, status: 'Lunas' },
+    { id: 'INV-20260302', date: '2026-03-28', patient: 'Budi Santoso', treatment: 'Konsultasi Dokter', amount: 150000, status: 'Lunas' },
+    { id: 'INV-20260303', date: '2026-03-27', patient: 'Citra Kirana', treatment: 'Laser Rejuvenation', amount: 1200000, status: 'Lunas' },
+    { id: 'INV-20260304', date: '2026-03-27', patient: 'Dewi Persik', treatment: 'Botox', amount: 2500000, status: 'Lunas' },
+    { id: 'INV-20260305', date: '2026-03-26', patient: 'Eka Saputra', treatment: 'Peeling', amount: 350000, status: 'Menunggu' },
+    { id: 'INV-20260306', date: '2026-03-26', patient: 'Faisal Basri', treatment: 'Pembelian Skincare', amount: 850000, status: 'Lunas' },
+];
+
 const ReportsPage = () => {
     const reportCards = [
         { title: 'Revenue Growth', value: 'Rp 45.2M', change: '+15.4%', trend: 'up', icon: DollarSign },
@@ -26,6 +35,30 @@ const ReportsPage = () => {
         { title: 'Treatment Success', value: '98.5%', change: '+0.5%', trend: 'up', icon: Activity },
         { title: 'Avg. Transaction', value: 'Rp 850k', change: '-2.1%', trend: 'down', icon: BarChart3 },
     ];
+
+    const [searchTerm, setSearchTerm] = useState('');
+    const filteredTransactions = mockTransactions.filter(t => 
+        t.patient.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        t.treatment.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        t.id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleExportExcel = () => {
+        let csvContent = "sep=,\n";
+        csvContent += "Invoice,Tanggal,Nama Pasien,Layanan/Produk,Total Biaya (Rp),Status\n";
+        filteredTransactions.forEach(t => {
+            csvContent += `"${t.id}",${t.date},"${t.patient}","${t.treatment}",${t.amount},"${t.status}"\n`;
+        });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `Laporan_Transaksi_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        // Assuming there isn't a Toast context wrapper in this exact file imported yet, we can construct a basic response. Actually, I will just trigger the download silently if showToast is omitted, or we could add the import. Wait, I didn't import useToast. I will just rely on the download visually.
+    };
 
     return (
         <div className="space-y-10 animate-fade-in pb-12">
@@ -39,9 +72,9 @@ const ReportsPage = () => {
                         <Calendar className="w-4 h-4 text-primary/40" />
                         <span className="text-xs font-black text-primary uppercase tracking-widest">Last 30 Days</span>
                     </div>
-                    <button className="flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                    <button onClick={handleExportExcel} className="flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
                         <Download className="w-4 h-4" />
-                        <span>Export PDF</span>
+                        <span>Export Excel</span>
                     </button>
                 </div>
             </div>
@@ -161,6 +194,58 @@ const ReportsPage = () => {
                             </div>
                         ))}
                     </div>
+                </div>
+            </div>
+
+            {/* Detailed Table Section (Option A Layout) */}
+            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden mt-10">
+                <div className="p-6 md:p-10 border-b border-primary/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                    <div>
+                        <h3 className="text-xl font-black text-primary tracking-tighter">Detail Transaksi</h3>
+                        <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Rincian pendapatan operasional</p>
+                    </div>
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
+                        <input type="text" placeholder="Cari nota, pasien..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-primary/5 border-none outline-none text-primary placeholder:text-primary/30 font-bold text-xs focus:ring-4 focus:ring-primary/10 transition-all" />
+                    </div>
+                </div>
+                <div className="overflow-x-auto scrollbar-hide">
+                    <table className="w-full text-left border-collapse min-w-[800px]">
+                        <thead>
+                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5 bg-gray-50/50">
+                                <th className="px-8 py-5 rounded-tl-xl">Invoice</th>
+                                <th className="px-8 py-5">Tanggal</th>
+                                <th className="px-8 py-5">Pasien</th>
+                                <th className="px-8 py-5">Layanan / Produk</th>
+                                <th className="px-8 py-5 text-right">Total (Rp)</th>
+                                <th className="px-8 py-5 text-center">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-primary/5">
+                            {filteredTransactions.map((trx, idx) => (
+                                <tr key={idx} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
+                                    <td className="px-8 py-4">
+                                        <span className="text-xs font-black text-primary tracking-widest">{trx.id}</span>
+                                    </td>
+                                    <td className="px-8 py-4">
+                                        <span className="text-[11px] font-bold text-primary/60">{trx.date}</span>
+                                    </td>
+                                    <td className="px-8 py-4">
+                                        <span className="text-xs font-black text-primary">{trx.patient}</span>
+                                    </td>
+                                    <td className="px-8 py-4">
+                                        <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{trx.treatment}</span>
+                                    </td>
+                                    <td className="px-8 py-4 text-right">
+                                        <span className="text-sm font-black text-primary tracking-tight">{(trx.amount).toLocaleString('id-ID')}</span>
+                                    </td>
+                                    <td className="px-8 py-4 text-center">
+                                        <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trx.status === 'Lunas' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>{trx.status}</span>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

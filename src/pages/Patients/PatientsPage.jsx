@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, ChevronRight, Pencil } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from '../../components/UI/CustomSelect';
@@ -10,6 +11,8 @@ const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();
     const { showToast } = useToast();
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const isOwner = user?.role === 'Owner';
     const [searchTerm, setSearchTerm] = useState('');
     const [memberFilter, setMemberFilter] = useState('Semua Tipe');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -79,13 +82,15 @@ const PatientsPage = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Data Pasien</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola seluruh data pasien terdaftar di klinik</p>
                 </div>
-                <button
-                    onClick={handleOpenAdd}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                >
-                    <Plus className="w-4 h-4" />
-                    <span>Daftar Pasien Baru</span>
-                </button>
+                {!isOwner && (
+                    <button
+                        onClick={handleOpenAdd}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>Daftar Pasien Baru</span>
+                    </button>
+                )}
             </div>
 
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
@@ -124,7 +129,7 @@ const PatientsPage = () => {
                                 <th className="px-8 py-5">No. Member</th>
                                 <th className="px-8 py-5">No. RM</th>
                                 <th className="px-8 py-5">Tipe Member</th>
-                                <th className="px-8 py-5 text-right rounded-tr-xl">Aksi</th>
+                                {!isOwner && <th className="px-8 py-5 text-right rounded-tr-xl">Aksi</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -168,20 +173,22 @@ const PatientsPage = () => {
                                                 {patient.tipeMember || 'GOLD'}
                                             </span>
                                         </td>
-                                        <td className="px-8 py-4">
-                                            <div className="flex items-center justify-end gap-1">
-                                                <button 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setSelectedPatient(patient);
-                                                        setIsFormModalOpen(true);
-                                                    }}
-                                                    className="text-primary/40 hover:text-accent-gold transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90"
-                                                >
-                                                    <Pencil className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        </td>
+                                        {!isOwner && (
+                                            <td className="px-8 py-4">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <button 
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedPatient(patient);
+                                                            setIsFormModalOpen(true);
+                                                        }}
+                                                        className="text-primary/40 hover:text-accent-gold transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
                                     </tr>
                                 )
                             })}
@@ -233,16 +240,18 @@ const PatientsPage = () => {
                                 </div>
 
                                 <div className="flex justify-end gap-2 mt-2">
-                                    <button 
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            setSelectedPatient(patient);
-                                            setIsFormModalOpen(true);
-                                        }}
-                                        className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
-                                    >
-                                        <Pencil className="w-3 h-3" /> Edit
-                                    </button>
+                                    {!isOwner && (
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedPatient(patient);
+                                                setIsFormModalOpen(true);
+                                            }}
+                                            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
+                                        >
+                                            <Pencil className="w-3 h-3" /> Edit
+                                        </button>
+                                    )}
                                     <button className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95">
                                         Detail <ChevronRight className="w-3 h-3" />
                                     </button>

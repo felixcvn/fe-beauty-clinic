@@ -2,11 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Plus, Filter, Mail, Phone, ShieldCheck, Trash2, Edit3, X, AlertTriangle, CheckCircle2, ChevronRight, Building2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import StaffFormModal from '../../components/UI/StaffFormModal';
 import StaffDetailModal from '../../components/UI/StaffDetailModal';
 
 const StaffPage = () => {
+    const { user } = useAuth();
+    const isOwner = user?.role === 'Owner';
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -163,16 +166,20 @@ const StaffPage = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Manajemen Karyawan</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">
+                        {isOwner ? 'Data Karyawan' : 'Manajemen Karyawan'}
+                    </h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola rincian dan akses seluruh staff klinik</p>
                 </div>
-                <button
-                    onClick={handleOpenAdd}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                >
-                    <Plus className="w-4 h-4" />
-                    <span>Tambah Karyawan</span>
-                </button>
+                {!isOwner && (
+                    <button
+                        onClick={handleOpenAdd}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>Tambah Karyawan</span>
+                    </button>
+                )}
             </div>
 
             {/* Controls (Search & Filter) */}
@@ -189,7 +196,7 @@ const StaffPage = () => {
                 </div>
                 <button className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white border border-primary/5 text-primary text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm active:scale-95">
                     <Filter className="w-4 h-4" />
-                    <span>Filter Role</span>
+                    <span>Filter Jabatan</span>
                 </button>
             </div>
 
@@ -203,9 +210,9 @@ const StaffPage = () => {
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-8 py-6">Karyawan</th>
                                 <th className="px-8 py-6">Kontak</th>
-                                <th className="px-8 py-6">Role</th>
+                                <th className="px-8 py-6">Jabatan</th>
                                 <th className="px-8 py-6">Cabang</th>
-                                <th className="px-8 py-6 text-right">Aksi</th>
+                                {!isOwner && <th className="px-8 py-6 text-right">Aksi</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -240,12 +247,14 @@ const StaffPage = () => {
                                             <span className="text-[14px] font-semibold tracking-tight">{staff.cabang}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary hover:shadow-lg transition-all active:scale-90"><Edit3 className="w-4 h-4" /></button>
-                                            <button onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }} className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-600 hover:shadow-lg transition-all active:scale-90"><Trash2 className="w-4 h-4" /></button>
-                                        </div>
-                                    </td>
+                                    {!isOwner && (
+                                        <td className="px-8 py-6 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <button onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary hover:shadow-lg transition-all active:scale-90"><Edit3 className="w-4 h-4" /></button>
+                                                <button onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }} className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-600 hover:shadow-lg transition-all active:scale-90"><Trash2 className="w-4 h-4" /></button>
+                                            </div>
+                                        </td>
+                                    )}
                                 </tr>
                             ))}
                         </tbody>
@@ -287,20 +296,22 @@ const StaffPage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex gap-3">
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
-                                >
-                                    <Edit3 className="w-3.5 h-3.5" /> Edit
-                                </button>
-                                <button 
-                                    onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
-                                >
-                                    <Trash2 className="w-3.5 h-3.5" /> Hapus
-                                </button>
-                            </div>
+                            {!isOwner && (
+                                <div className="flex gap-3 mt-4">
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
+                                    >
+                                        <Edit3 className="w-3.5 h-3.5" /> Edit
+                                    </button>
+                                    <button 
+                                        onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" /> Hapus
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     ))}
                 </div>
