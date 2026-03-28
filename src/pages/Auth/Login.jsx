@@ -107,9 +107,9 @@ const Login = () => {
                             disabled={loading}
                             className="w-full bg-primary text-secondary py-3 rounded-xl hover:bg-primary-dark hover:scale-[1.02] active:scale-[0.98] transition-all font-bold shadow-lg shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
                         >
-                            {loading ? 'Signing In...' : (
+                            {loading ? 'Memuat...' : (
                                 <>
-                                    Sign In <ArrowRight className="w-5 h-5" />
+                                    Masuk <ArrowRight className="w-5 h-5" />
                                 </>
                             )}
                         </button>

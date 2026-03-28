@@ -82,7 +82,7 @@ const StaffPage = () => {
     const confirmSave = () => {
         if (editingStaff) {
             setStaffList(prev => prev.map(s => s.id === editingStaff.id ? { ...s, ...saveConfirm.data } : s));
-            showToast('Data pegawai berhasil diperbarui', 'success');
+            showToast('Data karyawan berhasil diperbarui', 'success');
         } else {
             const newStaff = {
                 ...saveConfirm.data,
@@ -90,7 +90,7 @@ const StaffPage = () => {
                 status: 'Aktif'
             };
             setStaffList(prev => [newStaff, ...prev]);
-            showToast('Pegawai baru berhasil ditambahkan', 'success');
+            showToast('Karyawan baru berhasil ditambahkan', 'success');
         }
         setIsStaffModalOpen(false);
         setSaveConfirm({ open: false, data: null });
@@ -133,7 +133,7 @@ const StaffPage = () => {
                             {editingStaff ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah'}
                         </h3>
                         <p className="text-sm text-primary/40 font-bold mb-8">
-                            {editingStaff ? 'Simpan perubahan data pegawai ini?' : 'Tambahkan data pegawai baru?'}
+                            {editingStaff ? 'Simpan perubahan data karyawan ini?' : 'Tambahkan data karyawan baru?'}
                         </p>
                         <div className="flex gap-3">
                             <button onClick={() => setSaveConfirm({ open: false, data: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
@@ -163,7 +163,7 @@ const StaffPage = () => {
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Manajemen Pegawai</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Manajemen Karyawan</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola rincian dan akses seluruh staff klinik</p>
                 </div>
                 <button
@@ -171,7 +171,7 @@ const StaffPage = () => {
                     className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                 >
                     <Plus className="w-4 h-4" />
-                    <span>Tambah Pegawai</span>
+                    <span>Tambah Karyawan</span>
                 </button>
             </div>
 
@@ -181,7 +181,7 @@ const StaffPage = () => {
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
-                        placeholder="Cari pegawai..."
+                        placeholder="Cari karyawan..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50/50 border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all"
@@ -201,7 +201,7 @@ const StaffPage = () => {
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                <th className="px-8 py-6">Pegawai</th>
+                                <th className="px-8 py-6">Karyawan</th>
                                 <th className="px-8 py-6">Kontak</th>
                                 <th className="px-8 py-6">Role</th>
                                 <th className="px-8 py-6">Cabang</th>

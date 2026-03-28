@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, Hash, CreditCard, MapPin, Calendar, Mail, Phone } from 'lucide-react';
+import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Mail, Phone } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
 const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
+    const isEdit = !!initialData;
+
     const [formData, setFormData] = useState({
         noMember: '',
         noRM: '',
@@ -18,20 +20,35 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     });
 
     useEffect(() => {
-        if (isOpen && initialData) {
-            setFormData({
-                id: initialData.id,
-                noMember: initialData.noMember || '',
-                noRM: initialData.noRM || '',
-                namaLengkap: initialData.namaLengkap || initialData.name || '',
-                noIdentitas: initialData.noIdentitas || '',
-                tempatLahir: initialData.tempatLahir || '',
-                tanggalLahir: initialData.tanggalLahir || '',
-                jenisKelamin: initialData.jenisKelamin || 'Laki-laki',
-                alamat: initialData.alamat || '',
-                email: initialData.email || '',
-                noTelepon: initialData.noTelepon || initialData.phone || ''
-            });
+        if (isOpen) {
+            if (initialData) {
+                setFormData({
+                    id: initialData.id,
+                    noMember: initialData.noMember || '',
+                    noRM: initialData.noRM || '',
+                    namaLengkap: initialData.namaLengkap || initialData.name || '',
+                    noIdentitas: initialData.noIdentitas || '',
+                    tempatLahir: initialData.tempatLahir || '',
+                    tanggalLahir: initialData.tanggalLahir || '',
+                    jenisKelamin: initialData.jenisKelamin || 'Laki-laki',
+                    alamat: initialData.alamat || '',
+                    email: initialData.email || '',
+                    noTelepon: initialData.noTelepon || initialData.phone || ''
+                });
+            } else {
+                setFormData({
+                    noMember: '',
+                    noRM: '',
+                    namaLengkap: '',
+                    noIdentitas: '',
+                    tempatLahir: '',
+                    tanggalLahir: '',
+                    jenisKelamin: 'Laki-laki',
+                    alamat: '',
+                    email: '',
+                    noTelepon: ''
+                });
+            }
         }
     }, [isOpen, initialData]);
 
@@ -73,14 +90,14 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
 
                     <div className="relative z-10 flex items-center gap-4 pr-12">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10 shrink-0">
-                            <User className="w-6 h-6" />
+                            {isEdit ? <User className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />}
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                Edit Data Pasien
+                                {isEdit ? 'Edit Data Pasien' : 'Tambah Pasien Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                Perbarui Informasi Pasien Tercatat
+                                {isEdit ? 'Perbarui Informasi Pasien Tercatat' : 'Lengkapi Formulir Pendaftaran Pasien'}
                             </p>
                         </div>
                     </div>
@@ -241,7 +258,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                             className="w-full mt-4 flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                         >
                             <CheckCircle2 className="w-4 h-4" />
-                            Simpan Perubahan
+                            {isEdit ? 'Simpan Perubahan' : 'Tambahkan Pasien'}
                         </button>
                     </form>
                 </div>
