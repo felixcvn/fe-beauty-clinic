@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, UserPlus } from 'lucide-react';
+import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
-const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
+const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [] }) => {
     const isEdit = !!initialData;
 
+    const [step, setStep] = useState(1);
     const [formState, setFormState] = useState({
         name: '',
         nik: '',
         tanggal_lahir: '',
-        role: 'Dokter',
-        cabang: 'Jember',
+        role: '',
+        cabang: '',
         email: '',
         phone: '',
+        alamat: '',
         username: '',
         password: '',
     });
@@ -22,6 +24,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
 
     useEffect(() => {
         if (isOpen) {
+            setStep(1);
             setErrors({});
             if (initialData) {
                 setFormState({
@@ -32,6 +35,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     cabang: initialData.cabang || 'Jember',
                     email: initialData.email || '',
                     phone: initialData.phone || '',
+                    alamat: initialData.alamat || '',
                     username: initialData.username || '',
                     password: initialData.password || '',
                 });
@@ -40,10 +44,11 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     name: '',
                     nik: '',
                     tanggal_lahir: '',
-                    role: 'Dokter',
-                    cabang: 'Jember',
+                    role: '',
+                    cabang: '',
                     email: '',
                     phone: '',
+                    alamat: '',
                     username: '',
                     password: '',
                 });
@@ -53,7 +58,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
 
     if (!isOpen) return null;
 
-    const validateForm = () => {
+    const validateStep1 = () => {
         let newErrors = {};
         if (!formState.name.trim()) newErrors.name = "Nama lengkap wajib diisi";
         
@@ -63,15 +68,39 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
 
         if (!formState.tanggal_lahir) newErrors.tanggal_lahir = "Tanggal lahir wajib diisi";
 
+        if (!formState.role) newErrors.role = "Role wajib diisi";
+        
+        if (!formState.cabang) newErrors.cabang = "Cabang wajib diisi";
+
         if (!formState.phone.trim()) newErrors.phone = "Nomor telepon wajib diisi";
         else if (!/^\d+$/.test(formState.phone)) newErrors.phone = "Nomor telepon hanya boleh berisi angka";
 
         if (!formState.email.trim()) newErrors.email = "Email wajib diisi";
         else if (!/\S+@\S+\.\S+/.test(formState.email)) newErrors.email = "Format email tidak valid";
 
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const validateStep2 = () => {
+        let newErrors = {};
         if (!formState.username.trim()) newErrors.username = "Username wajib diisi";
         else if (/\s/.test(formState.username)) newErrors.username = "Username tidak boleh mengandung spasi";
+        else {
+            const isDuplicate = existingStaff.some(
+                staff => staff.username === formState.username && (!isEdit || staff.id !== initialData.id)
+            );
+            if (isDuplicate) {
+                newErrors.username = "Username sudah digunakan, silakan pilih yang lain";
+            }
+        }
 
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
+    const validateStep3 = () => {
+        let newErrors = {};
         if (!formState.password) newErrors.password = "Password wajib diisi";
         else if (formState.password.length < 6) newErrors.password = "Password minimal 6 karakter";
 
@@ -79,10 +108,28 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         return Object.keys(newErrors).length === 0;
     };
 
+    const handleNext = () => {
+        if (step === 1 && validateStep1()) {
+            setStep(2);
+        } else if (step === 2 && validateStep2()) {
+            setStep(3);
+        }
+    };
+
+    const handlePrev = () => {
+        if (step > 1) {
+            setStep(prev => prev - 1);
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (validateForm()) {
-            onSave(formState);
+        if (step < 3) {
+            handleNext();
+        } else {
+            if (validateStep3()) {
+                onSave(formState);
+            }
         }
     };
 
@@ -126,7 +173,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 {isEdit ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                {isEdit ? 'Perbarui Informasi Staff' : 'Masukkan Rincian Staff Baru'}
+                                Langkah {step} dari 3 • {step === 1 ? 'Data Diri & Penempatan' : step === 2 ? 'Detail Akun (Username)' : 'Keamanan (Password)'}
                             </p>
                         </div>
                     </div>
@@ -134,150 +181,241 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 
                 {/* Body Form */}
                 <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-gray-50/30">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    
+                    {/* Progress Bar Dinamis */}
+                    <div className="flex gap-2 mb-8">
+                        <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                            <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 1 ? 'w-full' : 'w-0'}`} />
+                        </div>
+                        <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                            <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 2 ? 'w-full' : 'w-0'}`} />
+                        </div>
+                        <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                            <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 3 ? 'w-full' : 'w-0'}`} />
+                        </div>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
                         
-                        {/* Data Personal */}
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Informasi Personal</h4>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Nama Lengkap</label>
-                                <input 
-                                    type="text" 
-                                    value={formState.name}
-                                    onChange={(e) => handleChange('name', e.target.value)}
-                                    placeholder="Masukkan nama lengkap pegawai"
-                                    className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.name ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
-                                />
-                                {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
-                            </div>
+                        {/* -------------------- STEP 1 -------------------- */}
+                        {step === 1 && (
+                            <div className="space-y-6 animate-fade-in">
+                                {/* Data Personal */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Informasi Personal</h4>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Nama Lengkap</label>
+                                        <input 
+                                            type="text" 
+                                            value={formState.name}
+                                            onChange={(e) => handleChange('name', e.target.value)}
+                                            placeholder="Masukkan nama lengkap pegawai"
+                                            className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.name ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                        />
+                                        {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
+                                    </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">NIK</label>
-                                    <input 
-                                        type="text" 
-                                        value={formState.nik}
-                                        onChange={(e) => handleChange('nik', e.target.value)}
-                                        placeholder="Nomor Induk Kependudukan"
-                                        className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.nik ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
-                                    />
-                                    {errors.nik && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.nik}</p>}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">NIK</label>
+                                            <input 
+                                                type="text" 
+                                                value={formState.nik}
+                                                onChange={(e) => handleChange('nik', e.target.value)}
+                                                placeholder="Nomor Induk Kependudukan"
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.nik ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            />
+                                            {errors.nik && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.nik}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Lahir</label>
+                                            <input 
+                                                type="date" 
+                                                value={formState.tanggal_lahir}
+                                                onChange={(e) => handleChange('tanggal_lahir', e.target.value)}
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_lahir ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`} 
+                                            />
+                                            {errors.tanggal_lahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tanggal_lahir}</p>}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Alamat</label>
+                                            <input 
+                                                type="text" 
+                                                value={formState.alamat}
+                                                onChange={(e) => handleChange('alamat', e.target.value)}
+                                                placeholder="Masukkan alamat lengkap pegawai"
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.alamat ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            />
+                                            {errors.alamat && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.alamat}</p>}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Lahir</label>
-                                    <input 
-                                        type="date" 
-                                        value={formState.tanggal_lahir}
-                                        onChange={(e) => handleChange('tanggal_lahir', e.target.value)}
-                                        className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_lahir ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`} 
-                                    />
-                                    {errors.tanggal_lahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tanggal_lahir}</p>}
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Posisi & Penempatan */}
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Posisi & Penempatan</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Role Pegawai</label>
-                                    <CustomSelect 
-                                        value={formState.role} 
-                                        onChange={(value) => handleChange('role', value)}
-                                        options={[
-                                            { value: 'Admin', label: 'Admin' },
-                                            { value: 'Dokter', label: 'Dokter' },
-                                            { value: 'Customer Service', label: 'Customer Service' },
-                                            { value: 'HRD', label: 'HRD' },
-                                            { value: 'Manager', label: 'Manager' },
-                                            { value: 'Perawat', label: 'Perawat' },
-                                            { value: 'Staff Gudang', label: 'Staff Gudang' },
-                                            { value: 'Kasir', label: 'Kasir' },
-                                        ]}
-                                    />
+                                {/* Posisi & Penempatan */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Posisi & Penempatan</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Jabatan Karyawan</label>
+                                            <CustomSelect 
+                                                value={formState.role} 
+                                                onChange={(value) => handleChange('role', value)}
+                                                options={[
+                                                    { value: 'Admin', label: 'Admin' },
+                                                    { value: 'Dokter', label: 'Dokter' },
+                                                    { value: 'Customer Service', label: 'Customer Service' },
+                                                    { value: 'HRD', label: 'HRD' },
+                                                    { value: 'Manager', label: 'Manager' },
+                                                    { value: 'Perawat', label: 'Perawat' },
+                                                    { value: 'Staff Gudang', label: 'Staff Gudang' },
+                                                    { value: 'Kasir', label: 'Kasir' },
+                                                ]}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Cabang</label>
+                                            <CustomSelect 
+                                                value={formState.cabang} 
+                                                onChange={(value) => handleChange('cabang', value)}
+                                                options={[
+                                                    { value: 'Jember', label: 'Klinik Cabang Jember' },
+                                                    { value: 'Lumajang', label: 'Klinik Cabang Lumajang' },
+                                                ]}
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Cabang Penempatan</label>
-                                    <CustomSelect 
-                                        value={formState.cabang} 
-                                        onChange={(value) => handleChange('cabang', value)}
-                                        options={[
-                                            { value: 'Jember', label: 'Klinik Cabang Jember' },
-                                            { value: 'Lumajang', label: 'Klinik Cabang Lumajang' },
-                                        ]}
-                                    />
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Informasi Kontak */}
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Informasi Kontak</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Email</label>
-                                    <input 
-                                        type="text" 
-                                        value={formState.email}
-                                        onChange={(e) => handleChange('email', e.target.value)}
-                                        placeholder="email@contoh.com"
-                                        className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
-                                    />
-                                    {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email}</p>}
+                                {/* Informasi Kontak */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Informasi Kontak</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Email</label>
+                                            <input 
+                                                type="text" 
+                                                value={formState.email}
+                                                onChange={(e) => handleChange('email', e.target.value)}
+                                                placeholder="email@contoh.com"
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            />
+                                            {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email}</p>}
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">No. Telp</label>
+                                            <input 
+                                                type="tel" 
+                                                value={formState.phone}
+                                                onChange={(e) => handleChange('phone', e.target.value)}
+                                                placeholder="08xxxxxxxxxx"
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            />
+                                            {errors.phone && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.phone}</p>}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">No. Telp</label>
-                                    <input 
-                                        type="tel" 
-                                        value={formState.phone}
-                                        onChange={(e) => handleChange('phone', e.target.value)}
-                                        placeholder="08xx-xxxx-xxxx"
-                                        className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
-                                    />
-                                    {errors.phone && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.phone}</p>}
-                                </div>
-                            </div>
-                        </div>
 
-                        {/* Akun & Keamanan */}
-                        <div className="space-y-4">
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Akun Sistem & Keamanan</h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Username Login</label>
-                                    <input 
-                                        type="text" 
-                                        value={formState.username}
-                                        onChange={(e) => handleChange('username', e.target.value)}
-                                        placeholder="Contoh: sarah123"
-                                        className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.username ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
-                                    />
-                                    {errors.username && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.username}</p>}
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Password</label>
-                                    <input 
-                                        type="text" 
-                                        value={formState.password}
-                                        onChange={(e) => handleChange('password', e.target.value)}
-                                        placeholder="********"
-                                        className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.password ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
-                                    />
-                                    {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password}</p>}
+                                {/* Aksi Bawah */}
+                                <div className="pt-4 border-t border-primary/5 mt-8">
+                                    <button 
+                                        type="button" 
+                                        onClick={handleNext}
+                                        className="w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                    >
+                                        Selanjutnya
+                                        <ArrowRight className="w-4 h-4 ml-1" />
+                                    </button>
                                 </div>
                             </div>
-                        </div>
+                        )}
+
+                        {/* -------------------- STEP 2 -------------------- */}
+                        {step === 2 && (
+                            <div className="space-y-6 animate-fade-in">
+                                {/* Akun & Keamanan */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Detail Akun</h4>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Username Login</label>
+                                            <input 
+                                                type="text" 
+                                                value={formState.username}
+                                                onChange={(e) => handleChange('username', e.target.value)}
+                                                placeholder="Contoh: sarah123"
+                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.username ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            />
+                                            {errors.username && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.username}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Aksi Bawah */}
+                                <div className="pt-4 border-t border-primary/5 mt-8 flex sm:flex-row flex-col gap-3">
+                                    <button 
+                                        type="button" 
+                                        onClick={handlePrev}
+                                        className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-sm"
+                                    >
+                                        <ArrowLeft className="w-4 h-4 mr-1" />
+                                        Sebelumnya
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        onClick={handleNext}
+                                        className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                    >
+                                        Selanjutnya
+                                        <ArrowRight className="w-4 h-4 ml-1" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* -------------------- STEP 3 -------------------- */}
+                        {step === 3 && (
+                            <div className="space-y-6 animate-fade-in">
+                                {/* Keamanan */}
+                                <div className="space-y-4">
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Sistem Keamanan</h4>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Password Sistem</label>
+                                            <input 
+                                                type="password" 
+                                                value={formState.password}
+                                                onChange={(e) => handleChange('password', e.target.value)}
+                                                placeholder="********"
+                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.password ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            />
+                                            {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password}</p>}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Aksi Bawah */}
+                                <div className="pt-4 border-t border-primary/5 mt-8 flex sm:flex-row flex-col gap-3">
+                                    <button 
+                                        type="button" 
+                                        onClick={handlePrev}
+                                        className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-sm"
+                                    >
+                                        <ArrowLeft className="w-4 h-4 mr-1" />
+                                        Sebelumnya
+                                    </button>
+                                    <button 
+                                        type="submit" 
+                                        className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                    >
+                                        <CheckCircle2 className="w-4 h-4" />
+                                        {isEdit ? 'Simpan Perubahan' : 'Tambahkan Pegawai'}
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         
-                        <div className="pt-4 border-t border-primary/5">
-                            <button 
-                                type="submit" 
-                                className="w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary-dark active:scale-[0.98] transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                            >
-                                <CheckCircle2 className="w-4 h-4" />
-                                {isEdit ? 'Simpan Perubahan' : 'Tambahkan Pegawai'}
-                            </button>
-                        </div>
                     </form>
                 </div>
             </div>

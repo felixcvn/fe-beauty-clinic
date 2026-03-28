@@ -115,6 +115,7 @@ const StaffPage = () => {
                 onClose={() => setIsStaffModalOpen(false)} 
                 onSave={handleRequestSave} 
                 initialData={editingStaff} 
+                existingStaff={staffList}
             />
             <StaffDetailModal 
                 isOpen={!!detailStaff} 
@@ -196,8 +197,8 @@ const StaffPage = () => {
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-8 py-6">Pegawai</th>
                                 <th className="px-8 py-6">Kontak</th>
-                                <th className="px-8 py-6">Role & Cabang</th>
-                                <th className="px-8 py-6">Status</th>
+                                <th className="px-8 py-6">Role</th>
+                                <th className="px-8 py-6">Cabang</th>
                                 <th className="px-8 py-6 text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -222,19 +223,16 @@ const StaffPage = () => {
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <div className="space-y-2">
-                                            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary border border-primary/5 w-fit">
-                                                <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" />
-                                                <span className="text-[9px] font-black text-primary uppercase tracking-widest">{staff.role}</span>
-                                            </div>
-                                            <div className="flex items-center gap-2 text-primary/60 px-3">
-                                                <Building2 className="w-3.5 h-3.5" />
-                                                <span className="text-[10px] font-bold tracking-tight">Cabang {staff.cabang}</span>
-                                            </div>
+                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary border border-primary/5 w-fit">
+                                            <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" />
+                                            <span className="text-[9px] font-black text-primary uppercase tracking-widest">{staff.role}</span>
                                         </div>
                                     </td>
                                     <td className="px-8 py-6">
-                                        <span className="inline-flex px-3 py-1 rounded-full bg-green-100 text-green-700 text-[9px] font-black uppercase tracking-widest">{staff.status}</span>
+                                        <div className="flex items-center gap-2 text-primary/60">
+                                            <Building2 className="w-4 h-4" />
+                                            <span className="text-[14px] font-semibold tracking-tight">{staff.cabang}</span>
+                                        </div>
                                     </td>
                                     <td className="px-8 py-6 text-right">
                                         <div className="flex justify-end gap-2">
@@ -262,8 +260,9 @@ const StaffPage = () => {
                                         <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{staff.id}</p>
                                     </div>
                                 </div>
-                                <span className="px-3 py-1 rounded-full bg-green-50 text-green-600 text-[8px] font-black uppercase tracking-widest">
-                                    {staff.status}
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[8px] font-black uppercase tracking-widest">
+                                    <Building2 className="w-3 h-3" />
+                                    {staff.cabang}
                                 </span>
                             </div>
 
@@ -271,10 +270,6 @@ const StaffPage = () => {
                                         <div className="flex items-center gap-3 text-primary/60">
                                             <ShieldCheck className="w-4 h-4 text-accent-gold" />
                                             <span className="text-[10px] font-black uppercase tracking-widest">{staff.role}</span>
-                                        </div>
-                                        <div className="flex items-center gap-3 text-primary/60">
-                                            <Building2 className="w-4 h-4" />
-                                            <span className="text-[10px] font-black tracking-tight">{staff.cabang}</span>
                                         </div>
                                 <div className="flex items-center gap-3 text-primary/60">
                                     <Mail className="w-4 h-4" />
