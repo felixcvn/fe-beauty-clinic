@@ -129,11 +129,17 @@ const StaffPage = () => {
                     <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSaveConfirm({ open: false, data: null })} />
                     <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
                         <div className="w-16 h-16 bg-blue-50 text-blue-500 rounded-3xl flex items-center justify-center mx-auto mb-6"><CheckCircle2 className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Simpan</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">Simpan perubahan data pegawai ini?</p>
+                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">
+                            {editingStaff ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah'}
+                        </h3>
+                        <p className="text-sm text-primary/40 font-bold mb-8">
+                            {editingStaff ? 'Simpan perubahan data pegawai ini?' : 'Tambahkan data pegawai baru?'}
+                        </p>
                         <div className="flex gap-3">
                             <button onClick={() => setSaveConfirm({ open: false, data: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={confirmSave} className="flex-1 py-4 rounded-2xl bg-primary text-secondary font-black text-[10px] uppercase tracking-widest">Ya, Simpan</button>
+                            <button onClick={confirmSave} className="flex-1 py-4 rounded-2xl bg-primary text-secondary font-black text-[10px] uppercase tracking-widest">
+                                {editingStaff ? 'Ya, Simpan' : 'Ya, Tambahkan'}
+                            </button>
                         </div>
                     </div>
                 </div>

@@ -9,13 +9,13 @@ export const ROLES = {
 };
 
 export const ROLE_PERMISSIONS = {
-    [ROLES.ADMIN]: ['/', '/medical-records', '/patients', '/staff', '/sales', '/attendance', '/reports', '/settings', '/promos', '/management', '/products', '/treatments'],
-    [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance', '/settings'],
-    [ROLES.CS]: ['/', '/medical-records', '/patients', '/sales', '/attendance', '/settings'],
-    [ROLES.HRD]: ['/', '/staff', '/attendance', '/settings'],
+    [ROLES.ADMIN]: ['/', '/staff'],
+    [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
+    [ROLES.CS]: ['/', '/medical-records', '/patients', '/sales', '/attendance'],
+    [ROLES.HRD]: ['/', '/staff', '/attendance'],
     [ROLES.MANAGER]: ['/', '/promos', '/attendance'],
-    [ROLES.OWNER]: ['/', '/patients', '/staff', '/sales', '/reports', '/settings', '/attendance', '/promos', '/management', '/products', '/treatments'],
-    [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/settings', '/management'],
+    [ROLES.OWNER]: ['/', '/patients', '/staff', '/sales', '/reports', '/attendance', '/promos', '/management', '/products', '/treatments'],
+    [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
 };
 
 export const hasPermission = (userRole, path) => {
