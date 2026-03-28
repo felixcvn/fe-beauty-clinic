@@ -9,7 +9,7 @@ import StaffDetailModal from '../../components/UI/StaffDetailModal';
 
 const StaffPage = () => {
     const { user } = useAuth();
-    const isOwner = user?.role === 'Owner';
+    const isReadOnly = user?.role === 'Owner' || user?.role === 'HRD';
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
@@ -167,11 +167,11 @@ const StaffPage = () => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                 <div>
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">
-                        {isOwner ? 'Data Karyawan' : 'Manajemen Karyawan'}
+                        {isReadOnly ? 'Data Karyawan' : 'Manajemen Karyawan'}
                     </h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola rincian dan akses seluruh staff klinik</p>
                 </div>
-                {!isOwner && (
+                {!isReadOnly && (
                     <button
                         onClick={handleOpenAdd}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
@@ -212,7 +212,7 @@ const StaffPage = () => {
                                 <th className="px-8 py-6">Kontak</th>
                                 <th className="px-8 py-6">Jabatan</th>
                                 <th className="px-8 py-6">Cabang</th>
-                                {!isOwner && <th className="px-8 py-6 text-right">Aksi</th>}
+                                {!isReadOnly && <th className="px-8 py-6 text-right">Aksi</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -247,7 +247,7 @@ const StaffPage = () => {
                                             <span className="text-[14px] font-semibold tracking-tight">{staff.cabang}</span>
                                         </div>
                                     </td>
-                                    {!isOwner && (
+                                    {!isReadOnly && (
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary hover:shadow-lg transition-all active:scale-90"><Edit3 className="w-4 h-4" /></button>
@@ -296,7 +296,7 @@ const StaffPage = () => {
                                 </div>
                             </div>
 
-                            {!isOwner && (
+                            {!isReadOnly && (
                                 <div className="flex gap-3 mt-4">
                                     <button 
                                         onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}

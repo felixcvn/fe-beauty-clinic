@@ -34,7 +34,7 @@ const AttendancePage = () => {
     const [selectedLeaveRequest, setSelectedLeaveRequest] = useState(null);
 
     // Cek Role
-    const isOwner = user?.role?.toLowerCase() === 'owner';
+    const canAccessReports = user?.role === 'Owner' || user?.role === 'HRD';
     const canApproveLeave = ['HRD', 'Admin'].includes(user?.role);
 
     // Mock Data
@@ -62,10 +62,10 @@ const AttendancePage = () => {
 
     const [leaveRequests, setLeaveRequests] = useState([
         { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
-        { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui' },
+        { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui', attachment: 'surat_sakit_budi.jpg' },
         { id: 'LR-003', staffName: 'Maya Sari', role: 'Perawat', type: 'Izin Lainnya', startDate: '2026-03-22', endDate: '2026-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
         { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Menunggu' },
-        { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui' },
+        { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
         { id: 'LR-006', staffName: 'Rina Kartika', role: 'Perawat', type: 'Cuti Melahirkan', startDate: '2026-05-01', endDate: '2026-07-31', reason: 'Persiapan persalinan', status: 'Disetujui' },
         { id: 'LR-007', staffName: 'Hendra Saputra', role: 'Staff Gudang', type: 'Izin Lainnya', startDate: '2026-03-28', endDate: '2026-03-28', reason: 'Mengurus perpanjangan SIM', status: 'Menunggu' },
         { id: 'LR-008', staffName: 'Nina Wulandari', role: 'Kasir', type: 'Cuti Tahunan', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Menjenguk keluarga', status: 'Disetujui' },
@@ -111,8 +111,8 @@ const AttendancePage = () => {
         setIsScanModalOpen(false);
     };
 
-    // Filter Logic Khusus Owner View
-    const filteredOwnerAttendance = staffAttendance.filter(record => {
+    // Filter Logic Khusus Managerial View (Owner & HRD)
+    const filteredManagerAttendance = staffAttendance.filter(record => {
         const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                               record.role.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'Semua Status' || record.status === statusFilter;
@@ -138,7 +138,7 @@ const AttendancePage = () => {
     };
 
     // Pagination & Search Logic
-    const finalAttendance = isOwner ? filteredOwnerAttendance : staffAttendance.filter(record => 
+    const finalAttendance = canAccessReports ? filteredManagerAttendance : staffAttendance.filter(record => 
         record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
         record.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -197,26 +197,46 @@ const AttendancePage = () => {
             {/* Modals */}
             <FaceScanModal isOpen={isScanModalOpen} onClose={() => setIsScanModalOpen(false)} onScanSuccess={handleScanSuccess} type={scanType} />
             <AttendanceDetailModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} staffData={detailStaff} />
-            <LeaveApprovalModal isOpen={isApprovalModalOpen} onClose={() => setIsApprovalModalOpen(false)} requestData={selectedLeaveRequest} onUpdateStatus={(id, status) => setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req))} />
+            <LeaveApprovalModal 
+                isOpen={isApprovalModalOpen} 
+                onClose={() => setIsApprovalModalOpen(false)} 
+                requestData={selectedLeaveRequest} 
+                showActions={canApproveLeave}
+                onUpdateStatus={(id, status) => setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req))} 
+            />
             <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={(data) => {
-                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, status: 'Menunggu' };
+                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, attachment: data.attachment, status: 'Menunggu' };
                 setLeaveRequests([newRequest, ...leaveRequests]);
             }} />
 
-            {/* Header Section Dinamis (Owner vs Staff) */}
-            {isOwner ? (
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
+            {/* Header Section Dinamis (Manager vs Staff) */}
+            {canAccessReports ? (
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                     <div>
                         <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Rekap Absensi</h2>
                         <p className="text-primary/40 mt-3 font-bold text-sm">Pantau kehadiran dan kedisiplinan seluruh pegawai klinik</p>
                     </div>
-                    <button 
-                        onClick={handleExport}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                    >
-                        <Download className="w-4 h-4" />
-                        <span>Export Laporan</span>
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                        {user?.role === 'HRD' && (
+                            <>
+                                <button onClick={() => setIsLeaveModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
+                                    <CalendarDays className="w-4 h-4" />
+                                    <span>Cuti</span>
+                                </button>
+                                <button onClick={() => handleOpenScan('in')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                                    <Camera className="w-4 h-4" />
+                                    <span>Absen</span>
+                                </button>
+                            </>
+                        )}
+                        <button 
+                            onClick={handleExport}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span>Export Laporan</span>
+                        </button>
+                    </div>
                 </div>
             ) : (
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
@@ -251,10 +271,17 @@ const AttendancePage = () => {
             {activeTab === 'attendance' ? (
                 <div className="space-y-8">
                     
-                    {/* STATS CARDS (Owner vs Admin/Staff) */}
-                    {isOwner ? (
-                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-                            {[
+                    {/* STATS CARDS (Managerial View: Owner & HRD) */}
+                    {canAccessReports ? (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2.5 text-primary/60">
+                                <CalendarDays className="w-5 h-5" />
+                                <span className="text-sm md:text-base font-black uppercase tracking-widest mt-0.5">
+                                    Hari ini, {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                                {[
                                 { label: 'Hadir Tepat Waktu', value: '24', icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
                                 { label: 'Terlambat', value: '3', icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
                                 { label: 'Sakit / Izin / Cuti', value: '5', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' },
@@ -271,6 +298,7 @@ const AttendancePage = () => {
                                     </div>
                                 </div>
                             ))}
+                            </div>
                         </div>
                     ) : canApproveLeave ? (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
@@ -297,7 +325,7 @@ const AttendancePage = () => {
                     <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                         
                         {/* Table Header / Filters */}
-                        {isOwner ? (
+                        {canAccessReports ? (
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                                 <div className="relative flex-1 group">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
@@ -338,11 +366,11 @@ const AttendancePage = () => {
                             <table className="w-full text-left border-collapse min-w-[900px]">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5 bg-gray-50/50">
-                                        <th className="px-8 py-5 rounded-tl-xl">{isOwner ? 'Nama Pegawai' : 'Staff'}</th>
-                                        <th className="px-8 py-5">{isOwner ? 'Tanggal' : 'Role'}</th>
+                                        <th className="px-8 py-5 rounded-tl-xl">{canAccessReports ? 'Nama Pegawai' : 'Staff'}</th>
+                                        <th className="px-8 py-5">{canAccessReports ? 'Tanggal' : 'Role'}</th>
                                         <th className="px-8 py-5 text-center">Jam Masuk</th>
                                         <th className="px-8 py-5 text-center">Jam Keluar</th>
-                                        {isOwner ? <th className="px-8 py-5 text-center">Durasi</th> : null}
+                                        {canAccessReports ? <th className="px-8 py-5 text-center">Durasi</th> : null}
                                         <th className="px-8 py-5 text-center">Status</th>
                                         <th className="px-8 py-5 text-center rounded-tr-xl">Aksi</th>
                                     </tr>
@@ -358,22 +386,22 @@ const AttendancePage = () => {
                                                     <div>
                                                         <div className="font-black text-primary text-sm tracking-tight">{record.name}</div>
                                                         <div className="text-[10px] text-primary/40 font-bold uppercase tracking-widest mt-0.5">
-                                                            {isOwner ? record.role : record.id}
+                                                            {canAccessReports ? record.role : record.id}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
                                             <td className="px-8 py-4 text-primary/60 font-bold text-sm tracking-tight">
-                                                {isOwner ? record.date : <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{record.role}</span>}
+                                                {canAccessReports ? record.date : <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{record.role}</span>}
                                             </td>
                                             <td className="px-8 py-4 text-center">
-                                                {!isOwner && <div className={`w-1.5 h-1.5 rounded-full inline-block mr-2 ${record.checkIn === '--:--' ? 'bg-primary/10' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]'}`} />}
+                                                {!canAccessReports && <div className={`w-1.5 h-1.5 rounded-full inline-block mr-2 ${record.checkIn === '--:--' ? 'bg-primary/10' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]'}`} />}
                                                 <span className={`font-bold text-sm ${record.checkIn !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkIn}</span>
                                             </td>
                                             <td className="px-8 py-4 text-center">
                                                 <span className={`font-bold text-sm ${record.checkOut !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkOut}</span>
                                             </td>
-                                            {isOwner && (
+                                            {canAccessReports && (
                                                 <td className="px-8 py-4 text-center text-primary/60 font-bold text-sm tracking-tight">
                                                     {record.checkIn !== '--:--' && record.checkOut !== '--:--' ? '8j 15m' : '-'}
                                                 </td>
@@ -385,13 +413,13 @@ const AttendancePage = () => {
                                                 </span>
                                             </td>
                                             <td className="px-8 py-4 text-center">
-                                                {!isOwner && record.checkOut === '--:--' && record.status !== 'Izin' ? (
+                                                {!canAccessReports && record.checkOut === '--:--' && record.status !== 'Izin' ? (
                                                     <button onClick={(e) => { e.stopPropagation(); handleOpenScan('out', record.id); }} className="flex items-center mx-auto gap-2 px-4 py-2 bg-primary/5 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm">
                                                         <LogOut className="w-3 h-3" /> Check-out
                                                     </button>
                                                 ) : (
                                                     <button className="text-primary/40 hover:text-primary transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90 mx-auto block">
-                                                        {isOwner ? <ChevronRight className="w-4 h-4" /> : <MoreHorizontal className="w-5 h-5" />}
+                                                        {canAccessReports ? <ChevronRight className="w-4 h-4" /> : <MoreHorizontal className="w-5 h-5" />}
                                                     </button>
                                                 )}
                                             </td>
@@ -444,7 +472,14 @@ const AttendancePage = () => {
                             </thead>
                             <tbody className="divide-y divide-primary/5">
                                 {currentLeave.map((req) => (
-                                    <tr key={req.id} className="border-b border-primary/5 last:border-0 hover:bg-secondary/5 transition-colors">
+                                    <tr 
+                                        key={req.id} 
+                                        onClick={() => {
+                                            setSelectedLeaveRequest(req);
+                                            setIsApprovalModalOpen(true);
+                                        }}
+                                        className="border-b border-primary/5 last:border-0 hover:bg-secondary/5 transition-colors cursor-pointer"
+                                    >
                                         <td className="px-8 py-6">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary shadow-sm">

@@ -98,7 +98,7 @@ const POSPage = () => {
     };
 
     return (
-        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-140px)] lg:h-[calc(100vh-140px)] gap-6 animate-fade-in relative z-10 pb-24 lg:pb-0">
+        <div className="flex flex-col lg:flex-row min-h-[calc(100vh-90px)] lg:h-[calc(100vh-90px)] gap-6 animate-fade-in relative z-10 pb-24 lg:pb-0">
             {/* Left Side: Product Selection */}
             <div className="flex-1 flex flex-col bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden min-h-0">
                 <div className="p-5 md:p-8 bg-secondary/10 border-b border-primary/5 flex items-center justify-between">
@@ -151,14 +151,14 @@ const POSPage = () => {
                                 className="p-4 rounded-[2rem] bg-white border border-primary/5 hover:bg-secondary/10 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-500 text-left group flex flex-col justify-between h-full"
                             >
                                 <div>
-                                    <div className="aspect-square rounded-2xl md:rounded-3xl bg-secondary/20 overflow-hidden mb-4 shadow-sm relative">
+                                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-secondary/20 overflow-hidden mb-4 shadow-sm relative mx-auto">
                                         <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-                                        <div className="absolute top-2 right-2 px-2.5 py-1 rounded-lg bg-white/90 backdrop-blur-sm border border-primary/5 text-[7px] md:text-[8px] font-black text-primary uppercase tracking-tighter">
-                                            {product.stock} Tersedia
+                                        <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-md bg-white/90 backdrop-blur-sm border border-primary/5 text-[6px] md:text-[7px] font-black text-primary uppercase tracking-tighter">
+                                            {product.stock}
                                         </div>
                                     </div>
-                                    <h4 className="text-[10px] md:text-[11px] font-black text-primary leading-tight mb-1 line-clamp-2">{product.name}</h4>
-                                    <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-widest mb-3">{product.category}</p>
+                                    <h4 className="text-[10px] md:text-[11px] font-black text-primary leading-tight mb-1 line-clamp-2 text-center">{product.name}</h4>
+                                    <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-widest mb-3 text-center">{product.category}</p>
                                 </div>
                                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5">
                                     <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
@@ -176,7 +176,7 @@ const POSPage = () => {
             <div className="w-full lg:w-[420px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit lg:h-full">
 
                 {/* 1. Header & Customer Selection */}
-                <div className="p-5 md:p-7 bg-secondary/10 border-b border-primary/5">
+                <div className="p-4 md:p-5 bg-secondary/10 border-b border-primary/5">
                     <div className="flex items-center gap-3 mb-5 md:mb-6">
                         <div className="w-10 h-10 bg-primary/10 rounded-2xl flex items-center justify-center text-primary relative">
                             <ShoppingCart className="w-5 h-5" />
@@ -252,7 +252,7 @@ const POSPage = () => {
                 </div>
 
                 {/* 2. Cart Items (Scrollable Area) */}
-                <div className="flex-1 overflow-y-auto p-5 md:p-7 space-y-4 scrollbar-hide bg-white shadow-inner">
+                <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 scrollbar-hide bg-white shadow-inner">
                     <div className="flex justify-between items-center mb-1">
                         <p className="text-[8px] md:text-[9px] font-black text-primary/30 uppercase tracking-[0.2em]">Daftar Item ({cart.length})</p>
                         {cart.length > 0 && (
@@ -271,17 +271,13 @@ const POSPage = () => {
                         </div>
                     ) : (
                         cart.map(item => (
-                            <div key={item.id} className="p-3 md:p-4 rounded-2xl bg-secondary/5 border border-primary/5 shadow-sm animate-fade-in flex gap-3 md:gap-4 group">
-                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl overflow-hidden shadow-sm flex-shrink-0 border border-primary/5">
-                                    <img src={item.image} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                            <div key={item.id} className="p-2.5 md:p-3 rounded-2xl bg-secondary/5 border border-primary/5 shadow-sm animate-fade-in flex flex-col gap-1.5 group">
+                                <div className="flex justify-between items-start">
+                                    <h4 className="text-[10px] md:text-[11px] font-black text-primary tracking-tight leading-tight uppercase flex-1">{item.name}</h4>
+                                    <button onClick={() => removeFromCart(item.id)} className="p-1 text-primary/20 hover:text-red-500 transition-all ml-2">
+                                        <Trash2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
+                                    </button>
                                 </div>
-                                <div className="flex-1 flex flex-col justify-between">
-                                    <div className="flex justify-between items-start">
-                                        <h4 className="text-[9px] md:text-[10px] font-black text-primary tracking-tight leading-tight uppercase w-[120px] md:w-[150px] line-clamp-1">{item.name}</h4>
-                                        <button onClick={() => removeFromCart(item.id)} className="p-1 text-primary/20 hover:text-red-500 transition-all">
-                                            <Trash2 className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                                        </button>
-                                    </div>
                                     <div className="flex justify-between items-center mt-1.5 md:mt-2">
                                         <div className="flex items-center gap-2 md:gap-2.5 bg-white rounded-lg px-2 py-0.5 shadow-sm border border-primary/5">
                                             <button onClick={() => updateQuantity(item.id, -1)} className="p-0.5 hover:bg-secondary rounded transition-all text-primary/30 hover:text-primary"><Minus className="w-2 md:w-2.5 h-2 md:h-2.5" /></button>
@@ -291,13 +287,12 @@ const POSPage = () => {
                                         <span className="text-[10px] md:text-[11px] font-black text-primary tracking-tighter">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
                                     </div>
                                 </div>
-                            </div>
-                        ))
+                            ))
                     )}
                 </div>
 
                 {/* 3. Checkout Section (Fixed at bottom) */}
-                <div className="p-5 md:p-7 bg-secondary/10 border-t border-primary/5 space-y-4 md:space-y-5">
+                <div className="p-4 md:p-5 bg-secondary/10 border-t border-primary/5 space-y-3 md:space-y-4">
                     <div className="space-y-2 md:space-y-3">
                         <div className="flex justify-between text-primary/40 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
                             <span>Subtotal</span>

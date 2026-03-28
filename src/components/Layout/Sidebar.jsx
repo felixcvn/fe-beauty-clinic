@@ -52,7 +52,7 @@ const Sidebar = ({ isOpen, toggle }) => {
         }
         return hasPermission(user?.role, item.path);
     }).map(item => {
-        if (item.path === '/staff' && user?.role === 'Owner') {
+        if (item.path === '/staff' && (user?.role === 'Owner' || user?.role === 'HRD')) {
             return { ...item, label: 'Data Karyawan' };
         }
         return item;

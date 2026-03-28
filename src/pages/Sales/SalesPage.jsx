@@ -1,10 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
 
 const SalesPage = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+    const handleOpenDetail = (transaction) => {
+        setSelectedTransaction(transaction);
+        setIsDetailModalOpen(true);
+    };
 
     const [recentSales, setRecentSales] = useState([
         { id: 'INV-1001', customer: 'Siti Aminah', product: 'Acne Treatment Pack', amount: 'Rp 450.000', status: 'Selesai', date: '2024-02-08' },
@@ -132,7 +140,11 @@ const SalesPage = () => {
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {currentSales.map((sale) => (
-                                <tr key={sale.id} className="border-b border-primary/5 last:border-0">
+                                <tr 
+                                    key={sale.id} 
+                                    onClick={() => handleOpenDetail(sale)}
+                                    className="border-b border-primary/5 last:border-0 hover:bg-secondary/20 cursor-pointer transition-colors group"
+                                >
                                     <td className="px-8 py-6">
                                         <span className="text-xs font-black text-primary tracking-tight">{sale.id}</span>
                                     </td>
@@ -162,7 +174,13 @@ const SalesPage = () => {
                                         <span className="text-[10px] font-black text-primary/20 uppercase tracking-widest">{sale.date}</span>
                                     </td>
                                     <td className="px-8 py-6 text-center">
-                                        <button className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300">
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleOpenDetail(sale);
+                                            }}
+                                            className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300"
+                                        >
                                             <MoreHorizontal className="w-5 h-5" />
                                         </button>
                                     </td>
@@ -210,10 +228,16 @@ const SalesPage = () => {
                             </div>
 
                             <div className="flex gap-3">
-                                <button className="flex-1 py-3 text-[9px] font-black text-primary/40 uppercase tracking-widest border border-primary/5 rounded-xl hover:bg-white transition-all">
+                                <button 
+                                    onClick={() => handleOpenDetail(sale)}
+                                    className="flex-1 py-3 text-[9px] font-black text-primary/40 uppercase tracking-widest border border-primary/5 rounded-xl hover:bg-white transition-all"
+                                >
                                     Detail Invoice
                                 </button>
-                                <button className="p-3 text-primary/40 hover:text-primary transition-all rounded-xl border border-primary/5 hover:bg-white">
+                                <button 
+                                    onClick={() => handleOpenDetail(sale)}
+                                    className="p-3 text-primary/40 hover:text-primary transition-all rounded-xl border border-primary/5 hover:bg-white"
+                                >
                                     <MoreHorizontal className="w-4 h-4" />
                                 </button>
                             </div>
@@ -239,6 +263,12 @@ const SalesPage = () => {
                     </div>
                 </div>
             </div>
+
+            <TransactionDetailModal 
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                transaction={selectedTransaction}
+            />
         </div>
     );
 };

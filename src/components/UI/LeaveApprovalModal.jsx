@@ -1,9 +1,9 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, CalendarDays, CheckCircle2, XCircle } from 'lucide-react';
+import { X, CalendarDays, CheckCircle2, XCircle, Image as ImageIcon, FileText, Paperclip } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 
-const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus }) => {
+const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, showActions = true }) => {
     const { showToast } = useToast();
 
     if (!isOpen || !requestData) return null;
@@ -77,24 +77,57 @@ const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus }) =>
                                 {requestData.reason}
                             </div>
                         </div>
+
+                        {requestData.attachment && (
+                            <div className="animate-fade-in-up" style={{ animationDelay: '100ms' }}>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-2 flex items-center gap-1.5 italic">
+                                    <Paperclip className="w-3 h-3" />
+                                    Dokumen Pendukung
+                                </p>
+                                <div className="relative group overflow-hidden rounded-2xl border border-primary/10 bg-gray-50 aspect-video flex flex-col items-center justify-center p-4">
+                                    <ImageIcon className="w-10 h-10 text-primary/10 mb-2" />
+                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-4">{requestData.attachment}</p>
+                                    
+                                    {/* Link Simulasi Lihat Foto */}
+                                    <button className="px-6 py-2 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                                        Lihat Foto Full
+                                    </button>
+
+                                    {/* Overlay Gradient (Aesthetic) */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
+                                </div>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="flex gap-4 pt-4 border-t border-primary/5">
-                        <button
-                            onClick={handleReject}
-                            className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-500 py-4 rounded-2xl hover:bg-red-500 hover:text-white transition-all font-black text-xs uppercase tracking-widest"
-                        >
-                            <XCircle className="w-4 h-4" />
-                            Tolak
-                        </button>
-                        <button
-                            onClick={handleApprove}
-                            className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-600 py-4 rounded-2xl hover:bg-green-500 hover:text-white transition-all font-black text-xs uppercase tracking-widest"
-                        >
-                            <CheckCircle2 className="w-4 h-4" />
-                            Setujui
-                        </button>
-                    </div>
+                    {showActions && requestData.status === 'Menunggu' && (
+                        <div className="flex gap-4 pt-4 border-t border-primary/5">
+                            <button
+                                onClick={handleReject}
+                                className="flex-1 flex items-center justify-center gap-2 bg-red-50 text-red-500 py-4 rounded-2xl hover:bg-red-500 hover:text-white transition-all font-black text-xs uppercase tracking-widest"
+                            >
+                                <XCircle className="w-4 h-4" />
+                                Tolak
+                            </button>
+                            <button
+                                onClick={handleApprove}
+                                className="flex-1 flex items-center justify-center gap-2 bg-green-50 text-green-600 py-4 rounded-2xl hover:bg-green-500 hover:text-white transition-all font-black text-xs uppercase tracking-widest"
+                            >
+                                <CheckCircle2 className="w-4 h-4" />
+                                Setujui
+                            </button>
+                        </div>
+                    )}
+
+                    {requestData.status !== 'Menunggu' && (
+                        <div className={`mt-4 p-4 rounded-2xl border text-center ${
+                            requestData.status === 'Disetujui' ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-500'
+                        }`}>
+                            <p className="text-[10px] font-black uppercase tracking-widest italic">
+                                Status Pengajuan: {requestData.status}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

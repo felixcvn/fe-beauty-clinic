@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, FileText, Send, CalendarDays, CheckCircle2 } from 'lucide-react';
+import { X, Calendar, FileText, Send, CalendarDays, CheckCircle2, Upload, Paperclip, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
@@ -11,6 +11,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [reason, setReason] = useState('');
+    const [attachment, setAttachment] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     if (!isOpen) return null;
@@ -39,7 +40,12 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
             }
         }
 
-        onSubmit({ leaveType, startDate, endDate, reason });
+        if (leaveType === 'Sakit' && !attachment) {
+            showToast('Harap upload surat keterangan sakit!', 'error');
+            return;
+        }
+
+        onSubmit({ leaveType, startDate, endDate, reason, attachment });
         
         // Don't close immediately, show success guidance
         setIsSubmitted(true);
@@ -49,6 +55,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
         setStartDate('');
         setEndDate('');
         setReason('');
+        setAttachment(null);
     };
 
     return createPortal(
@@ -151,6 +158,41 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                     />
                                 </div>
                             </div>
+
+                            {leaveType === 'Sakit' && (
+                                <div className="space-y-2 animate-fade-in">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 italic flex items-center gap-1.5">
+                                        <Paperclip className="w-3 h-3" />
+                                        Wajib Upload Surat Sakit
+                                    </label>
+                                    <div className="relative group cursor-pointer">
+                                        <input 
+                                            type="file" 
+                                            accept="image/*"
+                                            onChange={(e) => setAttachment(e.target.files[0]?.name)}
+                                            className="absolute inset-0 opacity-0 cursor-pointer z-10"
+                                        />
+                                        <div className={`p-5 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${attachment ? 'border-primary bg-primary/5' : 'border-primary/10 bg-secondary/5 group-hover:border-primary/20'}`}>
+                                            {attachment ? (
+                                                <>
+                                                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                                        <ImageIcon className="w-5 h-5 text-primary" />
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <p className="text-[10px] font-black text-primary truncate max-w-[200px]">{attachment}</p>
+                                                        <p className="text-[8px] font-bold text-primary/30 uppercase mt-1">Ketuk untuk ganti file</p>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Upload className="w-6 h-6 text-primary/20 group-hover:text-primary/40 transition-colors" />
+                                                    <p className="text-[10px] font-black text-primary/30 uppercase tracking-[0.15em]">Klik untuk Upload Foto Surat</p>
+                                                </>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <button
                                 type="submit"

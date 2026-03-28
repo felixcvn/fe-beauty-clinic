@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { BarChart3, TrendingUp, PieChart, Calendar, Download, ArrowUpRight, ArrowDownRight, Users, DollarSign, Activity, Search } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, LabelList, LineChart, Line } from 'recharts';
 
 const data = [
     { name: 'Jan', revenue: 4000, customers: 240 },
@@ -17,6 +17,15 @@ const treatmentData = [
     { name: 'Laser', value: 300, color: '#D4AF37' },
     { name: 'Botox', value: 300, color: '#2C5F4D' },
     { name: 'Peeling', value: 200, color: '#E5D5B0' },
+    { name: 'Booster', value: 150, color: '#4A7C59' },
+];
+
+const productData = [
+    { name: 'Serum', value: 500, color: '#1B4D3E' },
+    { name: 'Sunscreen', value: 450, color: '#D4AF37' },
+    { name: 'Night Cream', value: 350, color: '#2C5F4D' },
+    { name: 'Facial Wash', value: 250, color: '#E5D5B0' },
+    { name: 'Toner', value: 200, color: '#829356' },
 ];
 
 const mockTransactions = [
@@ -37,11 +46,25 @@ const ReportsPage = () => {
     ];
 
     const [searchTerm, setSearchTerm] = useState('');
-    const filteredTransactions = mockTransactions.filter(t => 
-        t.patient.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        t.treatment.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        t.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
+
+    const filteredTransactions = mockTransactions.filter(t => {
+        const matchesSearch = t.patient.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              t.treatment.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              t.id.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        let matchesDate = true;
+        if (startDate && endDate) {
+            matchesDate = t.date >= startDate && t.date <= endDate;
+        } else if (startDate) {
+            matchesDate = t.date >= startDate;
+        } else if (endDate) {
+            matchesDate = t.date <= endDate;
+        }
+
+        return matchesSearch && matchesDate;
+    });
 
     const handleExportExcel = () => {
         let csvContent = "sep=,\n";
@@ -67,13 +90,15 @@ const ReportsPage = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Laporan</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Analisis performa dan statistik operasional klinik</p>
                 </div>
-                <div className="flex flex-col xs:flex-row gap-3 md:gap-4 w-full sm:w-auto">
-                    <div className="flex items-center justify-center gap-2 bg-white px-6 py-4 rounded-2xl border border-primary/5 shadow-lg shadow-primary/5">
-                        <Calendar className="w-4 h-4 text-primary/40" />
-                        <span className="text-xs font-black text-primary uppercase tracking-widest">Last 30 Days</span>
+                <div className="flex flex-col md:flex-row gap-3 md:gap-4 w-full sm:w-auto">
+                    <div className="flex items-center gap-2 relative z-50 bg-white border border-primary/5 rounded-2xl px-4 lg:px-6 py-3 md:py-4 shadow-lg shadow-primary/5 focus-within:ring-4 focus-within:ring-primary/5 transition-all w-full sm:w-auto">
+                        <Calendar className="w-4 h-4 text-primary/40 shrink-0" />
+                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs w-full min-w-[90px]" />
+                        <span className="text-primary/30 text-xs font-bold shrink-0">-</span>
+                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs w-full min-w-[90px]" />
                     </div>
-                    <button onClick={handleExportExcel} className="flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
-                        <Download className="w-4 h-4" />
+                    <button onClick={handleExportExcel} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                        <Download className="w-4 h-4 shrink-0" />
                         <span>Export Excel</span>
                     </button>
                 </div>
@@ -101,8 +126,9 @@ const ReportsPage = () => {
             </div>
 
             {/* Charts Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-                <div className="lg:col-span-2 bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+            <div className="flex flex-col gap-10">
+                {/* 1. Full Width Revenue Chart */}
+                <div className="w-full bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tighter">Performa Pendapatan</h3>
@@ -155,44 +181,138 @@ const ReportsPage = () => {
                     </div>
                 </div>
 
-                <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
-                    <h3 className="text-xl font-black text-primary tracking-tighter mb-10">Popular Treatment</h3>
-                    <div className="h-[200px] md:h-[250px] w-full mb-10">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={treatmentData}>
-                                <XAxis
-                                    dataKey="name"
-                                    hide
-                                />
-                                <Tooltip
-                                    cursor={{ fill: 'transparent' }}
-                                    contentStyle={{ borderRadius: '1rem', border: 'none', boxShadow: '0 10px 20px rgba(0,0,0,0.05)' }}
-                                />
-                                <Bar dataKey="value" radius={[10, 10, 10, 10]} barSize={40}>
-                                    {treatmentData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                    <div className="space-y-6 mt-auto">
-                        {treatmentData.map((item, index) => (
-                            <div key={index} className="flex justify-between items-center group">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black" style={{ backgroundColor: `${item.color}15`, color: item.color }}>
-                                        {item.name[0]}
-                                    </div>
-                                    <div>
-                                        <p className="text-sm font-black text-primary tracking-tight">{item.name}</p>
-                                        <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">{item.value} Visits</p>
-                                    </div>
-                                </div>
-                                <div className="text-[10px] font-black text-primary/40 uppercase tracking-widest">
-                                    {Math.round((item.value / 1200) * 100)}%
-                                </div>
+                {/* 2. Two Columns: Treatment & Product */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                        <div className="flex justify-between items-start mb-10">
+                            <div>
+                                <h3 className="text-xl font-black text-primary tracking-tighter">Penjualan Treatment</h3>
+                                <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Distribusi layanan terpopuler</p>
                             </div>
-                        ))}
+                            <div className="bg-primary/5 px-4 py-2 rounded-xl">
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Total: 1,200</span>
+                            </div>
+                        </div>
+                        <div className="h-[200px] md:h-[250px] w-full mb-10">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={treatmentData} margin={{ top: 20, bottom: 5, left: 20, right: 20 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1B4D3E" opacity={0.03} />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 9, fontWeight: 900, fill: '#1B4D3E', opacity: 0.5 }}
+                                        dy={10}
+                                    />
+                                    <Tooltip
+                                        cursor={{ stroke: '#1B4D3E', strokeWidth: 1, strokeDasharray: '5 5' }}
+                                        contentStyle={{ 
+                                            borderRadius: '1.25rem', 
+                                            border: 'none', 
+                                            boxShadow: '0 25px 50px -12px rgba(27, 77, 62, 0.15)', 
+                                            padding: '12px 16px',
+                                            background: '#FFFFFF'
+                                        }}
+                                        itemStyle={{ color: '#1B4D3E', fontWeight: 900, fontSize: '14px' }}
+                                        labelStyle={{ color: '#1B4D3E', opacity: 0.4, fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', marginBottom: '4px' }}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="value" 
+                                        stroke="#1B4D3E" 
+                                        strokeWidth={4} 
+                                        dot={{ r: 6, fill: '#1B4D3E', strokeWidth: 2, stroke: '#FFFFFF' }}
+                                        activeDot={{ r: 8, strokeWidth: 0 }}
+                                    >
+                                        <LabelList dataKey="value" position="top" style={{ fontSize: '10px', fontWeight: 900, fill: '#1B4D3E', opacity: 0.8 }} dy={-15} />
+                                    </Line>
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="space-y-6 mt-auto">
+                            {treatmentData.map((item, index) => (
+                                <div key={index} className="flex justify-between items-center group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black" style={{ backgroundColor: `${item.color}15`, color: item.color }}>
+                                            {item.name[0]}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black text-primary tracking-tight">{item.name}</p>
+                                            <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">{item.value} Penjualan</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-[10px] font-black text-primary/40 uppercase tracking-widest">
+                                        {Math.round((item.value / 1200) * 100)}%
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                        <div className="flex justify-between items-start mb-10">
+                            <div>
+                                <h3 className="text-xl font-black text-primary tracking-tighter">Penjualan Produk</h3>
+                                <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Stok & perputaran item terjual</p>
+                            </div>
+                            <div className="bg-accent-gold/10 px-4 py-2 rounded-xl">
+                                <span className="text-[10px] font-black text-accent-gold uppercase tracking-widest leading-none">Total: 1,550</span>
+                            </div>
+                        </div>
+                        <div className="h-[200px] md:h-[250px] w-full mb-10">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={productData} margin={{ top: 20, bottom: 5, left: 20, right: 20 }}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#1B4D3E" opacity={0.03} />
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
+                                        tick={{ fontSize: 9, fontWeight: 900, fill: '#1B4D3E', opacity: 0.5 }}
+                                        dy={10}
+                                    />
+                                    <Tooltip
+                                        cursor={{ stroke: '#D4AF37', strokeWidth: 1, strokeDasharray: '5 5' }}
+                                        contentStyle={{ 
+                                            borderRadius: '1.25rem', 
+                                            border: 'none', 
+                                            boxShadow: '0 25px 50px -12px rgba(27, 77, 62, 0.15)', 
+                                            padding: '12px 16px',
+                                            background: '#FFFFFF'
+                                        }}
+                                        itemStyle={{ color: '#D4AF37', fontWeight: 900, fontSize: '14px' }}
+                                        labelStyle={{ color: '#1B4D3E', opacity: 0.4, fontWeight: 900, fontSize: '10px', textTransform: 'uppercase', marginBottom: '4px' }}
+                                    />
+                                    <Line 
+                                        type="monotone" 
+                                        dataKey="value" 
+                                        stroke="#D4AF37" 
+                                        strokeWidth={4} 
+                                        dot={{ r: 6, fill: '#D4AF37', strokeWidth: 2, stroke: '#FFFFFF' }}
+                                        activeDot={{ r: 8, strokeWidth: 0 }}
+                                    >
+                                        <LabelList dataKey="value" position="top" style={{ fontSize: '10px', fontWeight: 900, fill: '#1B4D3E', opacity: 0.8 }} dy={-15} />
+                                    </Line>
+                                </LineChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div className="space-y-6 mt-auto">
+                            {productData.map((item, index) => (
+                                <div key={index} className="flex justify-between items-center group">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-2xl flex items-center justify-center text-[10px] font-black" style={{ backgroundColor: `${item.color}15`, color: item.color }}>
+                                            {item.name[0]}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black text-primary tracking-tight">{item.name}</p>
+                                            <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">{item.value} Penjualan</p>
+                                        </div>
+                                    </div>
+                                    <div className="text-[10px] font-black text-primary/40 uppercase tracking-widest">
+                                        {Math.round((item.value / 1550) * 100)}%
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
