@@ -47,6 +47,12 @@ const Sidebar = ({ isOpen, toggle }) => {
         setOpenMenu(prev => prev === label ? null : label);
     };
 
+    const handleItemClick = () => {
+        if (window.innerWidth < 768 && isOpen) {
+            toggle();
+        }
+    };
+
     const navItems = ALL_NAV_ITEMS.filter(item => {
         if (item.subItems && item.subItems.length > 0) {
             return item.subItems.some(sub => hasPermission(user?.role, sub.path));
@@ -114,6 +120,7 @@ const Sidebar = ({ isOpen, toggle }) => {
                                                 <NavLink
                                                     key={sub.path}
                                                     to={sub.path}
+                                                    onClick={handleItemClick}
                                                     className={({ isActive }) =>
                                                         `flex items-center px-4 py-2 rounded-lg text-xs font-semibold transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-gray-400 hover:text-primary hover:bg-primary/5'}`
                                                     }
@@ -132,6 +139,7 @@ const Sidebar = ({ isOpen, toggle }) => {
                                 <NavLink
                                     key={item.path}
                                     to={item.path}
+                                    onClick={handleItemClick}
                                     className={({ isActive }) =>
                                         `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'text-white bg-primary shadow-lg shadow-primary/20' : 'text-gray-500 hover:text-primary hover:bg-primary/5'}`
                                     }
@@ -147,11 +155,19 @@ const Sidebar = ({ isOpen, toggle }) => {
 
                 {/* 3. FOOTER (Fixed/Tetap di bawah berkat flex-col & shrink-0) */}
                 <div className="border-t border-gray-100 px-3 py-4 space-y-0.5 shrink-0 bg-white">
-                    <NavLink to="/change-password" className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-primary/5'}`}>
+                    <NavLink 
+                        to="/change-password" 
+                        onClick={handleItemClick}
+                        className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-primary/5'}`}>
                         <KeyIcon className="w-5 h-5 flex-shrink-0" />
                         <span>Ganti Password</span>
                     </NavLink>
-                    <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                    <button 
+                        onClick={() => {
+                            logout();
+                            handleItemClick();
+                        }} 
+                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
                         <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
                         <span className="text-sm font-medium">Keluar</span>
                     </button>
