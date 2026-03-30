@@ -14,6 +14,7 @@ import {
     ChevronDownIcon,
     ChevronUpIcon,
     TagIcon,
+    ArchiveBoxIcon,
 } from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/logo.png';
@@ -27,7 +28,7 @@ const ALL_NAV_ITEMS = [
     { icon: UserIcon, label: 'Pasien', path: '/patients' },
     { icon: UsersIcon, label: 'Manajemen Karyawan', path: '/staff' },
     { 
-        icon: UsersIcon, 
+        icon: ArchiveBoxIcon, 
         label: 'Produk', 
         path: '/management'
     },

@@ -164,6 +164,13 @@ const ItemManagementPage = () => {
                         <Activity className="w-4 h-4" />
                         <span className="text-xs font-black uppercase tracking-widest">Treatment</span>
                     </button>
+                    <button
+                        onClick={() => toggleFilter('treatment')}
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'treatment' ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/20 scale-105' : 'bg-green-50/50 border-green-100 text-green-600 hover:bg-green-50'}`}
+                    >
+                        <Activity className="w-4 h-4" />
+                        <span className="text-xs font-black uppercase tracking-widest">Racikan</span>
+                    </button>
                 </div>
 
                 {/* Search */}

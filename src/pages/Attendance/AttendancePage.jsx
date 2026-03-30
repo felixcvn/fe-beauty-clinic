@@ -259,13 +259,13 @@ const AttendancePage = () => {
                         <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Monitoring Absensi dan Jam Kerja Real-time</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                        <button onClick={() => setIsLeaveModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-8 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
-                            <CalendarDays className="w-4 h-4" />
-                            <span>Pengajuan Cuti</span>
-                        </button>
                         <button onClick={handleAttend} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
                             <Camera className="w-4 h-4" />
                             <span>Absen Sekarang</span>
+                        </button>
+                        <button onClick={() => setIsLeaveModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-8 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
+                            <CalendarDays className="w-4 h-4" />
+                            <span>Pengajuan Cuti</span>
                         </button>
                     </div>
                 </div>
