@@ -83,6 +83,20 @@ const AttendancePage = () => {
         setIsDetailModalOpen(true);
     };
 
+    const handleAttend = () => {
+        const myAttendance = staffAttendance.find(s => s.name === user?.name);
+        const hasCheckedIn = myAttendance && myAttendance.checkIn !== '--:--';
+        const hasCheckedOut = myAttendance && myAttendance.checkOut !== '--:--';
+
+        if (!hasCheckedIn) {
+            handleOpenScan('in');
+        } else if (!hasCheckedOut) {
+            handleOpenScan('out', myAttendance.id);
+        } else {
+            showToast('Anda sudah menyelesaikan absensi hari ini.', 'info');
+        }
+    };
+
     const handleScanSuccess = (photoUrl) => {
         const currentTime = new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         if (scanType === 'in') {
@@ -223,7 +237,7 @@ const AttendancePage = () => {
                                     <CalendarDays className="w-4 h-4" />
                                     <span>Cuti</span>
                                 </button>
-                                <button onClick={() => handleOpenScan('in')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                                <button onClick={handleAttend} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
                                     <Camera className="w-4 h-4" />
                                     <span>Absen</span>
                                 </button>
@@ -249,7 +263,7 @@ const AttendancePage = () => {
                             <CalendarDays className="w-4 h-4" />
                             <span>Pengajuan Cuti</span>
                         </button>
-                        <button onClick={() => handleOpenScan('in')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                        <button onClick={handleAttend} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
                             <Camera className="w-4 h-4" />
                             <span>Absen Sekarang</span>
                         </button>
@@ -371,8 +385,7 @@ const AttendancePage = () => {
                                         <th className="px-8 py-5 text-center">Jam Masuk</th>
                                         <th className="px-8 py-5 text-center">Jam Keluar</th>
                                         {canAccessReports ? <th className="px-8 py-5 text-center">Durasi</th> : null}
-                                        <th className="px-8 py-5 text-center">Status</th>
-                                        <th className="px-8 py-5 text-center rounded-tr-xl">Aksi</th>
+                                        <th className="px-8 py-5 text-center rounded-tr-xl">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
@@ -411,17 +424,6 @@ const AttendancePage = () => {
                                                     {record.status === 'Hadir' ? <CheckCircle2 className="w-3 h-3" /> : record.status === 'Terlambat' ? <Clock className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
                                                     {record.status}
                                                 </span>
-                                            </td>
-                                            <td className="px-8 py-4 text-center">
-                                                {!canAccessReports && record.checkOut === '--:--' && record.status !== 'Izin' ? (
-                                                    <button onClick={(e) => { e.stopPropagation(); handleOpenScan('out', record.id); }} className="flex items-center mx-auto gap-2 px-4 py-2 bg-primary/5 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm">
-                                                        <LogOut className="w-3 h-3" /> Check-out
-                                                    </button>
-                                                ) : (
-                                                    <button className="text-primary/40 hover:text-primary transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90 mx-auto block">
-                                                        {canAccessReports ? <ChevronRight className="w-4 h-4" /> : <MoreHorizontal className="w-5 h-5" />}
-                                                    </button>
-                                                )}
                                             </td>
                                         </tr>
                                     ))}

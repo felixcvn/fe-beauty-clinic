@@ -115,7 +115,7 @@ const ItemManagementPage = () => {
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
                 <div className="w-full lg:w-auto">
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Manajemen Gudang</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Produk</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Kelola stok produk dan layanan treatment klinik</p>
                 </div>
                 

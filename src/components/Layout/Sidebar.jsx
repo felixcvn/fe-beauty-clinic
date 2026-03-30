@@ -28,7 +28,7 @@ const ALL_NAV_ITEMS = [
     { icon: UsersIcon, label: 'Manajemen Karyawan', path: '/staff' },
     { 
         icon: UsersIcon, 
-        label: 'Manajemen Gudang', 
+        label: 'Produk', 
         path: '/management'
     },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
