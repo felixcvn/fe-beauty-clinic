@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 
@@ -11,6 +11,25 @@ const POSPage = () => {
     const [cart, setCart] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('Tunai');
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Identitas Pelanggan & Promo
+    const [isMember, setIsMember] = useState(false);
+    const [promoInput, setPromoInput] = useState('');
+    const [appliedPromo, setAppliedPromo] = useState(null);
+    const [isPromoDropdownOpen, setIsPromoDropdownOpen] = useState(false);
+
+    const SYSTEM_PROMOS = [
+        { code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 10, startDate: '2026-03-01', endDate: '2026-04-30', status: 'Aktif' },
+        { code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', status: 'Aktif' },
+        { code: 'VALENTINE20', name: 'Kasih Sayang Diskon', type: 'Persen', value: 20, startDate: '2026-02-10', endDate: '2026-02-20', status: 'Berakhir' },
+        { code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', status: 'Aktif' },
+        { code: 'CANTIK100', name: 'Potongan Facial 100k', type: 'Nominal', value: 100000, startDate: '2026-03-10', endDate: '2026-05-10', status: 'Aktif' },
+    ];
+
+    const getActivePromos = () => {
+        const today = new Date().toISOString().split('T')[0];
+        return SYSTEM_PROMOS.filter(p => p.status === 'Aktif' && today >= p.startDate && today <= p.endDate);
+    };
 
     // Customer Selection State
     const [customerSearch, setCustomerSearch] = useState('');
@@ -75,7 +94,42 @@ const POSPage = () => {
 
     const cartTotal = useMemo(() =>
         cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-        , [cart]);
+    , [cart]);
+
+    // Kalkulasi Harga Akhir
+    const memberDiscount = isMember ? (cartTotal * 0.05) : 0;
+    
+    const calculatePromoDiscount = () => {
+        if (!appliedPromo) return 0;
+        if (appliedPromo.type === 'Persen') {
+            return (cartTotal - memberDiscount) * (appliedPromo.value / 100);
+        }
+        return appliedPromo.value;
+    };
+    const promoDiscount = calculatePromoDiscount();
+
+    const tax = Math.max(0, (cartTotal - memberDiscount - promoDiscount) * 0.11);
+    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount) + tax);
+
+    const handleApplyPromo = (codeToApply = promoInput) => {
+        if (!codeToApply.trim()) {
+            setAppliedPromo(null);
+            return;
+        }
+        
+        const validPromos = getActivePromos();
+        const found = validPromos.find(p => p.code.toUpperCase() === codeToApply.toUpperCase());
+        
+        if (found) {
+            setAppliedPromo(found);
+            setPromoInput(found.code);
+            showToast('Promo berhasil diterapkan!', 'success');
+        } else {
+            showToast('Kode promo tidak valid atau belum aktif/sudah kadaluarsa', 'error');
+            setAppliedPromo(null);
+        }
+        setIsPromoDropdownOpen(false);
+    };
 
     const handleCheckout = () => {
         if (cart.length === 0) {
@@ -191,22 +245,34 @@ const POSPage = () => {
 
                     <div className="relative">
                         {selectedCustomer ? (
-                            <div className="p-4 rounded-xl md:rounded-2xl bg-white border border-primary/5 flex justify-between items-center animate-fade-in shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-[10px] font-black text-primary border border-primary/5">
-                                        {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
+                            <div className="p-3.5 md:p-4 rounded-xl md:rounded-2xl bg-white border border-primary/10 flex flex-col animate-fade-in shadow-sm">
+                                <div className="flex justify-between items-center bg-white">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded-full bg-secondary text-[10px] font-black text-primary flex items-center justify-center border border-primary/5">
+                                            {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div>
+                                            <p className="text-[10px] md:text-[11px] font-black text-primary">{selectedCustomer.name}</p>
+                                            <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-tighter">{selectedCustomer.id}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[10px] md:text-[11px] font-black text-primary">{selectedCustomer.name}</p>
-                                        <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-tighter">{selectedCustomer.id}</p>
-                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            setSelectedCustomer(null);
+                                            setIsMember(false);
+                                        }}
+                                        className="px-3 py-1.5 rounded-lg text-primary/30 hover:text-red-500 hover:bg-red-50 transition-all font-black text-[8px] md:text-[9px] uppercase tracking-widest border border-transparent hover:border-red-100"
+                                    >
+                                        UBAH
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => setSelectedCustomer(null)}
-                                    className="px-3 py-1.5 rounded-lg text-primary/30 hover:text-red-500 hover:bg-red-50 transition-all font-black text-[8px] md:text-[9px] uppercase tracking-widest border border-transparent hover:border-red-100"
-                                >
-                                    Ubah
-                                </button>
+                                <div className="border-t border-primary/5 mt-3 pt-3 flex justify-between items-center">
+                                    <span className="text-[9px] font-bold text-primary/60">Tandai sebagai Member? (Diskon 5%)</span>
+                                    <label className="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" className="sr-only peer" checked={isMember} onChange={e => setIsMember(e.target.checked)} />
+                                        <div className="w-8 h-4 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-accent-gold"></div>
+                                    </label>
+                                </div>
                             </div>
                         ) : (
                             <div className="relative group">
@@ -252,7 +318,7 @@ const POSPage = () => {
                 </div>
 
                 {/* 2. Cart Items (Scrollable Area) */}
-                <div className="flex-1 overflow-y-auto p-4 md:p-5 space-y-3 scrollbar-hide bg-white shadow-inner">
+                <div className="flex-1 overflow-y-auto min-h-[100px] p-4 md:p-5 space-y-3 scrollbar-hide bg-white shadow-inner">
                     <div className="flex justify-between items-center mb-1">
                         <p className="text-[8px] md:text-[9px] font-black text-primary/30 uppercase tracking-[0.2em]">Daftar Item ({cart.length})</p>
                         {cart.length > 0 && (
@@ -290,42 +356,84 @@ const POSPage = () => {
                             ))
                     )}
                 </div>
-
                 {/* 3. Checkout Section (Fixed at bottom) */}
-                <div className="p-4 md:p-5 bg-secondary/10 border-t border-primary/5 space-y-3 md:space-y-4">
-                    <div className="space-y-2 md:space-y-3">
+                <div className="p-3 md:p-4 bg-white border-t border-primary/5 space-y-2 md:space-y-3 shrink-0">
+                    
+                    {/* Promo Input */}
+                    <div className="flex gap-2 relative">
+                        <div className="relative flex-1">
+                            <Tag className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
+                            <input
+                                type="text"
+                                placeholder="Kode Promo..."
+                                value={promoInput}
+                                onChange={(e) => {
+                                    setPromoInput(e.target.value.toUpperCase());
+                                    setIsPromoDropdownOpen(true);
+                                }}
+                                onFocus={() => setIsPromoDropdownOpen(true)}
+                                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-primary/10 outline-none text-primary font-bold focus:ring-2 focus:ring-primary/20 transition-all text-[10px] md:text-xs uppercase placeholder:normal-case placeholder:font-medium shadow-sm relative z-20"
+                            />
+                            {isPromoDropdownOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setIsPromoDropdownOpen(false)} />
+                                    <div className="absolute bottom-full mb-2 left-0 right-0 bg-white border border-primary/10 rounded-2xl shadow-2xl z-50 overflow-hidden max-h-[180px] overflow-y-auto animate-fade-in divide-y divide-primary/5">
+                                        {getActivePromos().length === 0 ? (
+                                            <div className="p-4 text-center text-[9px] font-black text-primary/30 uppercase tracking-widest">Tidak ada promo tersedia saat ini</div>
+                                        ) : (
+                                            getActivePromos().map(promo => (
+                                                <button
+                                                    key={promo.code}
+                                                    onClick={() => handleApplyPromo(promo.code)}
+                                                    className="w-full p-3 text-left hover:bg-secondary/20 transition-all group flex justify-between items-center"
+                                                >
+                                                    <div>
+                                                        <div className="text-[10px] md:text-[11px] font-black text-primary group-hover:translate-x-1 transition-transform">{promo.code}</div>
+                                                        <div className="text-[8px] md:text-[9px] font-bold text-primary/40 leading-tight mt-0.5">{promo.name}</div>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-[10px] font-black text-green-500">
+                                                            {promo.type === 'Persen' ? `${promo.value}%` : `Rp ${promo.value.toLocaleString('id-ID')}`}
+                                                        </div>
+                                                        <div className="text-[7px] font-black text-primary/30 uppercase tracking-widest leading-none mt-1">Hingga {promo.endDate}</div>
+                                                    </div>
+                                                </button>
+                                            ))
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5 md:space-y-2 pt-2 border-t border-primary/5">
                         <div className="flex justify-between text-primary/40 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
                             <span>Subtotal</span>
                             <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
                         </div>
+                        {isMember && (
+                            <div className="flex justify-between text-blue-500 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
+                                <span>Diskon Member (5%)</span>
+                                <span>- Rp {memberDiscount.toLocaleString('id-ID')}</span>
+                            </div>
+                        )}
+                        {appliedPromo && (
+                            <div className="flex justify-between text-green-500 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
+                                <span>Promo ({appliedPromo.code})</span>
+                                <span>- Rp {promoDiscount.toLocaleString('id-ID')}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between text-primary/40 font-bold text-[8px] md:text-[9px] uppercase tracking-widest px-1">
                             <span>Pajak (11%)</span>
-                            <span>Rp {(cartTotal * 0.11).toLocaleString('id-ID')}</span>
+                            <span>Rp {tax.toLocaleString('id-ID')}</span>
                         </div>
-                        <div className="flex justify-between items-center pt-3 border-t border-primary/5 px-1">
-                            <span className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em]">Total</span>
-                            <span className="text-xl md:text-2xl font-black text-primary tracking-tighter">Rp {(cartTotal * 1.11).toLocaleString('id-ID')}</span>
+                        <div className="flex justify-between items-center pt-2 mt-1">
+                            <span className="text-[9px] md:text-[10px] font-black text-primary uppercase tracking-[0.2em]">Total</span>
+                            <span className="text-xl md:text-2xl font-black text-primary tracking-tighter">Rp {finalTotal.toLocaleString('id-ID')}</span>
                         </div>
                     </div>
 
                     <div className="space-y-3 md:space-y-4">
-                        <div className="grid grid-cols-2 gap-3">
-                            <button
-                                onClick={() => setPaymentMethod('Tunai')}
-                                className={`flex items-center justify-center gap-2 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'Tunai' ? 'bg-primary text-secondary shadow-lg shadow-primary/20 active:scale-95 border border-primary' : 'bg-white text-primary/30 border border-primary/5 hover:bg-white hover:text-primary hover:border-primary/20 shadow-sm'}`}
-                            >
-                                <Banknote className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                                <span>Tunai</span>
-                            </button>
-                            <button
-                                onClick={() => setPaymentMethod('E-Wallet')}
-                                className={`flex items-center justify-center gap-2 py-3 md:py-3.5 rounded-xl md:rounded-2xl text-[8px] md:text-[9px] font-black uppercase tracking-widest transition-all ${paymentMethod === 'E-Wallet' ? 'bg-primary text-secondary shadow-lg shadow-primary/20 active:scale-95 border border-primary' : 'bg-white text-primary/30 border border-primary/5 hover:bg-white hover:text-primary hover:border-primary/20 shadow-sm'}`}
-                            >
-                                <CreditCard className="w-3.5 md:w-4 h-3.5 md:h-4" />
-                                <span>E-Wallet</span>
-                            </button>
-                        </div>
-
                         <button
                             disabled={cart.length === 0 || isProcessing}
                             onClick={handleCheckout}
