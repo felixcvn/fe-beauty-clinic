@@ -11,7 +11,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         name: '',
         nik: '',
         tanggal_lahir: '',
-        role: '',
+        divisi: '',
+        posisi: '',
         cabang: '',
         email: '',
         phone: '',
@@ -31,7 +32,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     name: initialData.name || '',
                     nik: initialData.nik || '',
                     tanggal_lahir: initialData.tanggal_lahir || '',
-                    role: initialData.role || 'Dokter',
+                    divisi: initialData.divisi || 'Dokter',
+                    posisi: initialData.posisi || 'Anggota',
                     cabang: initialData.cabang || 'Jember',
                     email: initialData.email || '',
                     phone: initialData.phone || '',
@@ -44,7 +46,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     name: '',
                     nik: '',
                     tanggal_lahir: '',
-                    role: '',
+                    divisi: '',
+                    posisi: '',
                     cabang: '',
                     email: '',
                     phone: '',
@@ -68,7 +71,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
         if (!formState.tanggal_lahir) newErrors.tanggal_lahir = "Tanggal lahir wajib diisi";
 
-        if (!formState.role) newErrors.role = "Role wajib diisi";
+        if (!formState.divisi) newErrors.divisi = "Divisi wajib diisi";
+        
+        const singleRoles = ['HRD', 'Owner', 'Komisaris'];
+        if (!singleRoles.includes(formState.divisi) && !formState.posisi) {
+            newErrors.posisi = "Posisi wajib diisi";
+        }
 
         if (!formState.cabang) newErrors.cabang = "Cabang wajib diisi";
 
@@ -128,7 +136,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
             handleNext();
         } else {
             if (validateStep3()) {
-                onSave(formState);
+                const finalData = { ...formState };
+                const singleRoles = ['HRD', 'Owner', 'Komisaris'];
+                if (singleRoles.includes(finalData.divisi)) {
+                    finalData.posisi = finalData.divisi; // Atur posisi sama dengan divisi untuk role tunggal
+                }
+                onSave(finalData);
             }
         }
     };
@@ -257,22 +270,39 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                 <div className="space-y-4">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Posisi & Penempatan</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Jabatan Karyawan</label>
+                                        <div className={`space-y-2 ${['HRD', 'Owner', 'Komisaris'].includes(formState.divisi) ? 'col-span-full' : ''}`}>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Divisi Karyawan</label>
                                             <CustomSelect
-                                                value={formState.role}
-                                                onChange={(value) => handleChange('role', value)}
+                                                value={formState.divisi}
+                                                onChange={(value) => handleChange('divisi', value)}
                                                 options={[
                                                     { value: 'Dokter', label: 'Dokter' },
                                                     { value: 'Customer Service', label: 'Customer Service' },
-                                                    { value: 'HRD', label: 'HRD' },
-                                                    { value: 'Manager', label: 'Manager' },
                                                     { value: 'Perawat', label: 'Perawat' },
                                                     { value: 'Staff Gudang', label: 'Staff Gudang' },
                                                     { value: 'Kasir', label: 'Kasir' },
+                                                    { value: 'Manager', label: 'Manager' },
+                                                    { value: 'HRD', label: 'HRD' },
+                                                    { value: 'Owner', label: 'Owner' },
+                                                    { value: 'Komisaris', label: 'Komisaris' }
                                                 ]}
                                             />
+                                            {errors.divisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.divisi}</p>}
                                         </div>
+                                        {!['HRD', 'Owner', 'Komisaris'].includes(formState.divisi) && (
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Posisi Jabatan</label>
+                                                <CustomSelect
+                                                    value={formState.posisi}
+                                                    onChange={(value) => handleChange('posisi', value)}
+                                                    options={[
+                                                        { value: 'Lead', label: 'Lead (Kepala Divisi)' },
+                                                        { value: 'Anggota', label: 'Anggota (Staff)' }
+                                                    ]}
+                                                />
+                                                {errors.posisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.posisi}</p>}
+                                            </div>
+                                        )}
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Cabang</label>
                                             <CustomSelect

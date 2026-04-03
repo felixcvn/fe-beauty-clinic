@@ -1,5 +1,6 @@
 export const ROLES = {
     OWNER: 'Owner',
+    KOMISARIS: 'Komisaris',
     DOCTOR: 'Dokter',
     CS: 'Customer Service',
     HRD: 'HRD',
@@ -13,6 +14,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.HRD]: ['/', '/staff', '/attendance'],
     [ROLES.MANAGER]: ['/', '/promos', '/attendance'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance'],
+    [ROLES.KOMISARIS]: ['/', '/patients', '/staff', '/reports', '/attendance', '/sales', '/products', '/treatments', '/management', '/promos', '/notifications', '/medical-records'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
 };
 
