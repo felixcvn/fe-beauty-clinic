@@ -61,7 +61,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
     const validateStep1 = () => {
         let newErrors = {};
         if (!formState.name.trim()) newErrors.name = "Nama lengkap wajib diisi";
-        
+
         if (!formState.nik.trim()) newErrors.nik = "NIK wajib diisi";
         else if (!/^\d+$/.test(formState.nik)) newErrors.nik = "NIK hanya boleh berisi angka (tidak boleh ada huruf/simbol)";
         else if (formState.nik.length < 16) newErrors.nik = "NIK minimal 16 angka";
@@ -69,7 +69,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         if (!formState.tanggal_lahir) newErrors.tanggal_lahir = "Tanggal lahir wajib diisi";
 
         if (!formState.role) newErrors.role = "Role wajib diisi";
-        
+
         if (!formState.cabang) newErrors.cabang = "Cabang wajib diisi";
 
         if (!formState.phone.trim()) newErrors.phone = "Nomor telepon wajib diisi";
@@ -141,11 +141,11 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
     };
 
     return createPortal(
-        <div 
+        <div
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 transition-opacity"
             onClick={onClose}
         >
-            <div 
+            <div
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -178,10 +178,10 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                         </div>
                     </div>
                 </div>
-                
+
                 {/* Body Form */}
                 <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-gray-50/30">
-                    
+
                     {/* Progress Bar Dinamis */}
                     <div className="flex gap-2 mb-8">
                         <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
@@ -196,7 +196,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
-                        
+
                         {/* -------------------- STEP 1 -------------------- */}
                         {step === 1 && (
                             <div className="space-y-6 animate-fade-in">
@@ -205,12 +205,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Informasi Personal</h4>
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Nama Lengkap</label>
-                                        <input 
-                                            type="text" 
+                                        <input
+                                            type="text"
                                             value={formState.name}
                                             onChange={(e) => handleChange('name', e.target.value)}
                                             placeholder="Masukkan nama lengkap pegawai"
-                                            className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.name ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                            className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.name ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                         />
                                         {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
                                     </div>
@@ -218,22 +218,22 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">NIK</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={formState.nik}
                                                 onChange={(e) => handleChange('nik', e.target.value)}
                                                 placeholder="Nomor Induk Kependudukan"
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.nik ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.nik ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.nik && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.nik}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Lahir</label>
-                                            <input 
-                                                type="date" 
+                                            <input
+                                                type="date"
                                                 value={formState.tanggal_lahir}
                                                 onChange={(e) => handleChange('tanggal_lahir', e.target.value)}
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_lahir ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`} 
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_lahir ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`}
                                             />
                                             {errors.tanggal_lahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tanggal_lahir}</p>}
                                         </div>
@@ -241,12 +241,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Alamat</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={formState.alamat}
                                                 onChange={(e) => handleChange('alamat', e.target.value)}
                                                 placeholder="Masukkan alamat lengkap pegawai"
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.alamat ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.alamat ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.alamat && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.alamat}</p>}
                                         </div>
@@ -259,11 +259,10 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Jabatan Karyawan</label>
-                                            <CustomSelect 
-                                                value={formState.role} 
+                                            <CustomSelect
+                                                value={formState.role}
                                                 onChange={(value) => handleChange('role', value)}
                                                 options={[
-                                                    { value: 'Admin', label: 'Admin' },
                                                     { value: 'Dokter', label: 'Dokter' },
                                                     { value: 'Customer Service', label: 'Customer Service' },
                                                     { value: 'HRD', label: 'HRD' },
@@ -276,8 +275,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Cabang</label>
-                                            <CustomSelect 
-                                                value={formState.cabang} 
+                                            <CustomSelect
+                                                value={formState.cabang}
                                                 onChange={(value) => handleChange('cabang', value)}
                                                 options={[
                                                     { value: 'Jember', label: 'Klinik Cabang Jember' },
@@ -294,23 +293,23 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Email</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={formState.email}
                                                 onChange={(e) => handleChange('email', e.target.value)}
                                                 placeholder="email@contoh.com"
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.email ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.email && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.email}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">No. Telp</label>
-                                            <input 
-                                                type="tel" 
+                                            <input
+                                                type="tel"
                                                 value={formState.phone}
                                                 onChange={(e) => handleChange('phone', e.target.value)}
                                                 placeholder="08xxxxxxxxxx"
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.phone ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.phone && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.phone}</p>}
                                         </div>
@@ -319,8 +318,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
                                 {/* Aksi Bawah */}
                                 <div className="pt-4 border-t border-primary/5 mt-8">
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={handleNext}
                                         className="w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                                     >
@@ -340,30 +339,30 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Username Login</label>
-                                            <input 
-                                                type="text" 
+                                            <input
+                                                type="text"
                                                 value={formState.username}
                                                 onChange={(e) => handleChange('username', e.target.value)}
                                                 placeholder="Contoh: sarah123"
-                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.username ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.username ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.username && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.username}</p>}
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {/* Aksi Bawah */}
                                 <div className="pt-4 border-t border-primary/5 mt-8 flex sm:flex-row flex-col gap-3">
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={handlePrev}
                                         className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-sm"
                                     >
                                         <ArrowLeft className="w-4 h-4 mr-1" />
                                         Sebelumnya
                                     </button>
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={handleNext}
                                         className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                                     >
@@ -383,30 +382,30 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Password Sistem</label>
-                                            <input 
-                                                type="password" 
+                                            <input
+                                                type="password"
                                                 value={formState.password}
                                                 onChange={(e) => handleChange('password', e.target.value)}
                                                 placeholder="********"
-                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.password ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`} 
+                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.password ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password}</p>}
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 {/* Aksi Bawah */}
                                 <div className="pt-4 border-t border-primary/5 mt-8 flex sm:flex-row flex-col gap-3">
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={handlePrev}
                                         className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-sm"
                                     >
                                         <ArrowLeft className="w-4 h-4 mr-1" />
                                         Sebelumnya
                                     </button>
-                                    <button 
-                                        type="submit" 
+                                    <button
+                                        type="submit"
                                         className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                                     >
                                         <CheckCircle2 className="w-4 h-4" />
@@ -415,7 +414,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                 </div>
                             </div>
                         )}
-                        
+
                     </form>
                 </div>
             </div>

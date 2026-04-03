@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    CalendarDays, Clock, UserCheck, UserMinus, Search, Filter, 
-    MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera, 
-    Calendar, Edit3, Download, FileText, ChevronRight 
+import {
+    CalendarDays, Clock, UserCheck, UserMinus, Search, Filter,
+    MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera,
+    Calendar, Edit3, Download, FileText, ChevronRight
 } from 'lucide-react';
 import FaceScanModal from '../../components/UI/FaceScanModal';
 import AttendanceDetailModal from '../../components/UI/AttendanceDetailModal';
@@ -15,14 +15,14 @@ import { useAuth } from '../../context/AuthContext';
 const AttendancePage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
-    
+
     // States
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('attendance');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    
+
     // Modal States
     const [isScanModalOpen, setIsScanModalOpen] = useState(false);
     const [scanType, setScanType] = useState('in');
@@ -35,7 +35,7 @@ const AttendancePage = () => {
 
     // Cek Role
     const canAccessReports = user?.role === 'Owner' || user?.role === 'HRD';
-    const canApproveLeave = ['HRD', 'Admin'].includes(user?.role);
+    const canApproveLeave = user?.role === 'HRD';
 
     // Mock Data
     const [attendanceStats, setAttendanceStats] = useState([
@@ -127,8 +127,8 @@ const AttendancePage = () => {
 
     // Filter Logic Khusus Managerial View (Owner & HRD)
     const filteredManagerAttendance = staffAttendance.filter(record => {
-        const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              record.role.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            record.role.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = statusFilter === 'Semua Status' || record.status === statusFilter;
         let matchesDate = true;
         if (startDate && endDate) {
@@ -152,8 +152,8 @@ const AttendancePage = () => {
     };
 
     // Pagination & Search Logic
-    const finalAttendance = canAccessReports ? filteredManagerAttendance : staffAttendance.filter(record => 
-        record.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const finalAttendance = canAccessReports ? filteredManagerAttendance : staffAttendance.filter(record =>
+        record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         record.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -171,8 +171,8 @@ const AttendancePage = () => {
     const currentAttendance = finalAttendance.slice(idxFirstAttendance, idxLastAttendance);
     const totalAttendancePages = Math.ceil(finalAttendance.length / itemsPerPage);
 
-    const filteredLeave = leaveRequests.filter(req => 
-        req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const filteredLeave = leaveRequests.filter(req =>
+        req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         req.type.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -211,12 +211,12 @@ const AttendancePage = () => {
             {/* Modals */}
             <FaceScanModal isOpen={isScanModalOpen} onClose={() => setIsScanModalOpen(false)} onScanSuccess={handleScanSuccess} type={scanType} />
             <AttendanceDetailModal isOpen={isDetailModalOpen} onClose={() => setIsDetailModalOpen(false)} staffData={detailStaff} />
-            <LeaveApprovalModal 
-                isOpen={isApprovalModalOpen} 
-                onClose={() => setIsApprovalModalOpen(false)} 
-                requestData={selectedLeaveRequest} 
+            <LeaveApprovalModal
+                isOpen={isApprovalModalOpen}
+                onClose={() => setIsApprovalModalOpen(false)}
+                requestData={selectedLeaveRequest}
                 showActions={canApproveLeave}
-                onUpdateStatus={(id, status) => setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req))} 
+                onUpdateStatus={(id, status) => setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req))}
             />
             <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={(data) => {
                 const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, attachment: data.attachment, status: 'Menunggu' };
@@ -243,7 +243,7 @@ const AttendancePage = () => {
                                 </button>
                             </>
                         )}
-                        <button 
+                        <button
                             onClick={handleExport}
                             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                         >
@@ -284,7 +284,7 @@ const AttendancePage = () => {
             {/* Content Area */}
             {activeTab === 'attendance' ? (
                 <div className="space-y-8">
-                    
+
                     {/* STATS CARDS (Managerial View: Owner & HRD) */}
                     {canAccessReports ? (
                         <div className="space-y-4">
@@ -296,22 +296,22 @@ const AttendancePage = () => {
                             </div>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
                                 {[
-                                { label: 'Hadir Tepat Waktu', value: '24', icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
-                                { label: 'Terlambat', value: '3', icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-                                { label: 'Sakit / Izin / Cuti', value: '5', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' },
-                                { label: 'Tanpa Keterangan', value: '1', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' }
-                            ].map((stat, idx) => (
-                                <div key={idx} className="bg-white rounded-3xl p-6 border border-primary/5 shadow-xl shadow-primary/5 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
-                                    <div className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}>
-                                        <stat.icon className="w-5 h-5" />
+                                    { label: 'Hadir Tepat Waktu', value: '24', icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
+                                    { label: 'Terlambat', value: '3', icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
+                                    { label: 'Sakit / Izin / Cuti', value: '5', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' },
+                                    { label: 'Tanpa Keterangan', value: '1', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' }
+                                ].map((stat, idx) => (
+                                    <div key={idx} className="bg-white rounded-3xl p-6 border border-primary/5 shadow-xl shadow-primary/5 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
+                                        <div className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}>
+                                            <stat.icon className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{stat.label}</h4>
+                                            <span className="text-3xl font-black text-primary">{stat.value}</span>
+                                            <span className="text-xs font-bold text-primary/30 ml-2">Pegawai</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{stat.label}</h4>
-                                        <span className="text-3xl font-black text-primary">{stat.value}</span>
-                                        <span className="text-xs font-bold text-primary/30 ml-2">Pegawai</span>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
                             </div>
                         </div>
                     ) : canApproveLeave ? (
@@ -337,7 +337,7 @@ const AttendancePage = () => {
 
                     {/* TABLE AREA */}
                     <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
-                        
+
                         {/* Table Header / Filters */}
                         {canAccessReports ? (
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
@@ -353,7 +353,7 @@ const AttendancePage = () => {
                                         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
                                     </div>
                                     <div className="w-full sm:w-48 relative z-40">
-                                        <CustomSelect value={statusFilter} onChange={setStatusFilter} options={[ { value: 'Semua Status', label: 'Semua Status' }, { value: 'Hadir', label: 'Hadir' }, { value: 'Terlambat', label: 'Terlambat' }, { value: 'Sakit', label: 'Sakit' }, { value: 'Cuti', label: 'Cuti' }, { value: 'Alpa', label: 'Alpa' }]} />
+                                        <CustomSelect value={statusFilter} onChange={setStatusFilter} options={[{ value: 'Semua Status', label: 'Semua Status' }, { value: 'Hadir', label: 'Hadir' }, { value: 'Terlambat', label: 'Terlambat' }, { value: 'Sakit', label: 'Sakit' }, { value: 'Cuti', label: 'Cuti' }, { value: 'Alpa', label: 'Alpa' }]} />
                                     </div>
                                 </div>
                             </div>
@@ -430,19 +430,19 @@ const AttendancePage = () => {
                                 </tbody>
                             </table>
                         </div>
-                        
+
                         <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                             <span>Menampilkan {finalAttendance.length === 0 ? 0 : idxFirstAttendance + 1} hingga {Math.min(idxLastAttendance, finalAttendance.length)} dari {finalAttendance.length} data</span>
                             <div className="flex gap-3 w-full sm:w-auto">
-                                <button 
-                                    onClick={() => setAttendancePage(p => Math.max(1, p - 1))} 
+                                <button
+                                    onClick={() => setAttendancePage(p => Math.max(1, p - 1))}
                                     disabled={attendancePage === 1}
                                     className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
                                 >
                                     Sebelumnya
                                 </button>
-                                <button 
-                                    onClick={() => setAttendancePage(p => Math.min(totalAttendancePages, p + 1))} 
+                                <button
+                                    onClick={() => setAttendancePage(p => Math.min(totalAttendancePages, p + 1))}
                                     disabled={attendancePage === totalAttendancePages || totalAttendancePages === 0}
                                     className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
                                 >Selanjutnya</button>
@@ -474,8 +474,8 @@ const AttendancePage = () => {
                             </thead>
                             <tbody className="divide-y divide-primary/5">
                                 {currentLeave.map((req) => (
-                                    <tr 
-                                        key={req.id} 
+                                    <tr
+                                        key={req.id}
                                         onClick={() => {
                                             setSelectedLeaveRequest(req);
                                             setIsApprovalModalOpen(true);
@@ -504,14 +504,13 @@ const AttendancePage = () => {
                                             <p className="text-[10px] font-bold text-primary/60 truncate">{req.reason}</p>
                                         </td>
                                         <td className="px-8 py-6">
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                                req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                                                req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
-                                                'bg-yellow-100 text-yellow-700'
-                                            }`}>
-                                                {req.status === 'Disetujui' ? <CheckCircle2 className="w-3 h-3" /> : 
-                                                 req.status === 'Ditolak' ? <XCircle className="w-3 h-3" /> : 
-                                                 <Clock className="w-3 h-3" />}
+                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                                                    req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                                                        'bg-yellow-100 text-yellow-700'
+                                                }`}>
+                                                {req.status === 'Disetujui' ? <CheckCircle2 className="w-3 h-3" /> :
+                                                    req.status === 'Ditolak' ? <XCircle className="w-3 h-3" /> :
+                                                        <Clock className="w-3 h-3" />}
                                                 {req.status}
                                             </span>
                                         </td>
@@ -534,19 +533,19 @@ const AttendancePage = () => {
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                         <span>Menampilkan {filteredLeave.length === 0 ? 0 : idxFirstLeave + 1} hingga {Math.min(idxLastLeave, filteredLeave.length)} dari {filteredLeave.length} data</span>
                         <div className="flex gap-3 w-full sm:w-auto">
-                            <button 
-                                onClick={() => setLeavePage(p => Math.max(1, p - 1))} 
+                            <button
+                                onClick={() => setLeavePage(p => Math.max(1, p - 1))}
                                 disabled={leavePage === 1}
                                 className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
                             >
                                 Sebelumnya
                             </button>
-                            <button 
-                                onClick={() => setLeavePage(p => Math.min(totalLeavePages, p + 1))} 
+                            <button
+                                onClick={() => setLeavePage(p => Math.min(totalLeavePages, p + 1))}
                                 disabled={leavePage === totalLeavePages || totalLeavePages === 0}
                                 className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
                             >Selanjutnya</button>

@@ -15,7 +15,6 @@ import { useAuth } from '../../context/AuthContext';
 import CustomDatePicker from '../../components/UI/CustomDatePicker';
 
 const roleBadgeColor = {
-    Admin: 'bg-rose-100 text-rose-600',
     Dokter: 'bg-blue-100 text-blue-600',
     'Customer Service': 'bg-emerald-100 text-emerald-600',
     HRD: 'bg-violet-100 text-violet-600',

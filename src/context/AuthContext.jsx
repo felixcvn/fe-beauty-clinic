@@ -3,7 +3,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 const USER_SEEDER = [
-    { username: 'admin', email: 'admin@clinic.com', password: 'password123', name: 'Super Admin', role: 'Admin' },
     { username: 'doctor', email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Sarah Smith', role: 'Dokter' },
     { username: 'cs', email: 'cs@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Customer Service' },
     { username: 'hrd', email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },

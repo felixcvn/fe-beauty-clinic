@@ -1,5 +1,4 @@
 export const ROLES = {
-    ADMIN: 'Admin',
     OWNER: 'Owner',
     DOCTOR: 'Dokter',
     CS: 'Customer Service',
@@ -9,7 +8,6 @@ export const ROLES = {
 };
 
 export const ROLE_PERMISSIONS = {
-    [ROLES.ADMIN]: ['/', '/staff'],
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications'],
     [ROLES.HRD]: ['/', '/staff', '/attendance'],
@@ -19,18 +17,18 @@ export const ROLE_PERMISSIONS = {
 };
 
 export const hasPermission = (userRole, path) => {
-    if (!userRole || !path) return false; 
-    
-    const roleKey = Object.keys(ROLE_PERMISSIONS).find(key => 
+    if (!userRole || !path) return false;
+
+    const roleKey = Object.keys(ROLE_PERMISSIONS).find(key =>
         key.toLowerCase().trim() === userRole.toLowerCase().trim()
     );
-    
+
     if (!roleKey) return false;
-    
+
     const allowedPaths = ROLE_PERMISSIONS[roleKey];
-    
+
     if (path === '/') return allowedPaths.includes('/');
-    
+
     return allowedPaths.some(allowed => {
         if (allowed === '/') return false;
         // Cek path secara exact (persis)

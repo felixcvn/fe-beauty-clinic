@@ -9,11 +9,11 @@ import StaffDetailModal from '../../components/UI/StaffDetailModal';
 
 const StaffPage = () => {
     const { user } = useAuth();
-    const isReadOnly = user?.role === 'Owner' || user?.role === 'HRD';
+    const isReadOnly = user?.role === 'Owner';
     const { showToast } = useToast();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    
+
     // Modal State
     const [editingStaff, setEditingStaff] = useState(null);
     const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
@@ -24,7 +24,6 @@ const StaffPage = () => {
     const [saveConfirm, setSaveConfirm] = useState({ open: false, data: null });
 
     const [staffList, setStaffList] = useState([
-        { id: 'STF-001', name: 'Super Admin', role: 'Admin', email: 'admin@clinic.com', phone: '0812-3456-7890', username: 'admin', password: 'password123', status: 'Aktif', nik: '3171011202900001', tanggal_lahir: '1990-02-12', alamat: 'Jl. Merdeka No. 1, Jakarta Selatan', tanggal_bergabung: '2023-01-15', cabang: 'Jember' },
         { id: 'STF-002', name: 'Dr. Sarah Smith', role: 'Dokter', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', username: 'doctor', password: 'password123', status: 'Aktif', nik: '3172021504920002', tanggal_lahir: '1992-04-15', alamat: 'Apartemen Sudirman Tower A/12', tanggal_bergabung: '2023-03-01', cabang: 'Jember' },
         { id: 'STF-003', name: 'Dr. Andi Pratama', role: 'Dokter', email: 'andi.p@clinic.com', phone: '0813-1122-3344', username: 'andi.p', password: 'password123', status: 'Aktif', nik: '3201012308850003', tanggal_lahir: '1985-08-23', alamat: 'Komp. Pesona Indah Blok B4', tanggal_bergabung: '2022-11-10', cabang: 'Lumajang' },
         { id: 'STF-004', name: 'Dr. Linda Kusuma', role: 'Dokter', email: 'linda.k@clinic.com', phone: '0811-5566-7788', username: 'linda.k', password: 'password123', status: 'Cuti', nik: '3374021110890004', tanggal_lahir: '1989-10-11', alamat: 'Jl. Melati Raya No. 45, Bintaro', tanggal_bergabung: '2023-05-20', cabang: 'Jember' },
@@ -41,8 +40,8 @@ const StaffPage = () => {
         { id: 'STF-015', name: 'Nina Wulandari', role: 'Kasir', email: 'nina.k@clinic.com', phone: '0813-2233-4455', username: 'nina.k', password: 'password123', status: 'Cuti', nik: '3276020508950015', tanggal_lahir: '1995-08-05', alamat: 'Jl. Cempaka Putih Tengah Blok B', tanggal_bergabung: '2023-07-25', cabang: 'Lumajang' },
     ]);
 
-    const filteredStaff = staffList.filter(s => 
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    const filteredStaff = staffList.filter(s =>
+        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.role.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -111,19 +110,19 @@ const StaffPage = () => {
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
-            
+
             {/* Modals tetap menggunakan Portal agar tidak terpengaruh layout */}
-            <StaffFormModal 
-                isOpen={isStaffModalOpen} 
-                onClose={() => setIsStaffModalOpen(false)} 
-                onSave={handleRequestSave} 
-                initialData={editingStaff} 
+            <StaffFormModal
+                isOpen={isStaffModalOpen}
+                onClose={() => setIsStaffModalOpen(false)}
+                onSave={handleRequestSave}
+                initialData={editingStaff}
                 existingStaff={staffList}
             />
-            <StaffDetailModal 
-                isOpen={!!detailStaff} 
-                onClose={() => setDetailStaff(null)} 
-                staff={detailStaff} 
+            <StaffDetailModal
+                isOpen={!!detailStaff}
+                onClose={() => setDetailStaff(null)}
+                staff={detailStaff}
             />
 
             {/* Modal Konfirmasi Simpan & Hapus (Code disederhanakan untuk keterbacaan) */}
@@ -146,7 +145,7 @@ const StaffPage = () => {
                         </div>
                     </div>
                 </div>
-            , document.body)}
+                , document.body)}
 
             {deleteConfirm.open && createPortal(
                 <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
@@ -161,7 +160,7 @@ const StaffPage = () => {
                         </div>
                     </div>
                 </div>
-            , document.body)}
+                , document.body)}
 
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
@@ -202,7 +201,7 @@ const StaffPage = () => {
 
             {/* Main Table / Card View Container */}
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
-                
+
                 {/* Desktop Table View (Hidden on mobile) */}
                 <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse min-w-[1000px]">
@@ -221,7 +220,7 @@ const StaffPage = () => {
                                     <td className="px-8 py-6">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-lg shadow-primary/20 border border-white/20">
-                                                {staff.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+                                                {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                             </div>
                                             <div>
                                                 <p className="text-xs font-black text-primary tracking-tight">{staff.name}</p>
@@ -268,7 +267,7 @@ const StaffPage = () => {
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-secondary shadow-lg shadow-primary/20">
-                                        {staff.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+                                        {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                     </div>
                                     <div>
                                         <h4 className="text-sm font-black text-primary tracking-tight">{staff.name}</h4>
@@ -282,10 +281,10 @@ const StaffPage = () => {
                             </div>
 
                             <div className="grid grid-cols-1 gap-2 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
-                                        <div className="flex items-center gap-3 text-primary/60">
-                                            <ShieldCheck className="w-4 h-4 text-accent-gold" />
-                                            <span className="text-[10px] font-black uppercase tracking-widest">{staff.role}</span>
-                                        </div>
+                                <div className="flex items-center gap-3 text-primary/60">
+                                    <ShieldCheck className="w-4 h-4 text-accent-gold" />
+                                    <span className="text-[10px] font-black uppercase tracking-widest">{staff.role}</span>
+                                </div>
                                 <div className="flex items-center gap-3 text-primary/60">
                                     <Mail className="w-4 h-4" />
                                     <span className="text-[11px] font-bold">{staff.email}</span>
@@ -298,13 +297,13 @@ const StaffPage = () => {
 
                             {!isReadOnly && (
                                 <div className="flex gap-3 mt-4">
-                                    <button 
+                                    <button
                                         onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
                                     >
                                         <Edit3 className="w-3.5 h-3.5" /> Edit
                                     </button>
-                                    <button 
+                                    <button
                                         onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
                                     >
@@ -320,15 +319,15 @@ const StaffPage = () => {
                 <div className="p-6 md:p-8 bg-gray-50/30 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
                     <span>Menampilkan {filteredStaff.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredStaff.length)} dari {filteredStaff.length} data</span>
                     <div className="flex gap-3 w-full sm:w-auto">
-                        <button 
-                            onClick={handlePrevPage} 
+                        <button
+                            onClick={handlePrevPage}
                             disabled={currentPage === 1}
                             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
                         >
                             Sebelumnya
                         </button>
-                        <button 
-                            onClick={handleNextPage} 
+                        <button
+                            onClick={handleNextPage}
                             disabled={currentPage === totalPages || totalPages === 0}
                             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
                         >Selanjutnya</button>
