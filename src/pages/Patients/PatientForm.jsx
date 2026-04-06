@@ -21,19 +21,53 @@ const PatientForm = () => {
         email: '',
         noTelepon: ''
     });
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        let newErrors = {};
+
+        if (!formData.namaLengkap.trim()) newErrors.namaLengkap = "Nama lengkap wajib diisi";
+
+        if (!formData.noIdentitas.trim()) newErrors.noIdentitas = "No. Identitas wajib diisi";
+        else if (formData.noIdentitas.length < 16) newErrors.noIdentitas = "No. Identitas minimal 16 karakter";
+
+        if (!formData.tempatLahir.trim()) newErrors.tempatLahir = "Tempat lahir wajib diisi";
+        
+        if (!formData.tanggalLahir) newErrors.tanggalLahir = "Tanggal lahir wajib diisi";
+
+        if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Format email tidak valid";
+        }
+
+        if (!formData.noTelepon.trim()) newErrors.noTelepon = "Nomor telepon wajib diisi";
+        else if (!/^\d+$/.test(formData.noTelepon)) newErrors.noTelepon = "Nomor telepon hanya boleh berisi angka";
+
+        if (!formData.alamat.trim()) newErrors.alamat = "Alamat lengkap wajib diisi";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // Kamu bisa menyesuaikan mapping data ini dengan format database/backend-mu
-        addPatient(formData);
-        showToast('Pasien berhasil didaftarkan!', 'success');
-        navigate('/patients');
+        if (validateForm()) {
+            addPatient(formData);
+            showToast('Pasien berhasil didaftarkan!', 'success');
+            navigate('/patients');
+        }
+    };
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: null }));
+        }
     };
 
     // Style seragam untuk input agar kode lebih rapi
     const inputWrapperClass = "relative group";
-    const inputClass = "w-full px-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-semibold text-primary";
-    const inputWithIconClass = "w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-semibold text-primary";
+    const getInputClass = (hasError) => `w-full px-6 py-4 rounded-2xl bg-white border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-semibold text-primary`;
+    const getInputWithIconClass = (hasError) => `w-full pl-12 pr-6 py-4 rounded-2xl bg-white border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-semibold text-primary`;
     const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary/30 group-focus-within:text-primary transition-colors";
     const labelClass = "text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] ml-1 mb-3 block";
 
@@ -47,175 +81,175 @@ const PatientForm = () => {
                     </div>
                 </div>
 
-                <form className="p-8 md:p-12 space-y-8" onSubmit={handleSubmit}>
-                    
-                    {/* Baris 1: No Member & No RM */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label className={labelClass}>1. No. Member</label>
-                            <div className={inputWrapperClass}>
-                                <Hash className={iconClass} />
-                                <input
-                                    type="text"
-                                    placeholder="Nomor Member"
-                                    className={inputWithIconClass}
-                                    value={formData.noMember}
-                                    onChange={(e) => setFormData({ ...formData, noMember: e.target.value })}
-                                />
+                    <form className="p-8 md:p-12 space-y-8" onSubmit={handleSubmit}>
+                        
+                        {/* Baris 1: No Member & No RM */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelClass}>1. No. Member</label>
+                                <div className={inputWrapperClass}>
+                                    <Hash className={iconClass} />
+                                    <input
+                                        type="text"
+                                        placeholder="Nomor Member"
+                                        className={getInputWithIconClass(false)}
+                                        value={formData.noMember}
+                                        onChange={(e) => handleChange('noMember', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                            <div>
+                                <label className={labelClass}>2. No. RM (Rekam Medis)</label>
+                                <div className={inputWrapperClass}>
+                                    <Hash className={iconClass} />
+                                    <input
+                                        type="text"
+                                        placeholder="Nomor Rekam Medis"
+                                        className={getInputWithIconClass(false)}
+                                        value={formData.noRM}
+                                        onChange={(e) => handleChange('noRM', e.target.value)}
+                                    />
+                                </div>
                             </div>
                         </div>
-                        <div>
-                            <label className={labelClass}>2. No. RM (Rekam Medis)</label>
-                            <div className={inputWrapperClass}>
-                                <Hash className={iconClass} />
-                                <input
-                                    type="text"
-                                    placeholder="Nomor Rekam Medis"
-                                    className={inputWithIconClass}
-                                    value={formData.noRM}
-                                    onChange={(e) => setFormData({ ...formData, noRM: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Baris 2: Nama Lengkap & No Identitas */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label className={labelClass}>3. Nama Lengkap</label>
-                            <div className={inputWrapperClass}>
-                                <User className={iconClass} />
-                                <input
-                                    required
-                                    type="text"
-                                    placeholder="Nama Lengkap Pasien"
-                                    className={inputWithIconClass}
-                                    value={formData.namaLengkap}
-                                    onChange={(e) => setFormData({ ...formData, namaLengkap: e.target.value })}
-                                />
+                        {/* Baris 2: Nama Lengkap & No Identitas */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelClass}>3. Nama Lengkap</label>
+                                <div className={inputWrapperClass}>
+                                    <User className={iconClass} />
+                                    <input
+                                        type="text"
+                                        placeholder="Nama Lengkap Pasien"
+                                        className={getInputWithIconClass(errors.namaLengkap)}
+                                        value={formData.namaLengkap}
+                                        onChange={(e) => handleChange('namaLengkap', e.target.value)}
+                                    />
+                                </div>
+                                {errors.namaLengkap && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.namaLengkap}</p>}
+                            </div>
+                            <div>
+                                <label className={labelClass}>4. No. Identitas (KTP/Passport)</label>
+                                <div className={inputWrapperClass}>
+                                    <CreditCard className={iconClass} />
+                                    <input
+                                        type="text"
+                                        placeholder="Nomor Identitas Diri"
+                                        className={getInputWithIconClass(errors.noIdentitas)}
+                                        value={formData.noIdentitas}
+                                        onChange={(e) => handleChange('noIdentitas', e.target.value)}
+                                    />
+                                </div>
+                                {errors.noIdentitas && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1 animate-pulse">{errors.noIdentitas}</p>}
                             </div>
                         </div>
-                        <div>
-                            <label className={labelClass}>4. No. Identitas (KTP/Passport)</label>
-                            <div className={inputWrapperClass}>
-                                <CreditCard className={iconClass} />
-                                <input
-                                    required
-                                    type="text"
-                                    placeholder="Nomor Identitas Diri"
-                                    className={inputWithIconClass}
-                                    value={formData.noIdentitas}
-                                    onChange={(e) => setFormData({ ...formData, noIdentitas: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Baris 3: Tempat & Tanggal Lahir */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label className={labelClass}>5. Tempat Lahir</label>
-                            <div className={inputWrapperClass}>
-                                <MapPin className={iconClass} />
-                                <input
-                                    required
-                                    type="text"
-                                    placeholder="Kota/Kabupaten Tempat Lahir"
-                                    className={inputWithIconClass}
-                                    value={formData.tempatLahir}
-                                    onChange={(e) => setFormData({ ...formData, tempatLahir: e.target.value })}
-                                />
+                        {/* Baris 3: Tempat & Tanggal Lahir */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelClass}>5. Tempat Lahir</label>
+                                <div className={inputWrapperClass}>
+                                    <MapPin className={iconClass} />
+                                    <input
+                                        type="text"
+                                        placeholder="Kota/Kabupaten Tempat Lahir"
+                                        className={getInputWithIconClass(errors.tempatLahir)}
+                                        value={formData.tempatLahir}
+                                        onChange={(e) => handleChange('tempatLahir', e.target.value)}
+                                    />
+                                </div>
+                                {errors.tempatLahir && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.tempatLahir}</p>}
+                            </div>
+                            <div>
+                                <label className={labelClass}>6. Tanggal Lahir</label>
+                                <div className={inputWrapperClass}>
+                                    <Calendar className={iconClass} />
+                                    <input
+                                        type="date"
+                                        className={getInputWithIconClass(errors.tanggalLahir)}
+                                        value={formData.tanggalLahir}
+                                        onChange={(e) => handleChange('tanggalLahir', e.target.value)}
+                                    />
+                                </div>
+                                {errors.tanggalLahir && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.tanggalLahir}</p>}
                             </div>
                         </div>
-                        <div>
-                            <label className={labelClass}>6. Tanggal Lahir</label>
-                            <div className={inputWrapperClass}>
-                                <Calendar className={iconClass} />
-                                <input
-                                    required
-                                    type="date"
-                                    className={inputWithIconClass}
-                                    value={formData.tanggalLahir}
-                                    onChange={(e) => setFormData({ ...formData, tanggalLahir: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Baris 4: Jenis Kelamin & Email */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Baris 4: Jenis Kelamin & Email */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelClass}>7. Jenis Kelamin</label>
+                                <select
+                                    className={getInputClass(false)}
+                                    value={formData.jenisKelamin}
+                                    onChange={(e) => handleChange('jenisKelamin', e.target.value)}
+                                >
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className={labelClass}>8. Email</label>
+                                <div className={inputWrapperClass}>
+                                    <Mail className={iconClass} />
+                                    <input
+                                        type="email"
+                                        placeholder="alamat@email.com"
+                                        className={getInputWithIconClass(errors.email)}
+                                        value={formData.email}
+                                        onChange={(e) => handleChange('email', e.target.value)}
+                                    />
+                                </div>
+                                {errors.email && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.email}</p>}
+                            </div>
+                        </div>
+
+                        {/* Baris 5: Telepon (Full width di mobile, half di md) */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelClass}>9. No. Telepon / WhatsApp</label>
+                                <div className={inputWrapperClass}>
+                                    <Phone className={iconClass} />
+                                    <input
+                                        type="tel"
+                                        placeholder="081234567890"
+                                        className={getInputWithIconClass(errors.noTelepon)}
+                                        value={formData.noTelepon}
+                                        onChange={(e) => handleChange('noTelepon', e.target.value)}
+                                    />
+                                </div>
+                                {errors.noTelepon && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1 animate-pulse">{errors.noTelepon}</p>}
+                            </div>
+                        </div>
+
+                        {/* Baris 6: Alamat (Full Width) */}
                         <div>
-                            <label className={labelClass}>7. Jenis Kelamin</label>
-                            <select
-                                required
-                                className={inputClass}
-                                value={formData.jenisKelamin}
-                                onChange={(e) => setFormData({ ...formData, jenisKelamin: e.target.value })}
+                            <label className={labelClass}>10. Alamat Lengkap</label>
+                            <textarea
+                                rows="3"
+                                placeholder="Detail alamat domisili pasien..."
+                                className={`${getInputClass(errors.alamat)} resize-none`}
+                                value={formData.alamat}
+                                onChange={(e) => handleChange('alamat', e.target.value)}
+                            />
+                            {errors.alamat && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.alamat}</p>}
+                        </div>
+
+                        {/* Tombol Aksi */}
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-4 sm:gap-6 pt-8 border-t border-primary/5">
+                            <button
+                                type="button"
+                                onClick={() => navigate('/patients')}
+                                className="px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/40 hover:bg-primary/5 transition-all duration-300 active:scale-95 text-center order-2 sm:order-1"
                             >
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
-                            </select>
+                                Batal
+                            </button>
+                            <button type="submit" className="bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 order-1 sm:order-2">
+                                Daftarkan Pasien
+                            </button>
                         </div>
-                        <div>
-                            <label className={labelClass}>8. Email</label>
-                            <div className={inputWrapperClass}>
-                                <Mail className={iconClass} />
-                                <input
-                                    type="email"
-                                    placeholder="alamat@email.com"
-                                    className={inputWithIconClass}
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Baris 5: Telepon (Full width di mobile, half di md) */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <label className={labelClass}>9. No. Telepon / WhatsApp</label>
-                            <div className={inputWrapperClass}>
-                                <Phone className={iconClass} />
-                                <input
-                                    required
-                                    type="tel"
-                                    placeholder="081234567890"
-                                    className={inputWithIconClass}
-                                    value={formData.noTelepon}
-                                    onChange={(e) => setFormData({ ...formData, noTelepon: e.target.value })}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Baris 6: Alamat (Full Width) */}
-                    <div>
-                        <label className={labelClass}>9. Alamat Lengkap</label>
-                        <textarea
-                            required
-                            rows="3"
-                            placeholder="Detail alamat domisili pasien..."
-                            className={`${inputClass} resize-none`}
-                            value={formData.alamat}
-                            onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
-                        />
-                    </div>
-
-                    {/* Tombol Aksi */}
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-4 sm:gap-6 pt-8 border-t border-primary/5">
-                        <button
-                            type="button"
-                            onClick={() => navigate('/patients')}
-                            className="px-8 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-primary/40 hover:bg-primary/5 transition-all duration-300 active:scale-95 text-center order-2 sm:order-1"
-                        >
-                            Batal
-                        </button>
-                        <button type="submit" className="bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 order-1 sm:order-2">
-                            Daftarkan Pasien
-                        </button>
-                    </div>
-                </form>
+                    </form>
             </div>
         </div>
     );

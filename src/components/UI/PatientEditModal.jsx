@@ -52,16 +52,58 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         }
     }, [isOpen, initialData]);
 
+    const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        if (isOpen) {
+            setErrors({}); // reset errors when modal opens
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
+
+    const validateForm = () => {
+        let newErrors = {};
+
+        if (!formData.namaLengkap.trim()) newErrors.namaLengkap = "Nama lengkap wajib diisi";
+
+        if (!formData.noIdentitas.trim()) newErrors.noIdentitas = "No. Identitas wajib diisi";
+        else if (formData.noIdentitas.length < 16) newErrors.noIdentitas = "No. Identitas minimal 16 karakter";
+
+        if (!formData.tempatLahir.trim()) newErrors.tempatLahir = "Tempat lahir wajib diisi";
+        
+        if (!formData.tanggalLahir) newErrors.tanggalLahir = "Tanggal lahir wajib diisi";
+
+        if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
+            newErrors.email = "Format email tidak valid";
+        }
+
+        if (!formData.noTelepon.trim()) newErrors.noTelepon = "Nomor telepon wajib diisi";
+        else if (!/^\d+$/.test(formData.noTelepon)) newErrors.noTelepon = "Nomor telepon hanya boleh berisi angka";
+
+        if (!formData.alamat.trim()) newErrors.alamat = "Alamat lengkap wajib diisi";
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave(formData);
+        if (validateForm()) {
+            onSave(formData);
+        }
+    };
+
+    const handleChange = (field, value) => {
+        setFormData(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: null }));
+        }
     };
 
     const inputWrapperClass = "relative group";
-    const inputClass = "w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm";
-    const inputWithIconClass = "w-full pl-12 pr-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm";
+    const getInputClass = (hasError) => `w-full px-5 py-4 rounded-2xl bg-secondary/20 border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-bold text-primary shadow-sm`;
+    const getInputWithIconClass = (hasError) => `w-full pl-12 pr-5 py-4 rounded-2xl bg-secondary/20 border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-bold text-primary shadow-sm`;
     const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors";
     const labelClass = "text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1 block mb-2";
 
@@ -115,9 +157,9 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     <input
                                         type="text"
                                         placeholder="Nomor Member"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(false)}
                                         value={formData.noMember}
-                                        onChange={(e) => setFormData({ ...formData, noMember: e.target.value })}
+                                        onChange={(e) => handleChange('noMember', e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -128,9 +170,9 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     <input
                                         type="text"
                                         placeholder="Nomor Rekam Medis"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(false)}
                                         value={formData.noRM}
-                                        onChange={(e) => setFormData({ ...formData, noRM: e.target.value })}
+                                        onChange={(e) => handleChange('noRM', e.target.value)}
                                     />
                                 </div>
                             </div>
@@ -142,28 +184,28 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 <div className={inputWrapperClass}>
                                     <User className={iconClass} />
                                     <input
-                                        required
                                         type="text"
                                         placeholder="Nama Lengkap Pasien"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(errors.namaLengkap)}
                                         value={formData.namaLengkap}
-                                        onChange={(e) => setFormData({ ...formData, namaLengkap: e.target.value })}
+                                        onChange={(e) => handleChange('namaLengkap', e.target.value)}
                                     />
                                 </div>
+                                {errors.namaLengkap && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.namaLengkap}</p>}
                             </div>
                             <div>
                                 <label className={labelClass}>No. Identitas (KTP/Passport)</label>
                                 <div className={inputWrapperClass}>
                                     <CreditCard className={iconClass} />
                                     <input
-                                        required
                                         type="text"
                                         placeholder="Nomor Identitas Diri"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(errors.noIdentitas)}
                                         value={formData.noIdentitas}
-                                        onChange={(e) => setFormData({ ...formData, noIdentitas: e.target.value })}
+                                        onChange={(e) => handleChange('noIdentitas', e.target.value)}
                                     />
                                 </div>
+                                {errors.noIdentitas && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1 animate-pulse">{errors.noIdentitas}</p>}
                             </div>
                         </div>
 
@@ -173,27 +215,27 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 <div className={inputWrapperClass}>
                                     <MapPin className={iconClass} />
                                     <input
-                                        required
                                         type="text"
                                         placeholder="Kota Tempat Lahir"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(errors.tempatLahir)}
                                         value={formData.tempatLahir}
-                                        onChange={(e) => setFormData({ ...formData, tempatLahir: e.target.value })}
+                                        onChange={(e) => handleChange('tempatLahir', e.target.value)}
                                     />
                                 </div>
+                                {errors.tempatLahir && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.tempatLahir}</p>}
                             </div>
                             <div>
                                 <label className={labelClass}>Tanggal Lahir</label>
                                 <div className={inputWrapperClass}>
                                     <Calendar className={iconClass} />
                                     <input
-                                        required
                                         type="date"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(errors.tanggalLahir)}
                                         value={formData.tanggalLahir}
-                                        onChange={(e) => setFormData({ ...formData, tanggalLahir: e.target.value })}
+                                        onChange={(e) => handleChange('tanggalLahir', e.target.value)}
                                     />
                                 </div>
+                                {errors.tanggalLahir && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.tanggalLahir}</p>}
                             </div>
                         </div>
 
@@ -202,7 +244,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 <label className={labelClass}>Jenis Kelamin</label>
                                 <CustomSelect 
                                     value={formData.jenisKelamin} 
-                                    onChange={(value) => setFormData({ ...formData, jenisKelamin: value })}
+                                    onChange={(value) => handleChange('jenisKelamin', value)}
                                     options={[
                                         { value: 'Laki-laki', label: 'Laki-laki' },
                                         { value: 'Perempuan', label: 'Perempuan' }
@@ -216,11 +258,12 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     <input
                                         type="email"
                                         placeholder="alamat@email.com"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(errors.email)}
                                         value={formData.email}
-                                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                                        onChange={(e) => handleChange('email', e.target.value)}
                                     />
                                 </div>
+                                {errors.email && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.email}</p>}
                             </div>
                         </div>
 
@@ -230,27 +273,27 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 <div className={inputWrapperClass}>
                                     <Phone className={iconClass} />
                                     <input
-                                        required
                                         type="tel"
                                         placeholder="081234567890"
-                                        className={inputWithIconClass}
+                                        className={getInputWithIconClass(errors.noTelepon)}
                                         value={formData.noTelepon}
-                                        onChange={(e) => setFormData({ ...formData, noTelepon: e.target.value })}
+                                        onChange={(e) => handleChange('noTelepon', e.target.value)}
                                     />
                                 </div>
+                                {errors.noTelepon && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1 animate-pulse">{errors.noTelepon}</p>}
                             </div>
                         </div>
 
                         <div>
                             <label className={labelClass}>Alamat Lengkap</label>
                             <textarea
-                                required
                                 rows="3"
                                 placeholder="Detail alamat domisili pasien..."
-                                className={`${inputClass} resize-none`}
+                                className={`${getInputClass(errors.alamat)} resize-none`}
                                 value={formData.alamat}
-                                onChange={(e) => setFormData({ ...formData, alamat: e.target.value })}
+                                onChange={(e) => handleChange('alamat', e.target.value)}
                             />
+                            {errors.alamat && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.alamat}</p>}
                         </div>
                         
                         <button 
