@@ -68,6 +68,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         if (!formData.namaLengkap.trim()) newErrors.namaLengkap = "Nama lengkap wajib diisi";
 
         if (!formData.noIdentitas.trim()) newErrors.noIdentitas = "No. Identitas wajib diisi";
+        else if (!/^\d+$/.test(formData.noIdentitas)) newErrors.noIdentitas = "No. Identitas hanya boleh berisi angka";
         else if (formData.noIdentitas.length < 16) newErrors.noIdentitas = "No. Identitas minimal 16 karakter";
 
         if (!formData.tempatLahir.trim()) newErrors.tempatLahir = "Tempat lahir wajib diisi";
