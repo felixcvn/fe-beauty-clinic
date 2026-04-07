@@ -171,7 +171,7 @@ const ItemManagementPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-black text-primary uppercase tracking-widest">Produk</p>
-                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Stok & Barang</p>
+                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Skincare</p>
                                 </div>
                             </button>
                             <button
@@ -195,7 +195,7 @@ const ItemManagementPage = () => {
                                 </div>
                                 <div>
                                     <p className="text-xs font-black text-primary uppercase tracking-widest">Racikan</p>
-                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Obat Campuran</p>
+                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Obat Racikan</p>
                                 </div>
                             </button>
                             <button
