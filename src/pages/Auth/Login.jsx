@@ -32,12 +32,7 @@ const Login = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-secondary-light">
-            {/* Background Image with Opacity */}
-            <div
-                className="absolute inset-0 bg-cover bg-center scale-100 opacity-20"
-                style={{ backgroundImage: `url(${myImage})` }}
-            ></div>
-
+            
             {/* Background Decoration (Optional - can be removed or kept for extra flair) */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent-gold/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
