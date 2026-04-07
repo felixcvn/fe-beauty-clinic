@@ -50,6 +50,16 @@ export const MockDataProvider = ({ children }) => {
         { id: 'TRT-008', name: 'Radio Frequency (RF) Set', category: 'Treatment', price: 650000, image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=200&h=200&auto=format&fit=crop' },
     ]);
 
+    const [racikans, setRacikans] = useState([
+        { id: 'RCK-001', name: 'Racikan Pencerah Malam', category: 'Racikan', price: 125000, stock: 10, minStock: 5, image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'RCK-002', name: 'Cream Jerawat Racik', category: 'Racikan', price: 85000, stock: 15, minStock: 10, image: 'https://images.unsplash.com/photo-1594411133670-1f3fd3612502?q=80&w=200&h=200&auto=format&fit=crop' },
+    ]);
+
+    const [materials, setMaterials] = useState([
+        { id: 'MAT-001', name: 'Kapas Medis', category: 'Bahan', price: 15000, stock: 50, minStock: 10, image: 'https://images.unsplash.com/photo-1583947581924-860bda6a26df?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'MAT-002', name: 'Alkohol Swab', category: 'Bahan', price: 2000, stock: 200, minStock: 50, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&h=200&auto=format&fit=crop' },
+    ]);
+
     const addPatient = (patient) => {
         const newPatient = {
             ...patient,
@@ -110,11 +120,41 @@ export const MockDataProvider = ({ children }) => {
         setTreatments(prev => prev.filter(t => t.id !== id));
     };
 
+    // Racikan Functions
+    const addRacikan = (racikan) => {
+        const id = `RCK-${String(racikans.length + 1).padStart(3, '0')}`;
+        setRacikans([...racikans, { ...racikan, id }]);
+    };
+
+    const updateRacikan = (updatedRacikan) => {
+        setRacikans(prev => prev.map(r => r.id === updatedRacikan.id ? updatedRacikan : r));
+    };
+
+    const deleteRacikan = (id) => {
+        setRacikans(prev => prev.filter(r => r.id !== id));
+    };
+
+    // Material Functions
+    const addMaterial = (material) => {
+        const id = `MAT-${String(materials.length + 1).padStart(3, '0')}`;
+        setMaterials([...materials, { ...material, id }]);
+    };
+
+    const updateMaterial = (updatedMaterial) => {
+        setMaterials(prev => prev.map(m => m.id === updatedMaterial.id ? updatedMaterial : m));
+    };
+
+    const deleteMaterial = (id) => {
+        setMaterials(prev => prev.filter(m => m.id !== id));
+    };
+
     return (
         <MockDataContext.Provider value={{ 
             patients, addPatient, updatePatient, addRecord, getPatient,
             products, addProduct, updateProduct, deleteProduct,
-            treatments, addTreatment, updateTreatment, deleteTreatment
+            treatments, addTreatment, updateTreatment, deleteTreatment,
+            racikans, addRacikan, updateRacikan, deleteRacikan,
+            materials, addMaterial, updateMaterial, deleteMaterial
         }}>
             {children}
         </MockDataContext.Provider>

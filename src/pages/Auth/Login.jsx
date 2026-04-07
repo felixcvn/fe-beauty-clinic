@@ -34,8 +34,8 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-secondary-light">
             {/* Background Image with Opacity */}
             <div
-                className="absolute inset-0 bg-cover bg-center opacity-30"
-                style={{ backgroundImage: 'url("https://images.unsplash.com/photo-1516069677934-ccb91316c04e?auto=format&fit=crop&q=80&w=2000")' }}
+                className="absolute inset-0 bg-cover bg-center scale-100 opacity-20"
+                style={{ backgroundImage: `url(${myImage})` }}
             ></div>
 
             {/* Background Decoration (Optional - can be removed or kept for extra flair) */}
@@ -51,9 +51,6 @@ const Login = () => {
                         alt="Beauty Clinic Interior"
                         className="absolute inset-0 w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-primary/40 backdrop-blur-[2px] flex flex-col justify-end p-12 text-white">
-
-                    </div>
                 </div>
 
                 {/* Form Side */}

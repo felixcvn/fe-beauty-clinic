@@ -34,7 +34,7 @@ const AttendancePage = () => {
     const [selectedLeaveRequest, setSelectedLeaveRequest] = useState(null);
 
     // Cek Role
-    const canAccessReports = user?.role === 'Owner' || user?.role === 'HRD';
+    const canAccessReports = user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD';
     const canApproveLeave = user?.role === 'HRD';
 
     // Mock Data

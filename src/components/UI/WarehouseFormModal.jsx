@@ -1,28 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Package, Activity } from 'lucide-react';
+import { X, CheckCircle2, Package, Activity, Beaker } from 'lucide-react';
+import CustomSelect from './CustomSelect';
+import CustomMultiSelect from './CustomMultiSelect';
+import { useMockData } from '../../context/MockDataContext';
 
 const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
+    const { materials } = useMockData();
     const [formState, setFormState] = useState({
         name: '',
-        category: type === 'product' ? 'Obat' : 'Treatment',
-        price: 0,
-        stock: 0,
-        minStock: 5,
+        category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
+        price: '',
+        stock: '',
+        minStock: '',
+        bahan_ids: [],
         image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop'
     });
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (isOpen) {
+            setErrors({});
             if (initialData) {
-                setFormState(initialData);
+                setFormState({
+                    ...initialData,
+                    bahan_ids: initialData.bahan_ids || []
+                });
             } else {
                 setFormState({
                     name: '',
-                    category: type === 'product' ? 'Obat' : 'Treatment',
-                    price: 0,
-                    stock: 0,
-                    minStock: 5,
+                    category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
+                    price: '',
+                    stock: '',
+                    minStock: '',
+                    bahan_ids: [],
                     image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop'
                 });
             }
@@ -31,18 +42,52 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSave(formState);
+    const validate = () => {
+        let newErrors = {};
+        const typeLabel = type === 'product' ? 'produk' : type === 'racikan' ? 'racikan' : type === 'material' ? 'bahan' : 'treatment';
+        if (!formState.name.trim()) newErrors.name = `Nama ${typeLabel} wajib diisi`;
+        
+        if (type === 'product' || type === 'racikan' || type === 'material') {
+            if (!formState.category) newErrors.category = "Kategori wajib dipilih";
+            if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
+            if (formState.stock === '' || formState.stock === null) newErrors.stock = "Stok wajib diisi";
+            if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
+        } else {
+            if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
     };
 
-    // Style seragam untuk input agar kodenya lebih rapi
-    const inputClassName = "w-full px-4 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm";
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (validate()) {
+            onSave(formState);
+        }
+    };
+
+    const handleChange = (field, value) => {
+        setFormState(prev => ({ ...prev, [field]: value }));
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: null }));
+        }
+    };
+
+    const getDynamicInputClass = (field) => {
+        return `w-full px-4 py-4 rounded-2xl bg-white border ${errors[field] ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`;
+    };
+
     const labelClassName = "text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2";
+
+    const materialOptions = materials.map(m => ({
+        value: m.id,
+        label: `${m.name} (${m.stock} unit)`
+    }));
 
     return createPortal(
         <div 
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30"
+            className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/30"
             onClick={onClose}
         >
             <div 
@@ -65,11 +110,11 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
                     <div className="relative z-10 flex items-center gap-4 pr-12">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10">
-                            {type === 'product' ? <Package className="w-6 h-6" /> : <Activity className="w-6 h-6" />}
+                            {type === 'product' ? <Package className="w-6 h-6" /> : type === 'material' ? <Beaker className="w-6 h-6" /> : <Activity className="w-6 h-6" />}
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {initialData ? 'Edit' : 'Tambah'} {type === 'product' ? 'Produk' : 'Treatment'}
+                                {initialData ? 'Edit' : 'Tambah'} {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
                                 Formulir Data Master
@@ -79,77 +124,94 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 </div>
 
                 {/* Form Section */}
-                <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto">
+                <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         
                         <div>
-                            <label className={labelClassName}>Nama {type === 'product' ? 'Produk' : 'Treatment'}</label>
+                            <label className={labelClassName}>Nama {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
                             <input
-                                required
                                 type="text"
                                 value={formState.name}
-                                onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                className={inputClassName}
-                                placeholder={`Masukkan nama ${type === 'product' ? 'produk' : 'treatment'}...`}
+                                onChange={(e) => handleChange('name', e.target.value)}
+                                className={getDynamicInputClass('name')}
+                                placeholder={`Masukkan nama ${type === 'product' ? 'produk' : type === 'racikan' ? 'racikan' : type === 'material' ? 'bahan' : 'treatment'}...`}
                             />
+                            {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        {type === 'treatment' && (
                             <div>
-                                <label className={labelClassName}>Kategori</label>
-                                <select
-                                    value={formState.category}
-                                    onChange={(e) => setFormState({ ...formState, category: e.target.value })}
-                                    className={inputClassName}
-                                >
-                                    {type === 'product' ? (
-                                        <>
-                                            <option value="Obat">Obat</option>
-                                            <option value="Skincare">Skincare</option>
-                                            <option value="Lainnya">Lainnya</option>
-                                        </>
-                                    ) : (
-                                        <option value="Treatment">Treatment</option>
-                                    )}
-                                </select>
+                                <CustomMultiSelect
+                                    label="Bahan yang digunakan"
+                                    placeholder="Pilih bahan..."
+                                    values={formState.bahan_ids}
+                                    onChange={(val) => handleChange('bahan_ids', val)}
+                                    options={materialOptions}
+                                    searchable={true}
+                                />
+                                <p className="text-[9px] font-bold text-primary/30 mt-2 px-1">Pilih satu atau lebih bahan yang dihabiskan dalam sesi treatment ini.</p>
                             </div>
+                        )}
+
+                        <div className={(type === 'product' || type === 'racikan' || type === 'material') ? "grid grid-cols-2 gap-4" : "block"}>
+                            {(type === 'product' || type === 'racikan' || type === 'material') && (
+                                <div>
+                                    <CustomSelect
+                                        label="Kategori"
+                                        value={formState.category}
+                                        onChange={(value) => handleChange('category', value)}
+                                        options={type === 'product' ? [
+                                            { value: 'Obat', label: 'Obat' },
+                                            { value: 'Skincare', label: 'Skincare' },
+                                            { value: 'Lainnya', label: 'Lainnya' },
+                                        ] : type === 'material' ? [
+                                            { value: 'Bahan Habis Pakai', label: 'Habis Pakai' },
+                                            { value: 'Alat Medis', label: 'Alat Medis' },
+                                            { value: 'Cairan', label: 'Cairan' },
+                                        ] : [
+                                            { value: 'Racikan', label: 'Racikan Khusus' }
+                                        ]}
+                                    />
+                                    {errors.category && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.category}</p>}
+                                </div>
+                            )}
                             
                             <div>
                                 <label className={labelClassName}>Harga (Rp)</label>
                                 <input
-                                    required
                                     type="number"
                                     value={formState.price}
-                                    onChange={(e) => setFormState({ ...formState, price: parseInt(e.target.value) || 0 })}
-                                    className={inputClassName}
+                                    onChange={(e) => handleChange('price', e.target.value === '' ? '' : Number(e.target.value))}
+                                    className={getDynamicInputClass('price')}
                                     placeholder="0"
                                 />
+                                {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.price}</p>}
                             </div>
                         </div>
 
-                        {type === 'product' && (
+                        {(type === 'product' || type === 'racikan' || type === 'material') && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className={labelClassName}>Stok Tersedia</label>
                                     <input
-                                        required
                                         type="number"
                                         value={formState.stock}
-                                        onChange={(e) => setFormState({ ...formState, stock: parseInt(e.target.value) || 0 })}
-                                        className={inputClassName}
+                                        onChange={(e) => handleChange('stock', e.target.value === '' ? '' : Number(e.target.value))}
+                                        className={getDynamicInputClass('stock')}
                                         placeholder="0"
                                     />
+                                    {errors.stock && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.stock}</p>}
                                 </div>
                                 <div>
                                     <label className={labelClassName}>Batas Minimal Stok</label>
                                     <input
-                                        required
                                         type="number"
                                         value={formState.minStock}
-                                        onChange={(e) => setFormState({ ...formState, minStock: parseInt(e.target.value) || 0 })}
-                                        className={inputClassName}
+                                        onChange={(e) => handleChange('minStock', e.target.value === '' ? '' : Number(e.target.value))}
+                                        className={getDynamicInputClass('minStock')}
                                         placeholder="5"
                                     />
+                                    {errors.minStock && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.minStock}</p>}
                                 </div>
                             </div>
                         )}
@@ -159,8 +221,8 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                             <input
                                 type="text"
                                 value={formState.image}
-                                onChange={(e) => setFormState({ ...formState, image: e.target.value })}
-                                className={`${inputClassName} text-[11px]`}
+                                onChange={(e) => handleChange('image', e.target.value)}
+                                className={`${getDynamicInputClass('image')} text-[11px]`}
                                 placeholder="https://..."
                             />
                         </div>

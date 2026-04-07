@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox } from 'lucide-react';
+import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox, ChevronDown, Beaker } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import WarehouseFormModal from '../../components/UI/WarehouseFormModal';
 import { createPortal } from 'react-dom';
 
 const ItemManagementPage = () => {
-    const { products, addProduct, updateProduct, deleteProduct, treatments, addTreatment, updateTreatment, deleteTreatment } = useMockData();
+    const { 
+        products, addProduct, updateProduct, deleteProduct, 
+        treatments, addTreatment, updateTreatment, deleteTreatment,
+        racikans, addRacikan, updateRacikan, deleteRacikan,
+        materials, addMaterial, updateMaterial, deleteMaterial
+    } = useMockData();
     const { showToast } = useToast();
     
     // Filter state: 'all', 'product', 'treatment'
@@ -18,11 +23,14 @@ const ItemManagementPage = () => {
     const [editingItem, setEditingItem] = useState(null);
     const [modalType, setModalType] = useState('product'); // to determine which form to show
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '', type: '' });
+    const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
     // Combine data
     const allItems = [
         ...products.map(p => ({ ...p, _type: 'product' })),
-        ...treatments.map(t => ({ ...t, _type: 'treatment' }))
+        ...treatments.map(t => ({ ...t, _type: 'treatment' })),
+        ...racikans.map(r => ({ ...r, _type: 'racikan' })),
+        ...materials.map(m => ({ ...m, _type: 'material' }))
     ];
 
     // Apply filters
@@ -70,13 +78,29 @@ const ItemManagementPage = () => {
                 addProduct(data);
                 showToast('Produk berhasil ditambahkan', 'success');
             }
-        } else {
+        } else if (modalType === 'treatment') {
             if (editingItem) {
                 updateTreatment(data);
                 showToast('Treatment berhasil diperbarui', 'success');
             } else {
                 addTreatment(data);
                 showToast('Treatment berhasil ditambahkan', 'success');
+            }
+        } else if (modalType === 'racikan') {
+            if (editingItem) {
+                updateRacikan(data);
+                showToast('Racikan berhasil diperbarui', 'success');
+            } else {
+                addRacikan(data);
+                showToast('Racikan berhasil ditambahkan', 'success');
+            }
+        } else if (modalType === 'material') {
+            if (editingItem) {
+                updateMaterial(data);
+                showToast('Bahan berhasil diperbarui', 'success');
+            } else {
+                addMaterial(data);
+                showToast('Bahan berhasil ditambahkan', 'success');
             }
         }
         setIsModalOpen(false);
@@ -87,9 +111,15 @@ const ItemManagementPage = () => {
         if (deleteConfirm.type === 'product') {
             deleteProduct(deleteConfirm.id);
             showToast('Produk berhasil dihapus', 'success');
-        } else {
+        } else if (deleteConfirm.type === 'treatment') {
             deleteTreatment(deleteConfirm.id);
             showToast('Treatment berhasil dihapus', 'success');
+        } else if (deleteConfirm.type === 'racikan') {
+            deleteRacikan(deleteConfirm.id);
+            showToast('Racikan berhasil dihapus', 'success');
+        } else if (deleteConfirm.type === 'material') {
+            deleteMaterial(deleteConfirm.id);
+            showToast('Bahan berhasil dihapus', 'success');
         }
         setDeleteConfirm({ open: false, id: null, name: '', type: '' });
     };
@@ -119,21 +149,77 @@ const ItemManagementPage = () => {
                     <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Kelola stok produk dan layanan treatment klinik</p>
                 </div>
                 
-                <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
+                <div className="w-full lg:w-auto relative">
                     <button
-                        onClick={() => openAddModal('product')}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        onClick={() => setIsAddDropdownOpen(!isAddDropdownOpen)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                     >
                         <Plus className="w-4 h-4" />
-                        <span>Tambah Produk</span>
+                        <span>Tambah Item</span>
+                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isAddDropdownOpen ? 'rotate-180' : ''}`} />
                     </button>
-                    <button
-                        onClick={() => openAddModal('treatment')}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Tambah Treatment</span>
-                    </button>
+
+                    {/* Dropdown Menu */}
+                    {isAddDropdownOpen && (
+                        <div className="absolute top-full right-0 mt-3 w-full sm:w-64 bg-white rounded-3xl shadow-2xl border border-primary/5 py-3 z-[80] animate-fade-in-up origin-top-right overflow-hidden">
+                            <button
+                                onClick={() => { openAddModal('product'); setIsAddDropdownOpen(false); }}
+                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Package className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Produk</p>
+                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Stok & Barang</p>
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => { openAddModal('treatment'); setIsAddDropdownOpen(false); }}
+                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Activity className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Treatment</p>
+                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Layanan Klinik</p>
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => { openAddModal('racikan'); setIsAddDropdownOpen(false); }}
+                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Activity className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Racikan</p>
+                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Obat Campuran</p>
+                                </div>
+                            </button>
+                            <button
+                                onClick={() => { openAddModal('material'); setIsAddDropdownOpen(false); }}
+                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                            >
+                                <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                    <Beaker className="w-5 h-5" />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Bahan</p>
+                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Bahan Treatment</p>
+                                </div>
+                            </button>
+                        </div>
+                    )}
+                    
+                    {/* Backdrop for click away */}
+                    {isAddDropdownOpen && (
+                        <div 
+                            className="fixed inset-0 z-[75]" 
+                            onClick={() => setIsAddDropdownOpen(false)}
+                        />
+                    )}
                 </div>
             </div>
 
@@ -165,11 +251,18 @@ const ItemManagementPage = () => {
                         <span className="text-xs font-black uppercase tracking-widest">Treatment</span>
                     </button>
                     <button
-                        onClick={() => toggleFilter('treatment')}
-                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'treatment' ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/20 scale-105' : 'bg-green-50/50 border-green-100 text-green-600 hover:bg-green-50'}`}
+                        onClick={() => toggleFilter('racikan')}
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'racikan' ? 'bg-purple-500 border-purple-500 text-white shadow-lg shadow-purple-500/20 scale-105' : 'bg-purple-50/50 border-purple-100 text-purple-600 hover:bg-purple-50'}`}
                     >
                         <Activity className="w-4 h-4" />
                         <span className="text-xs font-black uppercase tracking-widest">Racikan</span>
+                    </button>
+                    <button
+                        onClick={() => toggleFilter('material')}
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'material' ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20 scale-105' : 'bg-orange-50/50 border-orange-100 text-orange-600 hover:bg-orange-50'}`}
+                    >
+                        <Beaker className="w-4 h-4" />
+                        <span className="text-xs font-black uppercase tracking-widest">Bahan</span>
                     </button>
                 </div>
 
@@ -194,9 +287,9 @@ const ItemManagementPage = () => {
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-8 py-6">Item</th>
-                                <th className="px-8 py-6">Kategori</th>
-                                <th className="px-8 py-6">Harga</th>
-                                <th className="px-8 py-6">Stok (Produk)</th>
+                                <th className="px-8 py-6 text-primary/40">Kategori</th>
+                                <th className="px-8 py-6 text-primary/40">Harga</th>
+                                <th className="px-8 py-6 text-primary/40">Stok</th>
                                 <th className="px-8 py-6 text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -211,11 +304,28 @@ const ItemManagementPage = () => {
                                             <div>
                                                 <p className="text-sm font-black text-primary tracking-tight">{item.name}</p>
                                                 <div className="flex items-center gap-2 mt-1">
-                                                    <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${item._type === 'product' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
-                                                        {item._type === 'product' ? 'Produk' : 'Treatment'}
+                                                    <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${
+                                                        item._type === 'product' ? 'bg-blue-50 text-blue-600' : 
+                                                        item._type === 'racikan' ? 'bg-purple-50 text-purple-600' :
+                                                        item._type === 'material' ? 'bg-orange-50 text-orange-600' :
+                                                        'bg-green-50 text-green-600'
+                                                    }`}>
+                                                        {item._type === 'product' ? 'Produk' : item._type === 'racikan' ? 'Racikan' : item._type === 'material' ? 'Bahan' : 'Treatment'}
                                                     </span>
                                                     <span className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{item.id}</span>
                                                 </div>
+                                                {item._type === 'treatment' && item.bahan_ids?.length > 0 && (
+                                                    <div className="flex flex-wrap gap-1 mt-2">
+                                                        {item.bahan_ids.map(bid => {
+                                                            const m = materials.find(mat => mat.id === bid);
+                                                            return m ? (
+                                                                <span key={bid} className="text-[8px] font-bold bg-secondary/30 text-primary/60 px-1.5 py-0.5 rounded-md">
+                                                                    {m.name}
+                                                                </span>
+                                                            ) : null;
+                                                        })}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </td>
@@ -224,7 +334,7 @@ const ItemManagementPage = () => {
                                     </td>
                                     <td className="px-8 py-6 font-bold text-sm text-primary">Rp {item.price.toLocaleString('id-ID')}</td>
                                     <td className="px-8 py-6">
-                                        {item._type === 'product' ? (
+                                        {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
                                             <div className="flex items-center gap-2">
                                                 <span className={`font-black text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
                                                 {item.stock <= (item.minStock || 5) && (
@@ -269,17 +379,34 @@ const ItemManagementPage = () => {
                                 </div>
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2 mb-1">
-                                        <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${item._type === 'product' ? 'bg-blue-50 text-blue-600' : 'bg-green-50 text-green-600'}`}>
-                                            {item._type === 'product' ? 'Produk' : 'Treatment'}
+                                        <span className={`px-2 py-0.5 rounded-lg text-[8px] font-black uppercase tracking-widest ${
+                                            item._type === 'product' ? 'bg-blue-50 text-blue-600' : 
+                                            item._type === 'racikan' ? 'bg-purple-50 text-purple-600' :
+                                            item._type === 'material' ? 'bg-orange-50 text-orange-600' :
+                                            'bg-green-50 text-green-600'
+                                        }`}>
+                                            {item._type === 'product' ? 'Produk' : item._type === 'racikan' ? 'Racikan' : item._type === 'material' ? 'Bahan' : 'Treatment'}
                                         </span>
                                         <span className="text-[10px] font-black text-primary/30 uppercase tracking-widest">{item.id}</span>
                                     </div>
                                     <h4 className="text-base font-black text-primary tracking-tight leading-tight mb-2">{item.name}</h4>
-                                    <span className="text-xs font-bold text-primary/60 block">{item.category}</span>
+                                    <span className="text-xs font-bold text-primary/60 block mb-2">{item.category}</span>
+                                    {item._type === 'treatment' && item.bahan_ids?.length > 0 && (
+                                        <div className="flex flex-wrap gap-1 mt-1">
+                                            {item.bahan_ids.map(bid => {
+                                                const m = materials.find(mat => mat.id === bid);
+                                                return m ? (
+                                                    <span key={bid} className="text-[7px] font-black bg-secondary/50 text-primary/40 px-1 py-0.5 rounded uppercase tracking-tighter">
+                                                        {m.name}
+                                                    </span>
+                                                ) : null;
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             
-                            {item._type === 'product' ? (
+                             {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
                                 <div className="grid grid-cols-2 gap-3 bg-gray-50 p-4 rounded-2xl border border-primary/5">
                                     <div className="space-y-1">
                                         <p className="text-[8px] font-black text-primary/40 uppercase tracking-widest">Harga</p>

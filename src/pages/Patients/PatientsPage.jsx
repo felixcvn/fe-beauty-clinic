@@ -12,7 +12,7 @@ const PatientsPage = () => {
     const { showToast } = useToast();
     const navigate = useNavigate();
     const { user } = useAuth();
-    const isOwner = user?.role === 'Owner';
+    const isOwner = ['Owner', 'Komisaris'].includes(user?.role);
     const [searchTerm, setSearchTerm] = useState('');
     const [memberFilter, setMemberFilter] = useState('Semua Tipe');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
