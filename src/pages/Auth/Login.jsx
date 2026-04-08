@@ -47,7 +47,7 @@ const Login = () => {
                 {/* Form Side */}
                 <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center relative bg-white">
                     <div className="text-center mb-8">
-                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 overflow-hidden">
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 overflow-hidden bg-white">
                             <img src={logo} alt="Personal Beauty Logo" className="w-full h-full object-cover" />
                         </div>
                         <h1 className="text-2xl font-bold text-primary">Selamat Datang!</h1>
