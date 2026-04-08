@@ -13,7 +13,7 @@ import { ToastProvider } from './context/ToastContext';
 import Toast from './components/UI/Toast';
 
 import PatientDetail from './pages/MedicalRecords/PatientDetail';
-import RecordForm from './pages/MedicalRecords/RecordForm';
+
 
 import PatientsPage from './pages/Patients/PatientsPage';
 import PatientDetailPage from './pages/Patients/PatientDetailPage'; 
