@@ -198,25 +198,6 @@ const ProfilePage = () => {
                     ) : (
                         <p className="text-sm font-semibold text-primary/50">{form.position || user?.role}</p>
                     )}
-
-                    {/* Bio */}
-                    <div className="w-full">
-                        <p className="text-xs font-bold text-primary/30 uppercase tracking-widest mb-2">About</p>
-                        {isEditing ? (
-                            <textarea
-                                name="bio"
-                                value={form.bio}
-                                onChange={handleChange}
-                                rows={3}
-                                placeholder="Write something about yourself..."
-                                className="w-full text-sm text-primary/70 bg-secondary/60 border border-primary/10 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 transition resize-none"
-                            />
-                        ) : (
-                            <p className="text-sm text-primary/50 leading-relaxed">
-                                {form.bio || <span className="italic text-primary/25">No bio added yet.</span>}
-                            </p>
-                        )}
-                    </div>
                 </div>
 
                 {/* Right: Info Card */}

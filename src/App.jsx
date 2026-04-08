@@ -87,7 +87,6 @@ function App() {
                                         <Routes>
                                             <Route path="/" element={<RoleProtectedRoute><DashboardSwitcher /></RoleProtectedRoute>} />
                                             <Route path="/medical-records" element={<RoleProtectedRoute><PatientList /></RoleProtectedRoute>} />
-                                            <Route path="/medical-records/new" element={<RoleProtectedRoute><RecordForm /></RoleProtectedRoute>} />
                                             <Route path="/medical-records/:id" element={<RoleProtectedRoute><PatientDetail /></RoleProtectedRoute>} />
                                             <Route path="/patients" element={<RoleProtectedRoute><PatientsPage /></RoleProtectedRoute>} />
                                             <Route path="/patients/new" element={<RoleProtectedRoute><PatientForm /></RoleProtectedRoute>} />

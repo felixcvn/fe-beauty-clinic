@@ -160,16 +160,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
                 {/* Bottom Actions */}
                 <div className="p-8 bg-white border-t border-primary/5 flex gap-4 shrink-0">
-                    <button className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-secondary/20 text-primary hover:bg-secondary/40 transition-all font-black text-[10px] uppercase tracking-widest border border-primary/5 group">
+                    <button className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group">
                         <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
                         <span>Cetak Struk Resmi</span>
-                    </button>
-                    <button 
-                        onClick={onClose}
-                        className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
-                    >
-                        <span>Kembali ke List</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
                 </div>
             </div>

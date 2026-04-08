@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Calendar, User, AlertCircle, Clock, FileText, ArrowLeft } from 'lucide-react';
+import { Calendar, User, AlertCircle, Clock, FileText, ArrowLeft, Plus } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import ReportModal from '../../components/UI/ReportModal';
+import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
 
 const PatientDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const { getPatient } = useMockData();
     const [selectedRecord, setSelectedRecord] = useState(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     // Fallback if patient not found
     const patient = getPatient(id);
@@ -26,6 +28,14 @@ const PatientDetail = () => {
 
     return (
         <div className="space-y-10 animate-fade-in pb-12">
+            {/* Add Record Modal */}
+            <MedicalRecordFormModal
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                patientId={patient.id}
+                patientName={patient.name}
+            />
+
             {/* Report Modal */}
             <ReportModal
                 isOpen={!!selectedRecord}
@@ -76,8 +86,17 @@ const PatientDetail = () => {
                     <h3 className="text-2xl md:text-3xl font-black text-primary tracking-tighter flex items-center gap-3">
                         <Clock className="w-7 h-7 text-primary/20" /> Riwayat Medis
                     </h3>
-                    <div className="px-4 py-2 bg-primary/5 rounded-full text-[10px] font-black uppercase tracking-widest text-primary/50">
-                        {patient.history?.length || 0} Total Rekaman
+                    <div className="flex items-center gap-4 w-full sm:w-auto">
+                        <div className="hidden md:block px-4 py-2 bg-primary/5 rounded-full text-[10px] font-black uppercase tracking-widest text-primary/50">
+                            {patient.history?.length || 0} Total Rekaman
+                        </div>
+                        <button
+                            onClick={() => setIsAddModalOpen(true)}
+                            className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-3 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <Plus className="w-3.5 h-3.5" />
+                            <span>Tambah Rekam Medis</span>
+                        </button>
                     </div>
                 </div>
 

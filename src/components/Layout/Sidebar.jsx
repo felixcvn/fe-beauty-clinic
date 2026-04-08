@@ -155,13 +155,6 @@ const Sidebar = ({ isOpen, toggle }) => {
 
                 {/* 3. FOOTER (Fixed/Tetap di bawah berkat flex-col & shrink-0) */}
                 <div className="border-t border-gray-100 px-3 py-4 space-y-0.5 shrink-0 bg-white">
-                    <NavLink 
-                        to="/change-password" 
-                        onClick={handleItemClick}
-                        className={({ isActive }) => `flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-gray-500 hover:text-primary hover:bg-primary/5'}`}>
-                        <KeyIcon className="w-5 h-5 flex-shrink-0" />
-                        <span>Ganti Password</span>
-                    </NavLink>
                     <button 
                         onClick={() => {
                             logout();

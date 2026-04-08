@@ -3,12 +3,14 @@ import { Search, Plus, FileText, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import CustomSelect from '../../components/UI/CustomSelect';
+import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
 
 const PatientList = () => {
     const { patients } = useMockData();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All Status');
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const filteredPatients = patients.filter(patient => {
         const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -19,13 +21,17 @@ const PatientList = () => {
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
+            <MedicalRecordFormModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+            />
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Rekam Medis</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola History Pasien dan Perawatan</p>
                 </div>
                 <button
-                    onClick={() => navigate('/medical-records/new')}
+                    onClick={() => setIsModalOpen(true)}
                     className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                 >
                     <Plus className="w-4 h-4" />

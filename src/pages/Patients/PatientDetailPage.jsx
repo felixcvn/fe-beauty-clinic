@@ -1,30 +1,39 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Calendar, FileText, Gift } from 'lucide-react';
+import { useMockData } from '../../context/MockDataContext';
 
 const PatientDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('produk');
+    const { getPatient } = useMockData();
+
+    const patient = getPatient(id);
+
+    if (!patient) {
+        return (
+            <div className="flex flex-col items-center justify-center h-64 text-primary/40">
+                <FileText className="w-12 h-12 mb-3" />
+                <p className="font-bold text-sm">Pasien tidak ditemukan.</p>
+            </div>
+        );
+    }
 
     const patientDetail = {
-        name: "ALIFIAH AYU TIARA (TIARA)",
-        tier: "GOLD",
-        noMember: "1001212239409",
-        noRM: "AL-0989/L-000056",
-        noIdentitas: "3509196809000005",
-        tanggalLahir: "28 September 2000"
+        name: patient.namaLengkap || patient.name,
+        tier: patient.tipeMember || '-',
+        noMember: patient.noMember || '-',
+        noRM: patient.noRM || '-',
+        noIdentitas: patient.noIdentitas || '-',
+        tanggalLahir: patient.tanggalLahir || '-',
     };
 
-    const pointHistory = [
-        { date: "2024-01-01", desc: "Penyesuaian Point akhir tahun", change: 0, total: 0 },
-        { date: "2023-12-11", desc: "Perolehan point dari treatment #PB-2311091011", change: 1, total: 8 }
-    ];
+    // Gunakan data riwayat point dari pasien jika ada, atau array kosong
+    const pointHistory = patient.pointHistory || [];
 
-    const productHistory = [
-        { id: "PBL-20260123008", date: "2026-01-23", total: 189687, items: ["PAKET 5IN1 BRIGHTENING SET"] },
-        { id: "PBL-20240827013", date: "2024-08-27", total: 105915, items: ["AHA BODY CREAM"] }
-    ];
+    // Gunakan data riwayat produk dari pasien jika ada, atau array kosong
+    const productHistory = patient.productHistory || [];
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -52,7 +61,11 @@ const PatientDetailPage = () => {
                         
                         <div className="text-center mb-8 relative z-10">
                             <h3 className="text-xl font-black text-primary">{patientDetail.name}</h3>
-                            <span className="inline-block mt-2 px-4 py-1.5 bg-accent-gold/10 text-accent-gold text-[10px] font-black uppercase tracking-widest rounded-full">
+                            <span className={`inline-block mt-2 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full ${
+                                patientDetail.tier === 'PLATINUM' ? 'bg-slate-100 text-slate-600' :
+                                patientDetail.tier === 'GOLD' ? 'bg-accent-gold/10 text-accent-gold' :
+                                'bg-gray-100 text-gray-500'
+                            }`}>
                                 {patientDetail.tier} MEMBER
                             </span>
                         </div>
@@ -89,16 +102,18 @@ const PatientDetailPage = () => {
                                 <Gift className="w-5 h-5 text-accent-gold" />
                                 Riwayat Point
                             </h3>
-                            <span className="text-xs font-black text-primary/60">Total Point: <span className="text-accent-gold">0</span></span>
+                            <span className="text-xs font-black text-primary/60">Total Point: <span className="text-accent-gold">{patient.totalPoint ?? 0}</span></span>
                         </div>
                         <div className="p-6 space-y-4">
-                            {pointHistory.map((pt, index) => (
+                            {pointHistory.length > 0 ? pointHistory.map((pt, index) => (
                                 <div key={index} className="flex justify-between items-start gap-4 text-xs font-bold border-b border-primary/5 pb-4 last:border-0 last:pb-0">
                                     <div className="text-teal-500 shrink-0">{pt.date}</div>
                                     <div className="flex-1 text-primary/60">{pt.desc} ({pt.change})</div>
                                     <div className="text-primary font-black shrink-0">({pt.total})</div>
                                 </div>
-                            ))}
+                            )) : (
+                                <p className="text-xs text-primary/40 font-bold text-center py-4">Belum ada riwayat point.</p>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -124,7 +139,7 @@ const PatientDetailPage = () => {
 
                     <div className="p-6 flex-1 bg-gray-50/50 space-y-6">
                         {activeTab === 'produk' ? (
-                            productHistory.map((trx, index) => (
+                            productHistory.length > 0 ? productHistory.map((trx, index) => (
                                 <div key={index} className="bg-white rounded-2xl border border-primary/5 shadow-sm overflow-hidden">
                                     <div className="bg-teal-600 px-4 py-2 text-white font-black text-[10px] tracking-widest inline-block rounded-br-2xl mb-2">
                                         {trx.id}
@@ -144,7 +159,12 @@ const PatientDetailPage = () => {
                                         </ul>
                                     </div>
                                 </div>
-                            ))
+                            )) : (
+                                <div className="flex flex-col items-center justify-center h-48 text-primary/30">
+                                    <FileText className="w-12 h-12 mb-3" />
+                                    <p className="font-bold text-sm tracking-wide">Belum ada riwayat produk.</p>
+                                </div>
+                            )
                         ) : (
                             <div className="flex flex-col items-center justify-center h-48 text-primary/30">
                                 <FileText className="w-12 h-12 mb-3" />
