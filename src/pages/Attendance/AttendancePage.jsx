@@ -431,6 +431,64 @@ const AttendancePage = () => {
                             </table>
                         </div>
 
+                        {/* Mobile Card View (Attendance) */}
+                        <div className="md:hidden divide-y divide-primary/5">
+                            {currentAttendance.map((record) => (
+                                <div 
+                                    key={record.id} 
+                                    onClick={() => handleOpenDetail(record)}
+                                    className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5">
+                                                {record.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <h4 className="text-sm font-black text-primary tracking-tight">{record.name}</h4>
+                                                <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{record.role}</p>
+                                            </div>
+                                        </div>
+                                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${getStatusStyle(record.status)}`}>
+                                            {record.status === 'Hadir' ? <CheckCircle2 className="w-2 h-2" /> : record.status === 'Terlambat' ? <Clock className="w-2 h-2" /> : <XCircle className="w-2 h-2" />}
+                                            {record.status}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-3 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
+                                        <div className="space-y-1">
+                                            <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Masuk</p>
+                                            <p className={`text-xs font-bold ${record.checkIn !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkIn}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Keluar</p>
+                                            <p className={`text-xs font-bold ${record.checkOut !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkOut}</p>
+                                        </div>
+                                        {canAccessReports && (
+                                            <div className="col-span-2 pt-2 border-t border-primary/5 flex justify-between items-center">
+                                                <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest">Durasi</p>
+                                                <p className="text-xs font-bold text-primary/60">{record.checkIn !== '--:--' && record.checkOut !== '--:--' ? '8j 15m' : '-'}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center text-[10px] font-bold text-primary/30 px-1">
+                                        <span>{record.date}</span>
+                                        <div className="flex items-center gap-1">
+                                            <span>Detail</span>
+                                            <ChevronRight className="w-3 h-3" />
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {finalAttendance.length === 0 && (
+                                <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">
+                                    Tidak ada data kehadiran
+                                </div>
+                            )}
+                        </div>
+
+
                         <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                             <span>Menampilkan {finalAttendance.length === 0 ? 0 : idxFirstAttendance + 1} hingga {Math.min(idxLastAttendance, finalAttendance.length)} dari {finalAttendance.length} data</span>
                             <div className="flex gap-3 w-full sm:w-auto">
@@ -517,7 +575,8 @@ const AttendancePage = () => {
                                         {canApproveLeave && (
                                             <td className="px-8 py-6 text-center">
                                                 <button
-                                                    onClick={() => {
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
                                                         setSelectedLeaveRequest(req);
                                                         setIsApprovalModalOpen(true);
                                                     }}
@@ -533,6 +592,85 @@ const AttendancePage = () => {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Mobile Card View (Leave Requests) */}
+                    <div className="md:hidden divide-y divide-primary/5">
+                        {currentLeave.map((req) => (
+                            <div 
+                                key={req.id} 
+                                onClick={() => {
+                                    setSelectedLeaveRequest(req);
+                                    setIsApprovalModalOpen(true);
+                                }}
+                                className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary border border-primary/5">
+                                            {req.staffName.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div>
+                                            <p className="text-sm font-black text-primary tracking-tight">{req.staffName}</p>
+                                            <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{req.role}</p>
+                                        </div>
+                                    </div>
+                                    <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${
+                                        req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
+                                        req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
+                                        'bg-yellow-100 text-yellow-700'
+                                    }`}>
+                                        {req.status === 'Disetujui' ? <CheckCircle2 className="w-2 h-2" /> :
+                                         req.status === 'Ditolak' ? <XCircle className="w-2 h-2" /> :
+                                         <Clock className="w-2 h-2" />}
+                                        {req.status}
+                                    </span>
+                                </div>
+
+                                <div className="bg-gray-50/50 p-4 rounded-2xl border border-primary/5 space-y-3">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Jenis</span>
+                                        <span className="text-[10px] font-black text-primary/60 uppercase tracking-widest">{req.type}</span>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-primary/5">
+                                        <div className="space-y-0.5">
+                                            <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Mulai</p>
+                                            <p className="text-[10px] font-bold text-primary">{req.startDate}</p>
+                                        </div>
+                                        <div className="space-y-0.5">
+                                            <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Selesai</p>
+                                            <p className="text-[10px] font-bold text-primary">{req.endDate}</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="px-1">
+                                    <p className="text-[8px] font-black text-primary/20 uppercase tracking-widest mb-1 leading-none">Alasan</p>
+                                    <p className="text-[10px] font-bold text-primary/60 line-clamp-2 leading-relaxed">{req.reason}</p>
+                                </div>
+
+                                <div className="flex justify-end pt-2">
+                                    {canApproveLeave && (
+                                        <button 
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                setSelectedLeaveRequest(req);
+                                                setIsApprovalModalOpen(true);
+                                            }}
+                                            className="flex items-center gap-2 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary shadow-sm"
+                                        >
+                                            <Edit3 className="w-3 h-3" /> Proses
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                        {filteredLeave.length === 0 && (
+                            <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">
+                                Tidak ada data pengajuan
+                            </div>
+                        )}
+                    </div>
+
 
                     <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                         <span>Menampilkan {filteredLeave.length === 0 ? 0 : idxFirstLeave + 1} hingga {Math.min(idxLastLeave, filteredLeave.length)} dari {filteredLeave.length} data</span>

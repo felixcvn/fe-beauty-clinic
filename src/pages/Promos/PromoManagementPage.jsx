@@ -259,6 +259,68 @@ const PromoManagementPage = () => {
                     </table>
                 </div>
 
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-primary/5">
+                    {currentPromos.map((promo) => (
+                        <div key={promo.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-start">
+                                <div className="flex items-center gap-4">
+                                    <div className="w-10 h-10 rounded-xl bg-accent-gold/10 flex items-center justify-center text-accent-gold border border-accent-gold/20 shrink-0">
+                                        <Tag className="w-4 h-4" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold text-blue-500 text-sm tracking-tight">{promo.code}</div>
+                                        <div className="font-black text-primary text-xs mt-0.5">{promo.name}</div>
+                                    </div>
+                                </div>
+                                <span className={`font-black text-[9px] tracking-widest uppercase px-2 py-1 rounded-md ${getStatusStyle(promo.status)}`}>
+                                    {promo.status}
+                                </span>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-3 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
+                                <div className="space-y-1">
+                                    <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Nilai Diskon</p>
+                                    <p className="text-sm font-black text-primary">
+                                        {promo.type === 'Persen' ? `${promo.value}%` : `Rp ${Number(promo.value).toLocaleString('id-ID')}`}
+                                    </p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Kuota (Pakai)</p>
+                                    <p className="text-sm font-black text-primary/60">{promo.used} / {promo.quota}</p>
+                                </div>
+                                <div className="col-span-2 pt-2 border-t border-primary/5 flex justify-between items-center">
+                                    <div className="space-y-0.5">
+                                        <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Masa Berlaku</p>
+                                        <p className="text-[10px] font-bold text-primary/60">{promo.startDate} - {promo.endDate}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-3 mt-4">
+                                <button
+                                    onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
+                                >
+                                    <Edit3 className="w-3.5 h-3.5" /> Edit
+                                </button>
+                                <button
+                                    onClick={() => handleOpenDelete(promo)}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
+                                >
+                                    <Trash2 className="w-3.5 h-3.5" /> Hapus
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                    {filteredPromos.length === 0 && (
+                        <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">
+                            Tidak ada data promo
+                        </div>
+                    )}
+                </div>
+
+
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Menampilkan {filteredPromos.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredPromos.length)} dari {filteredPromos.length} data</span>
                     <div className="flex gap-3 w-full sm:w-auto">

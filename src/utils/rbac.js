@@ -10,11 +10,11 @@ export const ROLES = {
 
 export const ROLE_PERMISSIONS = {
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
-    [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications'],
+    [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations'],
     [ROLES.HRD]: ['/', '/staff', '/attendance'],
     [ROLES.MANAGER]: ['/', '/promos', '/attendance'],
-    [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance'],
-    [ROLES.KOMISARIS]: ['/', '/patients', '/staff', '/reports', '/attendance'],
+    [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
+    [ROLES.KOMISARIS]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
 };
 

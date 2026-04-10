@@ -329,7 +329,7 @@ const ReportsPage = () => {
                         <input type="text" placeholder="Cari nota, pasien..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-primary/5 border-none outline-none text-primary placeholder:text-primary/30 font-bold text-xs focus:ring-4 focus:ring-primary/10 transition-all" />
                     </div>
                 </div>
-                <div className="overflow-x-auto scrollbar-hide">
+                <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5 bg-gray-50/50">
@@ -367,6 +367,44 @@ const ReportsPage = () => {
                         </tbody>
                     </table>
                 </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden divide-y divide-primary/5">
+                    {filteredTransactions.map((trx, idx) => (
+                        <div key={trx.id || idx} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{trx.id}</span>
+                                    <h4 className="text-sm font-black text-primary tracking-tight mt-0.5">{trx.patient}</h4>
+                                </div>
+                                <span className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${trx.status === 'Lunas' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
+                                    {trx.status}
+                                </span>
+                            </div>
+
+                            <div className="bg-gray-50/50 p-4 rounded-2xl border border-primary/5 space-y-3">
+                                <div className="flex justify-between items-center">
+                                    <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan / Produk</span>
+                                    <span className="text-[10px] font-bold text-primary/60">{trx.treatment}</span>
+                                </div>
+                                <div className="flex justify-between items-center pt-2 border-t border-primary/5">
+                                    <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Total Biaya</span>
+                                    <span className="text-sm font-black text-primary">Rp {(trx.amount).toLocaleString('id-ID')}</span>
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center text-[10px] font-bold text-primary/30 px-1">
+                                <span>{trx.date}</span>
+                            </div>
+                        </div>
+                    ))}
+                    {filteredTransactions.length === 0 && (
+                        <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">
+                            Tidak ada data transaksi
+                        </div>
+                    )}
+                </div>
+
             </div>
         </div>
     );

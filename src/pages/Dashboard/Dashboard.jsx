@@ -1,9 +1,14 @@
-import React from 'react';
-import { Users, DollarSign, CalendarCheck, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Users, DollarSign, CalendarCheck, TrendingUp, Plus } from 'lucide-react';
 import StatsCard from './StatsCard';
 import AnalysisChart from './AnalysisChart';
+import { useAuth } from '../../context/AuthContext';
+import { useMockData } from '../../context/MockDataContext';
 
 const Dashboard = () => {
+    const { user } = useAuth();
+    const { bookings } = useMockData();
+
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
@@ -11,7 +16,7 @@ const Dashboard = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Dashboard</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse"></span>
-                        Welcome back, <span className="text-primary/70">Dr. Sarah Smith</span>
+                        Welcome back, <span className="text-primary/70">{user?.name || 'User'}</span>
                     </p>
                 </div>
                 <button className="w-full sm:w-auto px-6 py-3 md:py-4 bg-primary text-secondary rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300">
@@ -58,17 +63,14 @@ const Dashboard = () => {
 
                 <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
                     <div className="flex justify-between items-center mb-10">
-                        <h3 className="text-xl font-black text-primary tracking-tight">Appointments</h3>
-                        <span className="text-accent-gold text-xs font-black uppercase tracking-widest">Today</span>
+                        <div>
+                            <h3 className="text-xl font-black text-primary tracking-tight">Appointments</h3>
+                            <span className="text-accent-gold text-[10px] font-black uppercase tracking-widest mt-1 block">Today</span>
+                        </div>
                     </div>
 
                     <div className="space-y-5 flex-1">
-                        {[
-                            { name: 'Emma Watson', treatment: 'Skin Care', time: '10:00', status: 'Confirmed' },
-                            { name: 'James Wilson', treatment: 'Dermatology', time: '11:15', status: 'Waiting' },
-                            { name: 'Sarah Parker', treatment: 'Botox', time: '14:30', status: 'Confirmed' },
-                            { name: 'Robert Fox', treatment: 'Consultation', time: '16:00', status: 'Menunggu' }
-                        ].map((item, index) => (
+                        {bookings.slice(0, 4).map((item, index) => (
                             <div key={index} className="flex items-center gap-4 p-4 hover:bg-primary/5 rounded-3xl transition-all duration-500 group cursor-pointer border border-transparent hover:border-primary/5 hover:translate-x-1">
                                 <div className="w-14 h-14 rounded-2xl bg-secondary shadow-sm flex flex-col items-center justify-center text-primary border border-primary/5 group-hover:bg-primary group-hover:text-secondary group-hover:border-primary transition-all duration-500">
                                     <span className="text-xs font-black leading-none">{item.time.split(':')[0]}</span>

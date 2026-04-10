@@ -6,6 +6,7 @@ import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from '../../components/UI/CustomSelect';
 import PatientEditModal from '../../components/UI/PatientEditModal';
+import BookingFormModal from '../../components/UI/BookingFormModal';
 
 const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();
@@ -16,7 +17,18 @@ const PatientsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [memberFilter, setMemberFilter] = useState('Semua Tipe');
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState(null);
+    const { addBooking } = useMockData();
+
+    const isCS = user?.role === 'Customer Service';
+    const isOwnerOrKomisaris = ['Owner', 'Komisaris'].includes(user?.role);
+
+    const handleSaveBooking = (bookingData) => {
+        addBooking(bookingData);
+        showToast('Booking berhasil ditambahkan!', 'success');
+        setIsBookingModalOpen(false);
+    };
 
     const handleSaveForm = (formData) => {
         if (selectedPatient) {
@@ -82,15 +94,26 @@ const PatientsPage = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Data Pasien</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola seluruh data pasien terdaftar di klinik</p>
                 </div>
-                {!isOwner && (
-                    <button
-                        onClick={handleOpenAdd}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Daftar Pasien Baru</span>
-                    </button>
-                )}
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    {isCS && (
+                        <button
+                            onClick={() => setIsBookingModalOpen(true)}
+                            className="flex items-center justify-center gap-2 bg-primary text-secondary border border-primary/10 px-6 py-4 rounded-2xl hover:scale-105 hover:shadow-xl active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Tambah Booking</span>
+                        </button>
+                    )}
+                    {!isOwnerOrKomisaris && (
+                        <button
+                            onClick={handleOpenAdd}
+                            className="flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Daftar Pasien Baru</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
@@ -285,6 +308,12 @@ const PatientsPage = () => {
                 onClose={() => setIsFormModalOpen(false)}
                 onSave={handleSaveForm}
                 initialData={selectedPatient}
+            />
+
+            <BookingFormModal 
+                isOpen={isBookingModalOpen}
+                onClose={() => setIsBookingModalOpen(false)}
+                onSave={handleSaveBooking}
             />
         </div>
     );

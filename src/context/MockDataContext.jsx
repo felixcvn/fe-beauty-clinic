@@ -178,6 +178,18 @@ export const MockDataProvider = ({ children }) => {
         setStaff(prev => prev.filter(s => s.id !== id));
     };
 
+    const [bookings, setBookings] = useState([
+        { id: 'BK-001', name: 'Emma Watson', treatment: 'Skin Care', time: '10:00', status: 'Confirmed', phone: '081234567890', broughtByStaff: 'Budi Santoso', notes: 'Routine checkup' },
+        { id: 'BK-002', name: 'James Wilson', treatment: 'Dermatology', time: '11:15', status: 'Waiting', phone: '081298765432', broughtByStaff: 'Ayu Lestari', notes: 'First visit' },
+        { id: 'BK-003', name: 'Sarah Parker', treatment: 'Botox', time: '14:30', status: 'Confirmed', phone: '081311223344', broughtByStaff: 'Budi Santoso', notes: 'Top up' },
+        { id: 'BK-004', name: 'Robert Fox', treatment: 'Consultation', time: '16:00', status: 'Menunggu', phone: '081599001122', broughtByStaff: 'Dewi Rahmawati', notes: 'New patient' }
+    ]);
+
+    const addBooking = (bookingData) => {
+        const id = `BK-${String(bookings.length + 1).padStart(3, '0')}`;
+        setBookings(prev => [{ ...bookingData, id, status: 'Waiting' }, ...prev]);
+    };
+
     return (
         <MockDataContext.Provider value={{ 
             patients, addPatient, updatePatient, addRecord, getPatient,
@@ -185,7 +197,8 @@ export const MockDataProvider = ({ children }) => {
             treatments, addTreatment, updateTreatment, deleteTreatment,
             racikans, addRacikan, updateRacikan, deleteRacikan,
             materials, addMaterial, updateMaterial, deleteMaterial,
-            staff, addStaff, updateStaff, deleteStaff
+            staff, addStaff, updateStaff, deleteStaff,
+            bookings, addBooking
         }}>
             {children}
         </MockDataContext.Provider>

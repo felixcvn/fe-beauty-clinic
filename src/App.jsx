@@ -32,6 +32,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 import WarehouseDashboard from './pages/Warehouse/WarehouseDashboard';
 import ItemManagementPage from './pages/Warehouse/ItemManagementPage';
 import PromoManagementPage from './pages/Promos/PromoManagementPage';
+import ReservationsPage from './pages/Reservations/ReservationsPage';
 
 import { hasPermission } from './utils/rbac';
 
@@ -96,6 +97,7 @@ function App() {
                                             <Route path="/sales/pos" element={<RoleProtectedRoute><POSPage /></RoleProtectedRoute>} />
                                             <Route path="/promos" element={<RoleProtectedRoute><PromoManagementPage /></RoleProtectedRoute>} />
                                             <Route path="/attendance" element={<RoleProtectedRoute><AttendancePage /></RoleProtectedRoute>} />
+                                            <Route path="/reservations" element={<RoleProtectedRoute><ReservationsPage /></RoleProtectedRoute>} />
                                             <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
                                             <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
                                             <Route path="/settings" element={<RoleProtectedRoute><SettingsPage /></RoleProtectedRoute>} />

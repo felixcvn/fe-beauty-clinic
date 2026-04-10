@@ -8,7 +8,7 @@ const Header = ({ toggleSidebar }) => {
     const navigate = useNavigate();
 
     return (
-        <header className="h-15 px-4 md:px-6 flex items-center justify-between sticky top-0 z-40 bg-primary shadow-md">
+        <header className="h-16 px-4 md:px-6 flex items-center justify-between sticky top-0 z-40 bg-primary shadow-md">
             <div className="flex items-center gap-3">
                 {/* Mobile Menu Toggle */}
                 <button

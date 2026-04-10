@@ -33,6 +33,7 @@ const ALL_NAV_ITEMS = [
         path: '/management'
     },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
+    { icon: CalendarDaysIcon, label: 'Reservasi', path: '/reservations' },
     { icon: CalendarDaysIcon, label: 'Absensi', path: '/attendance' },
     { icon: TagIcon, label: 'Promo', path: '/promos' },
     { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
@@ -75,7 +76,7 @@ const Sidebar = ({ isOpen, toggle }) => {
             <aside className={`fixed left-0 top-0 h-screen w-64 bg-white flex flex-col z-50 border-r border-gray-200 transition-transform duration-500 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
                 
                 {/* 1. HEADER (Fixed/Tetap di atas) */}
-                <div className="bg-primary px-4 py-2 flex items-center justify-between shrink-0">
+                <div className="bg-primary px-4 h-16 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2 shrink-0">
                         <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border border-white/20 shrink-0 bg-white">
                             <img src={logo} alt="Logo" className="w-full h-full object-cover" />
