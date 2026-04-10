@@ -112,7 +112,7 @@ const ReservationsPage = () => {
                             <tr className="bg-gray-50/50">
                                 <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Waktu Kedatangan</th>
                                 <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Detail Customer</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Pegawai Bertugas</th>
+                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Pendaftar</th>
                                 <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Keterangan</th>
                                 <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5 text-center">Status</th>
                             </tr>
