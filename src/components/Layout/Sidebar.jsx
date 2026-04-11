@@ -15,6 +15,7 @@ import {
     ChevronUpIcon,
     TagIcon,
     ArchiveBoxIcon,
+    FingerPrintIcon,
 } from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/logo.png';
@@ -34,7 +35,7 @@ const ALL_NAV_ITEMS = [
     },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
     { icon: CalendarDaysIcon, label: 'Reservasi', path: '/reservations' },
-    { icon: CalendarDaysIcon, label: 'Absensi', path: '/attendance' },
+    { icon: FingerPrintIcon, label: 'Absensi', path: '/attendance' },
     { icon: TagIcon, label: 'Promo', path: '/promos' },
     { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
     { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
