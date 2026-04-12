@@ -103,8 +103,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     };
 
     const inputWrapperClass = "relative group";
-    const getInputClass = (hasError) => `w-full px-5 py-4 rounded-2xl bg-secondary/20 border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-bold text-primary shadow-sm`;
-    const getInputWithIconClass = (hasError) => `w-full pl-12 pr-5 py-4 rounded-2xl bg-secondary/20 border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-bold text-primary shadow-sm`;
+    const getInputClass = (hasError) => `w-full px-5 py-4 rounded-2xl bg-secondary/20 border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-medium text-primary shadow-sm`;
+    const getInputWithIconClass = (hasError) => `w-full pl-12 pr-5 py-4 rounded-2xl bg-secondary/20 border ${hasError ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none focus:ring-4 transition-all text-sm font-medium text-primary shadow-sm`;
     const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors";
     const labelClass = "text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1 block mb-2";
 

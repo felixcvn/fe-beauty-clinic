@@ -139,7 +139,7 @@ const SalesPage = () => {
                                 placeholder="Cari invoice atau konsumen..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm"
+                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary/60 shadow-sm"
                             />
                         </div>
                         <div className="flex items-center gap-3">

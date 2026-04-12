@@ -154,7 +154,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
                                         rows={3}
-                                        className="w-full pl-10 pr-4 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm resize-none"
+                                        className="w-full pl-10 pr-4 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm resize-none"
                                     />
                                 </div>
                             </div>

@@ -45,7 +45,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
             >
                 <div className="flex items-center gap-3 w-full">
                     {Icon && <Icon className="w-5 h-5 text-primary/40 shrink-0" />}
-                    <span className={`font-bold text-sm truncate ${selectedOption ? 'text-primary' : 'text-primary/40'}`}>
+                    <span className={`font-medium text-sm truncate ${selectedOption ? 'text-primary' : 'text-primary/40'}`}>
                         {selectedOption ? selectedOption.label : placeholder}
                     </span>
                 </div>
@@ -68,7 +68,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
                             <input
                                 type="text"
                                 placeholder="Cari..."
-                                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-primary/5 text-xs font-bold text-primary placeholder:text-primary/30 focus:ring-2 focus:ring-primary/10 outline-none transition-all shadow-sm"
+                                className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-primary/5 text-xs font-medium text-primary placeholder:text-primary/30 focus:ring-2 focus:ring-primary/10 outline-none transition-all shadow-sm"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 onClick={(e) => e.stopPropagation()}
@@ -91,7 +91,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
                                         isSelected ? 'bg-primary/5' : ''
                                     }`}
                                 >
-                                    <span className={`font-bold text-sm group-hover:text-primary transition-colors ${
+                                    <span className={`font-medium text-sm group-hover:text-primary transition-colors ${
                                         isSelected ? 'text-primary' : 'text-primary/60'
                                     }`}>
                                         {option.label}
@@ -103,7 +103,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
                             );
                         })
                     ) : (
-                        <div className="px-5 py-6 text-center text-xs font-bold text-primary/40 uppercase tracking-widest">
+                        <div className="px-5 py-6 text-center text-xs font-medium text-primary/40 uppercase tracking-widest">
                             Tidak ada pilihan
                         </div>
                     )}

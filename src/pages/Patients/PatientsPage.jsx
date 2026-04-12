@@ -95,15 +95,6 @@ const PatientsPage = () => {
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola seluruh data pasien terdaftar di klinik</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    {isCS && (
-                        <button
-                            onClick={() => setIsBookingModalOpen(true)}
-                            className="flex items-center justify-center gap-2 bg-primary text-secondary border border-primary/10 px-6 py-4 rounded-2xl hover:scale-105 hover:shadow-xl active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest"
-                        >
-                            <Plus className="w-4 h-4" />
-                            <span>Tambah Booking</span>
-                        </button>
-                    )}
                     {!isOwnerOrKomisaris && (
                         <button
                             onClick={handleOpenAdd}

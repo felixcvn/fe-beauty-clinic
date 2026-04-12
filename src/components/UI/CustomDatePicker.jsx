@@ -94,7 +94,7 @@ const CustomDatePicker = ({
             >
                 <div className="flex items-center gap-3 w-full">
                     {Icon && <Icon className="w-5 h-5 text-primary/40 shrink-0" />}
-                    <span className={`font-bold text-sm truncate ${value ? 'text-primary' : 'text-primary/40'}`}>
+                    <span className={`font-medium text-sm truncate ${value ? 'text-primary' : 'text-primary/40'}`}>
                         {getDisplayDate()}
                     </span>
                 </div>

@@ -62,8 +62,8 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
         onClose();
     };
 
-    const labelClass = "text-[10px] font-black uppercase tracking-widest text-primary/40 block mb-2 px-1";
-    const inputClass = "w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm placeholder:text-primary/20";
+    const labelClass = "text-[10px] font-medium uppercase tracking-widest text-primary/40 block mb-2 px-1";
+    const inputClass = "w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary shadow-sm placeholder:text-primary/20 placeholder:font-medium";
 
     if (!isOpen) return null;
 
@@ -175,7 +175,7 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                         <div className="space-y-6 pt-2">
                             <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
                                 <FileText className="w-4 h-4 text-primary/30" />
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Catatan Tambahan</h4>
+                                <h4 className="text-[10px] font-medium uppercase tracking-widest text-primary/40">Catatan Tambahan</h4>
                             </div>
 
                             <div className="space-y-1">

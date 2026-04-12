@@ -49,7 +49,6 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                 className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()} // Mencegah klik di dalam modal ikut menutup modal
             >
-                {/* TOMBOL X (Dipindah ke luar container header agar z-indexnya benar-benar di atas) */}
                 <button
                     type="button"
                     onClick={(e) => {
@@ -94,7 +93,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 placeholder="Contoh: Diskon Ramadhan" 
                                 value={formState.name}
                                 onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
                             />
                         </div>
 
@@ -107,7 +106,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     placeholder="RAMADHAN50" 
                                     value={formState.code}
                                     onChange={(e) => setFormState({ ...formState, code: e.target.value.toUpperCase() })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all uppercase shadow-sm" 
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all uppercase shadow-sm" 
                                 />
                             </div>
                             <div className="space-y-2">
@@ -132,7 +131,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     placeholder={formState.type === 'Persen' ? 'Contoh: 50' : 'Contoh: 50000'}
                                     value={formState.value}
                                     onChange={(e) => setFormState({ ...formState, value: e.target.value })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
                                 />
                             </div>
                             <div className="space-y-2">
@@ -143,7 +142,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     placeholder="Contoh: 100" 
                                     value={formState.quota}
                                     onChange={(e) => setFormState({ ...formState, quota: e.target.value })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
                                 />
                             </div>
                         </div>
