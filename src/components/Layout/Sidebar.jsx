@@ -41,9 +41,11 @@ const ALL_NAV_ITEMS = [
     { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
 ];
 
-const Sidebar = ({ isOpen, toggle }) => {
+const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIsHovered }) => {
     const { logout, user } = useAuth();
     const [openMenu, setOpenMenu] = useState(null);
+
+    const effectivelyCollapsed = isCollapsed && !isHovered;
 
     const toggleMenu = (label) => {
         setOpenMenu(prev => prev === label ? null : label);
@@ -52,6 +54,9 @@ const Sidebar = ({ isOpen, toggle }) => {
     const handleItemClick = () => {
         if (window.innerWidth < 768 && isOpen) {
             toggle();
+        } else if (window.innerWidth >= 768) {
+            setIsCollapsed(true);
+            setOpenMenu(null);
         }
     };
 
@@ -74,17 +79,21 @@ const Sidebar = ({ isOpen, toggle }) => {
             )}
 
             {/* UBAH STRUKTUR KELAS ASIDE DI SINI */}
-            <aside className={`fixed left-0 top-0 h-screen w-64 bg-white flex flex-col z-50 border-r border-gray-200 transition-transform duration-500 ease-in-out ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+            <aside 
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className={`fixed left-0 top-0 h-screen bg-white flex flex-col z-50 border-r border-gray-200 transition-all duration-500 ease-in-out ${effectivelyCollapsed ? 'w-64 md:w-[88px]' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+            >
                 
                 {/* 1. HEADER (Fixed/Tetap di atas) */}
-                <div className="bg-primary px-4 h-16 flex items-center justify-between shrink-0">
-                    <div className="flex items-center gap-2 shrink-0">
+                <div className={`bg-primary px-4 h-16 flex items-center shrink-0 ${effectivelyCollapsed ? 'justify-center md:px-0' : 'justify-between'}`}>
+                    <div className="flex items-center gap-2 shrink-0 overflow-hidden">
                         <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border border-white/20 shrink-0 bg-white">
                             <img src={logo} alt="Logo" className="w-full h-full object-cover" />
                         </div>
-                        <img src={logo1} alt="Logo Text" className="w-32 h-auto object-contain shrink-0" />
+                        <img src={logo1} alt="Logo Text" className={`h-auto object-contain shrink-0 transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-32 opacity-100'}`} />
                     </div>
-                    <button onClick={toggle} className="md:hidden p-2 text-white/50 hover:text-white transition-colors">
+                    <button onClick={toggle} className={`md:hidden p-2 text-white/50 hover:text-white transition-colors ${effectivelyCollapsed ? 'hidden' : ''}`}>
                         <XMarkIcon className="w-5 h-5" />
                     </button>
                 </div>
@@ -106,17 +115,20 @@ const Sidebar = ({ isOpen, toggle }) => {
                             return (
                                 <div key={item.label} className="space-y-1">
                                     <button
-                                        onClick={() => toggleMenu(item.label)}
-                                        className="w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 text-gray-500 hover:text-primary hover:bg-primary/5"
+                                        onClick={() => {
+                                            if (isCollapsed && !isHovered) setIsCollapsed(false);
+                                            toggleMenu(item.label);
+                                        }}
+                                        className={`w-full flex items-center justify-between rounded-xl transition-all duration-200 text-gray-500 hover:text-primary hover:bg-primary/5 ${effectivelyCollapsed ? 'p-3 md:justify-center' : 'px-4 py-3'}`}
                                     >
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-3 overflow-hidden">
                                             <item.icon className="w-5 h-5 flex-shrink-0" />
-                                            <span className="text-sm font-medium">{item.label}</span>
+                                            <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-auto opacity-100'}`}>{item.label}</span>
                                         </div>
-                                        {isExpanded ? <ChevronUpIcon className="w-4 h-4" /> : <ChevronDownIcon className="w-4 h-4" />}
+                                        {effectivelyCollapsed ? null : (isExpanded ? <ChevronUpIcon className="w-4 h-4 shrink-0" /> : <ChevronDownIcon className="w-4 h-4 shrink-0" />)}
                                     </button>
                                     
-                                    {isExpanded && (
+                                    {isExpanded && !effectivelyCollapsed && (
                                         <div className="ml-9 space-y-1 border-l border-gray-100 pl-2">
                                             {allowedSubs.map((sub) => (
                                                 <NavLink
@@ -143,11 +155,11 @@ const Sidebar = ({ isOpen, toggle }) => {
                                     to={item.path}
                                     onClick={handleItemClick}
                                     className={({ isActive }) =>
-                                        `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'text-white bg-primary shadow-lg shadow-primary/20' : 'text-gray-500 hover:text-primary hover:bg-primary/5'}`
+                                        `flex items-center overflow-hidden rounded-xl transition-all duration-200 group ${isActive ? 'text-white bg-primary shadow-lg shadow-primary/20' : 'text-gray-500 hover:text-primary hover:bg-primary/5'} ${effectivelyCollapsed ? 'justify-center p-3' : 'gap-3 px-4 py-3'}`
                                     }
                                 >
                                     <item.icon className="w-5 h-5 flex-shrink-0" />
-                                    <span className="text-sm font-medium">{item.label}</span>
+                                    <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-auto opacity-100'}`}>{item.label}</span>
                                 </NavLink>
                             );
                         }
@@ -162,9 +174,9 @@ const Sidebar = ({ isOpen, toggle }) => {
                             logout();
                             handleItemClick();
                         }} 
-                        className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all">
+                        className={`w-full flex items-center overflow-hidden rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all ${effectivelyCollapsed ? 'justify-center p-2.5' : 'gap-3 px-4 py-2.5'}`}>
                         <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
-                        <span className="text-sm font-medium">Keluar</span>
+                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-auto opacity-100'}`}>Keluar</span>
                     </button>
                 </div>
             </aside>

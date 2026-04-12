@@ -13,7 +13,7 @@ const Header = ({ toggleSidebar }) => {
                 {/* Mobile Menu Toggle */}
                 <button
                     onClick={toggleSidebar}
-                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all md:hidden"
+                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
                 >
                     <Bars3Icon className="w-5 h-5" />
                 </button>
