@@ -168,7 +168,7 @@ const PromoManagementPage = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 {/* Filter & Search */}
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                     <div className="relative flex-1 group">
@@ -199,56 +199,56 @@ const PromoManagementPage = () => {
                 <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left min-w-[900px]">
                         <thead>
-                            <tr className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/50">
-                                <th className="px-8 py-5 rounded-tl-xl">Kode & Nama Promo</th>
-                                <th className="px-8 py-5 text-center">Nilai Diskon</th>
-                                <th className="px-8 py-5 text-center">Masa Berlaku</th>
-                                <th className="px-8 py-5 text-center">Kuota (Terpakai)</th>
-                                <th className="px-8 py-5 text-center">Status</th>
-                                <th className="px-8 py-5 text-right rounded-tr-xl">Aksi</th>
+                            <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
+                                <th className="px-4 py-3 text-primary/80">Kode & Nama Promo</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Nilai Diskon</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Masa Berlaku</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Kuota (Terpakai)</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
+                                <th className="px-4 py-3 text-right text-primary/80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {currentPromos.map((promo) => (
                                 <tr key={promo.id} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
-                                    <td className="px-8 py-4">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-accent-gold/10 flex items-center justify-center text-accent-gold border border-accent-gold/20 shrink-0">
+                                    <td className="px-4 py-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-9 h-9 rounded-xl bg-accent-gold/10 flex items-center justify-center text-accent-gold border border-accent-gold/20 shrink-0">
                                                 <Tag className="w-4 h-4" />
                                             </div>
                                             <div>
-                                                <div className="font-bold text-blue-500 text-sm tracking-tight">{promo.code}</div>
-                                                <div className="font-black text-primary text-xs mt-0.5">{promo.name}</div>
+                                                <div className="font-medium text-blue-600 text-sm tracking-tight">{promo.code}</div>
+                                                <div className="font-medium text-primary text-sm mt-0.5">{promo.name}</div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-4 text-center">
-                                        <span className="font-bold text-primary text-sm">
+                                    <td className="px-4 py-2 text-center">
+                                        <span className="font-medium text-primary text-sm">
                                             {promo.type === 'Persen' ? `${promo.value}%` : `Rp ${Number(promo.value).toLocaleString('id-ID')}`}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-4 text-center">
-                                        <p className="text-xs font-bold text-primary/60">{promo.startDate}</p>
+                                    <td className="px-4 py-2 text-center">
+                                        <p className="text-sm font-medium text-primary/80">{promo.startDate}</p>
                                         <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest mt-0.5">S/D</p>
-                                        <p className="text-xs font-bold text-primary/60">{promo.endDate}</p>
+                                        <p className="text-sm font-medium text-primary/80">{promo.endDate}</p>
                                     </td>
-                                    <td className="px-8 py-4 text-center">
+                                    <td className="px-4 py-2 text-center">
                                         <div className="w-full bg-primary/5 rounded-full h-1.5 mb-1.5">
                                             <div className="bg-accent-gold h-1.5 rounded-full" style={{ width: `${(promo.used / promo.quota) * 100}%` }}></div>
                                         </div>
-                                        <span className="text-[10px] font-bold text-primary/60">{promo.used} / {promo.quota}</span>
+                                        <span className="text-sm font-medium text-primary">{promo.used} / {promo.quota}</span>
                                     </td>
-                                    <td className="px-8 py-4 text-center">
-                                        <span className={`font-black text-[9px] tracking-widest uppercase px-3 py-1.5 rounded-full ${getStatusStyle(promo.status)}`}>
+                                    <td className="px-4 py-2 text-center">
+                                        <span className={`font-bold text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-full shadow-sm border border-white/50 ${getStatusStyle(promo.status)}`}>
                                             {promo.status}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-4 text-right">
+                                    <td className="px-4 py-2 text-right">
                                         <div className="flex justify-end gap-1">
-                                            <button onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-accent-gold hover:shadow-sm transition-all" title="Edit">
+                                            <button onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-accent-gold hover:shadow-sm transition-all active:scale-90" title="Edit">
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => handleOpenDelete(promo)} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-red-500 hover:shadow-sm transition-all" title="Hapus">
+                                            <button onClick={() => handleOpenDelete(promo)} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-red-500 hover:shadow-sm transition-all active:scale-90" title="Hapus">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>

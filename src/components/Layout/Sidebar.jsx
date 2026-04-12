@@ -16,6 +16,7 @@ import {
     TagIcon,
     ArchiveBoxIcon,
     FingerPrintIcon,
+    SparklesIcon,
 } from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/logo.png';
@@ -38,6 +39,8 @@ const ALL_NAV_ITEMS = [
     { icon: FingerPrintIcon, label: 'Absensi', path: '/attendance' },
     { icon: TagIcon, label: 'Promo', path: '/promos' },
     { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
+    { icon: ArchiveBoxIcon, label: 'Produk', path: '/cs-products' },
+    { icon: SparklesIcon, label: 'Treatment', path: '/cs-treatments' },
     { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
 ];
 

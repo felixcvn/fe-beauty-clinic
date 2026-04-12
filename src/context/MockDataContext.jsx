@@ -6,22 +6,22 @@ export const MockDataProvider = ({ children }) => {
     const [patients, setPatients] = useState([
         {
             id: 'P-10024', name: 'Emma Watson', namaLengkap: 'Emma Watson', age: 24, lastVisit: 'Okt 24, 2025', condition: 'Acne Treatment', status: 'Aktif', allergies: 'Penicillin',
-            noMember: 'M-001', noRM: 'RM-001', noIdentitas: '3201010101010001', tempatLahir: 'Jakarta', tanggalLahir: '2000-01-01', jenisKelamin: 'Perempuan', alamat: 'Jl. Sudirman No 1', email: 'emma@email.com', noTelepon: '081234567890', tipeMember: 'GOLD',
+            noMember: 'M-001', noRM: '00-00-01', noIdentitas: '3201010101010001', tempatLahir: 'Jakarta', tanggalLahir: '2000-01-01', jenisKelamin: 'Perempuan', alamat: 'Jl. Sudirman No 1', email: 'emma@email.com', noTelepon: '081234567890', tipeMember: 'GOLD',
             history: [
                 { id: 1, date: 'Okt 24, 2025', treatment: 'Acne Treatment', specialist: 'Dr. Sarah Smith', notes: 'Respon baik terhadap facial.', beforeImage: 'https://images.unsplash.com/photo-1548810756-12a9792182c4', afterImage: 'https://images.unsplash.com/photo-1552693673-1bf958298935' }
             ]
         },
-        { id: 'P-10025', name: 'Budi Santoso', namaLengkap: 'Budi Santoso', age: 32, lastVisit: 'Okt 22, 2025', condition: 'Laser Therapy', status: 'Selesai', allergies: 'Tidak ada', noMember: 'M-002', noRM: 'RM-002', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10026', name: 'Siti Rahma', namaLengkap: 'Siti Rahma', age: 29, lastVisit: 'Okt 20, 2025', condition: 'Skin Rejuvenation', status: 'Aktif', allergies: 'Kacang', noMember: 'M-003', noRM: 'RM-003', tipeMember: 'PLATINUM', history: [] },
-        { id: 'P-10027', name: 'Arief Rahman', namaLengkap: 'Arief Rahman', age: 45, lastVisit: 'Okt 15, 2025', condition: 'Peeling', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-004', noRM: 'RM-004', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10028', name: 'Rina Wijaya', namaLengkap: 'Rina Wijaya', age: 21, lastVisit: 'Sep 30, 2025', condition: 'Facial Wash', status: 'Selesai', allergies: 'Debu', noMember: 'M-005', noRM: 'RM-005', tipeMember: 'GOLD', history: [] },
-        { id: 'P-10029', name: 'Ahmad Dahlan', namaLengkap: 'Ahmad Dahlan', age: 38, lastVisit: 'Sep 25, 2025', condition: 'Botox', status: 'Aktif', allergies: 'Seafood', noMember: 'M-006', noRM: 'RM-006', tipeMember: 'PLATINUM', history: [] },
-        { id: 'P-10030', name: 'Dewi Lestari', namaLengkap: 'Dewi Lestari', age: 27, lastVisit: 'Sep 20, 2025', condition: 'Acne Treatment', status: 'Selesai', allergies: 'Udang', noMember: 'M-007', noRM: 'RM-007', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10031', name: 'Hendra Saputra', namaLengkap: 'Hendra Saputra', age: 50, lastVisit: 'Agt 15, 2025', condition: 'Laser Therapy', status: 'Aktif', allergies: 'Paracetamol', noMember: 'M-008', noRM: 'RM-008', tipeMember: 'GOLD', history: [] },
-        { id: 'P-10032', name: 'Maya Sari', namaLengkap: 'Maya Sari', age: 33, lastVisit: 'Agt 10, 2025', condition: 'Skin Rejuvenation', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-009', noRM: 'RM-009', tipeMember: 'PLATINUM', history: [] },
-        { id: 'P-10033', name: 'Riko Pratama', namaLengkap: 'Riko Pratama', age: 26, lastVisit: 'Jul 05, 2025', condition: 'Peeling', status: 'Selesai', allergies: 'Coklat', noMember: 'M-010', noRM: 'RM-010', tipeMember: 'SILVER', history: [] },
-        { id: 'P-10034', name: 'Putri Andriani', namaLengkap: 'Putri Andriani', age: 22, lastVisit: 'Sep 01, 2025', condition: 'Facial Acne', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-011', noRM: 'RM-011', tipeMember: 'GOLD', history: [] },
-        { id: 'P-10035', name: 'Fajar Nugroho', namaLengkap: 'Fajar Nugroho', age: 41, lastVisit: 'Agt 01, 2025', condition: 'Pigmentation', status: 'Aktif', allergies: 'Debu', noMember: 'M-012', noRM: 'RM-012', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10025', name: 'Budi Santoso', namaLengkap: 'Budi Santoso', age: 32, lastVisit: 'Okt 22, 2025', condition: 'Laser Therapy', status: 'Selesai', allergies: 'Tidak ada', noMember: 'M-002', noRM: '00-00-02', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10026', name: 'Siti Rahma', namaLengkap: 'Siti Rahma', age: 29, lastVisit: 'Okt 20, 2025', condition: 'Skin Rejuvenation', status: 'Aktif', allergies: 'Kacang', noMember: 'M-003', noRM: '00-00-03', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10027', name: 'Arief Rahman', namaLengkap: 'Arief Rahman', age: 45, lastVisit: 'Okt 15, 2025', condition: 'Peeling', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-004', noRM: '00-00-04', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10028', name: 'Rina Wijaya', namaLengkap: 'Rina Wijaya', age: 21, lastVisit: 'Sep 30, 2025', condition: 'Facial Wash', status: 'Selesai', allergies: 'Debu', noMember: 'M-005', noRM: '00-00-05', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10029', name: 'Ahmad Dahlan', namaLengkap: 'Ahmad Dahlan', age: 38, lastVisit: 'Sep 25, 2025', condition: 'Botox', status: 'Aktif', allergies: 'Seafood', noMember: 'M-006', noRM: '00-00-06', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10030', name: 'Dewi Lestari', namaLengkap: 'Dewi Lestari', age: 27, lastVisit: 'Sep 20, 2025', condition: 'Acne Treatment', status: 'Selesai', allergies: 'Udang', noMember: 'M-007', noRM: '00-00-07', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10031', name: 'Hendra Saputra', namaLengkap: 'Hendra Saputra', age: 50, lastVisit: 'Agt 15, 2025', condition: 'Laser Therapy', status: 'Aktif', allergies: 'Paracetamol', noMember: 'M-008', noRM: '00-00-08', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10032', name: 'Maya Sari', namaLengkap: 'Maya Sari', age: 33, lastVisit: 'Agt 10, 2025', condition: 'Skin Rejuvenation', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-009', noRM: '00-00-09', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10033', name: 'Riko Pratama', namaLengkap: 'Riko Pratama', age: 26, lastVisit: 'Jul 05, 2025', condition: 'Peeling', status: 'Selesai', allergies: 'Coklat', noMember: 'M-010', noRM: '00-00-10', tipeMember: 'PLATINUM', history: [] },
+        { id: 'P-10034', name: 'Putri Andriani', namaLengkap: 'Putri Andriani', age: 22, lastVisit: 'Sep 01, 2025', condition: 'Facial Acne', status: 'Aktif', allergies: 'Tidak ada', noMember: 'M-011', noRM: '00-00-11', tipeMember: 'GOLD', history: [] },
+        { id: 'P-10035', name: 'Fajar Nugroho', namaLengkap: 'Fajar Nugroho', age: 41, lastVisit: 'Agt 01, 2025', condition: 'Pigmentation', status: 'Aktif', allergies: 'Debu', noMember: 'M-012', noRM: '00-00-12', tipeMember: 'PLATINUM', history: [] },
     ]);
 
     const [products, setProducts] = useState([
@@ -40,14 +40,14 @@ export const MockDataProvider = ({ children }) => {
     ]);
 
     const [treatments, setTreatments] = useState([
-        { id: 'TRT-001', name: 'Laser Therapy Session', category: 'Treatment', price: 1200000, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-001', name: 'Laser Therapy Session', category: 'Treatment', price: 1200000, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=200&h=200&auto=format&fit=crop', isPackage: true, packageCount: 5 },
         { id: 'TRT-002', name: 'Chemical Peel', category: 'Treatment', price: 350000, image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'TRT-003', name: 'Acne Extraction', category: 'Treatment', price: 250000, image: 'https://images.unsplash.com/photo-1590424744257-fce752f9b1b4?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'TRT-004', name: 'Microdermabrasion', category: 'Treatment', price: 500000, image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-004', name: 'Microdermabrasion', category: 'Treatment', price: 500000, image: 'https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?q=80&w=200&h=200&auto=format&fit=crop', isPackage: true, packageCount: 3 },
         { id: 'TRT-005', name: 'Botox Injection', category: 'Treatment', price: 2500000, image: 'https://images.unsplash.com/photo-1606902965551-dce093cda6e7?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'TRT-006', name: 'Skin Rejuvenation Therapy', category: 'Treatment', price: 800000, image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-006', name: 'Skin Rejuvenation Therapy', category: 'Treatment', price: 800000, image: 'https://images.unsplash.com/photo-1519823551278-64ac92734fb1?q=80&w=200&h=200&auto=format&fit=crop', isPackage: true, packageCount: 4 },
         { id: 'TRT-007', name: 'Facial Whitening', category: 'Treatment', price: 400000, image: 'https://images.unsplash.com/photo-1515377905703-c4788e51af15?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'TRT-008', name: 'Radio Frequency (RF) Set', category: 'Treatment', price: 650000, image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'TRT-008', name: 'Radio Frequency (RF) Set', category: 'Treatment', price: 650000, image: 'https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=200&h=200&auto=format&fit=crop', isPackage: true, packageCount: 6 },
     ]);
 
     const [racikans, setRacikans] = useState([
@@ -110,7 +110,7 @@ export const MockDataProvider = ({ children }) => {
 
     // Product Functions
     const addProduct = (product) => {
-        const id = `PRD-${String(products.length + 1).padStart(3, '0')}`;
+        const id = product.id || `PRD-${String(products.length + 1).padStart(3, '0')}`;
         setProducts([...products, { ...product, id }]);
     };
 
@@ -124,7 +124,7 @@ export const MockDataProvider = ({ children }) => {
 
     // Treatment Functions
     const addTreatment = (treatment) => {
-        const id = `TRT-${String(treatments.length + 1).padStart(3, '0')}`;
+        const id = treatment.id || `TRT-${String(treatments.length + 1).padStart(3, '0')}`;
         setTreatments([...treatments, { ...treatment, id }]);
     };
 
@@ -138,7 +138,7 @@ export const MockDataProvider = ({ children }) => {
 
     // Racikan Functions
     const addRacikan = (racikan) => {
-        const id = `RCK-${String(racikans.length + 1).padStart(3, '0')}`;
+        const id = racikan.id || `RCK-${String(racikans.length + 1).padStart(3, '0')}`;
         setRacikans([...racikans, { ...racikan, id }]);
     };
 
@@ -152,7 +152,7 @@ export const MockDataProvider = ({ children }) => {
 
     // Material Functions
     const addMaterial = (material) => {
-        const id = `MAT-${String(materials.length + 1).padStart(3, '0')}`;
+        const id = material.id || `MAT-${String(materials.length + 1).padStart(3, '0')}`;
         setMaterials([...materials, { ...material, id }]);
     };
 
@@ -179,15 +179,15 @@ export const MockDataProvider = ({ children }) => {
     };
 
     const [bookings, setBookings] = useState([
-        { id: 'BK-001', name: 'Emma Watson', treatment: 'Skin Care', time: '10:00', status: 'Confirmed', phone: '081234567890', broughtByStaff: 'Budi Santoso', notes: 'Routine checkup' },
-        { id: 'BK-002', name: 'James Wilson', treatment: 'Dermatology', time: '11:15', status: 'Waiting', phone: '081298765432', broughtByStaff: 'Ayu Lestari', notes: 'First visit' },
-        { id: 'BK-003', name: 'Sarah Parker', treatment: 'Botox', time: '14:30', status: 'Confirmed', phone: '081311223344', broughtByStaff: 'Budi Santoso', notes: 'Top up' },
+        { id: 'BK-001', name: 'Emma Watson', treatment: 'Skin Care', time: '10:00', status: 'Dikonfirmasi', phone: '081234567890', broughtByStaff: 'Budi Santoso', notes: 'Routine checkup' },
+        { id: 'BK-002', name: 'James Wilson', treatment: 'Dermatology', time: '11:15', status: 'Menunggu', phone: '081298765432', broughtByStaff: 'Ayu Lestari', notes: 'First visit' },
+        { id: 'BK-003', name: 'Sarah Parker', treatment: 'Botox', time: '14:30', status: 'Dikonfirmasi', phone: '081311223344', broughtByStaff: 'Budi Santoso', notes: 'Top up' },
         { id: 'BK-004', name: 'Robert Fox', treatment: 'Consultation', time: '16:00', status: 'Menunggu', phone: '081599001122', broughtByStaff: 'Dewi Rahmawati', notes: 'New patient' }
     ]);
 
     const addBooking = (bookingData) => {
         const id = `BK-${String(bookings.length + 1).padStart(3, '0')}`;
-        setBookings(prev => [{ ...bookingData, id, status: 'Waiting' }, ...prev]);
+        setBookings(prev => [{ ...bookingData, id, status: 'Menunggu' }, ...prev]);
     };
 
     return (

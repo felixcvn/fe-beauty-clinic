@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal } from 'lucide-react';
+import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
 
@@ -12,6 +12,34 @@ const SalesPage = () => {
     const handleOpenDetail = (transaction) => {
         setSelectedTransaction(transaction);
         setIsDetailModalOpen(true);
+    };
+
+    const getStatusColor = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'selesai':
+                return 'bg-green-100 text-green-700 border-green-200';
+            case 'menunggu':
+                return 'bg-amber-100 text-amber-700 border-amber-200';
+            case 'cancelled':
+            case 'dibatalkan':
+                return 'bg-red-100 text-red-700 border-red-200';
+            default:
+                return 'bg-gray-100 text-gray-700 border-gray-200';
+        }
+    };
+
+    const getStatusIcon = (status) => {
+        switch (status?.toLowerCase()) {
+            case 'selesai':
+                return <CheckCircle2 className="w-3 h-3" />;
+            case 'menunggu':
+                return <Clock className="w-3 h-3" />;
+            case 'cancelled':
+            case 'dibatalkan':
+                return <XCircle className="w-3 h-3" />;
+            default:
+                return null;
+        }
     };
 
     const [recentSales, setRecentSales] = useState([
@@ -100,7 +128,7 @@ const SalesPage = () => {
             </div>
 
             {/* Recent Sales Table */}
-            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="p-6 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row items-stretch lg:items-center gap-6 bg-secondary/10">
                     <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Riwayat Penjualan</h3>
                     <div className="flex flex-col sm:flex-row flex-1 gap-4 items-stretch sm:items-center">
@@ -118,9 +146,6 @@ const SalesPage = () => {
                             <button className="flex-1 sm:flex-none p-4 rounded-2xl bg-white border border-primary/5 text-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm">
                                 <Filter className="w-5 h-5 mx-auto" />
                             </button>
-                            <button className="flex-1 sm:flex-none px-6 py-4 rounded-2xl bg-primary/5 text-primary text-[10px] font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm">
-                                Export Log
-                            </button>
                         </div>
                     </div>
                 </div>
@@ -129,13 +154,13 @@ const SalesPage = () => {
                     <table className="w-full text-left min-w-[1000px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5">
-                                <th className="px-8 py-6">ID Invoice</th>
-                                <th className="px-8 py-6">Konsumen</th>
-                                <th className="px-8 py-6">Produk/Layanan</th>
-                                <th className="px-8 py-6">Total</th>
-                                <th className="px-8 py-6">Status</th>
-                                <th className="px-8 py-6">Tanggal</th>
-                                <th className="px-8 py-6 text-center">Aksi</th>
+                                <th className="px-4 py-3 text-primary/80">ID Invoice</th>
+                                <th className="px-4 py-3 text-primary/80">Konsumen</th>
+                                <th className="px-4 py-3 text-primary/80">Produk/Layanan</th>
+                                <th className="px-4 py-3 text-primary/80">Total</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
+                                <th className="px-4 py-3 text-primary/80">Tanggal</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -145,41 +170,39 @@ const SalesPage = () => {
                                     onClick={() => handleOpenDetail(sale)}
                                     className="border-b border-primary/5 last:border-0 hover:bg-secondary/20 cursor-pointer transition-colors group"
                                 >
-                                    <td className="px-8 py-6">
-                                        <span className="text-xs font-black text-primary tracking-tight">{sale.id}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary tracking-tight">{sale.id}</span>
                                     </td>
-                                    <td className="px-8 py-6">
+                                    <td className="px-4 py-2">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-2xl bg-primary/5 border border-primary/5 flex items-center justify-center text-[10px] font-black text-primary shadow-sm">
+                                            <div className="w-9 h-9 rounded-xl bg-primary/5 border border-primary/5 flex items-center justify-center text-[10px] font-bold text-primary shadow-sm">
                                                 {sale.customer.split(' ').map(n => n[0]).join('')}
                                             </div>
-                                            <span className="text-xs font-bold text-primary">{sale.customer}</span>
+                                            <span className="text-sm font-medium text-primary">{sale.customer}</span>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <span className="text-xs font-bold text-primary/40 uppercase tracking-widest text-[10px]">{sale.product}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary/80">{sale.product}</span>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <span className="text-xs font-black text-primary">{sale.amount}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary">{sale.amount}</span>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <span className={`inline-flex px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${sale.status === 'Selesai' ? 'bg-green-100 text-green-700' :
-                                            sale.status === 'Menunggu' ? 'bg-yellow-100 text-yellow-700' :
-                                                'bg-red-100 text-red-700'
-                                            }`}>
+                                    <td className="px-4 py-2 text-center">
+                                        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm ${getStatusColor(sale.status)}`}>
+                                            {getStatusIcon(sale.status)}
                                             {sale.status}
-                                        </span>
+                                        </div>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <span className="text-[10px] font-black text-primary/20 uppercase tracking-widest">{sale.date}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary/80">{sale.date}</span>
                                     </td>
-                                    <td className="px-8 py-6 text-center">
+                                    <td className="px-4 py-2 text-center">
                                         <button 
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleOpenDetail(sale);
                                             }}
-                                            className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300"
+                                            className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300 active:scale-90"
                                         >
                                             <MoreHorizontal className="w-5 h-5" />
                                         </button>
@@ -204,10 +227,8 @@ const SalesPage = () => {
                                         <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{sale.id}</p>
                                     </div>
                                 </div>
-                                <span className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${sale.status === 'Selesai' ? 'bg-green-100 text-green-700' :
-                                    sale.status === 'Menunggu' ? 'bg-yellow-100 text-yellow-700' :
-                                        'bg-red-100 text-red-700'
-                                    }`}>
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border shadow-sm ${getStatusColor(sale.status)}`}>
+                                    {getStatusIcon(sale.status)}
                                     {sale.status}
                                 </span>
                             </div>

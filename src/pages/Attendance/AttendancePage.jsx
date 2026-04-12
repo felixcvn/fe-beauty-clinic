@@ -336,14 +336,14 @@ const AttendancePage = () => {
                     ) : null}
 
                     {/* TABLE AREA */}
-                    <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                    <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
 
                         {/* Table Header / Filters */}
                         {canAccessReports ? (
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                                 <div className="relative flex-1 group">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                                    <input type="text" placeholder="Cari nama pegawai atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all" />
+                                    <input type="text" placeholder="Cari nama pegawai atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all" />
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex items-center gap-2 relative z-50 bg-white border border-primary/5 rounded-2xl px-4 py-2 opacity-100 shadow-sm focus-within:ring-4 focus-within:ring-primary/5 transition-all">
@@ -361,7 +361,7 @@ const AttendancePage = () => {
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
                                 <div className="relative flex-1">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                                    <input type="text" placeholder="Cari nama staff atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                                    <input type="text" placeholder="Cari nama staff atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <button className="flex-1 md:flex-none p-3.5 rounded-2xl border border-primary/5 bg-white text-primary/60 hover:text-primary transition-all shadow-sm">
@@ -379,48 +379,48 @@ const AttendancePage = () => {
                         <div className="hidden md:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse min-w-[900px]">
                                 <thead>
-                                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5 bg-gray-50/50">
-                                        <th className="px-8 py-5 rounded-tl-xl">{canAccessReports ? 'Nama Pegawai' : 'Staff'}</th>
-                                        <th className="px-8 py-5">{canAccessReports ? 'Tanggal' : 'Role'}</th>
-                                        <th className="px-8 py-5 text-center">Jam Masuk</th>
-                                        <th className="px-8 py-5 text-center">Jam Keluar</th>
-                                        {canAccessReports ? <th className="px-8 py-5 text-center">Durasi</th> : null}
-                                        <th className="px-8 py-5 text-center rounded-tr-xl">Status</th>
+                                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
+                                        <th className="px-4 py-3 text-primary/80">{canAccessReports ? 'Nama Pegawai' : 'Staff'}</th>
+                                        <th className="px-4 py-3 text-primary/80">{canAccessReports ? 'Tanggal' : 'Role'}</th>
+                                        <th className="px-4 py-3 text-center text-primary/80">Jam Masuk</th>
+                                        <th className="px-4 py-3 text-center text-primary/80">Jam Keluar</th>
+                                        {canAccessReports ? <th className="px-4 py-3 text-center text-primary/80">Durasi</th> : null}
+                                        <th className="px-4 py-3 text-center text-primary/80">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
                                     {currentAttendance.map((record) => (
                                         <tr key={record.id} onClick={() => handleOpenDetail(record)} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors cursor-pointer">
-                                            <td className="px-8 py-4">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
+                                            <td className="px-4 py-2">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5 shrink-0">
                                                         {record.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                     </div>
                                                     <div>
-                                                        <div className="font-black text-primary text-sm tracking-tight">{record.name}</div>
+                                                        <div className="font-medium text-primary text-sm tracking-tight">{record.name}</div>
                                                         <div className="text-[10px] text-primary/40 font-bold uppercase tracking-widest mt-0.5">
                                                             {canAccessReports ? record.role : record.id}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="px-8 py-4 text-primary/60 font-bold text-sm tracking-tight">
-                                                {canAccessReports ? record.date : <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{record.role}</span>}
+                                            <td className="px-4 py-2 text-primary/80 font-medium text-sm tracking-tight">
+                                                {canAccessReports ? record.date : <span className="text-sm font-medium text-primary/60">{record.role}</span>}
                                             </td>
-                                            <td className="px-8 py-4 text-center">
+                                            <td className="px-4 py-2 text-center">
                                                 {!canAccessReports && <div className={`w-1.5 h-1.5 rounded-full inline-block mr-2 ${record.checkIn === '--:--' ? 'bg-primary/10' : 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.4)]'}`} />}
-                                                <span className={`font-bold text-sm ${record.checkIn !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkIn}</span>
+                                                <span className={`font-medium text-sm ${record.checkIn !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkIn}</span>
                                             </td>
-                                            <td className="px-8 py-4 text-center">
-                                                <span className={`font-bold text-sm ${record.checkOut !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkOut}</span>
+                                            <td className="px-4 py-2 text-center">
+                                                <span className={`font-medium text-sm ${record.checkOut !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkOut}</span>
                                             </td>
                                             {canAccessReports && (
-                                                <td className="px-8 py-4 text-center text-primary/60 font-bold text-sm tracking-tight">
+                                                <td className="px-4 py-2 text-center text-primary/80 font-medium text-sm tracking-tight">
                                                     {record.checkIn !== '--:--' && record.checkOut !== '--:--' ? '8j 15m' : '-'}
                                                 </td>
                                             )}
-                                            <td className="px-8 py-4 text-center">
-                                                <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest ${getStatusStyle(record.status)}`}>
+                                            <td className="px-4 py-2 text-center">
+                                                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white/50 ${getStatusStyle(record.status)}`}>
                                                     {record.status === 'Hadir' ? <CheckCircle2 className="w-3 h-3" /> : record.status === 'Terlambat' ? <Clock className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
                                                     {record.status}
                                                 </span>
@@ -510,24 +510,24 @@ const AttendancePage = () => {
                 </div>
             ) : (
                 /* TAB CUTI / IZIN TETAP SAMA SEPERTI SEBELUMNYA */
-                <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                     <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
                         <div className="relative flex-1">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                            <input type="text" placeholder="Cari data pengajuan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                            <input type="text" placeholder="Cari data pengajuan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
                         </div>
                     </div>
 
                     <div className="hidden md:block overflow-x-auto scrollbar-hide">
                         <table className="w-full text-left border-collapse min-w-[900px]">
                             <thead>
-                                <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5">
-                                    <th className="px-8 py-6">Staff</th>
-                                    <th className="px-8 py-6">Jenis Pengajuan</th>
-                                    <th className="px-8 py-6">Durasi Tanggal</th>
-                                    <th className="px-8 py-6">Alasan</th>
-                                    <th className="px-8 py-6">Status</th>
-                                    {canApproveLeave && <th className="px-8 py-6 text-center">Aksi</th>}
+                                <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
+                                    <th className="px-4 py-3 text-primary/80">Staff</th>
+                                    <th className="px-4 py-3 text-primary/80">Jenis Pengajuan</th>
+                                    <th className="px-4 py-3 text-primary/80">Durasi Tanggal</th>
+                                    <th className="px-4 py-3 text-primary/80">Alasan</th>
+                                    <th className="px-4 py-3 text-primary/80">Status</th>
+                                    {canApproveLeave && <th className="px-4 py-3 text-center text-primary/80">Aksi</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-primary/5">
@@ -540,31 +540,31 @@ const AttendancePage = () => {
                                         }}
                                         className="border-b border-primary/5 last:border-0 hover:bg-secondary/5 transition-colors cursor-pointer"
                                     >
-                                        <td className="px-8 py-6">
+                                        <td className="px-4 py-2">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary shadow-sm">
-                                                    {req.staffName.split(' ').map(n => n[0]).join('')}
+                                                <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-xs font-medium text-primary shadow-sm border border-primary/5">
+                                                    {req.staffName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-black text-primary tracking-tight">{req.staffName}</p>
-                                                    <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{req.role}</p>
+                                                    <p className="text-sm font-medium text-primary tracking-tight">{req.staffName}</p>
+                                                    <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-0.5">{req.role}</p>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6">
-                                            <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{req.type}</span>
+                                        <td className="px-4 py-2">
+                                            <span className="text-sm font-medium text-primary/80">{req.type}</span>
                                         </td>
-                                        <td className="px-8 py-6">
-                                            <p className="text-[10px] font-bold text-primary mb-0.5"><span className="text-primary/40">Mulai:</span> {req.startDate}</p>
-                                            <p className="text-[10px] font-bold text-primary"><span className="text-primary/40">Klr:</span> {req.endDate}</p>
+                                        <td className="px-4 py-2">
+                                            <p className="text-sm font-medium text-primary/80 mb-0.5"><span className="text-xs text-primary/40 mr-1 font-normal">Mulai:</span>{req.startDate}</p>
+                                            <p className="text-sm font-medium text-primary/80"><span className="text-xs text-primary/40 mr-1 font-normal">Slsai:</span>{req.endDate}</p>
                                         </td>
-                                        <td className="px-8 py-6 max-w-[200px]">
-                                            <p className="text-[10px] font-bold text-primary/60 truncate">{req.reason}</p>
+                                        <td className="px-4 py-2 max-w-[200px]">
+                                            <p className="text-sm font-medium text-primary/80 truncate">{req.reason}</p>
                                         </td>
-                                        <td className="px-8 py-6">
-                                            <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${req.status === 'Disetujui' ? 'bg-green-100 text-green-700' :
-                                                    req.status === 'Ditolak' ? 'bg-red-100 text-red-700' :
-                                                        'bg-yellow-100 text-yellow-700'
+                                        <td className="px-4 py-2">
+                                            <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border border-white/50 ${req.status === 'Disetujui' ? 'bg-green-50 text-green-700 border-green-100' :
+                                                    req.status === 'Ditolak' ? 'bg-red-50 text-red-700 border-red-100' :
+                                                        'bg-yellow-50 text-yellow-700 border-yellow-100'
                                                 }`}>
                                                 {req.status === 'Disetujui' ? <CheckCircle2 className="w-3 h-3" /> :
                                                     req.status === 'Ditolak' ? <XCircle className="w-3 h-3" /> :
@@ -573,14 +573,14 @@ const AttendancePage = () => {
                                             </span>
                                         </td>
                                         {canApproveLeave && (
-                                            <td className="px-8 py-6 text-center">
+                                            <td className="px-4 py-2 text-center">
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         setSelectedLeaveRequest(req);
                                                         setIsApprovalModalOpen(true);
                                                     }}
-                                                    className="p-2 rounded-xl text-primary/40 hover:bg-primary/5 hover:text-primary transition-all shadow-sm"
+                                                    className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary transition-all shadow-sm active:scale-90"
                                                     title="Proses Pengajuan"
                                                 >
                                                     <Edit3 className="w-4 h-4 mx-auto" />

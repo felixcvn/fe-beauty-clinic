@@ -14,7 +14,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         stock: '',
         minStock: '',
         bahan_ids: [],
-        image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop'
+        id: '',
+        isPackage: false,
+        packageCount: ''
     });
     const [errors, setErrors] = useState({});
 
@@ -24,7 +26,10 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
             if (initialData) {
                 setFormState({
                     ...initialData,
-                    bahan_ids: initialData.bahan_ids || []
+                    bahan_ids: initialData.bahan_ids || [],
+                    isPackage: initialData.isPackage || false,
+                    packageCount: initialData.packageCount || '',
+                    id: initialData.id || ''
                 });
             } else {
                 setFormState({
@@ -34,7 +39,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     stock: '',
                     minStock: '',
                     bahan_ids: [],
-                    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop'
+                    id: '',
+                    isPackage: false,
+                    packageCount: ''
                 });
             }
         }
@@ -54,6 +61,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
             if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
         } else {
             if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
+            if (formState.isPackage && (!formState.packageCount || formState.packageCount <= 0)) {
+                newErrors.packageCount = "Jumlah paket wajib diisi";
+            }
         }
 
         setErrors(newErrors);
@@ -126,6 +136,17 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 {/* Form Section */}
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        <div>
+                            <label className={labelClassName}>Kode {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
+                            <input
+                                type="text"
+                                value={formState.id}
+                                onChange={(e) => handleChange('id', e.target.value)}
+                                className={getDynamicInputClass('id')}
+                                placeholder={`Contoh: ${type === 'product' ? 'PRD-001' : type === 'racikan' ? 'RCK-001' : type === 'material' ? 'MAT-001' : 'TRT-001'}`}
+                            />
+                            {errors.id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.id}</p>}
+                        </div>
                         
                         <div>
                             <label className={labelClassName}>Nama {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
@@ -140,17 +161,51 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
 
                         {type === 'treatment' && (
-                            <div>
-                                <CustomMultiSelect
-                                    label="Bahan yang digunakan"
-                                    placeholder="Pilih bahan..."
-                                    values={formState.bahan_ids}
-                                    onChange={(val) => handleChange('bahan_ids', val)}
-                                    options={materialOptions}
-                                    searchable={true}
-                                />
-                                <p className="text-[9px] font-bold text-primary/30 mt-2 px-1">Pilih satu atau lebih bahan yang dihabiskan dalam sesi treatment ini.</p>
-                            </div>
+                            <>
+                                <div className="p-4 rounded-2xl border border-primary/5 bg-gray-50/50 space-y-4">
+                                    <label className="flex items-center gap-3 cursor-pointer group w-max">
+                                        <div className="relative flex items-center justify-center">
+                                            <input 
+                                                type="checkbox" 
+                                                className="peer appearance-none w-5 h-5 border-2 border-primary/20 rounded-md checked:bg-green-500 checked:border-green-500 transition-all cursor-pointer group-hover:border-primary/40"
+                                                checked={formState.isPackage}
+                                                onChange={(e) => handleChange('isPackage', e.target.checked)}
+                                            />
+                                            <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                        </div>
+                                        <span className="text-xs font-black uppercase tracking-widest text-primary/60 group-hover:text-primary transition-colors">
+                                            Treatment ini merupakan paket
+                                        </span>
+                                    </label>
+
+                                    {formState.isPackage && (
+                                        <div className="pt-2 animate-fade-in-up">
+                                            <label className={labelClassName}>Jumlah Treatment Dalam Paket</label>
+                                            <input
+                                                type="number"
+                                                value={formState.packageCount}
+                                                onChange={(e) => handleChange('packageCount', e.target.value === '' ? '' : Number(e.target.value))}
+                                                className={getDynamicInputClass('packageCount')}
+                                                placeholder="Contoh: 5"
+                                                min="1"
+                                            />
+                                            {errors.packageCount && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.packageCount}</p>}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div>
+                                    <CustomMultiSelect
+                                        label="Bahan yang digunakan"
+                                        placeholder="Pilih bahan..."
+                                        values={formState.bahan_ids}
+                                        onChange={(val) => handleChange('bahan_ids', val)}
+                                        options={materialOptions}
+                                        searchable={true}
+                                    />
+                                    <p className="text-[9px] font-bold text-primary/30 mt-2 px-1">Pilih satu atau lebih bahan yang dihabiskan dalam sesi treatment ini.</p>
+                                </div>
+                            </>
                         )}
 
                         <div className={(type === 'product' || type === 'racikan' || type === 'material') ? "grid grid-cols-2 gap-4" : "block"}>
@@ -215,17 +270,6 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                 </div>
                             </div>
                         )}
-
-                        <div>
-                            <label className={labelClassName}>URL Gambar</label>
-                            <input
-                                type="text"
-                                value={formState.image}
-                                onChange={(e) => handleChange('image', e.target.value)}
-                                className={`${getDynamicInputClass('image')} text-[11px]`}
-                                placeholder="https://..."
-                            />
-                        </div>
 
                         <button 
                             type="submit" 

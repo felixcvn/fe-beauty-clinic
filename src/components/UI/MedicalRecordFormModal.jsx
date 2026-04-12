@@ -329,7 +329,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                 value={perawatanSebelumnya}
                                                 onChange={(e) => setPerawatanSebelumnya(e.target.value)}
                                                 placeholder="Contoh: Belum pernah / New Customer..."
-                                                className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm placeholder:text-primary/20"
+                                                className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary shadow-sm placeholder:text-primary/20"
                                             />
                                         </div>
 
@@ -407,7 +407,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                         value={diagnosis}
                                                         onChange={(e) => setDiagnosis(e.target.value)}
                                                         placeholder="Hasil observasi detail..."
-                                                        className="w-full p-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-32 resize-none text-sm font-bold text-primary placeholder:text-primary/20 shadow-sm"
+                                                        className="w-full p-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-32 resize-none text-sm font-medium text-primary placeholder:text-primary/20 shadow-sm"
                                                     />
                                                 </div>
                                                 <div>
@@ -416,7 +416,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                         value={notes}
                                                         onChange={(e) => setNotes(e.target.value)}
                                                         placeholder="Prosedur, feedback pasien, dll..."
-                                                        className="w-full p-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-32 resize-none text-sm font-bold text-primary placeholder:text-primary/20 shadow-sm"
+                                                        className="w-full p-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-32 resize-none text-sm font-medium text-primary placeholder:text-primary/20 shadow-sm"
                                                     />
                                                 </div>
                                             </div>

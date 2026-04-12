@@ -110,11 +110,11 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
 
     return createPortal(
         <div 
-            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 transition-opacity"
             onClick={onClose}
         >
             <div 
-                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-in zoom-in-95 duration-200"
+                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up duration-200"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button

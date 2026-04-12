@@ -39,7 +39,7 @@ const PatientList = () => {
                 </button>
             </div>
 
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                     <div className="relative flex-1 group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
@@ -48,7 +48,7 @@ const PatientList = () => {
                             placeholder="Cari nama pasien atau ID..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                            className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all"
                         />
                     </div>
                     <div className="w-48 relative z-50">
@@ -67,13 +67,13 @@ const PatientList = () => {
                 <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left min-w-[800px]">
                         <thead>
-                            <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5">
-                                <th className="px-8 py-6">Nama Pasien</th>
-                                <th className="px-8 py-6">Umur</th>
-                                <th className="px-8 py-6">Terakhir Visit</th>
-                                <th className="px-8 py-6">Treatment</th>
-                                <th className="px-8 py-6 text-center">Status</th>
-                                <th className="px-8 py-6 text-right">Aksi</th>
+                            <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
+                                <th className="px-4 py-3 text-primary/80">Nama Pasien</th>
+                                <th className="px-4 py-3 text-primary/80">Umur</th>
+                                <th className="px-4 py-3 text-primary/80">Terakhir Visit</th>
+                                <th className="px-4 py-3 text-primary/80">Treatment</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
+                                <th className="px-4 py-3 text-right text-primary/80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -83,32 +83,32 @@ const PatientList = () => {
                                     onClick={() => navigate(`/medical-records/${patient.id}`)}
                                     className="border-b border-primary/5 last:border-0 cursor-pointer"
                                 >
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5">
-                                                {patient.name.split(' ').map(n => n[0]).join('')}
+                                    <td className="px-4 py-2">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5">
+                                                {patient.name.split(' ').map(n => n[0]).join('').substring(0,2)}
                                             </div>
-                                            <div className="font-black text-primary text-sm tracking-tight">{patient.name}</div>
+                                            <div className="font-medium text-primary text-sm tracking-tight">{patient.name}</div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6 text-primary/60 font-bold text-sm tracking-tight">{patient.age} Thn</td>
-                                    <td className="px-8 py-6 text-primary/40 font-black text-xs tracking-widest">{patient.lastVisit}</td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-2 text-primary/60 font-bold text-sm">
-                                            <FileText className="w-4 h-4 text-primary/20" />
+                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm tracking-tight">{patient.age} Thn</td>
+                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{patient.lastVisit}</td>
+                                    <td className="px-4 py-2">
+                                        <div className="flex items-center gap-2 text-primary font-medium text-sm">
+                                            <FileText className="w-3.5 h-3.5 text-primary/40" />
                                             {patient.condition}
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6 text-center">
-                                        <span className={`px-4 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] rounded-full shadow-sm ${patient.status === 'Aktif' ? 'bg-primary/10 text-primary' :
+                                    <td className="px-4 py-2 text-center">
+                                        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm border border-white/50 ${patient.status === 'Aktif' ? 'bg-primary/10 text-primary' :
                                             patient.status === 'Selesai' ? 'bg-accent-gold/10 text-accent-gold' :
-                                                'bg-red-50 text-red-400'
+                                                'bg-red-50 text-red-500'
                                             }`}>
                                             {patient.status}
                                         </span>
                                     </td>
-                                    <td className="px-8 py-6 text-right">
-                                        <button className="text-primary/40 hover:text-primary transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-lg active:scale-90">
+                                    <td className="px-4 py-2 text-right">
+                                        <button className="text-primary/40 hover:text-primary transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-sm active:scale-90">
                                             <ChevronRight className="w-4 h-4" />
                                         </button>
                                     </td>

@@ -16,13 +16,14 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
         setIsDownloading(true);
 
         try {
-            // "Nuclear Option": Clone the node and strip images entirely to guarantee no CORS/load errors
             const originalNode = reportRef.current;
             const clone = originalNode.cloneNode(true);
 
-            // Remove all images from the clone
+            // Ensure images have crossOrigin attribute for html2canvas
             const images = clone.querySelectorAll('img');
-            images.forEach(img => img.remove());
+            images.forEach(img => {
+                img.crossOrigin = 'anonymous';
+            });
 
             // Append clone to body to ensure it can be rendered (off-screen)
             clone.style.position = 'absolute';
@@ -32,12 +33,12 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
             clone.style.background = '#ffffff';
             document.body.appendChild(clone);
 
-            // Generate Canvas from the safe clone
+            // Generate Canvas from the clone
             const canvas = await html2canvas(clone, {
                 scale: 2,
                 logging: false,
                 backgroundColor: '#ffffff',
-                useCORS: false, // No external resources needed now
+                useCORS: true,
                 allowTaint: false
             });
 

@@ -318,7 +318,7 @@ const ReportsPage = () => {
             </div>
 
             {/* Detailed Table Section (Option A Layout) */}
-            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden mt-10">
+            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden mt-10">
                 <div className="p-6 md:p-10 border-b border-primary/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h3 className="text-xl font-black text-primary tracking-tighter">Detail Transaksi</h3>
@@ -332,35 +332,35 @@ const ReportsPage = () => {
                 <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
-                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5 bg-gray-50/50">
-                                <th className="px-8 py-5 rounded-tl-xl">Invoice</th>
-                                <th className="px-8 py-5">Tanggal</th>
-                                <th className="px-8 py-5">Pasien</th>
-                                <th className="px-8 py-5">Layanan / Produk</th>
-                                <th className="px-8 py-5 text-right">Total (Rp)</th>
-                                <th className="px-8 py-5 text-center">Status</th>
+                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
+                                <th className="px-4 py-3 text-primary/80">Invoice</th>
+                                <th className="px-4 py-3 text-primary/80">Tanggal</th>
+                                <th className="px-4 py-3 text-primary/80">Pasien</th>
+                                <th className="px-4 py-3 text-primary/80">Layanan / Produk</th>
+                                <th className="px-4 py-3 text-right text-primary/80">Total (Rp)</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {filteredTransactions.map((trx, idx) => (
                                 <tr key={idx} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
-                                    <td className="px-8 py-4">
-                                        <span className="text-xs font-black text-primary tracking-widest">{trx.id}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary tracking-tight">{trx.id}</span>
                                     </td>
-                                    <td className="px-8 py-4">
-                                        <span className="text-[11px] font-bold text-primary/60">{trx.date}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary/80">{trx.date}</span>
                                     </td>
-                                    <td className="px-8 py-4">
-                                        <span className="text-xs font-black text-primary">{trx.patient}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary">{trx.patient}</span>
                                     </td>
-                                    <td className="px-8 py-4">
-                                        <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{trx.treatment}</span>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary/80">{trx.treatment}</span>
                                     </td>
-                                    <td className="px-8 py-4 text-right">
-                                        <span className="text-sm font-black text-primary tracking-tight">{(trx.amount).toLocaleString('id-ID')}</span>
+                                    <td className="px-4 py-2 text-right">
+                                        <span className="text-sm font-medium text-primary">{(trx.amount).toLocaleString('id-ID')}</span>
                                     </td>
-                                    <td className="px-8 py-4 text-center">
-                                        <span className={`inline-block px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${trx.status === 'Lunas' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>{trx.status}</span>
+                                    <td className="px-4 py-2 text-center">
+                                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border ${trx.status === 'Lunas' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-yellow-50 text-yellow-600 border-yellow-100'}`}>{trx.status}</span>
                                     </td>
                                 </tr>
                             ))}

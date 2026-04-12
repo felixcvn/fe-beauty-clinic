@@ -10,7 +10,7 @@ export const ROLES = {
 
 export const ROLE_PERMISSIONS = {
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
-    [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations'],
+    [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations', '/cs-products', '/cs-treatments'],
     [ROLES.HRD]: ['/', '/staff', '/attendance'],
     [ROLES.MANAGER]: ['/', '/promos', '/attendance'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],

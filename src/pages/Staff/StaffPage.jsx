@@ -189,49 +189,43 @@ const StaffPage = () => {
                     <table className="w-full text-left border-collapse min-w-[1000px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                <th className="px-8 py-6">Karyawan</th>
-                                <th className="px-8 py-6">Kontak</th>
-                                <th className="px-8 py-6">Jabatan</th>
-                                <th className="px-8 py-6">Cabang</th>
-                                {!isReadOnly && <th className="px-8 py-6 text-right">Aksi</th>}
+                                <th className="px-4 py-3 text-primary/80">Karyawan</th>
+                                <th className="px-4 py-3 text-primary/80">Kontak</th>
+                                <th className="px-4 py-3 text-primary/80">Jabatan</th>
+                                <th className="px-4 py-3 text-primary/80">Cabang</th>
+                                {!isReadOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {currentStaff.map((staff) => (
                                 <tr key={staff.id} className="hover:bg-primary/[0.02] transition-colors cursor-pointer" onClick={() => setDetailStaff(staff)}>
-                                    <td className="px-8 py-6">
+                                    <td className="px-4 py-2">
                                         <div className="flex items-center gap-3">
                                             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-lg shadow-primary/20 border border-white/20">
                                                 {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                             </div>
                                             <div>
-                                                <p className="text-xs font-black text-primary tracking-tight">{staff.name}</p>
-                                                <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{staff.id}</p>
+                                                <p className="text-sm font-medium text-primary tracking-tight">{staff.name}</p>
+                                                <p className="text-xs font-medium text-primary/60">{staff.id}</p>
                                             </div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
+                                    <td className="px-4 py-2">
                                         <div className="space-y-1">
-                                            <div className="flex items-center gap-2 text-primary/60"><Mail className="w-3 h-3" /><span className="text-[10px] font-bold">{staff.email}</span></div>
-                                            <div className="flex items-center gap-2 text-primary/60"><Phone className="w-3 h-3" /><span className="text-[10px] font-bold">{staff.phone}</span></div>
+                                            <div className="flex items-center gap-2 text-primary/80"><span className="text-sm font-medium">{staff.email}</span></div>
+                                            <div className="flex items-center gap-2 text-primary/80"><span className="text-sm font-medium">{staff.phone}</span></div>
                                         </div>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-secondary border border-primary/5 w-fit">
-                                            <ShieldCheck className="w-3.5 h-3.5 text-accent-gold" />
-                                            <span className="text-[9px] font-black text-primary uppercase tracking-widest">
-                                                {['HRD', 'Owner', 'Komisaris'].includes(staff.divisi) ? staff.divisi : `${staff.posisi} - ${staff.divisi}`}
-                                            </span>
-                                        </div>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary/80">
+                                            {['HRD', 'Owner', 'Komisaris'].includes(staff.divisi) ? staff.divisi : `${staff.posisi} - ${staff.divisi}`}
+                                        </span>
                                     </td>
-                                    <td className="px-8 py-6">
-                                        <div className="flex items-center gap-2 text-primary/60">
-                                            <Building2 className="w-4 h-4" />
-                                            <span className="text-[14px] font-semibold tracking-tight">{staff.cabang}</span>
-                                        </div>
+                                    <td className="px-4 py-2">
+                                        <span className="text-sm font-medium text-primary/80">{staff.cabang}</span>
                                     </td>
                                     {!isReadOnly && (
-                                        <td className="px-8 py-6 text-right">
+                                        <td className="px-4 py-2 text-right">
                                             <div className="flex justify-end gap-2">
                                                 <button onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary hover:shadow-lg transition-all active:scale-90"><Edit3 className="w-4 h-4" /></button>
                                                 <button onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }} className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-600 hover:shadow-lg transition-all active:scale-90"><Trash2 className="w-4 h-4" /></button>

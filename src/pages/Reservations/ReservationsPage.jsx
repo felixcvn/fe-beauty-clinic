@@ -28,11 +28,13 @@ const ReservationsPage = () => {
 
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
+            case 'dikonfirmasi':
             case 'confirmed':
                 return 'bg-green-100 text-green-700 border-green-200';
-            case 'waiting':
             case 'menunggu':
+            case 'waiting':
                 return 'bg-amber-100 text-amber-700 border-amber-200';
+            case 'dibatalkan':
             case 'cancelled':
                 return 'bg-red-100 text-red-700 border-red-200';
             default:
@@ -42,11 +44,13 @@ const ReservationsPage = () => {
 
     const getStatusIcon = (status) => {
         switch (status?.toLowerCase()) {
+            case 'dikonfirmasi':
             case 'confirmed':
                 return <CheckCircle2 className="w-3 h-3" />;
-            case 'waiting':
             case 'menunggu':
+            case 'waiting':
                 return <Clock4 className="w-3 h-3" />;
+            case 'dibatalkan':
             case 'cancelled':
                 return <XCircle className="w-3 h-3" />;
             default:
@@ -79,8 +83,8 @@ const ReservationsPage = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
                     { label: 'Total Reservasi', value: bookings.length, color: 'text-primary', bg: 'bg-primary/5', icon: Calendar },
-                    { label: 'Terkonfirmasi', value: bookings.filter(b => b.status?.toLowerCase() === 'confirmed').length, color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle2 },
-                    { label: 'Menunggu', value: bookings.filter(b => b.status?.toLowerCase() === 'waiting' || b.status?.toLowerCase() === 'menunggu').length, color: 'text-amber-600', bg: 'bg-amber-50', icon: Clock4 },
+                    { label: 'Terkonfirmasi', value: bookings.filter(b => b.status?.toLowerCase() === 'dikonfirmasi' || b.status?.toLowerCase() === 'confirmed').length, color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle2 },
+                    { label: 'Menunggu', value: bookings.filter(b => b.status?.toLowerCase() === 'menunggu' || b.status?.toLowerCase() === 'waiting').length, color: 'text-amber-600', bg: 'bg-amber-50', icon: Clock4 },
                     { label: 'Jam Padat', value: '14:00 - 16:00', color: 'text-[#8E7AB5]', bg: 'bg-[#8E7AB5]/5', icon: Clock },
                 ].map((stat, i) => (
                     <div key={i} className={`${stat.bg} p-6 rounded-[2rem] border border-white/50 backdrop-blur-sm relative overflow-hidden group hover:scale-[1.02] transition-all`}>
@@ -92,8 +96,8 @@ const ReservationsPage = () => {
             </div>
 
             {/* Table Section */}
-            <div className="bg-white rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
-                <div className="p-6 md:p-6 border-b border-primary/5 bg-gray-50/30">
+            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                <div className="p-4 md:p-6 border-b border-primary/5 bg-gray-50/30">
                     <div className="relative w-full group">
                         <Search className="w-5 h-5 text-primary/20 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors" />
                         <input
@@ -109,49 +113,47 @@ const ReservationsPage = () => {
                 <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr className="bg-gray-50/50">
-                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Waktu Kedatangan</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Detail Customer</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Pendaftar</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5">Keterangan</th>
-                                <th className="px-8 py-5 text-[10px] font-black text-primary/40 uppercase tracking-widest border-b border-primary/5 text-center">Status</th>
+                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
+                                <th className="px-4 py-3 text-primary/80">Waktu Kedatangan</th>
+                                <th className="px-4 py-3 text-primary/80">Detail Customer</th>
+                                <th className="px-4 py-3 text-primary/80">Pendaftar</th>
+                                <th className="px-4 py-3 text-primary/80">Keterangan</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {filteredBookings.length > 0 ? (
                                 filteredBookings.map((booking) => (
                                     <tr key={booking.id} className="group hover:bg-primary/[0.02] transition-colors cursor-default">
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center group-hover:bg-primary group-hover:text-secondary transition-all">
-                                                    <Clock className="w-5 h-5 text-primary group-hover:text-secondary" />
-                                                </div>
-                                                <span className="font-black text-primary tracking-tighter text-lg">{booking.time}</span>
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-center gap-2 text-primary/80">
+                                                <Clock className="w-4 h-4 text-primary/60" />
+                                                <span className="text-sm font-medium">{booking.time}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6">
-                                            <div className="space-y-1">
-                                                <p className="font-black text-primary group-hover:translate-x-1 transition-transform">{booking.name}</p>
-                                                <div className="flex items-center gap-2 text-[10px] text-primary/40 font-black uppercase tracking-widest">
+                                        <td className="px-4 py-2">
+                                            <div className="space-y-0.5">
+                                                <p className="text-sm font-medium text-primary tracking-tight">{booking.name}</p>
+                                                <div className="flex items-center gap-1.5 text-sm font-medium text-primary/80">
                                                     <Phone className="w-3 h-3" />
                                                     {booking.phone}
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-center gap-2 text-primary/60">
-                                                <User className="w-4 h-4 opacity-40" />
-                                                <span className="text-[10px] font-black uppercase tracking-widest">{booking.broughtByStaff}</span>
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-center gap-1.5 text-primary/80">
+                                                <User className="w-3.5 h-3.5" />
+                                                <span className="text-sm font-medium">{booking.broughtByStaff}</span>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6">
-                                            <div className="flex items-start gap-2 max-w-xs group-hover:bg-white p-2 rounded-xl transition-all border border-transparent group-hover:border-primary/5">
-                                                <Info className="w-4 h-4 text-primary/20 mt-0.5 flex-shrink-0" />
-                                                <p className="text-xs font-bold text-primary/60 line-clamp-2 leading-relaxed">{booking.notes || 'Tidak ada catatan khusus'}</p>
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-start gap-1.5 max-w-xs text-primary/80">
+                                                <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                                                <p className="text-sm font-medium line-clamp-2">{booking.notes || 'Tidak ada catatan khusus'}</p>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-6 text-center">
-                                            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border ${getStatusColor(booking.status)}`}>
+                                        <td className="px-4 py-2 text-center">
+                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm ${getStatusColor(booking.status)}`}>
                                                 {getStatusIcon(booking.status)}
                                                 {booking.status}
                                             </div>
