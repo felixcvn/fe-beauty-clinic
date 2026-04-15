@@ -14,7 +14,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         tempatLahir: '',
         tanggalLahir: '',
         jenisKelamin: 'Laki-laki',
-        alamat: '',
+        kabupatenKota: '',
+        kecamatan: '',
         email: '',
         noTelepon: ''
     });
@@ -31,7 +32,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     tempatLahir: initialData.tempatLahir || '',
                     tanggalLahir: initialData.tanggalLahir || '',
                     jenisKelamin: initialData.jenisKelamin || 'Laki-laki',
-                    alamat: initialData.alamat || '',
+                    kabupatenKota: initialData.kabupatenKota || '',
+                    kecamatan: initialData.kecamatan || '',
                     email: initialData.email || '',
                     noTelepon: initialData.noTelepon || initialData.phone || ''
                 });
@@ -44,7 +46,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     tempatLahir: '',
                     tanggalLahir: '',
                     jenisKelamin: 'Laki-laki',
-                    alamat: '',
+                    kabupatenKota: '',
+                    kecamatan: '',
                     email: '',
                     noTelepon: ''
                 });
@@ -82,7 +85,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         if (!formData.noTelepon.trim()) newErrors.noTelepon = "Nomor telepon wajib diisi";
         else if (!/^\d+$/.test(formData.noTelepon)) newErrors.noTelepon = "Nomor telepon hanya boleh berisi angka";
 
-        if (!formData.alamat.trim()) newErrors.alamat = "Alamat lengkap wajib diisi";
+        if (!formData.kabupatenKota) newErrors.kabupatenKota = "Kabupaten/Kota wajib dipilih";
+        if (!formData.kecamatan) newErrors.kecamatan = "Kecamatan wajib dipilih";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -285,16 +289,51 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                             </div>
                         </div>
 
-                        <div>
-                            <label className={labelClass}>Alamat Lengkap</label>
-                            <textarea
-                                rows="3"
-                                placeholder="Detail alamat domisili pasien..."
-                                className={`${getInputClass(errors.alamat)} resize-none`}
-                                value={formData.alamat}
-                                onChange={(e) => handleChange('alamat', e.target.value)}
-                            />
-                            {errors.alamat && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.alamat}</p>}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label className={labelClass}>Kabupaten/Kota</label>
+                                <CustomSelect 
+                                    value={formData.kabupatenKota} 
+                                    onChange={(value) => handleChange('kabupatenKota', value)}
+                                    placeholder="Pilih Kabupaten/Kota"
+                                    searchable={true}
+                                    options={[
+                                        { value: 'Jakarta Selatan', label: 'Jakarta Selatan' },
+                                        { value: 'Jakarta Pusat', label: 'Jakarta Pusat' },
+                                        { value: 'Jakarta Barat', label: 'Jakarta Barat' },
+                                        { value: 'Jakarta Timur', label: 'Jakarta Timur' },
+                                        { value: 'Jakarta Utara', label: 'Jakarta Utara' },
+                                        { value: 'Tangerang', label: 'Tangerang' },
+                                        { value: 'Tangerang Selatan', label: 'Tangerang Selatan' },
+                                        { value: 'Depok', label: 'Depok' },
+                                        { value: 'Bogor', label: 'Bogor' },
+                                        { value: 'Bekasi', label: 'Bekasi' }
+                                    ]}
+                                />
+                                {errors.kabupatenKota && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kabupatenKota}</p>}
+                            </div>
+                            <div>
+                                <label className={labelClass}>Kecamatan</label>
+                                <CustomSelect 
+                                    value={formData.kecamatan} 
+                                    onChange={(value) => handleChange('kecamatan', value)}
+                                    placeholder="Pilih Kecamatan"
+                                    searchable={true}
+                                    options={[
+                                        { value: 'Kebayoran Baru', label: 'Kebayoran Baru' },
+                                        { value: 'Menteng', label: 'Menteng' },
+                                        { value: 'Tebet', label: 'Tebet' },
+                                        { value: 'Setiabudi', label: 'Setiabudi' },
+                                        { value: 'Kembangan', label: 'Kembangan' },
+                                        { value: 'Kelapa Gading', label: 'Kelapa Gading' },
+                                        { value: 'Kemayoran', label: 'Kemayoran' },
+                                        { value: 'Cilandak', label: 'Cilandak' },
+                                        { value: 'Serpong', label: 'Serpong' },
+                                        { value: 'Pamulang', label: 'Pamulang' }
+                                    ]}
+                                />
+                                {errors.kecamatan && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kecamatan}</p>}
+                            </div>
                         </div>
                         
                         <button 

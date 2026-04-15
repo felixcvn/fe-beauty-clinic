@@ -6,7 +6,7 @@ import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from '../../components/UI/CustomSelect';
 import PatientEditModal from '../../components/UI/PatientEditModal';
-import BookingFormModal from '../../components/UI/BookingFormModal';
+import BookingFormModal from '../../components/UI/ReservationFormModal';
 
 const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();

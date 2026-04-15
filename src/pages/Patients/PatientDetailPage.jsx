@@ -27,6 +27,8 @@ const PatientDetailPage = () => {
         noRM: patient.noRM || '-',
         noIdentitas: patient.noIdentitas || '-',
         tanggalLahir: patient.tanggalLahir || '-',
+        kabupatenKota: patient.kabupatenKota || '-',
+        kecamatan: patient.kecamatan || '-',
     };
 
     // Gunakan data riwayat point dari pasien jika ada, atau array kosong
@@ -90,6 +92,17 @@ const PatientDetailPage = () => {
                                 <div>
                                     <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Tanggal Lahir</p>
                                     <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.tanggalLahir}</p>
+                                </div>
+                            </div>
+                            <div className="h-px w-full bg-primary/5" />
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Kabupaten/Kota</p>
+                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.kabupatenKota}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Kecamatan</p>
+                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.kecamatan}</p>
                                 </div>
                             </div>
                         </div>
