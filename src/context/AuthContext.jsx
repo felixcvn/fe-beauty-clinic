@@ -3,12 +3,12 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 const USER_SEEDER = [
-    { username: 'doctor', email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Sarah Smith', role: 'Dokter' },
-    { username: 'cs', email: 'cs@clinic.com', password: 'password123', name: 'Budi Santoso', role: 'Customer Service' },
-    { username: 'hrd', email: 'hrd@clinic.com', password: 'password123', name: 'Linda Rahayu', role: 'HRD' },
+    { username: 'doctor', email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Mega Endahlestari', role: 'Dokter' },
+    { username: 'cs', email: 'cs@clinic.com', password: 'password123', name: 'Mba Fia', role: 'Customer Service' },
+    { username: 'hrd', email: 'hrd@clinic.com', password: 'password123', name: 'Bu Yeyen', role: 'HRD' },
     { username: 'manager', email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
     { username: 'gudang', email: 'gudang@clinic.com', password: 'password123', name: 'Zulkifli', role: 'Gudang Umum' },
-    { username: 'owner', email: 'owner@clinic.com', password: 'password123', name: 'dr.Mega Endahlestari', role: 'Owner' },
+    { username: 'owner', email: 'owner@clinic.com', password: 'password123', name: 'Nanin Lindiyawati', role: 'Owner' },
     { username: 'komisaris', email: 'komisaris@clinic.com', password: 'password123', name: 'Komisaris', role: 'Komisaris' },
 ];
 
