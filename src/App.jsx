@@ -10,7 +10,7 @@ import PatientList from './pages/MedicalRecords/PatientList';
 import { MockDataProvider } from './context/MockDataContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { ToastProvider } from './context/ToastContext';
-import Toast from './components/UI/Toast';
+
 
 import PatientDetail from './pages/MedicalRecords/PatientDetail';
 
@@ -33,6 +33,7 @@ import WarehouseDashboard from './pages/Warehouse/WarehouseDashboard';
 import ItemManagementPage from './pages/Warehouse/ItemManagementPage';
 import PromoManagementPage from './pages/Promos/PromoManagementPage';
 import ReservationsPage from './pages/Reservations/ReservationsPage';
+import OwnerDashboard from './pages/Dashboard/OwnerDashboard';
 
 import { hasPermission } from './utils/rbac';
 
@@ -69,6 +70,10 @@ const DashboardSwitcher = () => {
         return <WarehouseDashboard />;
     }
     
+    if (user?.role === 'Owner' || user?.role === 'Komisaris') {
+        return <OwnerDashboard />;
+    }
+    
     return <Dashboard />;
 };
 
@@ -78,7 +83,7 @@ function App() {
             <ToastProvider>
                 <MockDataProvider>
                     <Router>
-                        <Toast />
+
                         <Routes>
                             <Route path="/login" element={<Login />} />
 

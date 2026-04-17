@@ -7,25 +7,25 @@ const data = [
     { name: 'Feb', revenue: 3000, customers: 198 },
     { name: 'Mar', revenue: 2000, customers: 980 },
     { name: 'Apr', revenue: 2780, customers: 390 },
-    { name: 'May', revenue: 1890, customers: 480 },
+    { name: 'Mei', revenue: 1890, customers: 480 },
     { name: 'Jun', revenue: 2390, customers: 380 },
     { name: 'Jul', revenue: 3490, customers: 430 },
 ];
 
 const treatmentData = [
-    { name: 'Facial', value: 400, color: '#1B4D3E' },
-    { name: 'Laser', value: 300, color: '#D4AF37' },
+    { name: 'Facial Acne', value: 400, color: '#1B4D3E' },
+    { name: 'Laser Therapy', value: 300, color: '#D4AF37' },
     { name: 'Botox', value: 300, color: '#2C5F4D' },
-    { name: 'Peeling', value: 200, color: '#E5D5B0' },
-    { name: 'Booster', value: 150, color: '#4A7C59' },
+    { name: 'Chemical Peel', value: 200, color: '#E5D5B0' },
+    { name: 'Skin Booster', value: 150, color: '#4A7C59' },
 ];
 
 const productData = [
-    { name: 'Serum', value: 500, color: '#1B4D3E' },
-    { name: 'Sunscreen', value: 450, color: '#D4AF37' },
-    { name: 'Night Cream', value: 350, color: '#2C5F4D' },
-    { name: 'Facial Wash', value: 250, color: '#E5D5B0' },
-    { name: 'Toner', value: 200, color: '#829356' },
+    { name: 'Serum Vit C', value: 500, color: '#1B4D3E' },
+    { name: 'Sunscreen SPF50', value: 450, color: '#D4AF37' },
+    { name: 'Krim Malam', value: 350, color: '#2C5F4D' },
+    { name: 'Sabun Wajah', value: 250, color: '#E5D5B0' },
+    { name: 'Toner BHA/AHA', value: 200, color: '#829356' },
 ];
 
 const mockTransactions = [
@@ -39,10 +39,10 @@ const mockTransactions = [
 
 const ReportsPage = () => {
     const reportCards = [
-        { title: 'Revenue Growth', value: 'Rp 45.2M', change: '+15.4%', trend: 'up', icon: DollarSign },
-        { title: 'New Customers', value: '124', change: '+8.2%', trend: 'up', icon: Users },
-        { title: 'Treatment Success', value: '98.5%', change: '+0.5%', trend: 'up', icon: Activity },
-        { title: 'Avg. Transaction', value: 'Rp 850k', change: '-2.1%', trend: 'down', icon: BarChart3 },
+        { title: 'Pertumbuhan Pendapatan', value: 'Rp 45.2M', change: '+15.4%', trend: 'up', icon: DollarSign },
+        { title: 'Pasien Baru', value: '124', change: '+8.2%', trend: 'up', icon: Users },
+        { title: 'Total Kunjungan', value: '312', change: '+11.3%', trend: 'up', icon: Activity },
+        { title: 'Rata-rata Transaksi', value: 'Rp 850k', change: '-2.1%', trend: 'down', icon: BarChart3 },
     ];
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -137,11 +137,11 @@ const ReportsPage = () => {
                         <div className="flex flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-primary" />
-                                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Revenue</span>
+                                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Pendapatan</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-2 h-2 rounded-full bg-accent-gold" />
-                                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Customers</span>
+                                <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Pasien</span>
                             </div>
                         </div>
                     </div>

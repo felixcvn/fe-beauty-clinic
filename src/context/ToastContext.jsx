@@ -1,23 +1,37 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useRef, useCallback } from 'react';
+import { Toast } from 'primereact/toast';
 
 const ToastContext = createContext();
 
 export const ToastProvider = ({ children }) => {
-    const [toast, setToast] = useState({ message: '', type: 'success', isVisible: false });
+    const toastRef = useRef(null);
 
     const showToast = useCallback((message, type = 'success') => {
-        setToast({ message, type, isVisible: true });
-        setTimeout(() => {
-            setToast(prev => ({ ...prev, isVisible: false }));
-        }, 3000);
-    }, []);
+        const severityMap = {
+            success: 'success',
+            error: 'error',
+            warning: 'warn',
+            info: 'info',
+        };
 
-    const hideToast = useCallback(() => {
-        setToast(prev => ({ ...prev, isVisible: false }));
+        const summaryMap = {
+            success: 'Berhasil',
+            error: 'Gagal',
+            warning: 'Perhatian',
+            info: 'Informasi',
+        };
+
+        toastRef.current?.show({
+            severity: severityMap[type] || 'success',
+            summary: summaryMap[type] || 'Berhasil',
+            detail: message,
+            life: 3500,
+        });
     }, []);
 
     return (
-        <ToastContext.Provider value={{ toast, showToast, hideToast }}>
+        <ToastContext.Provider value={{ showToast }}>
+            <Toast ref={toastRef} position="top-right" />
             {children}
         </ToastContext.Provider>
     );

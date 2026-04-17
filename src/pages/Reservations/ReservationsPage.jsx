@@ -116,6 +116,7 @@ const ReservationsPage = () => {
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-4 py-3 text-primary/80">Waktu Kedatangan</th>
                                 <th className="px-4 py-3 text-primary/80">Detail Customer</th>
+                                <th className="px-4 py-3 text-primary/80">No. Telepon</th>
                                 <th className="px-4 py-3 text-primary/80">Pendaftar</th>
                                 <th className="px-4 py-3 text-primary/80">Keterangan</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
@@ -132,12 +133,12 @@ const ReservationsPage = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-2">
-                                            <div className="space-y-0.5">
-                                                <p className="text-sm font-medium text-primary tracking-tight">{booking.name}</p>
-                                                <div className="flex items-center gap-1.5 text-sm font-medium text-primary/80">
-                                                    <Phone className="w-3 h-3" />
-                                                    {booking.phone}
-                                                </div>
+                                            <p className="text-sm font-medium text-primary tracking-tight">{booking.name}</p>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-center gap-1.5 text-sm font-medium text-primary/80">
+                                                <Phone className="w-3 h-3 text-primary/40" />
+                                                {booking.phone}
                                             </div>
                                         </td>
                                         <td className="px-4 py-2">
@@ -162,7 +163,7 @@ const ReservationsPage = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="px-8 py-16 text-center">
+                                    <td colSpan="6" className="px-8 py-16 text-center">
                                         <div className="flex flex-col items-center gap-4 animate-bounce">
                                             <div className="w-16 h-16 rounded-3xl bg-primary/5 flex items-center justify-center text-primary/20">
                                                 <Search className="w-8 h-8" />
