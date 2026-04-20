@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { 
     Calendar, 
     Plus, 
@@ -154,7 +154,6 @@ const ReservationsPage = () => {
                                 <th className="px-4 py-3 text-primary/80">No. Telepon</th>
                                 <th className="px-4 py-3 text-primary/80">Pendaftar</th>
                                 <th className="px-4 py-3 text-primary/80">Keterangan</th>
-                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
                                 <th className="px-4 py-3 text-right text-primary/80">Aksi</th>
                             </tr>
                         </thead>
@@ -187,12 +186,6 @@ const ReservationsPage = () => {
                                             <div className="flex items-start gap-1.5 max-w-xs text-primary/80">
                                                 <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
                                                 <p className="text-sm font-medium line-clamp-2">{booking.notes || 'Tidak ada catatan khusus'}</p>
-                                            </div>
-                                        </td>
-                                        <td className="px-4 py-2 text-center">
-                                            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border shadow-sm ${getStatusColor(booking.status)}`}>
-                                                {getStatusIcon(booking.status)}
-                                                {booking.status}
                                             </div>
                                         </td>
                                         <td className="px-4 py-2 text-right">

@@ -1,15 +1,11 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calendar, User, Phone, Clock, FileText, CheckCircle2, Edit3 } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from './CustomSelect';
 
-const STATUS_OPTIONS = [
-    { value: 'Dikonfirmasi', label: 'Dikonfirmasi' },
-    { value: 'Menunggu', label: 'Menunggu' },
-    { value: 'Dibatalkan', label: 'Dibatalkan' },
-];
+
 
 const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
     const { staff, addBooking, updateBooking } = useMockData();
@@ -184,24 +180,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
                             </div>
                         </div>
 
-                        {/* Status — hanya tampil saat edit */}
-                        {isEditMode && (
-                            <div className="space-y-6 pt-2">
-                                <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
-                                    <CheckCircle2 className="w-4 h-4 text-primary/30" />
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Status Reservasi</h4>
-                                </div>
-                                <div className="space-y-1">
-                                    <label className={labelClass}>Status</label>
-                                    <CustomSelect
-                                        options={STATUS_OPTIONS}
-                                        value={formData.status}
-                                        onChange={(val) => setFormData({ ...formData, status: val })}
-                                        placeholder="Pilih Status..."
-                                    />
-                                </div>
-                            </div>
-                        )}
+
 
                         {/* Catatan */}
                         <div className="space-y-6 pt-2">
