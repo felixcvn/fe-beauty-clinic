@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { 
     Calendar, 
     Plus, 
@@ -10,17 +10,25 @@ import {
     CheckCircle2,
     Clock4,
     AlertCircle,
-    XCircle
+    XCircle,
+    Edit3,
+    Trash2,
+    AlertTriangle
 } from 'lucide-react';
+import { createPortal } from 'react-dom';
 import { useMockData } from '../../context/MockDataContext';
+import { useToast } from '../../context/ToastContext';
 import ReservationFormModal from '../../components/UI/ReservationFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const ReservationsPage = () => {
-    const { bookings } = useMockData();
+    const { bookings, deleteBooking } = useMockData();
+    const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = React.useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingBooking, setEditingBooking] = useState(null);
+    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '' });
 
     // Simulate loading
     React.useEffect(() => {
@@ -66,6 +74,22 @@ const ReservationsPage = () => {
         }
     };
 
+    const openEditModal = (booking) => {
+        setEditingBooking(booking);
+        setIsModalOpen(true);
+    };
+
+    const openAddModal = () => {
+        setEditingBooking(null);
+        setIsModalOpen(true);
+    };
+
+    const handleDelete = () => {
+        deleteBooking(deleteConfirm.id);
+        showToast('Reservasi berhasil dihapus', 'success');
+        setDeleteConfirm({ open: false, id: null, name: '' });
+    };
+
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
             {/* Header Section */}
@@ -79,7 +103,7 @@ const ReservationsPage = () => {
                     </p>
                 </div>
                 <button 
-                    onClick={() => setIsModalOpen(true)}
+                    onClick={openAddModal}
                     className="flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300 group shadow-lg"
                 >
                     <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" />
@@ -110,7 +134,7 @@ const ReservationsPage = () => {
                         <Search className="w-5 h-5 text-primary/20 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
-                            placeholder="Cari nama, telp, atau pegawai..."
+                            placeholder="Cari nama, telp, atau Karyawan..."
                             className="w-full pl-12 pr-4 py-4 bg-white border border-primary/5 rounded-2xl text-primary placeholder:text-primary/20 focus:ring-4 focus:ring-primary/5 transition-all outline-none font-medium text-sm shadow-sm"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
@@ -119,7 +143,7 @@ const ReservationsPage = () => {
                 </div>
 
                 {isLoading ? (
-                    <TableSkeleton rows={8} columns={6} />
+                    <TableSkeleton rows={8} columns={7} />
                 ) : (
                     <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse">
@@ -131,6 +155,7 @@ const ReservationsPage = () => {
                                 <th className="px-4 py-3 text-primary/80">Pendaftar</th>
                                 <th className="px-4 py-3 text-primary/80">Keterangan</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
+                                <th className="px-4 py-3 text-right text-primary/80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -170,11 +195,29 @@ const ReservationsPage = () => {
                                                 {booking.status}
                                             </div>
                                         </td>
+                                        <td className="px-4 py-2 text-right">
+                                            <div className="flex justify-end gap-2">
+                                                <button
+                                                    onClick={() => openEditModal(booking)}
+                                                    className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary transition-all"
+                                                    title="Edit Reservasi"
+                                                >
+                                                    <Edit3 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => setDeleteConfirm({ open: true, id: booking.id, name: booking.name })}
+                                                    className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-500 transition-all"
+                                                    title="Hapus Reservasi"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="6" className="px-8 py-16 text-center">
+                                    <td colSpan="7" className="px-8 py-16 text-center">
                                         <div className="flex flex-col items-center gap-4 animate-bounce">
                                             <div className="w-16 h-16 rounded-3xl bg-primary/5 flex items-center justify-center text-primary/20">
                                                 <Search className="w-8 h-8" />
@@ -193,12 +236,46 @@ const ReservationsPage = () => {
                 )}
             </div>
 
+            {/* Modal Tambah / Edit */}
             <ReservationFormModal 
                 isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
+                onClose={() => { setIsModalOpen(false); setEditingBooking(null); }}
+                initialData={editingBooking}
             />
+
+            {/* Delete Confirm Modal */}
+            {deleteConfirm.open && createPortal(
+                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
+                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, id: null, name: '' })} />
+                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
+                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <AlertTriangle className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Hapus Reservasi?</h3>
+                        <p className="text-sm text-primary/40 font-bold mb-8">
+                            Yakin ingin menghapus reservasi atas nama <span className="text-primary">{deleteConfirm.name}</span>?
+                        </p>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => setDeleteConfirm({ open: false, id: null, name: '' })}
+                                className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all"
+                            >
+                                Batal
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all"
+                            >
+                                Ya, Hapus
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };
 
 export default ReservationsPage;
+

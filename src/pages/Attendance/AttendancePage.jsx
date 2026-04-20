@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import {
     CalendarDays, Clock, UserCheck, UserMinus, Search, Filter,
     MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera,
@@ -21,7 +21,7 @@ const AttendancePage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
 
-    // ─── Global States ─────────────────────────────────────────────────────────
+    // â”€â”€â”€ Global States â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('attendance');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
@@ -36,7 +36,7 @@ const AttendancePage = () => {
         return () => clearTimeout(timer);
     }, [activeTab]); // Reload skeleton when tab changes for better UX
 
-    // ─── Modal States ───────────────────────────────────────────────────────────
+    // â”€â”€â”€ Modal States â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [isScanModalOpen, setIsScanModalOpen] = useState(false);
     const [scanType, setScanType] = useState('in');
     const [selectedStaffId, setSelectedStaffId] = useState(null);
@@ -53,11 +53,11 @@ const AttendancePage = () => {
     const [isOvertimeApprovalOpen, setIsOvertimeApprovalOpen] = useState(false);
     const [selectedOvertimeReq, setSelectedOvertimeReq] = useState(null);
 
-    // ─── Role Checks ────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Role Checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const canAccessReports = user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD';
     const canApproveLeave = user?.role === 'HRD';
 
-    // ─── Mock Data: Attendance Stats ────────────────────────────────────────────
+    // â”€â”€â”€ Mock Data: Attendance Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [attendanceStats] = useState([
         { title: 'Hadir Hari Ini', value: '24', total: '26', icon: UserCheck, color: 'text-green-500' },
         { title: 'Izin / Sakit', value: '2', total: '26', icon: UserMinus, color: 'text-yellow-500' },
@@ -65,24 +65,24 @@ const AttendancePage = () => {
         { title: 'Rata-rata Kehadiran', value: '96%', icon: CalendarDays, color: 'text-primary' },
     ]);
 
-    // ─── Mock Data: Staff Attendance ─────────────────────────────────────────────
+    // â”€â”€â”€ Mock Data: Staff Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [staffAttendance, setStaffAttendance] = useState([
-        { id: 'STF-001', name: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-002', name: 'Linda Rahayu', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:05', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-003', name: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
-        { id: 'STF-004', name: 'Maya Sari', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '--:--', checkOut: '--:--', status: 'Izin', date: '2026-04-18', photoIn: null, photoOut: null },
-        { id: 'STF-005', name: 'Bambang Heru', role: 'OB', shift: 'ob_normal', checkIn: '07:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-006', name: 'Ayu Lestari', role: 'Customer Service', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-007', name: 'Dewi Rahmawati', role: 'HRD', shift: 'umum_normal', checkIn: '08:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-008', name: 'Fajar Nugroho', role: 'Manager', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
-        { id: 'STF-009', name: 'Rina Kartika', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'STF-010', name: 'Agus Setiawan', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '--:--', checkOut: '--:--', status: 'Sakit', date: '2026-04-18', photoIn: null, photoOut: null },
-        { id: 'STF-011', name: 'Reza Pahlevi', role: 'Kasir', shift: 'umum_normal', checkIn: '08:00', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
-        { id: 'STF-012', name: 'Nina Wulandari', role: 'Kasir', shift: 'umum_normal', checkIn: '--:--', checkOut: '--:--', status: 'Cuti', date: '2026-04-18', photoIn: null, photoOut: null },
-        { id: 'STF-013', name: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi', checkIn: '07:30', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { name: 'Linda Rahayu', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:05', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { name: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Maya Sari', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '--:--', checkOut: '--:--', status: 'Izin', date: '2026-04-18', photoIn: null, photoOut: null },
+        { name: 'Bambang Heru', role: 'OB', shift: 'ob_normal', checkIn: '07:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { name: 'Ayu Lestari', role: 'Customer Service', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { name: 'Dewi Rahmawati', role: 'HRD', shift: 'umum_normal', checkIn: '08:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { name: 'Fajar Nugroho', role: 'Manager', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Rina Kartika', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
+        { name: 'Agus Setiawan', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '--:--', checkOut: '--:--', status: 'Sakit', date: '2026-04-18', photoIn: null, photoOut: null },
+        { name: 'Reza Pahlevi', role: 'Kasir', shift: 'umum_normal', checkIn: '08:00', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Nina Wulandari', role: 'Kasir', shift: 'umum_normal', checkIn: '--:--', checkOut: '--:--', status: 'Cuti', date: '2026-04-18', photoIn: null, photoOut: null },
+        { name: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi', checkIn: '07:30', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
     ]);
 
-    // ─── Mock Data: Leave Requests ───────────────────────────────────────────────
+    // â”€â”€â”€ Mock Data: Leave Requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [leaveRequests, setLeaveRequests] = useState([
         { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
         { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui', attachment: 'surat_sakit_budi.jpg' },
@@ -91,7 +91,7 @@ const AttendancePage = () => {
         { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
     ]);
 
-    // ─── Mock Data: Overtime Requests ───────────────────────────────────────────
+    // â”€â”€â”€ Mock Data: Overtime Requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [overtimeRequests, setOvertimeRequests] = useState([
         {
             id: 'OT-001', staffName: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi',
@@ -130,7 +130,6 @@ const AttendancePage = () => {
         },
     ]);
 
-    // ─── Handlers ────────────────────────────────────────────────────────────────
     const handleOpenScan = (type, staffId = null) => {
         setScanType(type);
         setSelectedStaffId(staffId);
@@ -156,7 +155,7 @@ const AttendancePage = () => {
         }
     };
 
-    // Shift karyawan yang sedang login (dari data staff)
+    // Shift karyawan yang sedang login (dari Data Karyawan)
     const myStaffRecord = staffAttendance.find(s => s.name === user?.name);
     const myShift = myStaffRecord?.shift || 'umum_normal';
 
@@ -194,7 +193,7 @@ const AttendancePage = () => {
 
         setIsScanModalOpen(false);
 
-        // Jika ada anomali → buka modal notes
+        // Jika ada anomali â†’ buka modal notes
         if (anomalyInfo && (anomalyInfo.isLate || anomalyInfo.isOvertime || anomalyInfo.isOutside)) {
             setPendingAnomalyData(anomalyInfo);
             setPendingPhotoUrl(photoUrl);
@@ -231,7 +230,7 @@ const AttendancePage = () => {
         showToast('Pengajuan berhasil dikirim ke HRD untuk review.', 'success');
     };
 
-    // ─── Filter Logic ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Filter Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const filteredManagerAttendance = staffAttendance.filter(record => {
         const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             record.role.toLowerCase().includes(searchTerm.toLowerCase());
@@ -261,7 +260,7 @@ const AttendancePage = () => {
 
     const pendingOvertimeCount = overtimeRequests.filter(r => r.status === 'Menunggu').length;
 
-    // ─── Styling Helpers ─────────────────────────────────────────────────────────
+    // â”€â”€â”€ Styling Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const getStatusStyle = (status) => {
         switch (status) {
             case 'Hadir': return 'bg-green-100 text-green-600';
@@ -289,7 +288,7 @@ const AttendancePage = () => {
         }
     };
 
-    // ─── Pagination ───────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     const [attendancePage, setAttendancePage] = useState(1);
     const [leavePage, setLeavePage] = useState(1);
     const [overtimePage, setOvertimePage] = useState(1);
@@ -319,17 +318,17 @@ const AttendancePage = () => {
     const handleExport = () => {
         let csvContent = "sep=,\n";
         if (activeTab === 'attendance') {
-            csvContent += "ID,Nama Pegawai,Role,Shift,Tanggal,Jam Masuk,Jam Keluar,Status\n";
+            csvContent += "ID,nama karyawan,Role,Shift,Tanggal,Jam Masuk,Jam Keluar,Status\n";
             finalAttendance.forEach(record => {
                 csvContent += `${record.id},"${record.name}","${record.role}","${record.shift}",${record.date},${record.checkIn},${record.checkOut},${record.status}\n`;
             });
         } else if (activeTab === 'leave') {
-            csvContent += "ID,Nama Pegawai,Role,Jenis Pengajuan,Tanggal Mulai,Tanggal Selesai,Alasan,Status\n";
+            csvContent += "ID,nama karyawan,Role,Jenis Pengajuan,Tanggal Mulai,Tanggal Selesai,Alasan,Status\n";
             filteredLeave.forEach(req => {
                 csvContent += `${req.id},"${req.staffName}","${req.role}","${req.type}",${req.startDate},${req.endDate},"${req.reason}",${req.status}\n`;
             });
         } else {
-            csvContent += "ID,Nama Pegawai,Role,Shift,Jenis,Jam Jadwal,Jam Aktual,Keterangan,Status\n";
+            csvContent += "ID,nama karyawan,Role,Shift,Jenis,Jam Jadwal,Jam Aktual,Keterangan,Status\n";
             filteredOvertime.forEach(req => {
                 csvContent += `${req.id},"${req.staffName}","${req.role}","${req.shift}","${req.primaryType}",${req.scheduledTime},${req.detectedTime},"${req.notes}",${req.status}\n`;
             });
@@ -353,7 +352,7 @@ const AttendancePage = () => {
     return (
         <div className="space-y-10 animate-fade-in pb-12">
 
-            {/* ─── Modals ─────────────────────────────────────────────────────── */}
+            {/* â”€â”€â”€ Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             <FaceScanModal
                 isOpen={isScanModalOpen}
                 onClose={() => setIsScanModalOpen(false)}
@@ -391,7 +390,7 @@ const AttendancePage = () => {
                 }
             />
 
-            {/* ─── Header Section ─────────────────────────────────────────────── */}
+            {/* â”€â”€â”€ Header Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             {canAccessReports ? (
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                     <div>
@@ -407,7 +406,7 @@ const AttendancePage = () => {
                                 <span>{isRamadhan ? 'Ramadhan On' : 'Mode Ramadhan'}</span>
                             </button>
                         </div>
-                        <p className="text-primary/40 font-bold text-sm">Pantau kehadiran dan kedisiplinan seluruh pegawai klinik</p>
+                        <p className="text-primary/40 font-bold text-sm">Pantau kehadiran dan kedisiplinan seluruh karyawan klinik</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                         {user?.role === 'HRD' && (
@@ -431,7 +430,7 @@ const AttendancePage = () => {
             ) : (
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                     <div>
-                        <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Kehadiran Staff</h2>
+                        <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Kehadiran Karyawan</h2>
                         {/* Tampilkan info shift karyawan */}
                         {myActiveShift && (
                             <div className="flex items-center gap-2 mt-3">
@@ -439,7 +438,7 @@ const AttendancePage = () => {
                                     <Briefcase className="w-3 h-3 text-primary/50" />
                                     <span className="text-[10px] font-black text-primary/50 uppercase tracking-widest">Shift {myActiveShift.label}</span>
                                     <span className="w-1 h-1 rounded-full bg-primary/20" />
-                                    <span className="text-[10px] font-black text-primary/70">{myActiveShift.checkIn} – {myActiveShift.checkOut}</span>
+                                    <span className="text-[10px] font-black text-primary/70">{myActiveShift.checkIn} â€“ {myActiveShift.checkOut}</span>
                                     {isRamadhan && <span className="ml-1 text-[9px] font-black text-amber-500 flex items-center gap-1"><Moon className="w-2.5 h-2.5" />Ramadhan</span>}
                                 </div>
                             </div>
@@ -458,7 +457,7 @@ const AttendancePage = () => {
                 </div>
             )}
 
-            {/* ─── Navigation Tabs ────────────────────────────────────────────── */}
+            {/* â”€â”€â”€ Navigation Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
             <div className="flex border-b border-primary/10 mb-8 mt-4 gap-8">
                 <button onClick={() => setActiveTab('attendance')} className={`pb-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'attendance' ? 'text-primary border-b-2 border-primary' : 'text-primary/30 hover:text-primary/60'}`}>
                     Data Kehadiran
@@ -478,9 +477,9 @@ const AttendancePage = () => {
                 )}
             </div>
 
-            {/* ─── Content Area ────────────────────────────────────────────────── */}
+            {/* â”€â”€â”€ Content Area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
 
-            {/* ═══ TAB 1: DATA KEHADIRAN ══════════════════════════════════════════ */}
+            {/* â•â•â• TAB 1: DATA KEHADIRAN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
             {activeTab === 'attendance' && (
                 <div className="space-y-8">
                     {/* Stats Cards */}
@@ -507,7 +506,7 @@ const AttendancePage = () => {
                                         <div>
                                             <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{stat.label}</h4>
                                             <span className="text-3xl font-black text-primary">{stat.value}</span>
-                                            <span className="text-xs font-bold text-primary/30 ml-2">Pegawai</span>
+                                            <span className="text-xs font-bold text-primary/30 ml-2">Karyawan</span>
                                         </div>
                                     </div>
                                 ))}
@@ -522,7 +521,7 @@ const AttendancePage = () => {
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                                 <div className="relative flex-1 group">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                                    <input type="text" placeholder="Cari nama pegawai atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all" />
+                                    <input type="text" placeholder="Cari nama karyawan atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all" />
                                 </div>
                                 <div className="flex flex-col sm:flex-row gap-4">
                                     <div className="flex items-center gap-2 relative z-50 bg-white border border-primary/5 rounded-2xl px-4 py-2 shadow-sm focus-within:ring-4 focus-within:ring-primary/5 transition-all">
@@ -547,7 +546,7 @@ const AttendancePage = () => {
                             <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
                                 <div className="relative flex-1">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                                    <input type="text" placeholder="Cari nama staff atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                                    <input type="text" placeholder="Cari Nama Karyawan atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
                                 </div>
                             </div>
                         )}
@@ -561,8 +560,8 @@ const AttendancePage = () => {
                             <table className="w-full text-left border-collapse min-w-[900px]">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                        <th className="px-4 py-3 text-primary/80">{canAccessReports ? 'Nama Pegawai' : 'Staff'}</th>
-                                        <th className="px-4 py-3 text-primary/80">{canAccessReports ? 'Tanggal' : 'Role'}</th>
+                                        <th className="px-4 py-3 text-primary/80">{canAccessReports ? 'nama karyawan' : 'Karyawan'}</th>
+                                        <th className="px-4 py-3 text-primary/80">{canAccessReports ? 'Tanggal' : 'Divisi'}</th>
                                         {canAccessReports && <th className="px-4 py-3 text-primary/80">Shift</th>}
                                         <th className="px-4 py-3 text-center text-primary/80">Jam Masuk</th>
                                         <th className="px-4 py-3 text-center text-primary/80">Jam Keluar</th>
@@ -596,7 +595,7 @@ const AttendancePage = () => {
                                                         <span className="text-[10px] font-black text-primary/50 bg-primary/5 px-2 py-1 rounded-lg">
                                                             {recordShift?.label || record.shift}
                                                         </span>
-                                                        <p className="text-[9px] text-primary/30 font-bold mt-0.5">{recordShift?.checkIn}–{recordShift?.checkOut}</p>
+                                                        <p className="text-[9px] text-primary/30 font-bold mt-0.5">{recordShift?.checkIn}â€“{recordShift?.checkOut}</p>
                                                     </td>
                                                 )}
                                                 <td className="px-4 py-2 text-center">
@@ -638,7 +637,7 @@ const AttendancePage = () => {
                                                 <div>
                                                     <h4 className="text-sm font-black text-primary tracking-tight">{record.name}</h4>
                                                     <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{record.role}</p>
-                                                    {recordShift && <p className="text-[9px] font-bold text-primary/20 mt-0.5">Shift {recordShift.label} · {recordShift.checkIn}–{recordShift.checkOut}</p>}
+                                                    {recordShift && <p className="text-[9px] font-bold text-primary/20 mt-0.5">Shift {recordShift.label} Â· {recordShift.checkIn}â€“{recordShift.checkOut}</p>}
                                                 </div>
                                             </div>
                                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${getStatusStyle(record.status)}`}>
@@ -682,7 +681,7 @@ const AttendancePage = () => {
                 </div>
             )}
 
-            {/* ═══ TAB 2: CUTI / IZIN ═════════════════════════════════════════════ */}
+            {/* â•â•â• TAB 2: CUTI / IZIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
             {activeTab === 'leave' && (
                 <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                     <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
@@ -701,7 +700,7 @@ const AttendancePage = () => {
                         <table className="w-full text-left border-collapse min-w-[900px]">
                             <thead>
                                 <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                    <th className="px-4 py-3 text-primary/80">Staff</th>
+                                    <th className="px-4 py-3 text-primary/80">Karyawan</th>
                                     <th className="px-4 py-3 text-primary/80">Jenis Pengajuan</th>
                                     <th className="px-4 py-3 text-primary/80">Durasi Tanggal</th>
                                     <th className="px-4 py-3 text-primary/80">Alasan</th>
@@ -792,7 +791,7 @@ const AttendancePage = () => {
                 </div>
             )}
 
-            {/* ═══ TAB 3: PENGAJUAN LEMBUR ════════════════════════════════════════ */}
+            {/* â•â•â• TAB 3: PENGAJUAN LEMBUR â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
             {activeTab === 'overtime' && canAccessReports && (
                 <div className="space-y-6">
                     {/* Summary Banner */}

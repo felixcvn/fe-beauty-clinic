@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -8,9 +8,9 @@ import StaffFormModal from '../../components/UI/StaffFormModal';
 import StaffDetailModal from '../../components/UI/StaffDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 
-/* ─────────────────────────────────────────────────────────────
-   Reusable Confirm Dialog — sepenuhnya dikontrol via state
-───────────────────────────────────────────────────────────── */
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+   Reusable Confirm Dialog â€” sepenuhnya dikontrol via state
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const ConfirmModal = ({ config, onClose }) => {
     if (!config) return null;
 
@@ -88,9 +88,9 @@ const ConfirmModal = ({ config, onClose }) => {
     );
 };
 
-/* ─────────────────────────────────────────────────────────────
+/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    StaffPage
-───────────────────────────────────────────────────────────── */
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const StaffPage = () => {
     const { user } = useAuth();
     const { staff: staffList, addStaff, updateStaff, deleteStaff } = useMockData();
@@ -130,7 +130,7 @@ const StaffPage = () => {
     const currentStaff     = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages       = Math.ceil(filteredStaff.length / itemsPerPage);
 
-    /* ── Handlers ── */
+    /* â”€â”€ Handlers â”€â”€ */
     const handleOpenAdd  = () => { setEditingStaff(null);  setIsStaffModalOpen(true); };
     const handleOpenEdit = (s) => { setEditingStaff(s);    setIsStaffModalOpen(true); };
 
@@ -200,7 +200,7 @@ const StaffPage = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">
                         {isReadOnly ? 'Data Karyawan' : 'Manajemen Karyawan'}
                     </h2>
-                    <p className="text-primary/40 mt-3 font-bold text-sm">Kelola rincian dan akses seluruh staff klinik</p>
+                    <p className="text-primary/40 mt-3 font-bold text-sm">Kelola rincian dan akses seluruh karyawan klinik</p>
                 </div>
                 {!isReadOnly && (
                     <button

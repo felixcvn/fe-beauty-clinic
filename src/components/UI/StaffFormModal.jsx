@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -194,10 +194,10 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {isEdit ? 'Edit Data Pegawai' : 'Tambah Pegawai Baru'}
+                                {isEdit ? 'Edit Data karyawan' : 'Tambah Karyawan Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                Langkah {step} dari 3 • {step === 1 ? 'Data Diri & Penempatan' : step === 2 ? 'Detail Akun (Username)' : 'Keamanan (Password)'}
+                                Langkah {step} dari 3 â€¢ {step === 1 ? 'Data Diri & Penempatan' : step === 2 ? 'Detail Akun (Username)' : 'Keamanan (Password)'}
                             </p>
                         </div>
                     </div>
@@ -233,7 +233,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                             type="text"
                                             value={formState.name}
                                             onChange={(e) => handleChange('name', e.target.value)}
-                                            placeholder="Masukkan nama lengkap pegawai"
+                                            placeholder="Masukkan nama lengkap Karyawan"
                                             className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.name ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                         />
                                         {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
@@ -269,7 +269,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                 type="text"
                                                 value={formState.alamat}
                                                 onChange={(e) => handleChange('alamat', e.target.value)}
-                                                placeholder="Masukkan alamat lengkap pegawai"
+                                                placeholder="Masukkan alamat lengkap Karyawan"
                                                 className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.alamat ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
                                             />
                                             {errors.alamat && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.alamat}</p>}
@@ -460,7 +460,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                         className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                                     >
                                         <CheckCircle2 className="w-4 h-4" />
-                                        {isEdit ? 'Simpan Perubahan' : 'Tambahkan Pegawai'}
+                                        {isEdit ? 'Simpan Perubahan' : 'Tambahkan Karyawan'}
                                     </button>
                                 </div>
                             </div>

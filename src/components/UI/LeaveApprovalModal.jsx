@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { createPortal } from 'react-dom';
 import { X, CalendarDays, CheckCircle2, XCircle, Image as ImageIcon, FileText, Paperclip } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
@@ -58,7 +58,7 @@ const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, show
                 <div className="p-8 border-t-[0.5px] border-primary/5 space-y-6">
                     <div className="space-y-4">
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">Nama Pegawai</p>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">nama karyawan</p>
                             <p className="text-sm font-bold text-primary">{requestData.staffName} <span className="text-xs text-primary/40 font-semibold">({requestData.role})</span></p>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
@@ -135,3 +135,4 @@ const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, show
 };
 
 export default LeaveApprovalModal;
+

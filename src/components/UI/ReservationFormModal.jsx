@@ -1,19 +1,28 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, User, Phone, Clock, FileText, CheckCircle2 } from 'lucide-react';
+import { X, Calendar, User, Phone, Clock, FileText, CheckCircle2, Edit3 } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from './CustomSelect';
 
-const ReservationFormModal = ({ isOpen, onClose }) => {
-    const { staff, addBooking } = useMockData();
+const STATUS_OPTIONS = [
+    { value: 'Dikonfirmasi', label: 'Dikonfirmasi' },
+    { value: 'Menunggu', label: 'Menunggu' },
+    { value: 'Dibatalkan', label: 'Dibatalkan' },
+];
+
+const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
+    const { staff, addBooking, updateBooking } = useMockData();
     const { showToast } = useToast();
+    const isEditMode = !!initialData;
+
     const [formData, setFormData] = useState({
         name: '',
         phone: '',
         time: '',
         broughtByStaff: '',
-        notes: ''
+        notes: '',
+        status: 'Menunggu'
     });
 
     const [availableStaff, setAvailableStaff] = useState([]);
@@ -21,29 +30,33 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
 
     useEffect(() => {
         if (isOpen) {
-            setFormData({
-                name: '',
-                phone: '',
-                time: '',
-                broughtByStaff: '',
-                notes: ''
-            });
             setErrors({});
-
-            // Filter staff who are active and in relevant divisions
-            setAvailableStaff(staff.filter(s => 
-                s.status === 'Aktif' && 
+            setAvailableStaff(staff.filter(s =>
+                s.status === 'Aktif' &&
                 (s.divisi === 'Customer Service' || s.divisi === 'Dokter' || s.divisi === 'Kasir')
             ).map(s => ({ value: s.name, label: s.name })));
+
+            if (isEditMode && initialData) {
+                setFormData({
+                    name: initialData.name || '',
+                    phone: initialData.phone || '',
+                    time: initialData.time || '',
+                    broughtByStaff: initialData.broughtByStaff || '',
+                    notes: initialData.notes || '',
+                    status: initialData.status || 'Menunggu'
+                });
+            } else {
+                setFormData({ name: '', phone: '', time: '', broughtByStaff: '', notes: '', status: 'Menunggu' });
+            }
         }
-    }, [isOpen, staff]);
+    }, [isOpen, staff, isEditMode, initialData]);
 
     const validateForm = () => {
         const newErrors = {};
         if (!formData.name.trim()) newErrors.name = 'Nama customer wajib diisi';
         if (!formData.phone.trim()) newErrors.phone = 'Nomor telepon wajib diisi';
         if (!formData.time) newErrors.time = 'Jam reservasi wajib diisi';
-        if (!formData.broughtByStaff) newErrors.broughtByStaff = 'Pilih pegawai terlebih dahulu';
+        if (!formData.broughtByStaff) newErrors.broughtByStaff = 'Pilih Karyawan terlebih dahulu';
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
@@ -51,14 +64,14 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!validateForm()) return;
-        
-        const bookingData = {
-            ...formData,
-            status: 'Confirmed'
-        };
 
-        addBooking(bookingData);
-        showToast('Reservasi baru berhasil ditambahkan', 'success');
+        if (isEditMode) {
+            updateBooking({ ...initialData, ...formData });
+            showToast('Reservasi berhasil diperbarui', 'success');
+        } else {
+            addBooking({ ...formData, status: 'Menunggu' });
+            showToast('Reservasi baru berhasil ditambahkan', 'success');
+        }
         onClose();
     };
 
@@ -69,7 +82,7 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
 
     return createPortal(
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/30 transition-opacity" onClick={onClose}>
-            <div 
+            <div
                 className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -88,14 +101,14 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                     </div>
                     <div className="relative z-10 flex items-center gap-4 pr-12">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10">
-                            <Calendar className="w-6 h-6" />
+                            {isEditMode ? <Edit3 className="w-6 h-6" /> : <Calendar className="w-6 h-6" />}
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                Reservasi Baru
+                                {isEditMode ? 'Edit Reservasi' : 'Reservasi Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                Daftarkan Jadwal Kunjungan Customer
+                                {isEditMode ? `Mengubah data â€” ${initialData?.name}` : 'Daftarkan Jadwal Kunjungan Customer'}
                             </p>
                         </div>
                     </div>
@@ -104,7 +117,7 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                 {/* Form Body */}
                 <div className="p-8 overflow-y-auto scrollbar-hide flex-1 bg-gray-50/30">
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        {/* Section Information */}
+                        {/* Detail Customer */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
                                 <User className="w-4 h-4 text-primary/30" />
@@ -139,11 +152,11 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        {/* Scheduling */}
+                        {/* Jadwal & Karyawan */}
                         <div className="space-y-6 pt-2">
                             <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
                                 <Clock className="w-4 h-4 text-primary/30" />
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Jadwal & Pegawai</h4>
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Jadwal &amp; Karyawan</h4>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -158,12 +171,12 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                                     {errors.time && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.time}</p>}
                                 </div>
                                 <div className="space-y-1">
-                                    <label className={labelClass}>Pegawai Pengampu</label>
+                                    <label className={labelClass}>Karyawan Pengampu</label>
                                     <CustomSelect
                                         options={availableStaff}
                                         value={formData.broughtByStaff}
                                         onChange={(val) => setFormData({ ...formData, broughtByStaff: val })}
-                                        placeholder="Pilih Pegawai..."
+                                        placeholder="Pilih Karyawan..."
                                         searchable={true}
                                     />
                                     {errors.broughtByStaff && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.broughtByStaff}</p>}
@@ -171,13 +184,31 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                             </div>
                         </div>
 
-                        {/* Additional Notes */}
+                        {/* Status â€” hanya tampil saat edit */}
+                        {isEditMode && (
+                            <div className="space-y-6 pt-2">
+                                <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
+                                    <CheckCircle2 className="w-4 h-4 text-primary/30" />
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Status Reservasi</h4>
+                                </div>
+                                <div className="space-y-1">
+                                    <label className={labelClass}>Status</label>
+                                    <CustomSelect
+                                        options={STATUS_OPTIONS}
+                                        value={formData.status}
+                                        onChange={(val) => setFormData({ ...formData, status: val })}
+                                        placeholder="Pilih Status..."
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Catatan */}
                         <div className="space-y-6 pt-2">
                             <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
                                 <FileText className="w-4 h-4 text-primary/30" />
                                 <h4 className="text-[10px] font-medium uppercase tracking-widest text-primary/40">Catatan Tambahan</h4>
                             </div>
-
                             <div className="space-y-1">
                                 <textarea
                                     placeholder="Tambahkan keterangan atau kebutuhan khusus customer..."
@@ -202,7 +233,7 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
                                 className="flex-[2] flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                             >
                                 <CheckCircle2 className="w-4 h-4" />
-                                Simpan Reservasi
+                                {isEditMode ? 'Simpan Perubahan' : 'Simpan Reservasi'}
                             </button>
                         </div>
                     </form>
@@ -214,3 +245,4 @@ const ReservationFormModal = ({ isOpen, onClose }) => {
 };
 
 export default ReservationFormModal;
+

@@ -190,6 +190,14 @@ export const MockDataProvider = ({ children }) => {
         setBookings(prev => [{ ...bookingData, id, status: 'Menunggu' }, ...prev]);
     };
 
+    const updateBooking = (updatedBooking) => {
+        setBookings(prev => prev.map(b => b.id === updatedBooking.id ? { ...b, ...updatedBooking } : b));
+    };
+
+    const deleteBooking = (id) => {
+        setBookings(prev => prev.filter(b => b.id !== id));
+    };
+
     return (
         <MockDataContext.Provider value={{ 
             patients, addPatient, updatePatient, addRecord, getPatient,
@@ -198,7 +206,7 @@ export const MockDataProvider = ({ children }) => {
             racikans, addRacikan, updateRacikan, deleteRacikan,
             materials, addMaterial, updateMaterial, deleteMaterial,
             staff, addStaff, updateStaff, deleteStaff,
-            bookings, addBooking
+            bookings, addBooking, updateBooking, deleteBooking
         }}>
             {children}
         </MockDataContext.Provider>
