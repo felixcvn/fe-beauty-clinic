@@ -1,4 +1,5 @@
 export const ROLES = {
+    SUPER_ADMIN: 'Super Admin',
     OWNER: 'Owner',
     KOMISARIS: 'Komisaris',
     DOCTOR: 'Dokter',
@@ -9,6 +10,7 @@ export const ROLES = {
 };
 
 export const ROLE_PERMISSIONS = {
+    [ROLES.SUPER_ADMIN]: ['*'], // Full access to everything
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations', '/cs-products', '/cs-treatments'],
     [ROLES.HRD]: ['/', '/staff', '/attendance'],
@@ -28,6 +30,9 @@ export const hasPermission = (userRole, path) => {
     if (!roleKey) return false;
 
     const allowedPaths = ROLE_PERMISSIONS[roleKey];
+
+    // Super Admin has full access to everything
+    if (allowedPaths.includes('*')) return true;
 
     if (path === '/') return allowedPaths.includes('/');
 

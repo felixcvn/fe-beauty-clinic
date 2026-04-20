@@ -8,6 +8,7 @@ import CustomSelect from '../../components/UI/CustomSelect';
 import PatientEditModal from '../../components/UI/PatientEditModal';
 import BookingFormModal from '../../components/UI/ReservationFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import EmptyState from '../../components/UI/EmptyState';
 
 const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();
@@ -215,6 +216,17 @@ const PatientsPage = () => {
                                     </tr>
                                 )
                             })}
+                            {filteredPatients.length === 0 && (
+                                <tr>
+                                    <td colSpan={6}>
+                                        <EmptyState 
+                                            type="patient"
+                                            title="Pasien Tidak Ditemukan"
+                                            description="Belum ada data pasien yang sesuai dengan pencarian Anda. Pastikan nama atau ID yang Anda masukkan sudah benar."
+                                        />
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -281,6 +293,13 @@ const PatientsPage = () => {
                             </div>
                         )
                     })}
+                    {filteredPatients.length === 0 && (
+                        <EmptyState 
+                            type="patient"
+                            title="Pasien Tidak Ditemukan"
+                            description="Belum ada data pasien yang sesuai dengan pencarian Anda."
+                        />
+                    )}
                 </div>
                     </>
                 )}

@@ -1,14 +1,19 @@
+import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, LabelList, LineChart, Line } from 'recharts';
+import { DollarSign, Users, Activity, BarChart3, Calendar, Download, ArrowUpRight, ArrowDownRight, Search } from 'lucide-react';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import EmptyState from '../../components/UI/EmptyState';
 
 const data = [
-    { name: 'Jan', revenue: 4000, customers: 240 },
-    { name: 'Feb', revenue: 3000, customers: 198 },
-    { name: 'Mar', revenue: 2000, customers: 980 },
-    { name: 'Apr', revenue: 2780, customers: 390 },
-    { name: 'Mei', revenue: 1890, customers: 480 },
-    { name: 'Jun', revenue: 2390, customers: 380 },
-    { name: 'Jul', revenue: 3490, customers: 430 },
+    { name: 'Jan', revenue: 4000, forecast: 4000, customers: 240 },
+    { name: 'Feb', revenue: 3000, forecast: 3000, customers: 198 },
+    { name: 'Mar', revenue: 2000, forecast: 2000, customers: 980 },
+    { name: 'Apr', revenue: 2780, forecast: 2780, customers: 390 },
+    { name: 'Mei', revenue: 1890, forecast: 1890, customers: 480 },
+    { name: 'Jun', revenue: 2390, forecast: 2390, customers: 380 },
+    { name: 'Jul', revenue: 3490, forecast: 3490, customers: 430 },
+    { name: 'Agu', forecast: 3800 },
+    { name: 'Sep', forecast: 4200 },
 ];
 
 const treatmentData = [
@@ -50,7 +55,7 @@ const ReportsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
 
     // Simulate loading
-    React.useEffect(() => {
+    useEffect(() => {
         const timer = setTimeout(() => setIsLoading(false), 1200);
         return () => clearTimeout(timer);
     }, []);
@@ -171,9 +176,11 @@ const ReportsPage = () => {
                                 <YAxis
                                     axisLine={false}
                                     tickLine={false}
+                                    tickFormatter={(val) => `Rp ${val / 1000}M`}
                                     tick={{ fontSize: 9, fontWeight: 900, fill: '#1B4D3E', opacity: 0.3 }}
                                 />
                                 <Tooltip
+                                    formatter={(val) => [`Rp ${val.toLocaleString('id-ID')} jt`, 'Pendapatan']}
                                     contentStyle={{
                                         borderRadius: '1.5rem',
                                         border: 'none',
@@ -181,6 +188,7 @@ const ReportsPage = () => {
                                         fontFamily: 'Inter, sans-serif'
                                     }}
                                 />
+                                <Area type="monotone" dataKey="forecast" stroke="#1B4D3E" strokeWidth={2} strokeDasharray="5 5" fill="transparent" />
                                 <Area type="monotone" dataKey="revenue" stroke="#1B4D3E" strokeWidth={4} fillOpacity={1} fill="url(#colorRev)" />
                             </AreaChart>
                         </ResponsiveContainer>
@@ -410,9 +418,11 @@ const ReportsPage = () => {
                         </div>
                     ))}
                     {filteredTransactions.length === 0 && (
-                        <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">
-                            Tidak ada data transaksi
-                        </div>
+                        <EmptyState 
+                            type="sales"
+                            title="Transaksi Tidak Ditemukan"
+                            description="Sistem tidak menemukan transaksi yang sesuai dengan kriteria filter atau pencarian Anda."
+                        />
                     )}
                 </div>
                     </>

@@ -5,6 +5,7 @@ import { useMockData } from '../../context/MockDataContext';
 import CustomSelect from '../../components/UI/CustomSelect';
 import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import EmptyState from '../../components/UI/EmptyState';
 
 const PatientList = () => {
     const { patients } = useMockData();
@@ -165,6 +166,13 @@ const PatientList = () => {
                             </div>
                         </div>
                     ))}
+                    {filteredPatients.length === 0 && (
+                        <EmptyState 
+                            type="records"
+                            title="Data Medis Tidak Ditemukan"
+                            description="Sistem tidak menemukan riwayat medis yang sesuai dengan pencarian Anda."
+                        />
+                    )}
                 </div>
                     </>
                 )}

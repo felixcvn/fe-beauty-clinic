@@ -30,6 +30,35 @@ const treatmentPerfData = [
 
 const OwnerDashboard = () => {
     const { user } = useAuth();
+    const [activePieIndex, setActivePieIndex] = useState(0);
+
+    const onPieEnter = (_, index) => {
+        setActivePieIndex(index);
+    };
+
+    const renderActiveShape = (props) => {
+        const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, value } = props;
+        return (
+            <g>
+                <text x={cx} y={cy} dy={-10} textAnchor="middle" fill="#1B4D3E" className="font-black text-xs uppercase tracking-tighter">
+                    {payload.name}
+                </text>
+                <text x={cx} y={cy} dy={15} textAnchor="middle" fill="#1B4D3E" className="font-black text-lg tracking-tighter">
+                    Rp {value}jt
+                </text>
+                <Pie
+                    cx={cx}
+                    cy={cy}
+                    innerRadius={innerRadius}
+                    outerRadius={outerRadius + 8}
+                    startAngle={startAngle}
+                    endAngle={endAngle}
+                    fill={fill}
+                    stroke="none"
+                />
+            </g>
+        );
+    };
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12"> 
@@ -140,20 +169,24 @@ const OwnerDashboard = () => {
                         <ResponsiveContainer width="100%" height="100%">
                             <RechartsPieChart>
                                 <Pie
+                                    activeIndex={activePieIndex}
+                                    activeShape={renderActiveShape}
                                     data={salesSourceData}
                                     cx="50%"
                                     cy="50%"
-                                    innerRadius={60}
-                                    outerRadius={80}
+                                    innerRadius={55}
+                                    outerRadius={65}
                                     paddingAngle={5}
                                     dataKey="value"
                                     stroke="none"
+                                    onMouseEnter={onPieEnter}
                                 >
                                     {salesSourceData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={entry.color} />
+                                        <Cell key={`cell-${index}`} fill={entry.color} opacity={activePieIndex === index ? 1 : 0.6} />
                                     ))}
                                 </Pie>
                                 <Tooltip 
+                                    formatter={(v) => [`Rp ${v}jt`, 'Total']}
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
                                     itemStyle={{ color: '#1B4D3E', fontWeight: 'bold', fontSize: '12px' }}
                                 />

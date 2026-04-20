@@ -70,7 +70,7 @@ const DashboardSwitcher = () => {
         return <WarehouseDashboard />;
     }
     
-    if (user?.role === 'Owner' || user?.role === 'Komisaris') {
+    if (user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'Super Admin') {
         return <OwnerDashboard />;
     }
     

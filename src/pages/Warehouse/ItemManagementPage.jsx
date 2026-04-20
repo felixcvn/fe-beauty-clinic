@@ -4,6 +4,7 @@ import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import WarehouseFormModal from '../../components/UI/WarehouseFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -169,86 +170,101 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 <div className="w-full lg:w-auto relative">
                     {!isViewOnly && (
                         <>
-                            <button
-                                onClick={() => setIsAddDropdownOpen(!isAddDropdownOpen)}
-                                className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                            >
-                                <Plus className="w-4 h-4" />
-                                <span>Tambah Item</span>
-                                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isAddDropdownOpen ? 'rotate-180' : ''}`} />
-                            </button>
+                            {/* Gudang Umum: langsung buka modal tambah stok, tanpa dropdown */}
+                            {user?.role === 'Gudang Umum' ? (
+                                <button
+                                    onClick={() => openAddModal('product')}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Tambah Stok</span>
+                                </button>
+                            ) : (
+                                <>
+                                    {/* Role lain: dropdown dengan semua pilihan */}
+                                    <button
+                                        onClick={() => setIsAddDropdownOpen(!isAddDropdownOpen)}
+                                        className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                    >
+                                        <Plus className="w-4 h-4" />
+                                        <span>Tambah Item</span>
+                                        <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isAddDropdownOpen ? 'rotate-180' : ''}`} />
+                                    </button>
 
-                            {/* Dropdown Menu */}
-                            {isAddDropdownOpen && (
-                                <div className="absolute top-full right-0 mt-3 w-full sm:w-64 bg-white rounded-3xl shadow-2xl border border-primary/5 py-3 z-[80] animate-fade-in-up origin-top-right overflow-hidden">
-                                    <button
-                                        onClick={() => { openAddModal('product'); setIsAddDropdownOpen(false); }}
-                                        className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <Package className="w-5 h-5" />
+                                    {/* Dropdown Menu */}
+                                    {isAddDropdownOpen && (
+                                        <div className="absolute top-full right-0 mt-3 w-full sm:w-64 bg-white rounded-3xl shadow-2xl border border-primary/5 py-3 z-[80] animate-fade-in-up origin-top-right overflow-hidden">
+                                            <button
+                                                onClick={() => { openAddModal('product'); setIsAddDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <Package className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Stok</p>
+                                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Skincare</p>
+                                                </div>
+                                            </button>
+                                            <button
+                                                onClick={() => { openAddModal('treatment'); setIsAddDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <Activity className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Treatment</p>
+                                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Layanan Klinik</p>
+                                                </div>
+                                            </button>
+                                            <button
+                                                onClick={() => { openAddModal('racikan'); setIsAddDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <Activity className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Racikan</p>
+                                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Obat Racikan</p>
+                                                </div>
+                                            </button>
+                                            <button
+                                                onClick={() => { openAddModal('material'); setIsAddDropdownOpen(false); }}
+                                                className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
+                                            >
+                                                <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                                    <Beaker className="w-5 h-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-primary uppercase tracking-widest">Bahan</p>
+                                                    <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Bahan Treatment</p>
+                                                </div>
+                                            </button>
                                         </div>
-                                        <div>
-                                            <p className="text-xs font-black text-primary uppercase tracking-widest">Stok</p>
-                                            <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Skincare</p>
-                                        </div>
-                                    </button>
-                                    <button
-                                        onClick={() => { openAddModal('treatment'); setIsAddDropdownOpen(false); }}
-                                        className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-green-50 text-green-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <Activity className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-primary uppercase tracking-widest">Treatment</p>
-                                            <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Layanan Klinik</p>
-                                        </div>
-                                    </button>
-                                    <button
-                                        onClick={() => { openAddModal('racikan'); setIsAddDropdownOpen(false); }}
-                                        className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <Activity className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-primary uppercase tracking-widest">Racikan</p>
-                                            <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Obat Racikan</p>
-                                        </div>
-                                    </button>
-                                    <button
-                                        onClick={() => { openAddModal('material'); setIsAddDropdownOpen(false); }}
-                                        className="w-full flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.04] transition-colors text-left group"
-                                    >
-                                        <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <Beaker className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-black text-primary uppercase tracking-widest">Bahan</p>
-                                            <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Bahan Treatment</p>
-                                        </div>
-                                    </button>
-                                </div>
-                            )}
+                                    )}
 
-                            {/* Backdrop for click away */}
-                            {isAddDropdownOpen && (
-                                <div
-                                    className="fixed inset-0 z-[75]"
-                                    onClick={() => setIsAddDropdownOpen(false)}
-                                />
+                                    {/* Backdrop for click away */}
+                                    {isAddDropdownOpen && (
+                                        <div
+                                            className="fixed inset-0 z-[75]"
+                                            onClick={() => setIsAddDropdownOpen(false)}
+                                        />
+                                    )}
+                                </>
                             )}
                         </>
                     )}
                 </div>
+
             </div>
 
             {/* Controls (Filters & Search) */}
             <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-6 flex flex-col items-stretch gap-6">
 
-                {/* Pill Filters */}
-                {!fixedFilter && (
+                {/* Pill Filters — hidden for Gudang Umum (only shows products) */}
+                {!fixedFilter && user?.role !== 'Gudang Umum' && (
                     <div className="flex flex-wrap gap-3">
                         <button
                             onClick={() => setActiveFilter('all')}
@@ -405,11 +421,12 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                     ))}
                                     {filteredData.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="px-8 py-16 text-center">
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <Inbox className="w-12 h-12 text-primary/10" />
-                                                    <p className="text-primary/40 font-bold text-xs">Tidak ada data yang ditemukan.</p>
-                                                </div>
+                                            <td colSpan={6}>
+                                                <EmptyState 
+                                                    type="data"
+                                                    title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
+                                                    description={`Sistem tidak menemukan ${fixedTitle?.toLowerCase() || 'data'} yang sesuai dengan kriteria pencarian Anda.`}
+                                                />
                                             </td>
                                         </tr>
                                     )}
@@ -515,10 +532,11 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         </div>
                     ))}
                     {filteredData.length === 0 && (
-                        <div className="p-12 text-center flex flex-col items-center gap-3">
-                            <Inbox className="w-12 h-12 text-primary/10" />
-                            <p className="text-primary/40 font-bold text-sm">Tidak ada data yang ditemukan.</p>
-                        </div>
+                        <EmptyState 
+                            type="data"
+                            title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
+                            description={`Sistem tidak menemukan ${fixedTitle?.toLowerCase() || 'data'} yang sesuai dengan kriteria pencarian Anda.`}
+                        />
                     )}
                 </div>
                     </>

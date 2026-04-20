@@ -69,7 +69,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
         }
         return hasPermission(user?.role, item.path);
     }).map(item => {
-        if (item.path === '/staff' && (user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD')) {
+        if (item.path === '/staff' && (user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD' || user?.role === 'Super Admin')) {
             return { ...item, label: 'Data Karyawan' };
         }
         return item;
