@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { BarChart3, TrendingUp, PieChart, Calendar, Download, ArrowUpRight, ArrowDownRight, Users, DollarSign, Activity, Search } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, LabelList, LineChart, Line } from 'recharts';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const data = [
     { name: 'Jan', revenue: 4000, customers: 240 },
@@ -48,6 +47,13 @@ const ReportsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Simulate loading
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const filteredTransactions = mockTransactions.filter(t => {
         const matchesSearch = t.patient.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -68,7 +74,7 @@ const ReportsPage = () => {
 
     const handleExportExcel = () => {
         let csvContent = "sep=,\n";
-        csvContent += "Invoice,Tanggal,Nama Pasien,Layanan/Produk,Total Biaya (Rp),Status\n";
+        csvContent += "Invoice,Tanggal,Nama Pasien,Layanan/Stok,Total Biaya (Rp),Status\n";
         filteredTransactions.forEach(t => {
             csvContent += `"${t.id}",${t.date},"${t.patient}","${t.treatment}",${t.amount},"${t.status}"\n`;
         });
@@ -252,8 +258,8 @@ const ReportsPage = () => {
                     <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
                         <div className="flex justify-between items-start mb-10">
                             <div>
-                                <h3 className="text-xl font-black text-primary tracking-tighter">Penjualan Produk</h3>
-                                <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Stok & perputaran item terjual</p>
+                                <h3 className="text-xl font-black text-primary tracking-tighter">Penjualan Stok</h3>
+                                <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Perputaran item stok terjual</p>
                             </div>
                             <div className="bg-accent-gold/10 px-4 py-2 rounded-xl">
                                 <span className="text-[10px] font-black text-accent-gold uppercase tracking-widest leading-none">Total: 1,550</span>
@@ -329,14 +335,19 @@ const ReportsPage = () => {
                         <input type="text" placeholder="Cari nota, pasien..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-primary/5 border-none outline-none text-primary placeholder:text-primary/30 font-bold text-xs focus:ring-4 focus:ring-primary/10 transition-all" />
                     </div>
                 </div>
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+
+                {isLoading ? (
+                    <TableSkeleton rows={6} columns={6} />
+                ) : (
+                    <>
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-4 py-3 text-primary/80">Invoice</th>
                                 <th className="px-4 py-3 text-primary/80">Tanggal</th>
                                 <th className="px-4 py-3 text-primary/80">Pasien</th>
-                                <th className="px-4 py-3 text-primary/80">Layanan / Produk</th>
+                                <th className="px-4 py-3 text-primary/80">Layanan / Stok</th>
                                 <th className="px-4 py-3 text-right text-primary/80">Total (Rp)</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
                             </tr>
@@ -384,7 +395,7 @@ const ReportsPage = () => {
 
                             <div className="bg-gray-50/50 p-4 rounded-2xl border border-primary/5 space-y-3">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan / Produk</span>
+                                    <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan / Stok</span>
                                     <span className="text-[10px] font-bold text-primary/60">{trx.treatment}</span>
                                 </div>
                                 <div className="flex justify-between items-center pt-2 border-t border-primary/5">
@@ -404,7 +415,8 @@ const ReportsPage = () => {
                         </div>
                     )}
                 </div>
-
+                    </>
+                )}
             </div>
         </div>
     );

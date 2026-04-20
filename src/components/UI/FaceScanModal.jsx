@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, X, CheckCircle2, AlertCircle, Loader2, ScanLine } from 'lucide-react';
+import { Camera, X, CheckCircle2, AlertCircle, Loader2, MapPin } from 'lucide-react';
+import { getActiveShift, checkIsLate, checkIsOvertime } from '../../utils/shiftConfig';
 
-const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
+const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, isRamadhan = false }) => {
     const videoRef = useRef(null);
     const [stream, setStream] = useState(null);
     const [scanStatus, setScanStatus] = useState('initializing'); // initializing, scanning, success, error
     const [progress, setProgress] = useState(0);
+    const [locationStatus, setLocationStatus] = useState('unknown'); // unknown, inside, outside
 
     useEffect(() => {
         if (isOpen) {
@@ -31,10 +33,32 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
             }
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    () => setScanStatus('ready'),
-                    () => setScanStatus('ready')
+                    (pos) => {
+                        // Simulasi: koordinat kantor (lat, lng)
+                        // Di produksi, ganti dengan koordinat kantor yang sesungguhnya
+                        const OFFICE_LAT = -8.1702;
+                        const OFFICE_LNG = 113.7120;
+                        const RADIUS_METERS = 500;
+
+                        const R = 6371000; // radius bumi dalam meter
+                        const dLat = (pos.coords.latitude - OFFICE_LAT) * Math.PI / 180;
+                        const dLng = (pos.coords.longitude - OFFICE_LNG) * Math.PI / 180;
+                        const a = Math.sin(dLat/2) ** 2 +
+                            Math.cos(OFFICE_LAT * Math.PI / 180) *
+                            Math.cos(pos.coords.latitude * Math.PI / 180) *
+                            Math.sin(dLng/2) ** 2;
+                        const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+                        setLocationStatus(distance <= RADIUS_METERS ? 'inside' : 'outside');
+                        setScanStatus('ready');
+                    },
+                    () => {
+                        setLocationStatus('unknown');
+                        setScanStatus('ready');
+                    }
                 );
             } else {
+                setLocationStatus('unknown');
                 setScanStatus('ready');
             }
         } catch (err) {
@@ -66,11 +90,32 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
 
     const handleScanSuccess = () => {
         setScanStatus('success');
-        // Simulate photo capture - in a real app this would be a blob/base64 from the canvas
         const mockPhoto = `https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop`;
 
+        // ── Deteksi Anomali ──────────────────────────────────────────────
+        const now = new Date();
+        const detectedTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const shift = employeeShift ? getActiveShift(employeeShift, isRamadhan) : null;
+
+        let isLate = false, isOvertime = false, diffMinutes = 0;
+        if (shift) {
+            if (type === 'in') {
+                const result = checkIsLate(detectedTime, shift.checkIn);
+                isLate = result.isLate;
+                diffMinutes = result.diffMinutes;
+            } else {
+                const result = checkIsOvertime(detectedTime, shift.checkOut, shift.overnight);
+                isOvertime = result.isOvertime;
+                diffMinutes = result.diffMinutes;
+            }
+        }
+        const isOutside = locationStatus === 'outside';
+
+        const anomalyInfo = { isLate, isOvertime, isOutside, detectedTime, shift, diffMinutes, scheduledTime: type === 'in' ? shift?.checkIn : shift?.checkOut };
+        // ────────────────────────────────────────────────────────────────
+
         setTimeout(() => {
-            onScanSuccess(mockPhoto);
+            onScanSuccess(mockPhoto, anomalyInfo);
             onClose();
         }, 1500);
     };
@@ -202,8 +247,11 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type }) => {
                 </div>
 
                 {/* Footer Message */}
-                <div className="p-4 bg-secondary/5 border-t border-primary/5 flex justify-center text-[8px] md:text-[9px] font-black text-primary/20 uppercase tracking-[0.2em] md:tracking-[0.3em] text-center shrink-0">
-                    Ensuring secure attendance tracking
+                <div className="p-4 bg-secondary/5 border-t border-primary/5 flex items-center justify-center gap-2 text-[8px] md:text-[9px] font-black text-primary/20 uppercase tracking-[0.2em] text-center shrink-0">
+                    <MapPin className="w-3 h-3 shrink-0" />
+                    <span>
+                        Lokasi: {locationStatus === 'inside' ? '✓ Dalam Kantor' : locationStatus === 'outside' ? '⚠ Luar Kantor' : 'Mendeteksi...'}
+                    </span>
                 </div>
             </div>
 

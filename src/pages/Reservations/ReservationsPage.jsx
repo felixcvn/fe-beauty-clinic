@@ -14,11 +14,19 @@ import {
 } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import ReservationFormModal from '../../components/UI/ReservationFormModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const ReservationsPage = () => {
     const { bookings } = useMockData();
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = React.useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Simulate loading
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const filteredBookings = bookings.filter(booking => 
         (booking.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
@@ -110,7 +118,10 @@ const ReservationsPage = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto scrollbar-hide">
+                {isLoading ? (
+                    <TableSkeleton rows={8} columns={6} />
+                ) : (
+                    <div className="overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
@@ -179,6 +190,7 @@ const ReservationsPage = () => {
                         </tbody>
                     </table>
                 </div>
+                )}
             </div>
 
             <ReservationFormModal 

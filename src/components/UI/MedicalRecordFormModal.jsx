@@ -422,16 +422,16 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                             </div>
                                         </div>
 
-                                        {/* Resep / Produk */}
+                                        {/* Resep / Stok */}
                                         <div className="bg-secondary/30 rounded-[2rem] p-6 space-y-6 border border-primary/5">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Pill className="w-4 h-4 text-primary/40" />
-                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Resep / Produk Mandiri</span>
+                                                <span className="text-[10px] font-black text-primary uppercase tracking-widest">Resep / Stok Mandiri</span>
                                             </div>
                                             
                                             <CustomMultiSelect
-                                                label="Produk (Obat / Skincare)"
-                                                placeholder="Cari & pilih produk..."
+                                                label="Stok (Obat / Skincare)"
+                                                placeholder="Cari & pilih stok..."
                                                 values={selectedProducts}
                                                 onChange={setSelectedProducts}
                                                 options={productOptions}

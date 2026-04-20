@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Calendar, FileText, Gift } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const PatientDetailPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [activeTab, setActiveTab] = useState('produk');
+    const [activeTab, setActiveTab] = useState('stok');
     const { getPatient } = useMockData();
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Simulate loading
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, [activeTab]); // Show skeleton when switching tabs for smooth UX
 
     const patient = getPatient(id);
 
@@ -34,7 +42,7 @@ const PatientDetailPage = () => {
     // Gunakan data riwayat point dari pasien jika ada, atau array kosong
     const pointHistory = patient.pointHistory || [];
 
-    // Gunakan data riwayat produk dari pasien jika ada, atau array kosong
+    // Gunakan data riwayat stok dari pasien jika ada, atau array kosong
     const productHistory = patient.productHistory || [];
 
     return (
@@ -136,10 +144,10 @@ const PatientDetailPage = () => {
                     <div className="flex items-center justify-between border-b border-primary/5 p-4 md:p-6 bg-primary/5">
                         <div className="flex gap-4">
                             <button 
-                                onClick={() => setActiveTab('produk')}
-                                className={`px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${activeTab === 'produk' ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-white'}`}
+                                onClick={() => setActiveTab('stok')}
+                                className={`px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${activeTab === 'stok' ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-white'}`}
                             >
-                                Riwayat Produk
+                                Riwayat Stok
                             </button>
                             <button 
                                 onClick={() => setActiveTab('treatment')}
@@ -151,38 +159,44 @@ const PatientDetailPage = () => {
                     </div>
 
                     <div className="p-6 flex-1 bg-gray-50/50 space-y-6">
-                        {activeTab === 'produk' ? (
-                            productHistory.length > 0 ? productHistory.map((trx, index) => (
-                                <div key={index} className="bg-white rounded-2xl border border-primary/5 shadow-sm overflow-hidden">
-                                    <div className="bg-teal-600 px-4 py-2 text-white font-black text-[10px] tracking-widest inline-block rounded-br-2xl mb-2">
-                                        {trx.id}
-                                    </div>
-                                    <div className="p-5 pt-0">
-                                        <div className="flex justify-between items-center mb-4 pb-4 border-b border-primary/5">
-                                            <span className="font-bold text-primary/60 text-sm">Total Order: Rp {trx.total.toLocaleString('id-ID')}</span>
-                                            <span className="flex items-center gap-1.5 text-xs text-primary/40 font-bold"><Calendar className="w-3.5 h-3.5" /> {trx.date}</span>
-                                        </div>
-                                        <ul className="space-y-2">
-                                            {trx.items.map((item, idx) => (
-                                                <li key={idx} className="flex justify-between items-center text-sm font-bold text-primary">
-                                                    <span>{item}</span>
-                                                    <span className="text-teal-500">1</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                </div>
-                            )) : (
-                                <div className="flex flex-col items-center justify-center h-48 text-primary/30">
-                                    <FileText className="w-12 h-12 mb-3" />
-                                    <p className="font-bold text-sm tracking-wide">Belum ada riwayat produk.</p>
-                                </div>
-                            )
+                        {isLoading ? (
+                            <TableSkeleton mode="card" rows={3} />
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-48 text-primary/30">
-                                <FileText className="w-12 h-12 mb-3" />
-                                <p className="font-bold text-sm tracking-wide">Belum ada riwayat treatment.</p>
-                            </div>
+                            <>
+                                {activeTab === 'stok' ? (
+                                    productHistory.length > 0 ? productHistory.map((trx, index) => (
+                                        <div key={index} className="bg-white rounded-2xl border border-primary/5 shadow-sm overflow-hidden">
+                                            <div className="bg-teal-600 px-4 py-2 text-white font-black text-[10px] tracking-widest inline-block rounded-br-2xl mb-2">
+                                                {trx.id}
+                                            </div>
+                                            <div className="p-5 pt-0">
+                                                <div className="flex justify-between items-center mb-4 pb-4 border-b border-primary/5">
+                                                    <span className="font-bold text-primary/60 text-sm">Total Order: Rp {trx.total.toLocaleString('id-ID')}</span>
+                                                    <span className="flex items-center gap-1.5 text-xs text-primary/40 font-bold"><Calendar className="w-3.5 h-3.5" /> {trx.date}</span>
+                                                </div>
+                                                <ul className="space-y-2">
+                                                    {trx.items.map((item, idx) => (
+                                                        <li key={idx} className="flex justify-between items-center text-sm font-bold text-primary">
+                                                            <span>{item}</span>
+                                                            <span className="text-teal-500">1</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="flex flex-col items-center justify-center h-48 text-primary/30">
+                                            <FileText className="w-12 h-12 mb-3" />
+                                            <p className="font-bold text-sm tracking-wide">Belum ada riwayat stok.</p>
+                                        </div>
+                                    )
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center h-48 text-primary/30">
+                                        <FileText className="w-12 h-12 mb-3" />
+                                        <p className="font-bold text-sm tracking-wide">Belum ada riwayat treatment.</p>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>

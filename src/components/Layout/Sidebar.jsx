@@ -31,7 +31,7 @@ const ALL_NAV_ITEMS = [
     { icon: UsersIcon, label: 'Manajemen Karyawan', path: '/staff' },
     { 
         icon: ArchiveBoxIcon, 
-        label: 'Produk', 
+        label: 'Stok', 
         path: '/management'
     },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
@@ -39,7 +39,7 @@ const ALL_NAV_ITEMS = [
     { icon: FingerPrintIcon, label: 'Absensi', path: '/attendance' },
     { icon: TagIcon, label: 'Promo', path: '/promos' },
     { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
-    { icon: ArchiveBoxIcon, label: 'Produk', path: '/cs-products' },
+    { icon: ArchiveBoxIcon, label: 'Stok', path: '/cs-products' },
     { icon: SparklesIcon, label: 'Treatment', path: '/cs-treatments' },
     { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
 ];

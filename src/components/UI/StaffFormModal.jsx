@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft } from 'lucide-react';
 import CustomSelect from './CustomSelect';
+import { getShiftOptionsByDivisi, getDefaultShiftByDivisi } from '../../utils/shiftConfig';
 
 const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [] }) => {
     const isEdit = !!initialData;
@@ -19,6 +20,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         alamat: '',
         username: '',
         password: '',
+        shift: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -40,6 +42,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     alamat: initialData.alamat || '',
                     username: initialData.username || '',
                     password: initialData.password || '',
+                    shift: initialData.shift || getDefaultShiftByDivisi(initialData.divisi || 'Dokter'),
                 });
             } else {
                 setFormState({
@@ -54,6 +57,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     alamat: '',
                     username: '',
                     password: '',
+                    shift: '',
                 });
             }
         }
@@ -147,7 +151,14 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
     };
 
     const handleChange = (field, value) => {
-        setFormState(prev => ({ ...prev, [field]: value }));
+        setFormState(prev => {
+            const updated = { ...prev, [field]: value };
+            // Auto-reset shift ketika divisi berubah
+            if (field === 'divisi') {
+                updated.shift = getDefaultShiftByDivisi(value);
+            }
+            return updated;
+        });
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: null }));
         }
@@ -314,6 +325,16 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                 ]}
                                             />
                                         </div>
+                                    </div>
+                                    {/* Shift Kerja */}
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Shift Kerja</label>
+                                        <CustomSelect
+                                            value={formState.shift}
+                                            onChange={(value) => handleChange('shift', value)}
+                                            options={getShiftOptionsByDivisi(formState.divisi)}
+                                        />
+                                        <p className="text-[9px] text-primary/30 font-bold ml-1">Shift ditetapkan berdasarkan divisi karyawan</p>
                                     </div>
                                 </div>
 

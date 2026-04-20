@@ -3,10 +3,18 @@ import { Package, ClipboardList, AlertTriangle, Activity, ChevronRight } from 'l
 import StatsCard from '../Dashboard/StatsCard';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const WarehouseDashboard = () => {
     const { products, treatments } = useMockData();
     const { user } = useAuth();
+    const [isLoading, setIsLoading] = React.useState(true);
+
+    // Simulate loading
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const lowStockProducts = products.filter(p => p.stock < 15);
     const totalStock = products.reduce((acc, p) => acc + p.stock, 0);
@@ -15,7 +23,7 @@ const WarehouseDashboard = () => {
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Warehouse Dashboard</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Dashboard Stok & Gudang</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse"></span>
                         Welcome back, <span className="text-primary/70">{user?.name}</span>
@@ -25,7 +33,7 @@ const WarehouseDashboard = () => {
 
             {/* Stats Cards - Now 2 columns on small mobile */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                <StatsCard title="Total Produk" value={products.length} change="5.2%" trend="up" icon={Package} />
+                <StatsCard title="Total Item Stok" value={products.length} change="5.2%" trend="up" icon={Package} />
                 <StatsCard title="Total Treatment" value={treatments.length} change="2.1%" trend="up" icon={Activity} />
                 <StatsCard title="Total Stok" value={totalStock.toLocaleString('id-ID')} change="8.4%" trend="up" icon={ClipboardList} />
                 <StatsCard title="Stok Menipis" value={lowStockProducts.length} change={lowStockProducts.length > 0 ? "Check now" : "All safe"} trend={lowStockProducts.length > 0 ? "down" : "up"} icon={AlertTriangle} />
@@ -37,13 +45,17 @@ const WarehouseDashboard = () => {
                     <span className="text-red-500 text-[10px] font-black uppercase tracking-widest bg-red-50 px-3 py-1 rounded-full">Urgent</span>
                 </div>
                 
-                {/* Desktop View Table */}
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                {isLoading ? (
+                    <TableSkeleton rows={3} columns={4} />
+                ) : (
+                    <>
+                        {/* Desktop View Table */}
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     {lowStockProducts.length > 0 ? (
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-primary/5">
-                                    <th className="pb-4 text-[10px] uppercase tracking-widest font-black text-primary/30">Produk</th>
+                                    <th className="pb-4 text-[10px] uppercase tracking-widest font-black text-primary/30">Item Stok</th>
                                     <th className="pb-4 text-[10px] uppercase tracking-widest font-black text-primary/30">Kategori</th>
                                     <th className="pb-4 text-[10px] uppercase tracking-widest font-black text-primary/30">Stok Sisa</th>
                                     <th className="pb-4 text-[10px] uppercase tracking-widest font-black text-primary/30 text-right">Aksi</th>
@@ -96,6 +108,8 @@ const WarehouseDashboard = () => {
                         <div className="py-8 text-center text-primary/20 text-[10px] font-black uppercase tracking-widest">Stok Aman</div>
                     )}
                 </div>
+                    </>
+                )}
             </div>
         </div>
     );

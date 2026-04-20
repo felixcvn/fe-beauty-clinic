@@ -99,13 +99,13 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                     {/* Items Table */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
-                            <Package className="w-3 h-3 text-primary/40" /> Daftar Layanan & Produk
+                            <Package className="w-3 h-3 text-primary/40" /> Daftar Layanan & Stok
                         </div>
                         <div className="rounded-[2rem] border border-primary/5 overflow-hidden shadow-sm bg-white">
                             <table className="w-full text-left">
                                 <thead className="bg-secondary/10 text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
                                     <tr>
-                                        <th className="px-8 py-5">Sublayanan / Produk</th>
+                                        <th className="px-8 py-5">Sublayanan / Stok</th>
                                         <th className="px-8 py-5 text-center">Qty</th>
                                         <th className="px-8 py-5 text-right">Harga</th>
                                     </tr>

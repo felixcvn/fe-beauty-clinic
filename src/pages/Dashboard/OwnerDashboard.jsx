@@ -234,7 +234,7 @@ const OwnerDashboard = () => {
                                 </div>
                                 <div>
                                     <h4 className="font-bold text-sm text-primary">Rata-rata Nilai Transaksi</h4>
-                                    <p className="text-xs font-medium text-primary/60">Perawatan + Produk Skincare</p>
+                                    <p className="text-xs font-medium text-primary/60">Perawatan + Stok Skincare</p>
                                 </div>
                             </div>
                             <div className="text-right">

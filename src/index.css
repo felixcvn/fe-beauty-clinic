@@ -113,6 +113,27 @@
       transform: translateY(0);
     }
   }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.05) 25%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.05) 75%
+    ) !important;
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite ease-in-out;
+    border: 1px solid rgba(0, 0, 0, 0.03);
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
 }
 
 /* ──────────────────────────────────────────────

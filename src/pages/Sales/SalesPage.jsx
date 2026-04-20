@@ -2,12 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const SalesPage = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
+
+    // Simulate loading
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleOpenDetail = (transaction) => {
         setSelectedTransaction(transaction);
@@ -64,7 +72,7 @@ const SalesPage = () => {
         { title: 'Total Sales', value: 'Rp 145.280.000', change: '+12.5%', trend: 'up', icon: ShoppingCart },
         { title: 'Transactions', value: '1,240', change: '+8.2%', trend: 'up', icon: TrendingUp },
         { title: 'Customers', value: '850', change: '+5.4%', trend: 'up', icon: Users },
-        { title: 'Products Sold', value: '3,120', change: '-2.1%', trend: 'down', icon: Package },
+        { title: 'Stok Terjual', value: '3,120', change: '-2.1%', trend: 'down', icon: Package },
     ];
 
     const filteredSales = recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -150,13 +158,17 @@ const SalesPage = () => {
                     </div>
                 </div>
 
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
-                    <table className="w-full text-left min-w-[1000px]">
+                {isLoading ? (
+                    <TableSkeleton rows={10} columns={7} />
+                ) : (
+                    <>
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                            <table className="w-full text-left min-w-[1000px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5">
                                 <th className="px-4 py-3 text-primary/80">ID Invoice</th>
                                 <th className="px-4 py-3 text-primary/80">Konsumen</th>
-                                <th className="px-4 py-3 text-primary/80">Produk/Layanan</th>
+                                <th className="px-4 py-3 text-primary/80">Stok/Layanan</th>
                                 <th className="px-4 py-3 text-primary/80">Total</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
                                 <th className="px-4 py-3 text-primary/80">Tanggal</th>
@@ -235,7 +247,7 @@ const SalesPage = () => {
 
                             <div className="space-y-3 bg-secondary/30 p-4 rounded-2xl border border-primary/5">
                                 <div className="flex justify-between items-center">
-                                    <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan/Produk</p>
+                                    <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan/Stok</p>
                                     <p className="text-[10px] font-bold text-primary">{sale.product}</p>
                                 </div>
                                 <div className="flex justify-between items-center">
@@ -265,6 +277,8 @@ const SalesPage = () => {
                         </div>
                     ))}
                 </div>
+            </>
+        )}
 
                 <div className="p-8 bg-secondary/5 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">
                     <span>Menampilkan {filteredSales.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredSales.length)} dari {filteredSales.length} data</span>

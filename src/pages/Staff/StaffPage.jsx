@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import { useMockData } from '../../context/MockDataContext';
 import StaffFormModal from '../../components/UI/StaffFormModal';
 import StaffDetailModal from '../../components/UI/StaffDetailModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 /* ─────────────────────────────────────────────────────────────
    Reusable Confirm Dialog — sepenuhnya dikontrol via state
@@ -97,8 +98,15 @@ const StaffPage = () => {
     const { showToast } = useToast();
 
     const [searchTerm, setSearchTerm] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
+
+    // Simulate loading
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Modal State
     const [editingStaff, setEditingStaff] = useState(null);
@@ -226,9 +234,13 @@ const StaffPage = () => {
             {/* Table */}
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
 
-                {/* Desktop */}
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
-                    <table className="w-full text-left border-collapse" style={{ minWidth: '860px' }}>
+                {isLoading ? (
+                    <TableSkeleton rows={itemsPerPage} columns={isReadOnly ? 5 : 6} />
+                ) : (
+                    <>
+                        {/* Desktop */}
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                            <table className="w-full text-left border-collapse" style={{ minWidth: '860px' }}>
                         <thead>
                             <tr className="border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Nama Karyawan</th>
@@ -361,6 +373,8 @@ const StaffPage = () => {
                         </div>
                     ))}
                 </div>
+                    </>
+                )}
 
                 {/* Pagination Footer */}
                 <div className="p-6 md:p-8 bg-gray-50/30 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40">

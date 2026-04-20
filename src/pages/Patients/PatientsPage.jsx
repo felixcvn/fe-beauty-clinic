@@ -7,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import CustomSelect from '../../components/UI/CustomSelect';
 import PatientEditModal from '../../components/UI/PatientEditModal';
 import BookingFormModal from '../../components/UI/ReservationFormModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();
@@ -20,6 +21,13 @@ const PatientsPage = () => {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState(null);
     const { addBooking } = useMockData();
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Simulate loading
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const isCS = user?.role === 'Customer Service';
     const isOwnerOrKomisaris = ['Owner', 'Komisaris'].includes(user?.role);
@@ -133,8 +141,12 @@ const PatientsPage = () => {
                     </div>
                 </div>
 
-                {/* Desktop View */}
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                {isLoading ? (
+                    <TableSkeleton rows={itemsPerPage} columns={isOwner ? 5 : 6} />
+                ) : (
+                    <>
+                        {/* Desktop View */}
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
@@ -270,6 +282,8 @@ const PatientsPage = () => {
                         )
                     })}
                 </div>
+                    </>
+                )}
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Menampilkan {filteredPatients.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredPatients.length)} dari {filteredPatients.length} data</span>

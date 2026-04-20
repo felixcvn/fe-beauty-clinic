@@ -4,11 +4,19 @@ import { Search, Plus, Tag, CheckCircle2, XCircle, Edit3, Trash2, AlertTriangle 
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import PromoFormModal from '../../components/UI/PromoFormModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const PromoManagementPage = () => {
     const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
+    const [isLoading, setIsLoading] = useState(true);
+
+    // Simulate loading
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
     
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -195,8 +203,12 @@ const PromoManagementPage = () => {
                     </div>
                 </div>
 
-                {/* Desktop Table View */}
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                {isLoading ? (
+                    <TableSkeleton rows={itemsPerPage} columns={6} />
+                ) : (
+                    <>
+                        {/* Desktop Table View */}
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left min-w-[900px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
@@ -319,6 +331,8 @@ const PromoManagementPage = () => {
                         </div>
                     )}
                 </div>
+                    </>
+                )}
 
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">

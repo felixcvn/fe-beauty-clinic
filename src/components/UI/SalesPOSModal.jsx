@@ -93,7 +93,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                     <div className="p-8 bg-secondary/10 flex justify-between items-center">
                         <div>
                             <h3 className="text-2xl font-black text-primary tracking-tighter">Katalog POS</h3>
-                            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Produk atau Layanan</p>
+                            <p className="text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Stok atau Layanan</p>
                         </div>
                         <button onClick={onClose} className="md:hidden p-3 rounded-2xl hover:bg-secondary transition-all">
                             <X className="w-6 h-6 text-primary" />
@@ -107,7 +107,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                                 <input
                                     type="text"
-                                    placeholder="Cari produk..."
+                                    placeholder="Cari stok..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
                                     className="w-full pl-12 pr-6 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all text-sm"

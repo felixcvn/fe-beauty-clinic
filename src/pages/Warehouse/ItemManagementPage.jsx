@@ -3,6 +3,7 @@ import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox, C
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import WarehouseFormModal from '../../components/UI/WarehouseFormModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 
@@ -29,10 +30,17 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     // UI states
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [editingItem, setEditingItem] = useState(null);
     const [modalType, setModalType] = useState('product'); // to determine which form to show
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '', type: '' });
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+
+    // Simulate loading
+    useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Combine data
     const allItems = [
@@ -82,10 +90,10 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         if (modalType === 'product') {
             if (editingItem) {
                 updateProduct(data);
-                showToast('Produk berhasil diperbarui', 'success');
+                showToast('Stok berhasil diperbarui', 'success');
             } else {
                 addProduct(data);
-                showToast('Produk berhasil ditambahkan', 'success');
+                showToast('Stok berhasil ditambahkan', 'success');
             }
         } else if (modalType === 'treatment') {
             if (editingItem) {
@@ -119,7 +127,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const handleDelete = () => {
         if (deleteConfirm.type === 'product') {
             deleteProduct(deleteConfirm.id);
-            showToast('Produk berhasil dihapus', 'success');
+            showToast('Stok berhasil dihapus', 'success');
         } else if (deleteConfirm.type === 'treatment') {
             deleteTreatment(deleteConfirm.id);
             showToast('Treatment berhasil dihapus', 'success');
@@ -154,8 +162,8 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6">
                 <div className="w-full lg:w-auto">
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">{fixedTitle || "Produk"}</h2>
-                    <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">{fixedTitle ? `Lihat daftar ${fixedTitle.toLowerCase()}` : "Kelola stok produk dan layanan treatment klinik"}</p>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">{fixedTitle || "Stok"}</h2>
+                    <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">{fixedTitle ? `Lihat daftar ${fixedTitle.toLowerCase()}` : "Kelola stok dan layanan treatment klinik"}</p>
                 </div>
 
                 <div className="w-full lg:w-auto relative">
@@ -181,7 +189,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             <Package className="w-5 h-5" />
                                         </div>
                                         <div>
-                                            <p className="text-xs font-black text-primary uppercase tracking-widest">Produk</p>
+                                            <p className="text-xs font-black text-primary uppercase tracking-widest">Stok</p>
                                             <p className="text-[10px] font-bold text-primary/40 leading-none mt-1">Skincare</p>
                                         </div>
                                     </button>
@@ -254,7 +262,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                             className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'product' ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20 scale-105' : 'bg-blue-50/50 border-blue-100 text-blue-600 hover:bg-blue-50'}`}
                         >
                             <Package className="w-4 h-4" />
-                            <span className="text-xs font-black uppercase tracking-widest">Produk</span>
+                            <span className="text-xs font-black uppercase tracking-widest">Stok</span>
                         </button>
 
                         <button
@@ -296,9 +304,13 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
 
             {/* Data Table / List */}
             <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
-                {/* Desktop View Table */}
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full text-left border-collapse min-w-[800px]">
+                {isLoading ? (
+                    <TableSkeleton rows={8} columns={(activeFilter === 'treatment' || fixedFilter === 'treatment') ? 6 : 6} />
+                ) : (
+                    <>
+                        {/* Desktop View Table */}
+                        <div className="hidden md:block overflow-x-auto">
+                            <table className="w-full text-left border-collapse min-w-[800px]">
                         {(activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
                             <>
                                 <thead>
@@ -509,6 +521,8 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         </div>
                     )}
                 </div>
+                    </>
+                )}
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Menampilkan {filteredData.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredData.length)} dari {filteredData.length} data</span>

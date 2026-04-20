@@ -4,13 +4,21 @@ import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import CustomSelect from '../../components/UI/CustomSelect';
 import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const PatientList = () => {
     const { patients } = useMockData();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('All Status');
+    const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Simulate loading
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     const filteredPatients = patients.filter(patient => {
         const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -41,6 +49,7 @@ const PatientList = () => {
 
             <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
+                    {/* ... (Search & Select bars) ... */}
                     <div className="relative flex-1 group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                         <input
@@ -64,8 +73,12 @@ const PatientList = () => {
                     </div>
                 </div>
 
-                <div className="hidden md:block overflow-x-auto scrollbar-hide">
-                    <table className="w-full text-left min-w-[800px]">
+                {isLoading ? (
+                    <TableSkeleton rows={8} columns={6} />
+                ) : (
+                    <>
+                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                            <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
                                 <th className="px-4 py-3 text-primary/80">Nama Pasien</th>
@@ -153,6 +166,8 @@ const PatientList = () => {
                         </div>
                     ))}
                 </div>
+                    </>
+                )}
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                     <span>Menampilkan {filteredPatients.length} dari {patients.length} data</span>

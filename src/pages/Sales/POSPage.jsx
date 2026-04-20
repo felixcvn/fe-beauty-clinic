@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
+import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const POSPage = () => {
     const navigate = useNavigate();
@@ -9,8 +10,15 @@ const POSPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('Semua');
     const [cart, setCart] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [paymentMethod, setPaymentMethod] = useState('Tunai');
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Simulate loading
+    React.useEffect(() => {
+        const timer = setTimeout(() => setIsLoading(false), 1200);
+        return () => clearTimeout(timer);
+    }, []);
 
     // Identitas Pelanggan & Promo
     const [isMember, setIsMember] = useState(false);
@@ -153,7 +161,7 @@ const POSPage = () => {
 
     return (
         <div className="flex flex-col lg:flex-row min-h-[calc(100vh-90px)] lg:h-[calc(100vh-90px)] gap-6 animate-fade-in relative z-10 pb-24 lg:pb-0">
-            {/* Left Side: Product Selection */}
+            {/* Left Side: Stok Selection */}
             <div className="flex-1 flex flex-col bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden min-h-0">
                 <div className="p-5 md:p-8 bg-secondary/10 border-b border-primary/5 flex items-center justify-between">
                     <div className="flex items-center gap-3 md:gap-4">
@@ -165,7 +173,7 @@ const POSPage = () => {
                         </button>
                         <div>
                             <h2 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Sistem Kasir</h2>
-                            <p className="hidden sm:block text-[9px] md:text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Produk atau Layanan</p>
+                            <p className="hidden sm:block text-[9px] md:text-[10px] font-bold text-primary/60 uppercase tracking-widest mt-1">Pilih Stok atau Layanan</p>
                         </div>
                     </div>
                 </div>
@@ -177,7 +185,7 @@ const POSPage = () => {
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                             <input
                                 type="text"
-                                placeholder="Cari nama produk..."
+                                placeholder="Cari nama stok..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-12 pr-6 py-3.5 md:py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all text-xs md:text-sm shadow-sm"
@@ -196,8 +204,11 @@ const POSPage = () => {
                         </div>
                     </div>
 
-                    {/* Product Grid */}
-                    <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+                    {isLoading ? (
+                        <TableSkeleton mode="card" rows={8} />
+                    ) : (
+                        /* Product Grid */
+                        <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
                         {filteredProducts.map(product => (
                             <button
                                 key={product.id}
@@ -223,6 +234,7 @@ const POSPage = () => {
                             </button>
                         ))}
                     </div>
+                    )}
                 </div>
             </div>
 

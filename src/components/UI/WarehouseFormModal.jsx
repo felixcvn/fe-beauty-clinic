@@ -51,7 +51,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
     const validate = () => {
         let newErrors = {};
-        const typeLabel = type === 'product' ? 'produk' : type === 'racikan' ? 'racikan' : type === 'material' ? 'bahan' : 'treatment';
+        const typeLabel = type === 'product' ? 'stok' : type === 'racikan' ? 'racikan' : type === 'material' ? 'bahan' : 'treatment';
         if (!formState.name.trim()) newErrors.name = `Nama ${typeLabel} wajib diisi`;
         
         if (type === 'product' || type === 'racikan' || type === 'material') {
@@ -124,7 +124,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {initialData ? 'Edit' : 'Tambah'} {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}
+                                {initialData ? 'Edit' : 'Tambah'} {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
                                 Formulir Data Master
@@ -137,7 +137,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
-                            <label className={labelClassName}>Kode {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
+                            <label className={labelClassName}>Kode {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
                             <input
                                 type="text"
                                 value={formState.id}
@@ -149,13 +149,13 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                         
                         <div>
-                            <label className={labelClassName}>Nama {type === 'product' ? 'Produk' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
+                            <label className={labelClassName}>Nama {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
                             <input
                                 type="text"
                                 value={formState.name}
                                 onChange={(e) => handleChange('name', e.target.value)}
                                 className={getDynamicInputClass('name')}
-                                placeholder={`Masukkan nama ${type === 'product' ? 'produk' : type === 'racikan' ? 'racikan' : type === 'material' ? 'bahan' : 'treatment'}...`}
+                                placeholder={`Masukkan nama ${type === 'product' ? 'stok' : type === 'racikan' ? 'racikan' : type === 'material' ? 'bahan' : 'treatment'}...`}
                             />
                             {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
                         </div>
