@@ -21,7 +21,7 @@ const AttendancePage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
 
-    // â”€â”€â”€ Global States â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Global States ─────────────────────────────────────────────────────────
     const [searchTerm, setSearchTerm] = useState('');
     const [activeTab, setActiveTab] = useState('attendance');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
@@ -36,7 +36,7 @@ const AttendancePage = () => {
         return () => clearTimeout(timer);
     }, [activeTab]); // Reload skeleton when tab changes for better UX
 
-    // â”€â”€â”€ Modal States â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Modal States ───────────────────────────────────────────────────────────
     const [isScanModalOpen, setIsScanModalOpen] = useState(false);
     const [scanType, setScanType] = useState('in');
     const [selectedStaffId, setSelectedStaffId] = useState(null);
@@ -53,11 +53,11 @@ const AttendancePage = () => {
     const [isOvertimeApprovalOpen, setIsOvertimeApprovalOpen] = useState(false);
     const [selectedOvertimeReq, setSelectedOvertimeReq] = useState(null);
 
-    // â”€â”€â”€ Role Checks â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Role Checks ────────────────────────────────────────────────────────────
     const canAccessReports = user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD';
     const canApproveLeave = user?.role === 'HRD';
 
-    // â”€â”€â”€ Mock Data: Attendance Stats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Mock Data: Attendance Stats ────────────────────────────────────────────
     const [attendanceStats] = useState([
         { title: 'Hadir Hari Ini', value: '24', total: '26', icon: UserCheck, color: 'text-green-500' },
         { title: 'Izin / Sakit', value: '2', total: '26', icon: UserMinus, color: 'text-yellow-500' },
@@ -65,7 +65,7 @@ const AttendancePage = () => {
         { title: 'Rata-rata Kehadiran', value: '96%', icon: CalendarDays, color: 'text-primary' },
     ]);
 
-    // â”€â”€â”€ Mock Data: Staff Attendance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Mock Data: Staff Attendance ─────────────────────────────────────────────
     const [staffAttendance, setStaffAttendance] = useState([
         { name: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Linda Rahayu', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:05', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
@@ -82,7 +82,7 @@ const AttendancePage = () => {
         { name: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi', checkIn: '07:30', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
     ]);
 
-    // â”€â”€â”€ Mock Data: Leave Requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Mock Data: Leave Requests ───────────────────────────────────────────────
     const [leaveRequests, setLeaveRequests] = useState([
         { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
         { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui', attachment: 'surat_sakit_budi.jpg' },
@@ -91,7 +91,7 @@ const AttendancePage = () => {
         { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
     ]);
 
-    // â”€â”€â”€ Mock Data: Overtime Requests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Mock Data: Overtime Requests ───────────────────────────────────────────
     const [overtimeRequests, setOvertimeRequests] = useState([
         {
             id: 'OT-001', staffName: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi',
@@ -230,7 +230,7 @@ const AttendancePage = () => {
         showToast('Pengajuan berhasil dikirim ke HRD untuk review.', 'success');
     };
 
-    // â”€â”€â”€ Filter Logic â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Filter Logic ─────────────────────────────────────────────────────────────
     const filteredManagerAttendance = staffAttendance.filter(record => {
         const matchesSearch = record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             record.role.toLowerCase().includes(searchTerm.toLowerCase());
@@ -260,7 +260,7 @@ const AttendancePage = () => {
 
     const pendingOvertimeCount = overtimeRequests.filter(r => r.status === 'Menunggu').length;
 
-    // â”€â”€â”€ Styling Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Styling Helpers ─────────────────────────────────────────────────────────
     const getStatusStyle = (status) => {
         switch (status) {
             case 'Hadir': return 'bg-green-100 text-green-600';
@@ -288,7 +288,7 @@ const AttendancePage = () => {
         }
     };
 
-    // â”€â”€â”€ Pagination â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ─── Pagination ───────────────────────────────────────────────────────────────
     const [attendancePage, setAttendancePage] = useState(1);
     const [leavePage, setLeavePage] = useState(1);
     const [overtimePage, setOvertimePage] = useState(1);
@@ -352,7 +352,7 @@ const AttendancePage = () => {
     return (
         <div className="space-y-10 animate-fade-in pb-12">
 
-            {/* â”€â”€â”€ Modals â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+            {/* ─── Modals ─────────────────────────────────────────────────────── */}
             <FaceScanModal
                 isOpen={isScanModalOpen}
                 onClose={() => setIsScanModalOpen(false)}
@@ -390,7 +390,7 @@ const AttendancePage = () => {
                 }
             />
 
-            {/* â”€â”€â”€ Header Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+            {/* ─── Header Section ─────────────────────────────────────────────── */}
             {canAccessReports ? (
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                     <div>
@@ -438,7 +438,7 @@ const AttendancePage = () => {
                                     <Briefcase className="w-3 h-3 text-primary/50" />
                                     <span className="text-[10px] font-black text-primary/50 uppercase tracking-widest">Shift {myActiveShift.label}</span>
                                     <span className="w-1 h-1 rounded-full bg-primary/20" />
-                                    <span className="text-[10px] font-black text-primary/70">{myActiveShift.checkIn} â€“ {myActiveShift.checkOut}</span>
+                                    <span className="text-[10px] font-black text-primary/70">{myActiveShift.checkIn} – {myActiveShift.checkOut}</span>
                                     {isRamadhan && <span className="ml-1 text-[9px] font-black text-amber-500 flex items-center gap-1"><Moon className="w-2.5 h-2.5" />Ramadhan</span>}
                                 </div>
                             </div>
@@ -457,7 +457,7 @@ const AttendancePage = () => {
                 </div>
             )}
 
-            {/* â”€â”€â”€ Navigation Tabs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+            {/* ─── Navigation Tabs ────────────────────────────────────────────── */}
             <div className="flex border-b border-primary/10 mb-8 mt-4 gap-8">
                 <button onClick={() => setActiveTab('attendance')} className={`pb-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'attendance' ? 'text-primary border-b-2 border-primary' : 'text-primary/30 hover:text-primary/60'}`}>
                     Data Kehadiran
@@ -477,7 +477,7 @@ const AttendancePage = () => {
                 )}
             </div>
 
-            {/* â”€â”€â”€ Content Area â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+            {/* ─── Content Area ────────────────────────────────────────────────── */}
 
             {/* â•â•â• TAB 1: DATA KEHADIRAN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
             {activeTab === 'attendance' && (
@@ -595,7 +595,7 @@ const AttendancePage = () => {
                                                         <span className="text-[10px] font-black text-primary/50 bg-primary/5 px-2 py-1 rounded-lg">
                                                             {recordShift?.label || record.shift}
                                                         </span>
-                                                        <p className="text-[9px] text-primary/30 font-bold mt-0.5">{recordShift?.checkIn}â€“{recordShift?.checkOut}</p>
+                                                        <p className="text-[9px] text-primary/30 font-bold mt-0.5">{recordShift?.checkIn}–{recordShift?.checkOut}</p>
                                                     </td>
                                                 )}
                                                 <td className="px-4 py-2 text-center">
@@ -637,7 +637,7 @@ const AttendancePage = () => {
                                                 <div>
                                                     <h4 className="text-sm font-black text-primary tracking-tight">{record.name}</h4>
                                                     <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{record.role}</p>
-                                                    {recordShift && <p className="text-[9px] font-bold text-primary/20 mt-0.5">Shift {recordShift.label} Â· {recordShift.checkIn}â€“{recordShift.checkOut}</p>}
+                                                    {recordShift && <p className="text-[9px] font-bold text-primary/20 mt-0.5">Shift {recordShift.label} · {recordShift.checkIn}–{recordShift.checkOut}</p>}
                                                 </div>
                                             </div>
                                             <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${getStatusStyle(record.status)}`}>

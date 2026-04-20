@@ -149,8 +149,8 @@ const ReservationsPage = () => {
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                <th className="px-4 py-3 text-primary/80">Waktu Kedatangan</th>
-                                <th className="px-4 py-3 text-primary/80">Detail Customer</th>
+                                <th className="px-4 py-3 text-primary/80">Jam Reservasi</th>
+                                <th className="px-4 py-3 text-primary/80">Nama Customer</th>
                                 <th className="px-4 py-3 text-primary/80">No. Telepon</th>
                                 <th className="px-4 py-3 text-primary/80">Pendaftar</th>
                                 <th className="px-4 py-3 text-primary/80">Keterangan</th>

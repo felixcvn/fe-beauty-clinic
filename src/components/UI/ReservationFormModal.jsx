@@ -108,7 +108,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
                                 {isEditMode ? 'Edit Reservasi' : 'Reservasi Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                {isEditMode ? `Mengubah data â€” ${initialData?.name}` : 'Daftarkan Jadwal Kunjungan Customer'}
+                                {isEditMode ? `Mengubah data — ${initialData?.name}` : 'Daftarkan Jadwal Kunjungan Customer'}
                             </p>
                         </div>
                     </div>
@@ -184,7 +184,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
                             </div>
                         </div>
 
-                        {/* Status â€” hanya tampil saat edit */}
+                        {/* Status — hanya tampil saat edit */}
                         {isEditMode && (
                             <div className="space-y-6 pt-2">
                                 <div className="flex items-center gap-3 border-b border-primary/5 pb-2">

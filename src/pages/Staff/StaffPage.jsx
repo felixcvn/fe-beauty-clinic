@@ -8,9 +8,9 @@ import StaffFormModal from '../../components/UI/StaffFormModal';
 import StaffDetailModal from '../../components/UI/StaffDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   Reusable Confirm Dialog â€” sepenuhnya dikontrol via state
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─────────────────────────────────────────────────────────────
+   Reusable Confirm Dialog — sepenuhnya dikontrol via state
+───────────────────────────────────────────────────────────── */
 const ConfirmModal = ({ config, onClose }) => {
     if (!config) return null;
 
@@ -88,9 +88,9 @@ const ConfirmModal = ({ config, onClose }) => {
     );
 };
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+/* ─────────────────────────────────────────────────────────────
    StaffPage
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+───────────────────────────────────────────────────────────── */
 const StaffPage = () => {
     const { user } = useAuth();
     const { staff: staffList, addStaff, updateStaff, deleteStaff } = useMockData();
@@ -130,7 +130,7 @@ const StaffPage = () => {
     const currentStaff     = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages       = Math.ceil(filteredStaff.length / itemsPerPage);
 
-    /* â”€â”€ Handlers â”€â”€ */
+    /* ── Handlers ── */
     const handleOpenAdd  = () => { setEditingStaff(null);  setIsStaffModalOpen(true); };
     const handleOpenEdit = (s) => { setEditingStaff(s);    setIsStaffModalOpen(true); };
 

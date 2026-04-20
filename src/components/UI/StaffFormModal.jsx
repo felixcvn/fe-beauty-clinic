@@ -197,7 +197,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                 {isEdit ? 'Edit Data karyawan' : 'Tambah Karyawan Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                Langkah {step} dari 3 â€¢ {step === 1 ? 'Data Diri & Penempatan' : step === 2 ? 'Detail Akun (Username)' : 'Keamanan (Password)'}
+                                Langkah {step} dari 3 • {step === 1 ? 'Data Diri & Penempatan' : step === 2 ? 'Detail Akun (Username)' : 'Keamanan (Password)'}
                             </p>
                         </div>
                     </div>
