@@ -6,7 +6,9 @@ export const ROLES = {
     CS: 'Customer Service',
     HRD: 'HRD',
     MANAGER: 'Manager',
-    GUDANG_UMUM: 'Gudang Umum'
+    GUDANG_UMUM: 'Gudang Umum',
+    STAFF_OB: 'Staff OB',
+    STAFF_SATPAM: 'Staff Satpam'
 };
 
 export const ROLE_PERMISSIONS = {
@@ -18,6 +20,8 @@ export const ROLE_PERMISSIONS = {
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.KOMISARIS]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
+    [ROLES.STAFF_OB]: ['/', '/attendance'],
+    [ROLES.STAFF_SATPAM]: ['/', '/attendance'],
 };
 
 export const hasPermission = (userRole, path) => {

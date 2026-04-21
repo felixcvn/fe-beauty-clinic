@@ -1,6 +1,6 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft } from 'lucide-react';
+import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import { getShiftOptionsByDivisi, getDefaultShiftByDivisi } from '../../utils/shiftConfig';
 
@@ -24,11 +24,13 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
     });
 
     const [errors, setErrors] = useState({});
+    const [showPassword, setShowPassword] = useState(false);
 
     useEffect(() => {
         if (isOpen) {
             setStep(1);
             setErrors({});
+            setShowPassword(false);
             if (initialData) {
                 setFormState({
                     name: initialData.name || '',
@@ -433,13 +435,24 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     <div className="space-y-4">
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Password Sistem</label>
-                                            <input
-                                                type="password"
-                                                value={formState.password}
-                                                onChange={(e) => handleChange('password', e.target.value)}
-                                                placeholder="********"
-                                                className={`w-full px-5 py-4 rounded-2xl bg-white border ${errors.password ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
-                                            />
+                                            <div className="relative group">
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    value={formState.password}
+                                                    onChange={(e) => handleChange('password', e.target.value)}
+                                                    placeholder="********"
+                                                    className={`w-full px-5 py-4 pr-14 rounded-2xl bg-white border ${errors.password ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm placeholder:text-primary/20`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl text-primary/40 hover:bg-gray-100 hover:text-primary transition-all active:scale-95 flex items-center justify-center cursor-pointer pointer-events-auto z-10"
+                                                    tabIndex="-1"
+                                                    title={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                                                >
+                                                    {showPassword ? <EyeOff className="w-5 h-5 flex-shrink-0" /> : <Eye className="w-5 h-5 flex-shrink-0" />}
+                                                </button>
+                                            </div>
                                             {errors.password && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.password}</p>}
                                         </div>
                                     </div>
