@@ -31,6 +31,7 @@ import ProfilePage from './pages/Profile/ProfilePage';
 
 import WarehouseDashboard from './pages/Warehouse/WarehouseDashboard';
 import ItemManagementPage from './pages/Warehouse/ItemManagementPage';
+import ApotekerInventoryPage from './pages/Warehouse/ApotekerInventoryPage';
 import PromoManagementPage from './pages/Promos/PromoManagementPage';
 import ReservationsPage from './pages/Reservations/ReservationsPage';
 import OwnerDashboard from './pages/Dashboard/OwnerDashboard';
@@ -108,6 +109,7 @@ function App() {
                                             <Route path="/settings" element={<RoleProtectedRoute><SettingsPage /></RoleProtectedRoute>} />
                                             <Route path="/management" element={<RoleProtectedRoute><ItemManagementPage /></RoleProtectedRoute>} />
                                             <Route path="/cs-products" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="product" fixedTitle="Stok" /></RoleProtectedRoute>} />
+                                            <Route path="/apotek-inventory" element={<RoleProtectedRoute><ApotekerInventoryPage /></RoleProtectedRoute>} />
                                             <Route path="/cs-treatments" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="treatment" fixedTitle="Treatment" /></RoleProtectedRoute>} />
                                             <Route path="/profile" element={<ProfilePage />} />
                                         </Routes>

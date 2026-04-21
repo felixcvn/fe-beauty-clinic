@@ -8,7 +8,8 @@ export const ROLES = {
     MANAGER: 'Manager',
     GUDANG_UMUM: 'Gudang Umum',
     STAFF_OB: 'Staff OB',
-    STAFF_SATPAM: 'Staff Satpam'
+    STAFF_SATPAM: 'Staff Satpam',
+    APOTEKER: 'Apoteker'
 };
 
 export const ROLE_PERMISSIONS = {
@@ -22,6 +23,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
     [ROLES.STAFF_OB]: ['/', '/attendance'],
     [ROLES.STAFF_SATPAM]: ['/', '/attendance'],
+    [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
 };
 
 export const hasPermission = (userRole, path) => {

@@ -60,6 +60,18 @@ export const MockDataProvider = ({ children }) => {
         { id: 'MAT-002', name: 'Alkohol Swab', category: 'Bahan', price: 2000, stock: 200, minStock: 50, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&h=200&auto=format&fit=crop' },
     ]);
 
+    const [medicals, setMedicals] = useState([
+        { id: 'MED-001', name: 'Plester Anti Air', category: 'Alat Kesehatan', stock: 100, minStock: 50 },
+    ]);
+
+    const [infusions, setInfusions] = useState([
+        { id: 'INF-001', name: 'Infus RL 500ml', category: 'Cairan Infus', stock: 50, minStock: 20 },
+    ]);
+
+    const [apotekItems, setApotekItems] = useState([
+        { id: 'APT-001', name: 'Masker Medis', category: 'Habis Pakai', stock: 500, minStock: 100 },
+    ]);
+
     const [staff, setStaff] = useState([
         { id: 'STF-001', name: 'Dr. John Doe', divisi: 'Dokter', posisi: 'Lead', email: 'john.doe@clinic.com', phone: '0812-1234-5678', username: 'admin', password: 'password123', status: 'Aktif', nik: '3171011205800001', tanggal_lahir: '1980-05-12', alamat: 'Jl. Sudirman No. 12', tanggal_bergabung: '2022-01-15', cabang: 'Jember' },
         { id: 'STF-002', name: 'Dr. Sarah Smith', divisi: 'Dokter', posisi: 'Anggota', email: 'sarah.smith@clinic.com', phone: '0812-9876-5432', username: 'doctor', password: 'password123', status: 'Aktif', nik: '3172021504920002', tanggal_lahir: '1992-04-15', alamat: 'Apartemen Sudirman Tower A/12', tanggal_bergabung: '2023-03-01', cabang: 'Jember' },
@@ -73,7 +85,8 @@ export const MockDataProvider = ({ children }) => {
         { id: 'STF-010', name: 'Hendra Saputra', divisi: 'Staff Gudang', posisi: 'Lead', email: 'hendra.g@clinic.com', phone: '0811-1122-3344', username: 'gudang', password: 'password123', status: 'Aktif', nik: '3372010109900012', tanggal_lahir: '1990-09-01', alamat: 'Komp. Meruya Ilir Blok A/5', tanggal_bergabung: '2023-02-28', cabang: 'Jember' },
         { id: 'STF-011', name: 'Maya Indah', divisi: 'Staff Gudang', posisi: 'Anggota', email: 'maya.g@clinic.com', phone: '0815-4455-6677', username: 'maya.g', password: 'password123', status: 'Aktif', nik: '3274021404970013', tanggal_lahir: '1997-04-14', alamat: 'Jl. Raden Saleh Gg. 2 No. 14', tanggal_bergabung: '2024-03-01', cabang: 'Lumajang' },
         { id: 'STF-012', name: 'Reza Pahlevi', divisi: 'Kasir', posisi: 'Lead', email: 'reza.k@clinic.com', phone: '0812-7788-9900', username: 'reza.k', password: 'password123', status: 'Aktif', nik: '3171012901980014', tanggal_lahir: '1998-01-29', alamat: 'Jl. Karet Pedurenan No. 71', tanggal_bergabung: '2024-01-15', cabang: 'Jember' },
-        { id: 'STF-013', name: 'Bapak Komisaris', divisi: 'Komisaris', posisi: 'Komisaris', email: 'komisaris@clinic.com', phone: '0811-0000-0000', username: 'komisaris', password: 'password123', status: 'Aktif', nik: '3171000000000001', tanggal_lahir: '1970-01-01', alamat: 'Jl. Raya No. 1', tanggal_bergabung: '2020-01-01', cabang: 'Jember' }
+        { id: 'STF-013', name: 'Bapak Komisaris', divisi: 'Komisaris', posisi: 'Komisaris', email: 'komisaris@clinic.com', phone: '0811-0000-0000', username: 'komisaris', password: 'password123', status: 'Aktif', nik: '3171000000000001', tanggal_lahir: '1970-01-01', alamat: 'Jl. Raya No. 1', tanggal_bergabung: '2020-01-01', cabang: 'Jember' },
+        { id: 'STF-014', name: 'Ana Farhana', divisi: 'Apoteker', posisi: 'Apoteker', email: 'ana.apoteker@clinic.com', phone: '0812-3434-5656', username: 'apoteker', password: 'password123', status: 'Aktif', nik: '3171012101010001', tanggal_lahir: '1990-01-01', alamat: 'Jl. Apotek No. 1', tanggal_bergabung: '2023-01-01', cabang: 'Jember' }
     ]);
 
     const addPatient = (patient) => {
@@ -164,6 +177,48 @@ export const MockDataProvider = ({ children }) => {
         setMaterials(prev => prev.filter(m => m.id !== id));
     };
 
+    // Medical Functions
+    const addMedical = (medical) => {
+        const id = medical.id || `MED-${String(medicals.length + 1).padStart(3, '0')}`;
+        setMedicals([...medicals, { ...medical, id }]);
+    };
+
+    const updateMedical = (updatedMedical) => {
+        setMedicals(prev => prev.map(m => m.id === updatedMedical.id ? updatedMedical : m));
+    };
+
+    const deleteMedical = (id) => {
+        setMedicals(prev => prev.filter(m => m.id !== id));
+    };
+
+    // Infusion Functions
+    const addInfusion = (infusion) => {
+        const id = infusion.id || `INF-${String(infusions.length + 1).padStart(3, '0')}`;
+        setInfusions([...infusions, { ...infusion, id }]);
+    };
+
+    const updateInfusion = (updatedInfusion) => {
+        setInfusions(prev => prev.map(i => i.id === updatedInfusion.id ? updatedInfusion : i));
+    };
+
+    const deleteInfusion = (id) => {
+        setInfusions(prev => prev.filter(i => i.id !== id));
+    };
+
+    // ApotekItem Functions
+    const addApotekItem = (item) => {
+        const id = item.id || `APT-${String(apotekItems.length + 1).padStart(3, '0')}`;
+        setApotekItems([...apotekItems, { ...item, id }]);
+    };
+
+    const updateApotekItem = (updatedItem) => {
+        setApotekItems(prev => prev.map(i => i.id === updatedItem.id ? updatedItem : i));
+    };
+
+    const deleteApotekItem = (id) => {
+        setApotekItems(prev => prev.filter(i => i.id !== id));
+    };
+
     // Staff Functions
     const addStaff = (staffData) => {
         const id = `STF-${String(staff.length + 1).padStart(3, '0')}`;
@@ -205,6 +260,9 @@ export const MockDataProvider = ({ children }) => {
             treatments, addTreatment, updateTreatment, deleteTreatment,
             racikans, addRacikan, updateRacikan, deleteRacikan,
             materials, addMaterial, updateMaterial, deleteMaterial,
+            medicals, addMedical, updateMedical, deleteMedical,
+            infusions, addInfusion, updateInfusion, deleteInfusion,
+            apotekItems, addApotekItem, updateApotekItem, deleteApotekItem,
             staff, addStaff, updateStaff, deleteStaff,
             bookings, addBooking, updateBooking, deleteBooking
         }}>
