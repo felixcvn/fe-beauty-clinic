@@ -20,6 +20,69 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
         }
     };
 
+    const generateThermalReceipt = () => {
+        // Asumsi Lebar Kertas 58mm = 32 Karakter per baris
+        const LINE_WIDTH = 32;
+
+        const centerText = (text) => {
+            if (text.length >= LINE_WIDTH) return text.substring(0, LINE_WIDTH);
+            const padLeft = Math.floor((LINE_WIDTH - text.length) / 2);
+            const padRight = LINE_WIDTH - text.length - padLeft;
+            return ' '.repeat(padLeft) + text + ' '.repeat(padRight);
+        };
+
+        const leftRightText = (left, right) => {
+            const spaces = LINE_WIDTH - left.length - right.length;
+            if (spaces > 0) {
+                return left + ' '.repeat(spaces) + right;
+            } else {
+                return left.substring(0, LINE_WIDTH - right.length - 1) + ' ' + right;
+            }
+        };
+
+        const line = '-'.repeat(LINE_WIDTH);
+
+        let receiptText = '';
+        
+        // Header
+        receiptText += centerText('KLINIK KECANTIKAN') + '\n';
+        receiptText += centerText('PERSONAL BEAUTY') + '\n';
+        receiptText += centerText('Jl. Raya Jember No.1') + '\n';
+        receiptText += centerText('Telp: 0812-3456-7890') + '\n';
+        receiptText += line + '\n';
+
+        // Info
+        receiptText += `ID   : ${transaction.id}\n`;
+        receiptText += `TGL  : ${transaction.date}\n`;
+        // Nama pasien
+        const customer = transaction.customer ? transaction.customer.substring(0, 20) : 'Umum';
+        receiptText += `CUST  : ${customer}\n`;
+        receiptText += `KASIR: FITRI - CS CAB. JEMBER\n`;
+        receiptText += line + '\n';
+
+        // Items
+        items.forEach(item => {
+            receiptText += leftRightText(item.name.substring(0, 18), `${item.qty}x`) + '\n';
+            receiptText += leftRightText('', item.price) + '\n';
+        });
+
+        receiptText += line + '\n';
+        receiptText += leftRightText('Subtotal', transaction.amount || 'Rp 450.000') + '\n';
+        receiptText += leftRightText('PPN (11%)', 'Rp 49.500') + '\n';
+        receiptText += line + '\n';
+        receiptText += leftRightText('TOTAL', 'Rp 550.000') + '\n';
+        receiptText += line + '\n';
+        
+        // Footer
+        receiptText += centerText('Terima Kasih Atas') + '\n';
+        receiptText += centerText('Kunjungan Anda') + '\n';
+        receiptText += '\n\n'; // Feed paper
+        
+        console.log("===== FORMAT PRINTER THERMAL (58mm) =====");
+        console.log(receiptText);
+        alert("Konversi teks Thermal Printer siap dikirim ke Bluetooth:\n\n" + receiptText);
+    };
+
     return createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 transition-opacity animate-fade-in"
@@ -160,7 +223,10 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
                 {/* Bottom Actions */}
                 <div className="p-8 bg-white border-t border-primary/5 flex gap-4 shrink-0">
-                    <button className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group">
+                    <button 
+                        onClick={generateThermalReceipt}
+                        className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
+                    >
                         <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
                         <span>Cetak Struk Resmi</span>
                     </button>
