@@ -13,7 +13,7 @@ const USER_SEEDER = [
     { username: 'komisaris', email: 'komisaris@clinic.com', password: 'password123', name: 'Komisaris', role: 'Komisaris' },
     { username: 'ob', email: 'ob@clinic.com', password: 'password123', name: 'Staff OB', role: 'Staff OB' },
     { username: 'satpam', email: 'satpam@clinic.com', password: 'password123', name: 'Staff Satpam', role: 'Staff Satpam' },
-    { username: 'apoteker', email: 'apoteker@clinic.com', password: 'password123', name: 'Apoteker', role: 'Apoteker' },e
+    { username: 'apoteker', email: 'apoteker@clinic.com', password: 'password123', name: 'Apoteker', role: 'Apoteker' },
 ]; 
 
 export const AuthProvider = ({ children }) => {
