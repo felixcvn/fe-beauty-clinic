@@ -35,6 +35,7 @@ import ApotekerInventoryPage from './pages/Warehouse/ApotekerInventoryPage';
 import PromoManagementPage from './pages/Promos/PromoManagementPage';
 import ReservationsPage from './pages/Reservations/ReservationsPage';
 import OwnerDashboard from './pages/Dashboard/OwnerDashboard';
+import SuperAdminInventoryPage from './pages/Warehouse/SuperAdminInventoryPage';
 
 import { hasPermission } from './utils/rbac';
 
@@ -111,6 +112,7 @@ function App() {
                                             <Route path="/cs-products" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="product" fixedTitle="Stok" /></RoleProtectedRoute>} />
                                             <Route path="/apotek-inventory" element={<RoleProtectedRoute><ApotekerInventoryPage /></RoleProtectedRoute>} />
                                             <Route path="/cs-treatments" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="treatment" fixedTitle="Treatment" /></RoleProtectedRoute>} />
+                                            <Route path="/superadmin-inventory" element={<RoleProtectedRoute><SuperAdminInventoryPage /></RoleProtectedRoute>} />
                                             <Route path="/profile" element={<ProfilePage />} />
                                         </Routes>
                                     </MainLayout>

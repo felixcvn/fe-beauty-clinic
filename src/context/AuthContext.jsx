@@ -3,17 +3,17 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 const AuthContext = createContext();
 
 const USER_SEEDER = [
-    { username: 'superadmin', email: 'superadmin@clinic.com', password: 'password123', name: 'Super Admin', role: 'Super Admin' },
-    { username: 'doctor', email: 'doctor@clinic.com', password: 'password123', name: 'Dr. Mega Endahlestari', role: 'Dokter' },
-    { username: 'cs', email: 'cs@clinic.com', password: 'password123', name: 'Mba Fia', role: 'Customer Service' },
-    { username: 'hrd', email: 'hrd@clinic.com', password: 'password123', name: 'Bu Yeyen', role: 'HRD' },
-    { username: 'manager', email: 'manager@clinic.com', password: 'password123', name: 'Andi Pratama', role: 'Manager' },
-    { username: 'gudang', email: 'gudang@clinic.com', password: 'password123', name: 'Zulkifli', role: 'Gudang Umum' },
-    { username: 'owner', email: 'owner@clinic.com', password: 'password123', name: 'Nanin Lindiyawati', role: 'Owner' },
-    { username: 'komisaris', email: 'komisaris@clinic.com', password: 'password123', name: 'Komisaris', role: 'Komisaris' },
-    { username: 'ob', email: 'ob@clinic.com', password: 'password123', name: 'Staff OB', role: 'Staff OB' },
-    { username: 'satpam', email: 'satpam@clinic.com', password: 'password123', name: 'Staff Satpam', role: 'Staff Satpam' },
-    { username: 'apoteker', email: 'apoteker@clinic.com', password: 'password123', name: 'Apoteker', role: 'Apoteker' },
+    { username: 'superadmin', email: 'superadmin@clinic.com', password: 'password', name: 'Super Admin', role: 'Super Admin' },
+    { username: 'doctor', email: 'doctor@clinic.com', password: 'password', name: 'Dr. Mega Endahlestari', role: 'Dokter' },
+    { username: 'cs', email: 'cs@clinic.com', password: 'password', name: 'Mba Fia', role: 'Customer Service' },
+    { username: 'hrd', email: 'hrd@clinic.com', password: 'password', name: 'Bu Yeyen', role: 'HRD' },
+    { username: 'spv_treatment', email: 'spv.treatment@clinic.com', password: 'password', name: 'Andi Pratama', role: 'Supervisor Treatment' },
+    { username: 'spv_produk', email: 'spv.produk@clinic.com', password: 'password', name: 'Budi Santoso', role: 'Supervisor Produk' },
+    { username: 'gudang', email: 'gudang@clinic.com', password: 'password', name: 'Zulkifli', role: 'Gudang Umum' },
+    { username: 'owner', email: 'owner@clinic.com', password: 'password', name: 'Nanin Lindiyawati', role: 'Owner' },
+    { username: 'ob', email: 'ob@clinic.com', password: 'password', name: 'Staff OB', role: 'Staff OB' },
+    { username: 'satpam', email: 'satpam@clinic.com', password: 'password', name: 'Staff Satpam', role: 'Staff Satpam' },
+    { username: 'apoteker', email: 'apoteker@clinic.com', password: 'password', name: 'Apoteker', role: 'Apoteker' },
 ]; 
 
 export const AuthProvider = ({ children }) => {

@@ -1,11 +1,11 @@
 export const ROLES = {
     SUPER_ADMIN: 'Super Admin',
     OWNER: 'Owner',
-    KOMISARIS: 'Komisaris',
     DOCTOR: 'Dokter',
     CS: 'Customer Service',
     HRD: 'HRD',
-    MANAGER: 'Manager',
+    SUPERVISOR_TREATMENT: 'Supervisor Treatment',
+    SUPERVISOR_PRODUK: 'Supervisor Produk',
     GUDANG_UMUM: 'Gudang Umum',
     STAFF_OB: 'Staff OB',
     STAFF_SATPAM: 'Staff Satpam',
@@ -17,12 +17,12 @@ export const ROLE_PERMISSIONS = {
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations', '/cs-products', '/cs-treatments'],
     [ROLES.HRD]: ['/', '/staff', '/attendance'],
-    [ROLES.MANAGER]: ['/', '/promos', '/attendance'],
+    [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance'],
+    [ROLES.SUPERVISOR_PRODUK]: ['/', '/promos', '/attendance'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
-    [ROLES.KOMISARIS]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
-    [ROLES.STAFF_OB]: ['/', '/attendance'],
-    [ROLES.STAFF_SATPAM]: ['/', '/attendance'],
+    [ROLES.STAFF_OB]: ['/attendance'],
+    [ROLES.STAFF_SATPAM]: ['/attendance'],
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
 };
 
@@ -37,8 +37,13 @@ export const hasPermission = (userRole, path) => {
 
     const allowedPaths = ROLE_PERMISSIONS[roleKey];
 
-    // Super Admin has full access to everything
-    if (allowedPaths.includes('*')) return true;
+    // Super Admin has full access to everything except individual stock pages
+    if (allowedPaths.includes('*')) {
+        if (path === '/cs-products' || path === '/cs-treatments' || path === '/management' || path === '/apotek-inventory') {
+            return false;
+        }
+        return true;
+    }
 
     if (path === '/') return allowedPaths.includes('/');
 

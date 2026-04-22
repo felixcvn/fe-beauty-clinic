@@ -5,9 +5,9 @@ const StatsCard = ({ title, value, change, icon: Icon, trend }) => {
     const isRevenue = title === 'Revenue' || title.toLowerCase().includes('revenue');
 
     return (
-        <div className="group bg-white p-7 rounded-[2.5rem] border border-primary/5 hover:border-primary/10 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/5 relative overflow-hidden active:scale-[0.98]">
+        <div className="group bg-white p-7 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08] hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/15 relative overflow-hidden active:scale-[0.98]">
             {/* Decorative background element */}
-            <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-10 transition-opacity duration-500 group-hover:opacity-20 ${isPositive ? 'bg-primary' : 'bg-red-500'}`} />
+            <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-15 transition-opacity duration-500 group-hover:opacity-25 ${isPositive ? 'bg-primary' : 'bg-red-500'}`} />
 
             <div className="flex justify-between items-start relative z-10">
                 <div>

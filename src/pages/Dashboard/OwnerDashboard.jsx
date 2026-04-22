@@ -115,7 +115,7 @@ const OwnerDashboard = () => {
             {/* Main Charts Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Revenue vs Target Trend - spanning 2 columns */}
-                <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+                <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08]">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tight">Pendapatan vs Target</h3>
@@ -160,7 +160,7 @@ const OwnerDashboard = () => {
                 </div>
 
                 {/* Sales Sources Pie Chart */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08] flex flex-col">
                     <div>
                         <h3 className="text-xl font-black text-primary tracking-tight">Sumber Penjualan</h3>
                         <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Distribusi Saluran (Juta Rp)</span>
@@ -210,7 +210,7 @@ const OwnerDashboard = () => {
             {/* Breakdown & Operational Efficiency */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 {/* Treatment Performance */}
-                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+                <div className="bg-white p-8 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08]">
                      <div className="flex justify-between items-center mb-8">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tight">Perilaku Pelanggan</h3>
@@ -237,7 +237,7 @@ const OwnerDashboard = () => {
                 </div>
 
                  {/* Operational Highlights */}
-                 <div className="bg-white p-8 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col justify-between">
+                 <div className="bg-white p-8 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08] flex flex-col justify-between">
                     <div>
                         <h3 className="text-xl font-black text-primary tracking-tight">Highlight Operasional</h3>
                         <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Ringkasan Efisiensi Bisnis</span>

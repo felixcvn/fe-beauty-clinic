@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     CalendarDays, Clock, UserCheck, UserMinus, Search, Filter,
     MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera,
@@ -74,7 +74,7 @@ const AttendancePage = () => {
         { name: 'Bambang Heru', role: 'OB', shift: 'ob_normal', checkIn: '07:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Ayu Lestari', role: 'Customer Service', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Dewi Rahmawati', role: 'HRD', shift: 'umum_normal', checkIn: '08:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Fajar Nugroho', role: 'Manager', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
         { name: 'Rina Kartika', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Agus Setiawan', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '--:--', checkOut: '--:--', status: 'Sakit', date: '2026-04-18', photoIn: null, photoOut: null },
         { name: 'Reza Pahlevi', role: 'Kasir', shift: 'umum_normal', checkIn: '08:00', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
@@ -108,7 +108,7 @@ const AttendancePage = () => {
             date: '2026-04-17', status: 'Disetujui', hrdNote: ''
         },
         {
-            id: 'OT-003', staffName: 'Fajar Nugroho', role: 'Manager', shift: 'umum_normal',
+            id: 'OT-003', staffName: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal',
             primaryType: 'Terlambat', anomalyTypes: ['Terlambat', 'Luar Kantor'],
             scheduledTime: '08:00', detectedTime: '09:30', diffMinutes: 90,
             notes: 'Menghadiri rapat dengan mitra bisnis di luar kantor yang dijadwalkan mendadak oleh atasan.',
@@ -118,7 +118,7 @@ const AttendancePage = () => {
             id: 'OT-004', staffName: 'Bambang Heru', role: 'OB', shift: 'ob_normal',
             primaryType: 'Lembur', anomalyTypes: ['Lembur'],
             scheduledTime: '17:00', detectedTime: '19:10', diffMinutes: 130,
-            notes: 'Diminta Bapak Manager untuk membersihkan ruang rapat setelah acara client selesai.',
+            notes: 'Diminta Bapak Supervisor untuk membersihkan ruang rapat setelah acara client selesai.',
             date: '2026-04-16', status: 'Ditolak', hrdNote: 'Harus konfirmasi terlebih dahulu ke HRD sebelum melakukan lembur.'
         },
         {

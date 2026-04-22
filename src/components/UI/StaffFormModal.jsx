@@ -294,7 +294,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                     { value: 'Perawat', label: 'Perawat' },
                                                     { value: 'Staff Gudang', label: 'Staff Gudang' },
                                                     { value: 'Kasir', label: 'Kasir' },
-                                                    { value: 'Manager', label: 'Manager' },
+                                                    { value: 'Supervisor Treatment', label: 'Supervisor Treatment' },
+                                                    { value: 'Supervisor Produk', label: 'Supervisor Produk' },
                                                     { value: 'HRD', label: 'HRD' },
                                                     { value: 'Owner', label: 'Owner' },
                                                     { value: 'Komisaris', label: 'Komisaris' }

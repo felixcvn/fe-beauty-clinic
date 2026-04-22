@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
     Calendar, 
     Plus, 
@@ -13,7 +13,9 @@ import {
     XCircle,
     Edit3,
     Trash2,
-    AlertTriangle
+    AlertTriangle,
+    Star,
+    Award
 } from 'lucide-react';
 import { createPortal } from 'react-dom';
 import { useMockData } from '../../context/MockDataContext';
@@ -41,6 +43,26 @@ const ReservationsPage = () => {
         (booking.phone?.includes(searchTerm)) ||
         (booking.broughtByStaff?.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    const favoriteTreatment = useMemo(() => {
+        if (!bookings.length) return '-';
+        const counts = bookings.reduce((acc, b) => {
+            if (b.treatment) acc[b.treatment] = (acc[b.treatment] || 0) + 1;
+            return acc;
+        }, {});
+        if (Object.keys(counts).length === 0) return '-';
+        return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    }, [bookings]);
+
+    const topStaff = useMemo(() => {
+        if (!bookings.length) return '-';
+        const counts = bookings.reduce((acc, b) => {
+            if (b.broughtByStaff) acc[b.broughtByStaff] = (acc[b.broughtByStaff] || 0) + 1;
+            return acc;
+        }, {});
+        if (Object.keys(counts).length === 0) return '-';
+        return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    }, [bookings]);
 
     const getStatusColor = (status) => {
         switch (status?.toLowerCase()) {
@@ -112,17 +134,26 @@ const ReservationsPage = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                    { label: 'Total Reservasi', value: bookings.length, color: 'text-primary', bg: 'bg-primary/5', icon: Calendar },
-                    { label: 'Terkonfirmasi', value: bookings.filter(b => b.status?.toLowerCase() === 'dikonfirmasi' || b.status?.toLowerCase() === 'confirmed').length, color: 'text-green-600', bg: 'bg-green-50', icon: CheckCircle2 },
-                    { label: 'Menunggu', value: bookings.filter(b => b.status?.toLowerCase() === 'menunggu' || b.status?.toLowerCase() === 'waiting').length, color: 'text-amber-600', bg: 'bg-amber-50', icon: Clock4 },
-                    { label: 'Jam Padat', value: '14:00 - 16:00', color: 'text-[#8E7AB5]', bg: 'bg-[#8E7AB5]/5', icon: Clock },
+                    { label: 'Total Reservasi', value: bookings.length, decoColor: 'bg-primary', iconColor: 'bg-primary text-secondary shadow-primary/20', icon: Calendar },
+                    { label: 'Treatment Favorit', value: favoriteTreatment, decoColor: 'bg-green-500', iconColor: 'bg-green-500 text-white shadow-green-500/20', icon: Star },
+                    { label: 'Pendaftar Teraktif', value: topStaff, decoColor: 'bg-amber-500', iconColor: 'bg-amber-500 text-white shadow-amber-500/20', icon: Award },
+                    { label: 'Jam Padat', value: '14:00 - 16:00', decoColor: 'bg-[#8E7AB5]', iconColor: 'bg-[#8E7AB5] text-white shadow-[#8E7AB5]/20', icon: Clock },
                 ].map((stat, i) => (
-                    <div key={i} className={`${stat.bg} p-6 rounded-[2rem] border border-white/50 backdrop-blur-sm relative overflow-hidden group hover:scale-[1.02] transition-all`}>
-                        <stat.icon className={`w-12 h-12 absolute -right-2 -bottom-2 opacity-10 group-hover:rotate-12 transition-transform ${stat.color}`} />
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">{stat.label}</p>
-                        <p className={`text-2xl font-black ${stat.color} tracking-tighter`}>{stat.value}</p>
+                    <div key={i} className="group bg-white p-7 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08] hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/15 relative overflow-hidden active:scale-[0.98]">
+                        <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-15 transition-opacity duration-500 group-hover:opacity-25 ${stat.decoColor}`} />
+                        <div className="flex justify-between items-start relative z-10">
+                            <div>
+                                <p className="text-primary/60 text-[10px] uppercase tracking-[0.2em] font-black mb-2">{stat.label}</p>
+                                <div className="flex items-baseline gap-1">
+                                    <h3 className={`${typeof stat.value === 'string' ? 'text-xl' : 'text-3xl'} font-black text-primary tracking-tighter leading-none`}>{stat.value}</h3>
+                                </div>
+                            </div>
+                            <div className={`p-3.5 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-lg flex-shrink-0 ${stat.iconColor}`}>
+                                <stat.icon className="w-5 h-5" />
+                            </div>
+                        </div>
                     </div>
                 ))}
             </div>

@@ -18,7 +18,8 @@ const roleBadgeColor = {
     Dokter: 'bg-blue-100 text-blue-600',
     'Customer Service': 'bg-emerald-100 text-emerald-600',
     HRD: 'bg-violet-100 text-violet-600',
-    Manager: 'bg-amber-100 text-amber-600',
+    'Supervisor Treatment': 'bg-amber-100 text-amber-600',
+    'Supervisor Produk': 'bg-amber-100 text-amber-600',
 };
 
 const ProfilePage = () => {

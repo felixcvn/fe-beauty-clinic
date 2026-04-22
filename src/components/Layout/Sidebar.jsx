@@ -41,6 +41,7 @@ const ALL_NAV_ITEMS = [
     { icon: ChartBarIcon, label: 'Laporan', path: '/reports' },
     { icon: ArchiveBoxIcon, label: 'Stok', path: '/cs-products' },
     { icon: ArchiveBoxIcon, label: 'Stok', path: '/apotek-inventory' },
+    { icon: ArchiveBoxIcon, label: 'Stok', path: '/superadmin-inventory' },
     { icon: SparklesIcon, label: 'Treatment', path: '/cs-treatments' },
     { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
 ];

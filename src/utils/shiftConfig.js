@@ -32,7 +32,7 @@ export const SHIFTS = {
     ob_normal_rmdn:        { label: 'Normal (Ramadhan)',  checkIn: '06:00', checkOut: '16:00' },
     ob_lembur_rmdn:        { label: 'Lembur (Ramadhan)',  checkIn: '06:00', checkOut: '18:00' },
 
-    // Umum (HRD, Kasir, Manager, Staff Gudang, dll)
+    // Umum (HRD, Kasir, Supervisor, Staff Gudang, dll)
     umum_normal:           { label: 'Normal',        checkIn: '08:00', checkOut: '17:00' },
     umum_normal_rmdn:      { label: 'Normal (Ramadhan)',  checkIn: '07:00', checkOut: '16:00' },
 };
