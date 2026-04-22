@@ -83,14 +83,14 @@ const OwnerDashboard = () => {
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <StatsCard
-                    title="Total Pendapatan (YTD)"
+                    title="Total Pendapatan"
                     value="Rp 3.7M"
                     change="15.8%"
                     trend="up"
                     icon={DollarSign}
                 />
                 <StatsCard
-                    title="Net Profit margin"
+                    title="Profit margin"
                     value="28.4%"
                     change="2.1%"
                     trend="up"
@@ -104,7 +104,7 @@ const OwnerDashboard = () => {
                     icon={Users}
                 />
                 <StatsCard
-                    title="Customer Acquisition Cost"
+                    title="Biaya Akuisisi Cust"
                     value="Rp 85k"
                     change="12%"
                     trend="down"

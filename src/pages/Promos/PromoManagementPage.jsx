@@ -5,6 +5,7 @@ import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import PromoFormModal from '../../components/UI/PromoFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import StatsCard from '../Dashboard/StatsCard';
 
 const PromoManagementPage = () => {
     const { showToast } = useToast();
@@ -157,21 +158,19 @@ const PromoManagementPage = () => {
             </div>
 
             {/* Statistik Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {[
-                    { label: 'Promo Aktif', value: promos.filter(p => p.status === 'Aktif').length, icon: Tag, color: 'text-accent-gold', bg: 'bg-accent-gold/10' },
-                    { label: 'Total Digunakan', value: promos.reduce((acc, curr) => acc + curr.used, 0), icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
-                    { label: 'Promo Berakhir', value: promos.filter(p => p.status === 'Berakhir').length, icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' }
+                    { label: 'Promo Aktif', value: promos.filter(p => p.status === 'Aktif').length, icon: Tag, trend: 'up' },
+                    { label: 'Total Digunakan', value: promos.reduce((acc, curr) => acc + curr.used, 0), icon: CheckCircle2, trend: 'up' },
+                    { label: 'Promo Berakhir', value: promos.filter(p => p.status === 'Berakhir').length, icon: XCircle, trend: 'down' }
                 ].map((stat, idx) => (
-                    <div key={idx} className="bg-white rounded-3xl p-6 border border-primary/5 shadow-xl shadow-primary/5 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
-                        <div className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}>
-                            <stat.icon className="w-5 h-5" />
-                        </div>
-                        <div>
-                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{stat.label}</h4>
-                            <span className="text-3xl font-black text-primary">{stat.value}</span>
-                        </div>
-                    </div>
+                    <StatsCard 
+                        key={idx} 
+                        title={stat.label} 
+                        value={stat.value} 
+                        icon={stat.icon} 
+                        trend={stat.trend} 
+                    />
                 ))}
             </div>
 

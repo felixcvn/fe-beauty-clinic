@@ -16,13 +16,13 @@ export const ROLE_PERMISSIONS = {
     [ROLES.SUPER_ADMIN]: ['*'], // Full access to everything
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations', '/cs-products', '/cs-treatments'],
-    [ROLES.HRD]: ['/', '/staff', '/attendance'],
+    [ROLES.HRD]: ['/', '/staff', '/patients', '/attendance'],
     [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance'],
     [ROLES.SUPERVISOR_PRODUK]: ['/', '/promos', '/attendance'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
     [ROLES.STAFF_OB]: ['/attendance'],
-    [ROLES.STAFF_SATPAM]: ['/attendance'],
+    [ROLES.STAFF_SATPAM]: ['/   '],
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
 };
 

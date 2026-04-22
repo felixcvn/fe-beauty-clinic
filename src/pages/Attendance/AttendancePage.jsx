@@ -16,6 +16,7 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { getActiveShift } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import StatsCard from '../Dashboard/StatsCard';
 
 const AttendancePage = () => {
     const { showToast } = useToast();
@@ -492,23 +493,20 @@ const AttendancePage = () => {
                                 </span>
                                 {isRamadhan && <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-600 text-[9px] font-black uppercase tracking-widest"><Moon className="w-3 h-3" />Mode Ramadhan Aktif</span>}
                             </div>
-                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                                 {[
-                                    { label: 'Hadir Tepat Waktu', value: '24', icon: CheckCircle2, color: 'text-green-500', bg: 'bg-green-50' },
-                                    { label: 'Terlambat', value: '3', icon: Clock, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-                                    { label: 'Sakit / Izin / Cuti', value: '5', icon: FileText, color: 'text-blue-500', bg: 'bg-blue-50' },
-                                    { label: 'Tanpa Keterangan', value: '1', icon: XCircle, color: 'text-red-500', bg: 'bg-red-50' }
+                                    { label: 'Hadir Tepat Waktu', value: '24', icon: CheckCircle2, trend: 'up' },
+                                    { label: 'Terlambat', value: '3', icon: Clock, trend: 'down' },
+                                    { label: 'Sakit / Izin / Cuti', value: '5', icon: FileText, trend: 'down' },
+                                    { label: 'Tanpa Keterangan', value: '1', icon: XCircle, trend: 'down' }
                                 ].map((stat, idx) => (
-                                    <div key={idx} className="bg-white rounded-3xl p-6 border border-primary/5 shadow-xl shadow-primary/5 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
-                                        <div className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4`}>
-                                            <stat.icon className="w-5 h-5" />
-                                        </div>
-                                        <div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 mb-1">{stat.label}</h4>
-                                            <span className="text-3xl font-black text-primary">{stat.value}</span>
-                                            <span className="text-xs font-bold text-primary/30 ml-2">Karyawan</span>
-                                        </div>
-                                    </div>
+                                    <StatsCard 
+                                        key={idx} 
+                                        title={stat.label} 
+                                        value={stat.value} 
+                                        icon={stat.icon} 
+                                        trend={stat.trend} 
+                                    />
                                 ))}
                             </div>
                         </div>

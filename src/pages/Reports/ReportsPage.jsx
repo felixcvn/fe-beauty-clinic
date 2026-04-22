@@ -3,6 +3,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { DollarSign, Users, Activity, BarChart3, Calendar, Download, ArrowUpRight, ArrowDownRight, Search } from 'lucide-react';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
+import StatsCard from '../Dashboard/StatsCard';
 
 const data = [
     { name: 'Jan', revenue: 4000, forecast: 4000, customers: 240 },
@@ -116,23 +117,16 @@ const ReportsPage = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {reportCards.map((card, index) => (
-                    <div key={index} className="bg-white p-6 md:p-7 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 hover:shadow-primary/10 transition-all duration-500 group">
-                        <div className="flex justify-between items-start mb-4">
-                            <div className="p-3 bg-secondary rounded-xl md:rounded-2xl text-primary group-hover:bg-primary group-hover:text-secondary transition-all duration-500">
-                                <card.icon className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <div className={`flex items-center gap-1 text-[10px] font-black uppercase tracking-widest ${card.trend === 'up' ? 'text-green-500' : 'text-red-500'}`}>
-                                {card.trend === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                {card.change}
-                            </div>
-                        </div>
-                        <div>
-                            <p className="text-primary/40 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">{card.title}</p>
-                            <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">{card.value}</h3>
-                        </div>
-                    </div>
+                    <StatsCard 
+                        key={index} 
+                        title={card.title} 
+                        value={card.value} 
+                        change={card.change} 
+                        trend={card.trend} 
+                        icon={card.icon} 
+                    />
                 ))}
             </div>
 

@@ -22,6 +22,7 @@ import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import ReservationFormModal from '../../components/UI/ReservationFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import StatsCard from '../Dashboard/StatsCard';
 
 const ReservationsPage = () => {
     const { bookings, deleteBooking } = useMockData();
@@ -136,25 +137,18 @@ const ReservationsPage = () => {
             {/* Stats Overview */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {[
-                    { label: 'Total Reservasi', value: bookings.length, decoColor: 'bg-primary', iconColor: 'bg-primary text-secondary shadow-primary/20', icon: Calendar },
-                    { label: 'Treatment Favorit', value: favoriteTreatment, decoColor: 'bg-green-500', iconColor: 'bg-green-500 text-white shadow-green-500/20', icon: Star },
-                    { label: 'Pendaftar Teraktif', value: topStaff, decoColor: 'bg-amber-500', iconColor: 'bg-amber-500 text-white shadow-amber-500/20', icon: Award },
-                    { label: 'Jam Padat', value: '14:00 - 16:00', decoColor: 'bg-[#8E7AB5]', iconColor: 'bg-[#8E7AB5] text-white shadow-[#8E7AB5]/20', icon: Clock },
+                    { label: 'Total Reservasi', value: bookings.length, icon: Calendar },
+                    { label: 'Treatment Favorit', value: favoriteTreatment, icon: Star },
+                    { label: 'Pendaftar Teraktif', value: topStaff, icon: Award },
+                    { label: 'Jam Padat', value: '14:00 - 16:00', icon: Clock },
                 ].map((stat, i) => (
-                    <div key={i} className="group bg-white p-7 rounded-[2.5rem] border border-primary/10 shadow-xl shadow-primary/[0.08] hover:border-primary/20 transition-all duration-500 hover:shadow-2xl hover:shadow-primary/15 relative overflow-hidden active:scale-[0.98]">
-                        <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full blur-3xl opacity-15 transition-opacity duration-500 group-hover:opacity-25 ${stat.decoColor}`} />
-                        <div className="flex justify-between items-start relative z-10">
-                            <div>
-                                <p className="text-primary/60 text-[10px] uppercase tracking-[0.2em] font-black mb-2">{stat.label}</p>
-                                <div className="flex items-baseline gap-1">
-                                    <h3 className={`${typeof stat.value === 'string' ? 'text-xl' : 'text-3xl'} font-black text-primary tracking-tighter leading-none`}>{stat.value}</h3>
-                                </div>
-                            </div>
-                            <div className={`p-3.5 rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-lg flex-shrink-0 ${stat.iconColor}`}>
-                                <stat.icon className="w-5 h-5" />
-                            </div>
-                        </div>
-                    </div>
+                    <StatsCard 
+                        key={i} 
+                        title={stat.label} 
+                        value={stat.value} 
+                        icon={stat.icon} 
+                        trend="up" 
+                    />
                 ))}
             </div>
 

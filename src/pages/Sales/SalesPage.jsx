@@ -3,6 +3,7 @@ import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight,
 import { useNavigate } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import StatsCard from '../Dashboard/StatsCard';
 
 const SalesPage = () => {
     const navigate = useNavigate();
@@ -115,23 +116,16 @@ const SalesPage = () => {
             </div>
 
             {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                 {salesStats.map((stat, index) => (
-                    <div key={index} className="bg-white p-7 rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
-                        <div className="flex justify-between items-start mb-5">
-                            <div className="p-3.5 bg-secondary rounded-2xl text-primary shadow-sm">
-                                <stat.icon className="w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${stat.trend === 'up' ? 'bg-green-50 text-green-500' : 'bg-red-50 text-red-500'}`}>
-                                {stat.trend === 'up' ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                                {stat.change}
-                            </div>
-                        </div>
-                        <div>
-                            <p className="text-primary/30 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1.5">{stat.title}</p>
-                            <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">{stat.value}</h3>
-                        </div>
-                    </div>
+                    <StatsCard 
+                        key={index} 
+                        title={stat.title} 
+                        value={stat.value} 
+                        icon={stat.icon} 
+                        trend={stat.trend} 
+                        change={stat.change} 
+                    />
                 ))}
             </div>
 
