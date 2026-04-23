@@ -24,6 +24,14 @@ export const MockDataProvider = ({ children }) => {
         { id: 'P-10035', name: 'Fajar Nugroho', namaLengkap: 'Fajar Nugroho', age: 41, lastVisit: 'Agt 01, 2025', condition: 'Pigmentation', status: 'Aktif', allergies: 'Debu', noMember: 'M-012', noRM: '00-00-12', tipeMember: 'PLATINUM', history: [] },
     ]);
 
+    const [promos, setPromos] = useState([
+        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 85, status: 'Aktif', category: 'Treatment', targetItems: ['Laser Therapy Session', 'Chemical Peel'] },
+        { id: 'PRM-002', code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', quota: 50, used: 12, status: 'Aktif', category: 'Treatment', targetItems: ['Skin Rejuvenation Therapy'] },
+        { id: 'PRM-003', code: 'VALENTINE20', name: 'Kasih Sayang Diskon', type: 'Persen', value: 20, startDate: '2026-02-10', endDate: '2026-02-20', quota: 200, used: 200, status: 'Berakhir', category: 'Produk', targetItems: ['Acne Treatment Pack', 'Skin Glow Kit'] },
+        { id: 'PRM-004', code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 320, status: 'Aktif', category: 'Produk', targetItems: ['Sunscreen Gel SPF 50', 'Moisturizer Ceramide'] },
+        { id: 'PRM-005', code: 'LEBARANCERIA', name: 'Promo Lebaran', type: 'Persen', value: 30, startDate: '2026-04-01', endDate: '2026-04-15', quota: 150, used: 0, status: 'Draf', category: 'Treatment', targetItems: ['Facial Whitening'] },
+    ]);
+
     const [products, setProducts] = useState([
         { id: 'PRD-001', name: 'Acne Treatment Pack', category: 'Skincare', price: 450000, stock: 15, minStock: 20, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-004', name: 'Skin Glow Kit', category: 'Skincare', price: 850000, stock: 12, minStock: 10, image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=200&h=200&auto=format&fit=crop' },
@@ -254,6 +262,20 @@ export const MockDataProvider = ({ children }) => {
         setBookings(prev => prev.filter(b => b.id !== id));
     };
 
+    // Promo Functions
+    const addPromo = (promo) => {
+        const id = `PRM-${String(promos.length + 1).padStart(3, '0')}`;
+        setPromos(prev => [{ ...promo, id, used: 0, status: 'Aktif' }, ...prev]);
+    };
+
+    const updatePromo = (updatedPromo) => {
+        setPromos(prev => prev.map(p => p.id === updatedPromo.id ? updatedPromo : p));
+    };
+
+    const deletePromo = (id) => {
+        setPromos(prev => prev.filter(p => p.id !== id));
+    };
+
     return (
         <MockDataContext.Provider value={{ 
             patients, addPatient, updatePatient, addRecord, getPatient,
@@ -265,7 +287,8 @@ export const MockDataProvider = ({ children }) => {
             infusions, addInfusion, updateInfusion, deleteInfusion,
             apotekItems, addApotekItem, updateApotekItem, deleteApotekItem,
             staff, addStaff, updateStaff, deleteStaff,
-            bookings, addBooking, updateBooking, deleteBooking
+            bookings, addBooking, updateBooking, deleteBooking,
+            promos, addPromo, updatePromo, deletePromo
         }}>
             {children}
         </MockDataContext.Provider>

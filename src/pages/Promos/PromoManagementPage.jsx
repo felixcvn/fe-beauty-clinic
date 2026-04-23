@@ -6,9 +6,14 @@ import { useToast } from '../../context/ToastContext';
 import PromoFormModal from '../../components/UI/PromoFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../utils/rbac';
+import { useMockData } from '../../context/MockDataContext';
 
 const PromoManagementPage = () => {
     const { showToast } = useToast();
+    const { user } = useAuth();
+    const { promos, addPromo, updatePromo, deletePromo } = useMockData();
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
     const [isLoading, setIsLoading] = useState(true);
@@ -26,23 +31,14 @@ const PromoManagementPage = () => {
     // Confirmation Modal State (Untuk Hapus Promo)
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, promo: null });
 
-    // Mock Data Promo
-    const [promos, setPromos] = useState([
-        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 85, status: 'Aktif' },
-        { id: 'PRM-002', code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', quota: 50, used: 12, status: 'Aktif' },
-        { id: 'PRM-003', code: 'VALENTINE20', name: 'Kasih Sayang Diskon', type: 'Persen', value: 20, startDate: '2026-02-10', endDate: '2026-02-20', quota: 200, used: 200, status: 'Berakhir' },
-        { id: 'PRM-004', code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 320, status: 'Aktif' },
-        { id: 'PRM-005', code: 'LEBARANCERIA', name: 'Promo Lebaran', type: 'Persen', value: 30, startDate: '2026-04-01', endDate: '2026-04-15', quota: 150, used: 0, status: 'Draf' },
-        { id: 'PRM-006', code: 'CANTIK100', name: 'Potongan Facial 100k', type: 'Nominal', value: 100000, startDate: '2026-03-10', endDate: '2026-05-10', quota: 100, used: 45, status: 'Aktif' },
-        { id: 'PRM-007', code: 'FLASHMONDAY', name: 'Flash Sale Senin', type: 'Persen', value: 15, startDate: '2026-03-16', endDate: '2026-03-17', quota: 50, used: 50, status: 'Berakhir' },
-        { id: 'PRM-008', code: 'WEEKENDGLOW', name: 'Diskon Akhir Pekan', type: 'Nominal', value: 75000, startDate: '2026-03-21', endDate: '2026-03-23', quota: 200, used: 0, status: 'Draf' },
-        { id: 'PRM-009', code: 'BEAUTYFEST', name: 'Beauty Festival 2026', type: 'Persen', value: 40, startDate: '2026-05-01', endDate: '2026-05-31', quota: 500, used: 0, status: 'Draf' },
-        { id: 'PRM-010', code: 'ULTAH24', name: 'Diskon Bulan Ulang Tahun', type: 'Persen', value: 24, startDate: '2026-07-01', endDate: '2026-07-31', quota: 1000, used: 54, status: 'Berakhir' },
-    ]);
-
     const filteredPromos = promos.filter(promo => {
+        // Filter by role category
+        if (user?.role === ROLES.SUPERVISOR_TREATMENT && promo.category !== 'Treatment') return false;
+        if (user?.role === ROLES.SUPERVISOR_PRODUK && promo.category !== 'Produk') return false;
+
         const matchesSearch = promo.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              promo.code.toLowerCase().includes(searchTerm.toLowerCase());
+                              promo.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                              (promo.targetItems && promo.targetItems.some(item => item.toLowerCase().includes(searchTerm.toLowerCase())));
         const matchesStatus = statusFilter === 'Semua Status' || promo.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -79,17 +75,10 @@ const PromoManagementPage = () => {
 
     // Handler Simpan (Triggered dari form modal eksternal)
     const handleSavePromo = (formData) => {
-        // Simulasi Update / Create Data
         if (editingPromo) {
-            setPromos(prev => prev.map(p => p.id === editingPromo.id ? { ...p, ...formData } : p));
+            updatePromo({ ...editingPromo, ...formData });
         } else {
-            const newPromo = { 
-                id: `PRM-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, 
-                ...formData, 
-                used: 0, 
-                status: 'Aktif' 
-            };
-            setPromos([newPromo, ...promos]);
+            addPromo(formData);
         }
         
         showToast(editingPromo ? 'Promo berhasil diperbarui!' : 'Promo baru berhasil ditambahkan!', 'success');
@@ -103,7 +92,7 @@ const PromoManagementPage = () => {
     };
 
     const confirmDelete = () => {
-        setPromos(prev => prev.filter(p => p.id !== deleteConfirm.promo.id));
+        deletePromo(deleteConfirm.promo.id);
         showToast(`Promo ${deleteConfirm.promo.code} telah dihapus.`, 'success');
         setDeleteConfirm({ open: false, promo: null });
     };
@@ -211,7 +200,7 @@ const PromoManagementPage = () => {
                     <table className="w-full text-left min-w-[900px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
-                                <th className="px-4 py-3 text-primary/80">Kode & Nama Promo</th>
+                                <th className="px-4 py-3 text-primary/80">Target Item ({user?.role?.includes('Treatment') ? 'Treatment' : 'Produk'})</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Nilai Diskon</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Masa Berlaku</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Kuota (Terpakai)</th>
@@ -222,14 +211,31 @@ const PromoManagementPage = () => {
                         <tbody className="divide-y divide-primary/5">
                             {currentPromos.map((promo) => (
                                 <tr key={promo.id} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
-                                    <td className="px-4 py-2">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-accent-gold/10 flex items-center justify-center text-accent-gold border border-accent-gold/20 shrink-0">
-                                                <Tag className="w-4 h-4" />
+                                    <td className="px-4 py-4">
+                                        <div className="flex items-start gap-4">
+                                            <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary shrink-0 border border-primary/10">
+                                                <Tag className="w-5 h-5" />
                                             </div>
-                                            <div>
-                                                <div className="font-medium text-blue-600 text-sm tracking-tight">{promo.code}</div>
-                                                <div className="font-medium text-primary text-sm mt-0.5">{promo.name}</div>
+                                            <div className="min-w-0">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="font-black text-blue-600 text-[10px] uppercase tracking-[0.2em] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100/50">{promo.code}</span>
+                                                    <span className={`font-black text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-md border border-white/50 ${getStatusStyle(promo.status)}`}>
+                                                        {promo.status}
+                                                    </span>
+                                                </div>
+                                                <div className="font-black text-primary text-sm tracking-tight mb-2 truncate">{promo.name}</div>
+                                                
+                                                <div className="flex flex-wrap gap-1.5 max-w-md">
+                                                    {promo.targetItems && promo.targetItems.length > 0 ? (
+                                                        promo.targetItems.map(item => (
+                                                            <span key={item} className="px-2 py-0.5 bg-gray-50 border border-gray-100 rounded text-[9px] font-bold text-gray-500 whitespace-nowrap">
+                                                                {item}
+                                                            </span>
+                                                        ))
+                                                    ) : (
+                                                        <span className="text-[9px] font-bold text-red-400 italic">Belum ada item terpilih</span>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>

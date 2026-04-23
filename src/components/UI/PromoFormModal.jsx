@@ -3,8 +3,17 @@ import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Tag } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../utils/rbac';
+import { useMockData } from '../../context/MockDataContext';
+import { Search } from 'lucide-react';
 
 const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
+    const { user } = useAuth();
+    const { products, treatments } = useMockData();
+    const isSupervisorTreatment = user?.role === ROLES.SUPERVISOR_TREATMENT;
+    const isSupervisorProduk = user?.role === ROLES.SUPERVISOR_PRODUK;
+
     const [formState, setFormState] = useState({
         name: '',
         code: '',
@@ -12,13 +21,20 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         value: '',
         quota: '',
         startDate: '',
-        endDate: ''
+        endDate: '',
+        category: 'Treatment',
+        targetItems: []
     });
+
+    const [itemSearch, setItemSearch] = useState('');
 
     useEffect(() => {
         if (isOpen) {
             if (initialData) {
-                setFormState(initialData);
+                setFormState({
+                    ...initialData,
+                    targetItems: initialData.targetItems || []
+                });
             } else {
                 setFormState({
                     name: '',
@@ -27,7 +43,9 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     value: '',
                     quota: '',
                     startDate: '',
-                    endDate: ''
+                    endDate: '',
+                    category: isSupervisorTreatment ? 'Treatment' : (isSupervisorProduk ? 'Produk' : 'Treatment'),
+                    targetItems: []
                 });
             }
         }
@@ -97,6 +115,20 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                             />
                         </div>
 
+                        {!(isSupervisorTreatment || isSupervisorProduk) && (
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kategori Promo</label>
+                                <CustomSelect 
+                                    value={formState.category}
+                                    onChange={(val) => setFormState({ ...formState, category: val })}
+                                    options={[
+                                        { value: 'Treatment', label: 'Treatment' },
+                                        { value: 'Produk', label: 'Produk' }
+                                    ]}
+                                />
+                            </div>
+                        )}
+
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kode Promo</label>
@@ -160,6 +192,64 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 onChange={(val) => setFormState({ ...formState, endDate: val })}
                                 className="w-full"
                             />
+                        </div>
+
+                        {/* Item Selection Section */}
+                        <div className="space-y-3">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">
+                                Pilih {formState.category === 'Treatment' ? 'Treatment' : 'Produk'} yang mendapatkan Promo
+                            </label>
+                            <div className="relative group mb-2">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary/30" />
+                                <input 
+                                    type="text"
+                                    placeholder={`Cari ${formState.category.toLowerCase()}...`}
+                                    value={itemSearch}
+                                    onChange={(e) => setItemSearch(e.target.value)}
+                                    className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-secondary/10 border border-primary/5 outline-none text-xs text-primary font-bold placeholder:text-primary/20 focus:ring-2 focus:ring-primary/5 transition-all"
+                                />
+                            </div>
+                            <div className="max-h-48 overflow-y-auto pr-2 space-y-1 custom-scrollbar">
+                                {(formState.category === 'Treatment' ? treatments : products)
+                                    .filter(item => item.name.toLowerCase().includes(itemSearch.toLowerCase()))
+                                    .map(item => (
+                                        <label key={item.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-primary/[0.02] cursor-pointer border border-transparent hover:border-primary/5 transition-all group">
+                                            <input 
+                                                type="checkbox"
+                                                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                                checked={formState.targetItems.includes(item.name)}
+                                                onChange={(e) => {
+                                                    const newTargets = e.target.checked 
+                                                        ? [...formState.targetItems, item.name]
+                                                        : formState.targetItems.filter(t => t !== item.name);
+                                                    setFormState({ ...formState, targetItems: newTargets });
+                                                }}
+                                            />
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-xs font-black text-primary truncate tracking-tight">{item.name}</p>
+                                                <p className="text-[8px] font-bold text-primary/30 uppercase tracking-widest">{item.id}</p>
+                                            </div>
+                                            <span className="text-[10px] font-bold text-primary/60">Rp {item.price.toLocaleString('id-ID')}</span>
+                                        </label>
+                                    ))
+                                }
+                            </div>
+                            {formState.targetItems.length > 0 && (
+                                <div className="p-3 bg-primary/5 rounded-xl border border-primary/5">
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-2">Item Terpilih ({formState.targetItems.length})</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {formState.targetItems.map(item => (
+                                            <span key={item} className="px-2.5 py-1 bg-white border border-primary/10 rounded-lg text-[9px] font-bold text-primary shadow-sm flex items-center gap-1">
+                                                {item}
+                                                <X 
+                                                    className="w-2.5 h-2.5 cursor-pointer hover:text-red-500" 
+                                                    onClick={() => setFormState({ ...formState, targetItems: formState.targetItems.filter(t => t !== item) })}
+                                                />
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                         
                         <button 

@@ -23,7 +23,7 @@ import { createPortal } from 'react-dom';
 import logo from '../../assets/logo.png';
 import logo1 from '../../assets/logo-1.png';
 import { useAuth } from '../../context/AuthContext';
-import { hasPermission } from '../../utils/rbac';
+import { hasPermission, ROLES } from '../../utils/rbac';
 
 const ALL_NAV_ITEMS = [
     { icon: Squares2X2Icon, label: 'Dashboard', path: '/' },
@@ -75,6 +75,13 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
     }).map(item => {
         if (item.path === '/staff' && (user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD' || user?.role === 'Super Admin')) {
             return { ...item, label: 'Manajemen Karyawan' };
+        }
+        if (item.path === '/promos') {
+            if (user?.role === ROLES.SUPERVISOR_TREATMENT) return { ...item, label: 'Promo Treatment' };
+            if (user?.role === ROLES.SUPERVISOR_PRODUK) return { ...item, label: 'Promo Produk' };
+        }
+        if (item.path === '/cs-products' && user?.role === ROLES.SUPERVISOR_PRODUK) {
+            return { ...item, label: 'Stok' };
         }
         return item;
     });

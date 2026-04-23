@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox, ChevronDown, Beaker } from 'lucide-react';
+import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox, ChevronDown, Beaker, Tag } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import WarehouseFormModal from '../../components/UI/WarehouseFormModal';
@@ -7,15 +7,17 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../utils/rbac';
 
 const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const { user } = useAuth();
-    const isViewOnly = user?.role === 'Customer Service';
+    const isViewOnly = user?.role === ROLES.CS;
     const {
         products, addProduct, updateProduct, deleteProduct,
         treatments, addTreatment, updateTreatment, deleteTreatment,
         racikans, addRacikan, updateRacikan, deleteRacikan,
-        materials, addMaterial, updateMaterial, deleteMaterial
+        materials, addMaterial, updateMaterial, deleteMaterial,
+        promos
     } = useMockData();
     const { showToast } = useToast();
 
@@ -36,6 +38,19 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const [modalType, setModalType] = useState('product'); // to determine which form to show
     const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '', type: '' });
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+
+    const calculateDiscountedPrice = (price, itemPromos) => {
+        if (!price || !itemPromos || itemPromos.length === 0) return price;
+        let finalPrice = price;
+        itemPromos.forEach(p => {
+            if (p.type === 'Persen') {
+                finalPrice -= (finalPrice * (p.value / 100));
+            } else {
+                finalPrice -= p.value;
+            }
+        });
+        return Math.max(0, finalPrice);
+    };
 
     // Simulate loading
     useEffect(() => {
@@ -171,13 +186,21 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                     {!isViewOnly && (
                         <>
                             {/* Gudang Umum: langsung buka modal tambah stok, tanpa dropdown */}
-                            {user?.role === 'Gudang Umum' ? (
+                            {user?.role === ROLES.GUDANG_UMUM ? (
                                 <button
                                     onClick={() => openAddModal('product')}
                                     className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
                                 >
                                     <Plus className="w-4 h-4" />
                                     <span>Tambah Stok</span>
+                                </button>
+                            ) : user?.role === ROLES.SUPERVISOR_TREATMENT && fixedFilter === 'treatment' ? (
+                                <button
+                                    onClick={() => openAddModal('treatment')}
+                                    className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span>Tambah Treatment</span>
                                 </button>
                             ) : (
                                 <>
@@ -336,6 +359,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                         <th className="px-4 py-3 text-primary/80">Nama</th>
                                         <th className="px-4 py-3 text-primary/80">Jml Paket</th>
                                         <th className="px-4 py-3 text-primary/80">Biaya</th>
+                                        <th className="px-4 py-3 text-primary/80">Promo Aktif</th>
                                         {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                                     </tr>
                                 </thead>
@@ -353,7 +377,32 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             </td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary">{item.packageCount || '-'}</td>
-                                            <td className="px-4 py-2 font-medium text-sm text-primary">{item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}</td>
+                                            <td className="px-4 py-2">
+                                                {(() => {
+                                                    const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
+                                                    const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
+                                                    const hasDiscount = finalPrice !== item.price;
+                                                    
+                                                    return hasDiscount ? (
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
+                                                            <span className="text-primary font-black">Rp {finalPrice.toLocaleString('id-ID')}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-primary font-medium text-sm">
+                                                            {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                {promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name)).map(p => (
+                                                    <div key={p.id} className="flex items-center gap-1.5 text-blue-600 font-bold text-[9px] uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md border border-blue-100/50 mb-1 last:mb-0">
+                                                        <Tag className="w-3 h-3" />
+                                                        {p.code} ({p.type === 'Persen' ? `${p.value}%` : `Rp${(p.value/1000)}k`})
+                                                    </div>
+                                                ))}
+                                            </td>
                                             {!isViewOnly && (
                                                 <td className="px-4 py-2 text-right">
                                                     <div className="flex justify-end gap-2">
@@ -385,6 +434,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                         <th className="px-4 py-3 text-primary/80">Kategori</th>
                                         <th className="px-4 py-3 text-primary/80">Harga</th>
                                         <th className="px-4 py-3 text-primary/80">Stok</th>
+                                        <th className="px-4 py-3 text-primary/80">Promo Aktif</th>
                                         {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                                     </tr>
                                 </thead>
@@ -394,7 +444,24 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category}</td>
-                                            <td className="px-4 py-2 font-medium text-sm text-primary">Rp {item.price.toLocaleString('id-ID')}</td>
+                                            <td className="px-4 py-2">
+                                                {(() => {
+                                                    const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
+                                                    const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
+                                                    const hasDiscount = finalPrice !== item.price;
+
+                                                    return hasDiscount ? (
+                                                        <div className="flex flex-col">
+                                                            <span className="text-[10px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
+                                                            <span className="text-primary font-black">Rp {finalPrice.toLocaleString('id-ID')}</span>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="text-primary font-medium text-sm">
+                                                            Rp {item.price.toLocaleString('id-ID')}
+                                                        </span>
+                                                    );
+                                                })()}
+                                            </td>
                                             <td className="px-4 py-2">
                                                 {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
                                                     <div className="flex items-center gap-2">
@@ -408,6 +475,14 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                 ) : (
                                                     <span className="font-medium text-xl text-primary/20">-</span>
                                                 )}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                                {promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name)).map(p => (
+                                                    <div key={p.id} className="flex items-center gap-1.5 text-blue-600 font-bold text-[9px] uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md border border-blue-100/50 mb-1 last:mb-0">
+                                                        <Tag className="w-3 h-3" />
+                                                        {p.code} ({p.type === 'Persen' ? `${p.value}%` : `Rp${(p.value/1000)}k`})
+                                                    </div>
+                                                ))}
                                             </td>
                                             {!isViewOnly && (
                                                 <td className="px-4 py-2 text-right">
@@ -462,7 +537,20 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                 </div>
                                 <div className="flex-1 p-3">
                                     <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Biaya</p>
-                                    <p className="text-xs font-black text-gray-700">{item.price ? `Rp. ${item.price.toLocaleString('id-ID')}` : '-'}</p>
+                                    {(() => {
+                                        const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
+                                        const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
+                                        const hasDiscount = finalPrice !== item.price;
+
+                                        return hasDiscount ? (
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
+                                                <span className="text-xs font-black text-gray-700">Rp {finalPrice.toLocaleString('id-ID')}</span>
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs font-black text-gray-700">{item.price ? `Rp. ${item.price.toLocaleString('id-ID')}` : '-'}</p>
+                                        );
+                                    })()}
                                 </div>
                             </div>
 
@@ -498,7 +586,20 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                             <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
                                 <div className="flex-1 p-3">
                                     <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga</p>
-                                    <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
+                                    {(() => {
+                                        const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
+                                        const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
+                                        const hasDiscount = finalPrice !== item.price;
+
+                                        return hasDiscount ? (
+                                            <div className="flex flex-col">
+                                                <span className="text-[8px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
+                                                <span className="text-xs font-black text-gray-700">Rp {finalPrice.toLocaleString('id-ID')}</span>
+                                            </div>
+                                        ) : (
+                                            <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
+                                        );
+                                    })()}
                                 </div>
                                 {(item._type === 'product' || item._type === 'racikan' || item._type === 'material') && (
                                     <div className="flex-1 p-3">
