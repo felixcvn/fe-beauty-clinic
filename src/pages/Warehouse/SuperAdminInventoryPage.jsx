@@ -39,11 +39,9 @@ const SuperAdminInventoryPage = () => {
         return () => clearTimeout(timer);
     }, []);
 
-    // Combine data
+    // Combine data (excluding treatments and racikans as requested)
     const allItems = [
         ...products.map(p => ({ ...p, _type: 'product' })),
-        ...treatments.map(t => ({ ...t, _type: 'treatment' })),
-        ...racikans.map(r => ({ ...r, _type: 'racikan' })),
         ...materials.map(m => ({ ...m, _type: 'material' })),
         ...medicals.map(m => ({ ...m, _type: 'medical' })),
         ...infusions.map(i => ({ ...i, _type: 'infusion' })),
@@ -182,15 +180,7 @@ const SuperAdminInventoryPage = () => {
                                 </div>
                                 <button onClick={() => { openAddModal('product'); setIsAddDropdownOpen(false); }} className="w-full flex items-center gap-3 px-6 py-3 hover:bg-primary/[0.04] transition-colors text-left group">
                                     <Package className="w-4 h-4 text-blue-500" />
-                                    <span className="text-xs font-black text-primary uppercase tracking-widest">Skincare</span>
-                                </button>
-                                <button onClick={() => { openAddModal('treatment'); setIsAddDropdownOpen(false); }} className="w-full flex items-center gap-3 px-6 py-3 hover:bg-primary/[0.04] transition-colors text-left group">
-                                    <Activity className="w-4 h-4 text-green-500" />
-                                    <span className="text-xs font-black text-primary uppercase tracking-widest">Treatment</span>
-                                </button>
-                                <button onClick={() => { openAddModal('racikan'); setIsAddDropdownOpen(false); }} className="w-full flex items-center gap-3 px-6 py-3 hover:bg-primary/[0.04] transition-colors text-left group">
-                                    <Activity className="w-4 h-4 text-purple-500" />
-                                    <span className="text-xs font-black text-primary uppercase tracking-widest">Racikan</span>
+                                    <span className="text-xs font-black text-primary uppercase tracking-widest">Produk</span>
                                 </button>
                             </div>
                             <div className="flex-1">
@@ -199,7 +189,7 @@ const SuperAdminInventoryPage = () => {
                                 </div>
                                 <button onClick={() => { openAddModal('material'); setIsAddDropdownOpen(false); }} className="w-full flex items-center gap-3 px-6 py-3 hover:bg-primary/[0.04] transition-colors text-left group">
                                     <Beaker className="w-4 h-4 text-orange-500" />
-                                    <span className="text-xs font-black text-primary uppercase tracking-widest">Treatment</span>
+                                    <span className="text-xs font-black text-primary uppercase tracking-widest">Bahan Treatment</span>
                                 </button>
                                 <button onClick={() => { openAddModal('medical'); setIsAddDropdownOpen(false); }} className="w-full flex items-center gap-3 px-6 py-3 hover:bg-primary/[0.04] transition-colors text-left group">
                                     <Beaker className="w-4 h-4 text-blue-500" />
@@ -233,13 +223,7 @@ const SuperAdminInventoryPage = () => {
                         <span className="text-[10px] font-black uppercase tracking-widest">Semua</span>
                     </button>
                     <button onClick={() => toggleFilter('product')} className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 ${activeFilter === 'product' ? 'bg-blue-500 border-blue-500 text-white shadow-lg shadow-blue-500/20 scale-105' : 'bg-blue-50/50 border-blue-100 text-blue-600 hover:bg-blue-50'}`}>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Skincare</span>
-                    </button>
-                    <button onClick={() => toggleFilter('treatment')} className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 ${activeFilter === 'treatment' ? 'bg-green-500 border-green-500 text-white shadow-lg shadow-green-500/20 scale-105' : 'bg-green-50/50 border-green-100 text-green-600 hover:bg-green-50'}`}>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Treatment</span>
-                    </button>
-                    <button onClick={() => toggleFilter('racikan')} className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 ${activeFilter === 'racikan' ? 'bg-purple-500 border-purple-500 text-white shadow-lg shadow-purple-500/20 scale-105' : 'bg-purple-50/50 border-purple-100 text-purple-600 hover:bg-purple-50'}`}>
-                        <span className="text-[10px] font-black uppercase tracking-widest">Racikan</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">Produk</span>
                     </button>
                     <button onClick={() => toggleFilter('material')} className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all duration-300 ${activeFilter === 'material' ? 'bg-orange-500 border-orange-500 text-white shadow-lg shadow-orange-500/20 scale-105' : 'bg-orange-50/50 border-orange-100 text-orange-600 hover:bg-orange-50'}`}>
                         <span className="text-[10px] font-black uppercase tracking-widest">Bhn Treatment</span>
@@ -292,7 +276,11 @@ const SuperAdminInventoryPage = () => {
                                             <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
                                             <td className="px-4 py-2">
                                                 <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-2 py-1 rounded-md">
-                                                    {item._type}
+                                                    {item._type === 'product' ? 'produk' : 
+                                                     item._type === 'material' ? 'bhn treatment' :
+                                                     item._type === 'medical' ? 'bhn medis' :
+                                                     item._type === 'infusion' ? 'bhn infus' :
+                                                     item._type === 'apotekItem' ? 'brg apotek' : item._type}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>

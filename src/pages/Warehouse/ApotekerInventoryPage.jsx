@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Inbox, ChevronDown, Beaker } from 'lucide-react';
+import { Search, Plus, Edit3, AlertTriangle, Package, Inbox, ChevronDown, Beaker } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import ApotekerFormModal from '../../components/UI/ApotekerFormModal';
@@ -13,10 +13,10 @@ const ApotekerInventoryPage = () => {
     const isViewOnly = false; // Apoteker is the main actor here
 
     const {
-        materials, addMaterial, updateMaterial, deleteMaterial,
-        medicals, addMedical, updateMedical, deleteMedical,
-        infusions, addInfusion, updateInfusion, deleteInfusion,
-        apotekItems, addApotekItem, updateApotekItem, deleteApotekItem
+        materials, addMaterial, updateMaterial,
+        medicals, addMedical, updateMedical,
+        infusions, addInfusion, updateInfusion,
+        apotekItems, addApotekItem, updateApotekItem
     } = useMockData();
     const { showToast } = useToast();
 
@@ -29,7 +29,6 @@ const ApotekerInventoryPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [editingItem, setEditingItem] = useState(null);
     const [modalType, setModalType] = useState('material'); // to determine which form to show
-    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '', type: '' });
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
     // Simulate loading
@@ -120,23 +119,6 @@ const ApotekerInventoryPage = () => {
         setEditingItem(null);
     };
 
-    const handleDelete = () => {
-        if (deleteConfirm.type === 'material') {
-            deleteMaterial(deleteConfirm.id);
-            showToast('Stok berhasil dihapus', 'success');
-        } else if (deleteConfirm.type === 'medical') {
-            deleteMedical(deleteConfirm.id);
-            showToast('Stok berhasil dihapus', 'success');
-        } else if (deleteConfirm.type === 'infusion') {
-            deleteInfusion(deleteConfirm.id);
-            showToast('Stok berhasil dihapus', 'success');
-        } else if (deleteConfirm.type === 'apotekItem') {
-            deleteApotekItem(deleteConfirm.id);
-            showToast('Stok berhasil dihapus', 'success');
-        }
-        setDeleteConfirm({ open: false, id: null, name: '', type: '' });
-    };
-
     const openAddModal = (type) => {
         setModalType(type);
         setEditingItem(null);
@@ -147,10 +129,6 @@ const ApotekerInventoryPage = () => {
         setModalType(item._type);
         setEditingItem(item);
         setIsModalOpen(true);
-    };
-
-    const openDeleteConfirm = (item) => {
-        setDeleteConfirm({ open: true, id: item.id, name: item.name, type: item._type });
     };
 
     return (
@@ -322,7 +300,6 @@ const ApotekerInventoryPage = () => {
                                                 <td className="px-4 py-2 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button onClick={() => openEditModal(item)} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary transition-all"><Edit3 className="w-4 h-4" /></button>
-                                                        <button onClick={() => openDeleteConfirm(item)} className="p-2 rounded-xl text-red-400 hover:bg-white hover:text-red-500 transition-all"><Trash2 className="w-4 h-4" /></button>
                                                     </div>
                                                 </td>
                                             )}
@@ -377,12 +354,6 @@ const ApotekerInventoryPage = () => {
                                             >
                                                 <Edit3 className="w-3.5 h-3.5" /> Edit
                                             </button>
-                                            <button
-                                                onClick={() => openDeleteConfirm(item)}
-                                                className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"
-                                            >
-                                                <Trash2 className="w-3.5 h-3.5" /> Hapus
-                                            </button>
                                         </div>
                                     )}
                                 </div>
@@ -425,21 +396,6 @@ const ApotekerInventoryPage = () => {
                 type={modalType}
             />
 
-            {/* Portal Delete Confirm */}
-            {deleteConfirm.open && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, id: null, name: '', type: '' })} />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6"><AlertTriangle className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Hapus Item?</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">Yakin ingin menghapus <span className="text-primary">{deleteConfirm.name}</span>?</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setDeleteConfirm({ open: false, id: null, name: '', type: '' })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={handleDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all">Ya, Hapus</button>
-                        </div>
-                    </div>
-                </div>
-                , document.body)}
         </div>
     );
 };
