@@ -7,6 +7,8 @@ import ApotekerFormModal from '../../components/UI/ApotekerFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 const SuperAdminInventoryPage = () => {
     const {
@@ -30,7 +32,8 @@ const SuperAdminInventoryPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [editingItem, setEditingItem] = useState(null);
     const [modalType, setModalType] = useState('product'); 
-    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '', type: '' });
+    const [confirmConfig, setConfirmConfig] = useState(null);
+
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
     // Simulate loading
@@ -85,47 +88,67 @@ const SuperAdminInventoryPage = () => {
     };
 
     const handleSave = (data) => {
-        if (modalType === 'product') {
-            if (editingItem) updateProduct(data);
-            else addProduct(data);
-        } else if (modalType === 'treatment') {
-            if (editingItem) updateTreatment(data);
-            else addTreatment(data);
-        } else if (modalType === 'racikan') {
-            if (editingItem) updateRacikan(data);
-            else addRacikan(data);
-        } else if (modalType === 'material') {
-            if (editingItem) updateMaterial(data);
-            else addMaterial(data);
-        } else if (modalType === 'medical') {
-            if (editingItem) updateMedical(data);
-            else addMedical(data);
-        } else if (modalType === 'infusion') {
-            if (editingItem) updateInfusion(data);
-            else addInfusion(data);
-        } else if (modalType === 'apotekItem') {
-            if (editingItem) updateApotekItem(data);
-            else addApotekItem(data);
-        }
+        const isEdit = !!editingItem;
         
-        showToast('Data berhasil disimpan', 'success');
-        setIsWarehouseModalOpen(false);
-        setIsApotekModalOpen(false);
-        setEditingItem(null);
+        setConfirmConfig({
+            icon: 'save',
+            header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
+            message: isEdit ? 
+                `Simpan perubahan untuk ${data.name}?` : 
+                `Tambahkan ${data.name} ke daftar stok?`,
+            acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
+            onAccept: () => {
+                if (modalType === 'product') {
+                    if (editingItem) updateProduct(data);
+                    else addProduct(data);
+                } else if (modalType === 'treatment') {
+                    if (editingItem) updateTreatment(data);
+                    else addTreatment(data);
+                } else if (modalType === 'racikan') {
+                    if (editingItem) updateRacikan(data);
+                    else addRacikan(data);
+                } else if (modalType === 'material') {
+                    if (editingItem) updateMaterial(data);
+                    else addMaterial(data);
+                } else if (modalType === 'medical') {
+                    if (editingItem) updateMedical(data);
+                    else addMedical(data);
+                } else if (modalType === 'infusion') {
+                    if (editingItem) updateInfusion(data);
+                    else addInfusion(data);
+                } else if (modalType === 'apotekItem') {
+                    if (editingItem) updateApotekItem(data);
+                    else addApotekItem(data);
+                }
+                
+                showToast('Data berhasil disimpan', 'success');
+                setIsWarehouseModalOpen(false);
+                setIsApotekModalOpen(false);
+                setEditingItem(null);
+            }
+        });
     };
 
-    const handleDelete = () => {
-        if (deleteConfirm.type === 'product') deleteProduct(deleteConfirm.id);
-        else if (deleteConfirm.type === 'treatment') deleteTreatment(deleteConfirm.id);
-        else if (deleteConfirm.type === 'racikan') deleteRacikan(deleteConfirm.id);
-        else if (deleteConfirm.type === 'material') deleteMaterial(deleteConfirm.id);
-        else if (deleteConfirm.type === 'medical') deleteMedical(deleteConfirm.id);
-        else if (deleteConfirm.type === 'infusion') deleteInfusion(deleteConfirm.id);
-        else if (deleteConfirm.type === 'apotekItem') deleteApotekItem(deleteConfirm.id);
-        
-        showToast('Data berhasil dihapus', 'success');
-        setDeleteConfirm({ open: false, id: null, name: '', type: '' });
+    const handleDelete = (item) => {
+        setConfirmConfig({
+            icon: 'delete',
+            header: 'Hapus Item?',
+            message: `Yakin ingin menghapus ${item.name}?`,
+            acceptLabel: 'Ya, Hapus',
+            onAccept: () => {
+                if (item._type === 'product') deleteProduct(item.id);
+                else if (item._type === 'treatment') deleteTreatment(item.id);
+                else if (item._type === 'racikan') deleteRacikan(item.id);
+                else if (item._type === 'material') deleteMaterial(item.id);
+                else if (item._type === 'medical') deleteMedical(item.id);
+                else if (item._type === 'infusion') deleteInfusion(item.id);
+                else if (item._type === 'apotekItem') deleteApotekItem(item.id);
+                
+                showToast('Data berhasil dihapus', 'success');
+            }
+        });
     };
+
 
     const openAddModal = (type) => {
         setModalType(type);
@@ -149,8 +172,9 @@ const SuperAdminInventoryPage = () => {
     };
 
     const openDeleteConfirm = (item) => {
-        setDeleteConfirm({ open: true, id: item.id, name: item.name, type: item._type });
+        handleDelete(item);
     };
+
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12 px-4 md:px-0">
@@ -361,21 +385,11 @@ const SuperAdminInventoryPage = () => {
                 type={modalType}
             />
 
-            {/* Portal Delete Confirm */}
-            {deleteConfirm.open && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, id: null, name: '', type: '' })} />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6"><AlertTriangle className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Hapus Item?</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">Yakin ingin menghapus <span className="text-primary">{deleteConfirm.name}</span>?</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setDeleteConfirm({ open: false, id: null, name: '', type: '' })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={handleDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all">Ya, Hapus</button>
-                        </div>
-                    </div>
-                </div>
-                , document.body)}
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
+
         </div>
     );
 };

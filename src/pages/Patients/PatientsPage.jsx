@@ -9,6 +9,8 @@ import PatientEditModal from '../../components/UI/PatientEditModal';
 import BookingFormModal from '../../components/UI/ReservationFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();
@@ -23,6 +25,8 @@ const PatientsPage = () => {
     const [selectedPatient, setSelectedPatient] = useState(null);
     const { addBooking } = useMockData();
     const [isLoading, setIsLoading] = useState(true);
+    const [confirmConfig, setConfirmConfig] = useState(null);
+
 
     // Simulate loading
     useEffect(() => {
@@ -34,21 +38,43 @@ const PatientsPage = () => {
     const isOwnerOrKomisaris = ['Owner', 'Komisaris'].includes(user?.role);
 
     const handleSaveBooking = (bookingData) => {
-        addBooking(bookingData);
-        showToast('Booking berhasil ditambahkan!', 'success');
-        setIsBookingModalOpen(false);
+        setConfirmConfig({
+            icon: 'save',
+            header: 'Konfirmasi Booking',
+            message: `Buat reservasi baru untuk pasien ini?`,
+            acceptLabel: 'Ya, Buat Booking',
+            onAccept: () => {
+                addBooking(bookingData);
+                showToast('Booking berhasil ditambahkan!', 'success');
+                setIsBookingModalOpen(false);
+            }
+        });
     };
 
     const handleSaveForm = (formData) => {
-        if (selectedPatient) {
-            updatePatient(formData);
-            showToast('Data pasien berhasil diperbarui!', 'success');
-        } else {
-            addPatient(formData);
-            showToast('Pasien baru berhasil didaftarkan!', 'success');
-        }
-        setIsFormModalOpen(false);
+        const isEdit = !!selectedPatient;
+        const patientName = formData.namaLengkap || formData.name || 'Pasien';
+        
+        setConfirmConfig({
+            icon: 'save',
+            header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Daftar',
+            message: isEdit ? 
+                `Simpan perubahan data untuk ${patientName}?` : 
+                `Daftarkan ${patientName} sebagai pasien baru?`,
+            acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Daftarkan',
+            onAccept: () => {
+                if (isEdit) {
+                    updatePatient(formData);
+                    showToast('Data pasien berhasil diperbarui!', 'success');
+                } else {
+                    addPatient(formData);
+                    showToast('Pasien baru berhasil didaftarkan!', 'success');
+                }
+                setIsFormModalOpen(false);
+            }
+        });
     };
+
 
     const handleOpenAdd = () => {
         setSelectedPatient(null);
@@ -335,8 +361,13 @@ const PatientsPage = () => {
                 onClose={() => setIsBookingModalOpen(false)}
                 onSave={handleSaveBooking}
             />
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>
     );
 };
+
 
 export default PatientsPage;

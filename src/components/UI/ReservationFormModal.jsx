@@ -4,11 +4,14 @@ import { X, Calendar, User, Phone, Clock, FileText, CheckCircle2, Edit3 } from '
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from './CustomSelect';
+import ConfirmModal from './ConfirmModal';
+
 
 
 
 const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
-    const { staff, addBooking, updateBooking } = useMockData();
+    const { staff, addBooking, updateBooking, slotAvailability } = useMockData();
+
     const { showToast } = useToast();
     const isEditMode = !!initialData;
 
@@ -23,6 +26,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
 
     const [availableStaff, setAvailableStaff] = useState([]);
     const [errors, setErrors] = useState({});
+    const [confirmConfig, setConfirmConfig] = useState(null);
+
 
     useEffect(() => {
         if (isOpen) {
@@ -61,15 +66,26 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
         e.preventDefault();
         if (!validateForm()) return;
 
-        if (isEditMode) {
-            updateBooking({ ...initialData, ...formData });
-            showToast('Reservasi berhasil diperbarui', 'success');
-        } else {
-            addBooking({ ...formData, status: 'Menunggu' });
-            showToast('Reservasi baru berhasil ditambahkan', 'success');
-        }
-        onClose();
+        setConfirmConfig({
+            icon: 'save',
+            header: isEditMode ? 'Simpan Perubahan' : 'Konfirmasi Reservasi',
+            message: isEditMode ? 
+                `Simpan perubahan untuk reservasi ${formData.name}?` : 
+                `Buat reservasi baru untuk ${formData.name}?`,
+            acceptLabel: isEditMode ? 'Ya, Simpan' : 'Ya, Buat Reservasi',
+            onAccept: () => {
+                if (isEditMode) {
+                    updateBooking({ ...initialData, ...formData });
+                    showToast('Reservasi berhasil diperbarui', 'success');
+                } else {
+                    addBooking({ ...formData, status: 'Menunggu' });
+                    showToast('Reservasi baru berhasil ditambahkan', 'success');
+                }
+                onClose();
+            }
+        });
     };
+
 
     const labelClass = "text-[10px] font-medium uppercase tracking-widest text-primary/40 block mb-2 px-1";
     const inputClass = "w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary shadow-sm placeholder:text-primary/20 placeholder:font-medium";
@@ -158,14 +174,17 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-1">
                                     <label className={labelClass}>Jam Reservasi</label>
-                                    <input
-                                        type="time"
-                                        className={`${inputClass} ${errors.time ? 'border-red-400 focus:ring-red-400/20' : ''}`}
+                                    <CustomSelect
+                                        options={slotAvailability
+                                            .filter(slot => slot.available || (isEditMode && initialData?.time === slot.time))
+                                            .map(slot => ({ value: slot.time, label: slot.time }))}
                                         value={formData.time}
-                                        onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+                                        onChange={(val) => setFormData({ ...formData, time: val })}
+                                        placeholder="Pilih Jam..."
                                     />
                                     {errors.time && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.time}</p>}
                                 </div>
+
                                 <div className="space-y-1">
                                     <label className={labelClass}>Karyawan Pengampu</label>
                                     <CustomSelect
@@ -218,7 +237,12 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
                     </form>
                 </div>
             </div>
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>,
+
         document.body
     );
 };

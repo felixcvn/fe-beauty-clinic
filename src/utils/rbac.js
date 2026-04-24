@@ -9,8 +9,10 @@ export const ROLES = {
     GUDANG_UMUM: 'Gudang Umum',
     STAFF_OB: 'Staff OB',
     STAFF_SATPAM: 'Staff Satpam',
-    APOTEKER: 'Apoteker'
+    APOTEKER: 'Apoteker',
+    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment'
 };
+
 
 export const ROLE_PERMISSIONS = {
     [ROLES.SUPER_ADMIN]: ['*'], // Full access to everything
@@ -24,7 +26,9 @@ export const ROLE_PERMISSIONS = {
     [ROLES.STAFF_OB]: ['/attendance'],
     [ROLES.STAFF_SATPAM]: ['/attendance'],
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
+    [ROLES.ASISTEN_SUPERVISOR_TREATMENT]: ['/', '/reservations', '/attendance'],
 };
+
 
 export const hasPermission = (userRole, path) => {
     if (!userRole || !path) return false;

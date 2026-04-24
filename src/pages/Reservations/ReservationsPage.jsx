@@ -23,10 +23,15 @@ import { useToast } from '../../context/ToastContext';
 import ReservationFormModal from '../../components/UI/ReservationFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../utils/rbac';
+
 
 const ReservationsPage = () => {
-    const { bookings, deleteBooking } = useMockData();
+    const { user } = useAuth();
+    const { bookings, deleteBooking, slotAvailability, updateSlotAvailability } = useMockData();
     const { showToast } = useToast();
+
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = React.useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -151,6 +156,46 @@ const ReservationsPage = () => {
                     />
                 ))}
             </div>
+
+            {/* Slot Management (Only for Assistant SPV Treatment or Admin) */}
+            {(user?.role === ROLES.ASISTEN_SUPERVISOR_TREATMENT || user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.OWNER) && (
+                <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-8 animate-fade-in-up">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
+                            <Clock className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h4 className="text-xl font-black text-primary tracking-tighter">Manajemen Ketersediaan Jam</h4>
+                            <p className="text-primary/40 text-[10px] font-bold uppercase tracking-widest mt-1">Atur ketersediaan slot reservasi hari ini</p>
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                        {slotAvailability.map((slot) => (
+                            <button
+                                key={slot.time}
+                                onClick={() => updateSlotAvailability(slot.time, !slot.available)}
+                                className={`p-6 rounded-3xl border transition-all flex flex-col items-center gap-3 group relative overflow-hidden ${
+                                    slot.available 
+                                    ? 'border-green-100 bg-green-50/30 hover:bg-green-50' 
+                                    : 'border-red-100 bg-red-50/30 hover:bg-red-50'
+                                }`}
+                            >
+                                <div className={`absolute top-0 right-0 w-12 h-12 opacity-5 -mr-4 -mt-4 transition-transform group-hover:scale-110 ${slot.available ? 'text-green-500' : 'text-red-500'}`}>
+                                    <Clock className="w-full h-full" />
+                                </div>
+                                <span className="text-xl font-black text-primary tracking-tight">{slot.time}</span>
+                                <div className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-sm ${
+                                    slot.available ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                                }`}>
+                                    {slot.available ? 'Tersedia' : 'Penuh / Tutup'}
+                                </div>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            )}
+
 
             {/* Table Section */}
             <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">

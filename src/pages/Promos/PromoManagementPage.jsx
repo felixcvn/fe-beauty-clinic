@@ -9,6 +9,8 @@ import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import { useMockData } from '../../context/MockDataContext';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 const PromoManagementPage = () => {
     const { showToast } = useToast();
@@ -28,8 +30,9 @@ const PromoManagementPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPromo, setEditingPromo] = useState(null);
 
-    // Confirmation Modal State (Untuk Hapus Promo)
-    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, promo: null });
+    // Confirmation Modal State
+    const [confirmConfig, setConfirmConfig] = useState(null);
+
 
     const filteredPromos = promos.filter(promo => {
         // Filter by role category
@@ -75,27 +78,43 @@ const PromoManagementPage = () => {
 
     // Handler Simpan (Triggered dari form modal eksternal)
     const handleSavePromo = (formData) => {
-        if (editingPromo) {
-            updatePromo({ ...editingPromo, ...formData });
-        } else {
-            addPromo(formData);
-        }
+        const isEdit = !!editingPromo;
         
-        showToast(editingPromo ? 'Promo berhasil diperbarui!' : 'Promo baru berhasil ditambahkan!', 'success');
-        setIsModalOpen(false);
-        setEditingPromo(null);
+        setConfirmConfig({
+            icon: 'save',
+            header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
+            message: isEdit ? 
+                `Simpan perubahan untuk promo ${formData.code}?` : 
+                `Buat promo baru ${formData.code}?`,
+            acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
+            onAccept: () => {
+                if (isEdit) {
+                    updatePromo({ ...editingPromo, ...formData });
+                } else {
+                    addPromo(formData);
+                }
+                
+                showToast(isEdit ? 'Promo berhasil diperbarui!' : 'Promo baru berhasil ditambahkan!', 'success');
+                setIsModalOpen(false);
+                setEditingPromo(null);
+            }
+        });
     };
 
     // Handler Hapus (Triggered dari tombol tong sampah)
     const handleOpenDelete = (promo) => {
-        setDeleteConfirm({ open: true, promo });
+        setConfirmConfig({
+            icon: 'delete',
+            header: 'Hapus Promo',
+            message: `Tindakan ini permanen. Yakin ingin menghapus promo ${promo.code}?`,
+            acceptLabel: 'Ya, Hapus',
+            onAccept: () => {
+                deletePromo(promo.id);
+                showToast(`Promo ${promo.code} telah dihapus.`, 'success');
+            }
+        });
     };
 
-    const confirmDelete = () => {
-        deletePromo(deleteConfirm.promo.id);
-        showToast(`Promo ${deleteConfirm.promo.code} telah dihapus.`, 'success');
-        setDeleteConfirm({ open: false, promo: null });
-    };
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -111,25 +130,11 @@ const PromoManagementPage = () => {
                 initialData={editingPromo}
             />
 
-            {/* Modal Konfirmasi Hapus */}
-            {deleteConfirm.open && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, promo: null })} />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                            <AlertTriangle className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Hapus Promo</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">
-                            Tindakan ini permanen. Yakin ingin menghapus promo <span className="text-primary">{deleteConfirm.promo?.code}</span>?
-                        </p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setDeleteConfirm({ open: false, promo: null })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={confirmDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all">Ya, Hapus</button>
-                        </div>
-                    </div>
-                </div>
-            , document.body)}
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
+
 
             {/* Header Section */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">

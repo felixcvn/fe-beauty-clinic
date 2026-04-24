@@ -13,6 +13,8 @@ import {
 } from '@heroicons/react/24/solid';
 import { useAuth } from '../../context/AuthContext';
 import CustomDatePicker from '../../components/UI/CustomDatePicker';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 const roleBadgeColor = {
     Dokter: 'bg-blue-100 text-blue-600',
@@ -37,7 +39,9 @@ const ProfilePage = () => {
         avatar: user?.avatar || null,
     });
     const [preview, setPreview] = useState(user?.avatar || null);
+    const [confirmConfig, setConfirmConfig] = useState(null);
     const fileRef = useRef();
+
 
     const handleChange = (e) => {
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -55,9 +59,18 @@ const ProfilePage = () => {
     };
 
     const handleSave = () => {
-        if (updateProfile) updateProfile(form);
-        setIsEditing(false);
+        setConfirmConfig({
+            icon: 'save',
+            header: 'Simpan Profil?',
+            message: 'Yakin ingin menyimpan perubahan profil Anda?',
+            acceptLabel: 'Ya, Simpan',
+            onAccept: () => {
+                if (updateProfile) updateProfile(form);
+                setIsEditing(false);
+            }
+        });
     };
+
 
     const handleCancel = () => {
         setForm({
@@ -215,8 +228,14 @@ const ProfilePage = () => {
                     </div>
                 </div>
             </div>
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>
     );
 };
+
+
 
 export default ProfilePage;

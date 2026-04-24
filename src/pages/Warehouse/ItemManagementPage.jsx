@@ -8,6 +8,8 @@ import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const { user } = useAuth();
@@ -36,8 +38,9 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const [isLoading, setIsLoading] = useState(true);
     const [editingItem, setEditingItem] = useState(null);
     const [modalType, setModalType] = useState('product'); // to determine which form to show
-    const [deleteConfirm, setDeleteConfirm] = useState({ open: false, id: null, name: '', type: '' });
+    const [confirmConfig, setConfirmConfig] = useState(null);
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+
 
     const calculateDiscountedPrice = (price, itemPromos) => {
         if (!price || !itemPromos || itemPromos.length === 0) return price;
@@ -103,59 +106,79 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     };
 
     const handleSave = (data) => {
-        if (modalType === 'product') {
-            if (editingItem) {
-                updateProduct(data);
-                showToast('Stok berhasil diperbarui', 'success');
-            } else {
-                addProduct(data);
-                showToast('Stok berhasil ditambahkan', 'success');
+        const isEdit = !!editingItem;
+        
+        setConfirmConfig({
+            icon: 'save',
+            header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
+            message: isEdit ? 
+                `Simpan perubahan untuk ${data.name}?` : 
+                `Tambahkan ${data.name} ke daftar ${modalType === 'product' ? 'stok' : modalType}?`,
+            acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
+            onAccept: () => {
+                if (modalType === 'product') {
+                    if (isEdit) {
+                        updateProduct(data);
+                        showToast('Stok berhasil diperbarui', 'success');
+                    } else {
+                        addProduct(data);
+                        showToast('Stok berhasil ditambahkan', 'success');
+                    }
+                } else if (modalType === 'treatment') {
+                    if (isEdit) {
+                        updateTreatment(data);
+                        showToast('Treatment berhasil diperbarui', 'success');
+                    } else {
+                        addTreatment(data);
+                        showToast('Treatment berhasil ditambahkan', 'success');
+                    }
+                } else if (modalType === 'racikan') {
+                    if (isEdit) {
+                        updateRacikan(data);
+                        showToast('Racikan berhasil diperbarui', 'success');
+                    } else {
+                        addRacikan(data);
+                        showToast('Racikan berhasil ditambahkan', 'success');
+                    }
+                } else if (modalType === 'material') {
+                    if (isEdit) {
+                        updateMaterial(data);
+                        showToast('Bahan berhasil diperbarui', 'success');
+                    } else {
+                        addMaterial(data);
+                        showToast('Bahan berhasil ditambahkan', 'success');
+                    }
+                }
+                setIsModalOpen(false);
+                setEditingItem(null);
             }
-        } else if (modalType === 'treatment') {
-            if (editingItem) {
-                updateTreatment(data);
-                showToast('Treatment berhasil diperbarui', 'success');
-            } else {
-                addTreatment(data);
-                showToast('Treatment berhasil ditambahkan', 'success');
-            }
-        } else if (modalType === 'racikan') {
-            if (editingItem) {
-                updateRacikan(data);
-                showToast('Racikan berhasil diperbarui', 'success');
-            } else {
-                addRacikan(data);
-                showToast('Racikan berhasil ditambahkan', 'success');
-            }
-        } else if (modalType === 'material') {
-            if (editingItem) {
-                updateMaterial(data);
-                showToast('Bahan berhasil diperbarui', 'success');
-            } else {
-                addMaterial(data);
-                showToast('Bahan berhasil ditambahkan', 'success');
-            }
-        }
-        setIsModalOpen(false);
-        setEditingItem(null);
+        });
     };
 
-    const handleDelete = () => {
-        if (deleteConfirm.type === 'product') {
-            deleteProduct(deleteConfirm.id);
-            showToast('Stok berhasil dihapus', 'success');
-        } else if (deleteConfirm.type === 'treatment') {
-            deleteTreatment(deleteConfirm.id);
-            showToast('Treatment berhasil dihapus', 'success');
-        } else if (deleteConfirm.type === 'racikan') {
-            deleteRacikan(deleteConfirm.id);
-            showToast('Racikan berhasil dihapus', 'success');
-        } else if (deleteConfirm.type === 'material') {
-            deleteMaterial(deleteConfirm.id);
-            showToast('Bahan berhasil dihapus', 'success');
-        }
-        setDeleteConfirm({ open: false, id: null, name: '', type: '' });
+    const handleDelete = (item) => {
+        setConfirmConfig({
+            icon: 'delete',
+            header: 'Hapus Item?',
+            message: `Yakin ingin menghapus ${item.name}?`,
+            acceptLabel: 'Ya, Hapus',
+            onAccept: () => {
+                if (item._type === 'product') {
+                    deleteProduct(item.id);
+                    showToast('Stok berhasil dihapus', 'success');
+                } else if (item._type === 'treatment') {
+                    deleteTreatment(item.id);
+                    showToast('Treatment berhasil dihapus', 'success');
+                } else if (item._type === 'racikan') {
+                    deleteRacikan(item.id);
+                    showToast('Racikan berhasil dihapus', 'success');
+                } else if (item._type === 'material') {
+                    deleteMaterial(item.id);
+                    showToast('Bahan berhasil dihapus', 'success');
+                }
+            }
+        });
     };
+
 
     const openAddModal = (type) => {
         setModalType(type);
@@ -170,8 +193,9 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     };
 
     const openDeleteConfirm = (item) => {
-        setDeleteConfirm({ open: true, id: item.id, name: item.name, type: item._type });
+        handleDelete(item);
     };
+
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12 px-4 md:px-0">
@@ -678,21 +702,11 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 type={modalType}
             />
 
-            {/* Portal Delete Confirm */}
-            {deleteConfirm.open && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setDeleteConfirm({ open: false, id: null, name: '', type: '' })} />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6"><AlertTriangle className="w-8 h-8" /></div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Hapus Item?</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">Yakin ingin menghapus <span className="text-primary">{deleteConfirm.name}</span>?</p>
-                        <div className="flex gap-3">
-                            <button onClick={() => setDeleteConfirm({ open: false, id: null, name: '', type: '' })} className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all">Batal</button>
-                            <button onClick={handleDelete} className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 transition-all">Ya, Hapus</button>
-                        </div>
-                    </div>
-                </div>
-                , document.body)}
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
+
         </div>
     );
 };

@@ -8,6 +8,7 @@ const USER_SEEDER = [
     { username: 'cs', email: 'cs@clinic.com', password: 'password', name: 'Mba Fia', role: 'Customer Service' },
     { username: 'hrd', email: 'hrd@clinic.com', password: 'password', name: 'Bu Yeyen', role: 'HRD' },
     { username: 'spv_treatment', email: 'spv.treatment@clinic.com', password: 'password', name: 'Andi Pratama', role: 'Supervisor Treatment' },
+    { username: 'asisten_spv_treatment', email: 'asisten.spv.treatment@clinic.com', password: 'password', name: 'Andi Pratama', role: 'Asisten Supervisor Treatment' },
     { username: 'spv_produk', email: 'spv.produk@clinic.com', password: 'password', name: 'Budi Santoso', role: 'Supervisor Produk' },
     { username: 'gudang', email: 'gudang@clinic.com', password: 'password', name: 'Zulkifli', role: 'Gudang Umum' },
     { username: 'owner', email: 'owner@clinic.com', password: 'password', name: 'Nanin Lindiyawati', role: 'Owner' },

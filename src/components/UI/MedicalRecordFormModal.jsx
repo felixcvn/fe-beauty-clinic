@@ -5,6 +5,8 @@ import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ImageUpload from './ImageUpload';
+import ConfirmModal from './ConfirmModal';
+
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -37,6 +39,8 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [beforeImage, setBeforeImage] = useState(null);
     const [afterImage, setAfterImage] = useState(null);
     const [errors, setErrors] = useState({});
+    const [confirmConfig, setConfirmConfig] = useState(null);
+
 
     // Options mapping
     const doctorOptions = staff
@@ -112,46 +116,55 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
         e.preventDefault();
         if (!validateStep2()) return;
 
-        const doctor = staff.find(s => s.id === selectedDoctorId);
-        const treatmentLabels = selectedTreatments
-            .map(id => treatments.find(t => t.id === id)?.name)
-            .filter(Boolean);
+        setConfirmConfig({
+            icon: 'save',
+            header: 'Simpan Rekam Medis',
+            message: `Simpan data rekam medis untuk ${patientName || 'pasien'}?`,
+            acceptLabel: 'Ya, Simpan',
+            onAccept: () => {
+                const doctor = staff.find(s => s.id === selectedDoctorId);
+                const treatmentLabels = selectedTreatments
+                    .map(id => treatments.find(t => t.id === id)?.name)
+                    .filter(Boolean);
 
-        const prescriptions = [
-            ...selectedProducts.map(id => {
-                const p = products.find(x => x.id === id);
-                return p ? { name: p.name, dosage: 'Sesuai anjuran' } : null;
-            }).filter(Boolean),
-            ...selectedRacikans.map(id => {
-                const r = racikans.find(x => x.id === id);
-                return r ? { name: r.name, dosage: 'Racikan — sesuai anjuran' } : null;
-            }).filter(Boolean),
-        ];
+                const prescriptions = [
+                    ...selectedProducts.map(id => {
+                        const p = products.find(x => x.id === id);
+                        return p ? { name: p.name, dosage: 'Sesuai anjuran' } : null;
+                    }).filter(Boolean),
+                    ...selectedRacikans.map(id => {
+                        const r = racikans.find(x => x.id === id);
+                        return r ? { name: r.name, dosage: 'Racikan — sesuai anjuran' } : null;
+                    }).filter(Boolean),
+                ];
 
-        const newRecord = {
-            id: Date.now(),
-            date,
-            treatment: treatmentLabels.join(', '),
-            specialist: doctor?.name || 'Unknown',
-            diagnosis,
-            notes,
-            prescriptions,
-            assessment: {
-                perawatanSebelumnya,
-                diinginkan,
-                diinginkanLainnya: diinginkan.includes('Lainnya') ? diinginkanLainnya : null,
-                tensi,
-                riwayatKesehatan,
-                riwayatKesehatanLainnya: riwayatKesehatan.includes('Lainnya') ? riwayatKesehatanLainnya : null,
-            },
-            beforeImage: beforeImage ? URL.createObjectURL(beforeImage) : null,
-            afterImage: afterImage ? URL.createObjectURL(afterImage) : null,
-        };
+                const newRecord = {
+                    id: Date.now(),
+                    date,
+                    treatment: treatmentLabels.join(', '),
+                    specialist: doctor?.name || 'Unknown',
+                    diagnosis,
+                    notes,
+                    prescriptions,
+                    assessment: {
+                        perawatanSebelumnya,
+                        diinginkan,
+                        diinginkanLainnya: diinginkan.includes('Lainnya') ? diinginkanLainnya : null,
+                        tensi,
+                        riwayatKesehatan,
+                        riwayatKesehatanLainnya: riwayatKesehatan.includes('Lainnya') ? riwayatKesehatanLainnya : null,
+                    },
+                    beforeImage: beforeImage ? URL.createObjectURL(beforeImage) : null,
+                    afterImage: afterImage ? URL.createObjectURL(afterImage) : null,
+                };
 
-        addRecord(patientId || selectedPatientId, newRecord);
-        showToast('Rekam medis berhasil ditambahkan!', 'success');
-        onClose();
+                addRecord(patientId || selectedPatientId, newRecord);
+                showToast('Rekam medis berhasil ditambahkan!', 'success');
+                onClose();
+            }
+        });
     };
+
 
     const toggleItem = (list, setList, item) => {
         if (list.includes(item)) {
@@ -484,11 +497,16 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                 )}
                             </form>
                         </div>
-                    </div>
-            </div>
-        </div>,
+                        </div>
+                </div>
+                <ConfirmModal
+                    config={confirmConfig}
+                    onClose={() => setConfirmConfig(null)}
+                />
+            </div>,
         document.body
-    );
+    );  
 };
+
 
 export default MedicalRecordFormModal;

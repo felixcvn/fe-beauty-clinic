@@ -7,6 +7,8 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 const ApotekerInventoryPage = () => {
     const { user } = useAuth();
@@ -29,7 +31,9 @@ const ApotekerInventoryPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [editingItem, setEditingItem] = useState(null);
     const [modalType, setModalType] = useState('material'); // to determine which form to show
+    const [confirmConfig, setConfirmConfig] = useState(null);
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+
 
     // Simulate loading
     useEffect(() => {
@@ -82,42 +86,49 @@ const ApotekerInventoryPage = () => {
     };
 
     const handleSave = (data) => {
-        if (modalType === 'material') {
-            if (editingItem) {
-                updateMaterial(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            } else {
-                addMaterial(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
+        const isEdit = !!editingItem;
+        
+        setConfirmConfig({
+            icon: 'save',
+            header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
+            message: isEdit ? 
+                `Simpan perubahan untuk ${data.name}?` : 
+                `Tambahkan ${data.name} ke daftar stok?`,
+            acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
+            onAccept: () => {
+                if (modalType === 'material') {
+                    if (isEdit) {
+                        updateMaterial(data);
+                    } else {
+                        addMaterial(data);
+                    }
+                } else if (modalType === 'medical') {
+                    if (isEdit) {
+                        updateMedical(data);
+                    } else {
+                        addMedical(data);
+                    }
+                } else if (modalType === 'infusion') {
+                    if (isEdit) {
+                        updateInfusion(data);
+                    } else {
+                        addInfusion(data);
+                    }
+                } else if (modalType === 'apotekItem') {
+                    if (isEdit) {
+                        updateApotekItem(data);
+                    } else {
+                        addApotekItem(data);
+                    }
+                }
+                
+                showToast(`Data berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                setIsModalOpen(false);
+                setEditingItem(null);
             }
-        } else if (modalType === 'medical') {
-            if (editingItem) {
-                updateMedical(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            } else {
-                addMedical(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            }
-        } else if (modalType === 'infusion') {
-            if (editingItem) {
-                updateInfusion(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            } else {
-                addInfusion(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            }
-        } else if (modalType === 'apotekItem') {
-            if (editingItem) {
-                updateApotekItem(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            } else {
-                addApotekItem(data);
-                showToast('Sukses, Stok berhasil ditambahkan', 'success');
-            }
-        }
-        setIsModalOpen(false);
-        setEditingItem(null);
+        });
     };
+
 
     const openAddModal = (type) => {
         setModalType(type);
@@ -396,8 +407,13 @@ const ApotekerInventoryPage = () => {
                 type={modalType}
             />
 
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>
     );
 };
+
 
 export default ApotekerInventoryPage;

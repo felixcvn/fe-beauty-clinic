@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -7,86 +7,13 @@ import { useMockData } from '../../context/MockDataContext';
 import StaffFormModal from '../../components/UI/StaffFormModal';
 import StaffDetailModal from '../../components/UI/StaffDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import ConfirmModal from '../../components/UI/ConfirmModal';
+
 
 /* ─────────────────────────────────────────────────────────────
    Reusable Confirm Dialog — sepenuhnya dikontrol via state
 ───────────────────────────────────────────────────────────── */
-const ConfirmModal = ({ config, onClose }) => {
-    if (!config) return null;
 
-    const {
-        icon,          // 'delete' | 'save'
-        header,
-        message,
-        acceptLabel,
-        rejectLabel = 'Batal',
-        onAccept,
-    } = config;
-
-    const isDelete = icon === 'delete';
-
-    return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 animate-fade-in">
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-                onClick={onClose}
-            />
-
-            {/* Card */}
-            <div
-                className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl text-center"
-                style={{ animation: 'confirmPop 0.28s cubic-bezier(0.34,1.56,0.64,1) forwards' }}
-            >
-                {/* Icon bubble */}
-                <div className={`w-16 h-16 rounded-3xl flex items-center justify-center mx-auto mb-6 ${isDelete ? 'bg-red-50 text-red-500' : 'bg-emerald-50 text-emerald-600'}`}>
-                    {isDelete
-                        ? <AlertTriangle className="w-8 h-8" />
-                        : <CheckCircle2 className="w-8 h-8" />
-                    }
-                </div>
-
-                {/* Header */}
-                <h3 className="text-xl font-black text-[#154734] tracking-tighter mb-2">
-                    {header}
-                </h3>
-
-                {/* Body */}
-                <p className="text-sm text-[#154734]/50 font-medium mb-8 leading-relaxed">
-                    {message}
-                </p>
-
-                {/* Buttons */}
-                <div className="flex gap-3">
-                    <button
-                        onClick={onClose}
-                        className="flex-1 py-3.5 rounded-2xl bg-gray-100 text-[#154734] font-black text-[10px] uppercase tracking-widest hover:bg-gray-200 transition-all active:scale-95"
-                    >
-                        {rejectLabel}
-                    </button>
-                    <button
-                        onClick={() => { onAccept(); onClose(); }}
-                        className={`flex-1 py-3.5 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all active:scale-95 ${
-                            isDelete
-                                ? 'bg-red-500 text-white hover:bg-red-600'
-                                : 'bg-[#154734] text-[#F5F5DC] hover:bg-[#1a3c34]'
-                        }`}
-                    >
-                        {acceptLabel}
-                    </button>
-                </div>
-            </div>
-
-            <style>{`
-                @keyframes confirmPop {
-                    from { opacity: 0; transform: scale(0.9) translateY(12px); }
-                    to   { opacity: 1; transform: scale(1) translateY(0); }
-                }
-            `}</style>
-        </div>,
-        document.body
-    );
-};
 
 /* ─────────────────────────────────────────────────────────────
    StaffPage

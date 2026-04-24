@@ -97,6 +97,15 @@ export const MockDataProvider = ({ children }) => {
         { id: 'STF-013', name: 'Bapak Komisaris', divisi: 'Komisaris', posisi: 'Komisaris', email: 'komisaris@clinic.com', phone: '0811-0000-0000', username: 'komisaris', password: 'password123', status: 'Aktif', nik: '3171000000000001', tanggal_lahir: '1970-01-01', alamat: 'Jl. Raya No. 1', tanggal_bergabung: '2020-01-01', cabang: 'Jember' },
         { id: 'STF-014', name: 'Ana Farhana', divisi: 'Apoteker', posisi: 'Apoteker', email: 'ana.apoteker@clinic.com', phone: '0812-3434-5656', username: 'apoteker', password: 'password123', status: 'Aktif', nik: '3171012101010001', tanggal_lahir: '1990-01-01', alamat: 'Jl. Apotek No. 1', tanggal_bergabung: '2023-01-01', cabang: 'Jember' }
     ]);
+    
+    const [slotAvailability, setSlotAvailability] = useState([
+        { time: '08:00', available: true },
+        { time: '09:00', available: true },
+        { time: '10:00', available: true },
+        { time: '11:00', available: true },
+        { time: '12:00', available: true },
+    ]);
+
 
     const addPatient = (patient) => {
         const newPatient = {
@@ -262,6 +271,11 @@ export const MockDataProvider = ({ children }) => {
         setBookings(prev => prev.filter(b => b.id !== id));
     };
 
+    const updateSlotAvailability = (time, available) => {
+        setSlotAvailability(prev => prev.map(slot => slot.time === time ? { ...slot, available } : slot));
+    };
+
+
     // Promo Functions
     const addPromo = (promo) => {
         const id = `PRM-${String(promos.length + 1).padStart(3, '0')}`;
@@ -288,8 +302,10 @@ export const MockDataProvider = ({ children }) => {
             apotekItems, addApotekItem, updateApotekItem, deleteApotekItem,
             staff, addStaff, updateStaff, deleteStaff,
             bookings, addBooking, updateBooking, deleteBooking,
-            promos, addPromo, updatePromo, deletePromo
+            promos, addPromo, updatePromo, deletePromo,
+            slotAvailability, updateSlotAvailability
         }}>
+
             {children}
         </MockDataContext.Provider>
     );
