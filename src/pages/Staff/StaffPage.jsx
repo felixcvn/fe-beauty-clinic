@@ -216,14 +216,14 @@ const StaffPage = () => {
                                             <div className="flex justify-end gap-1.5">
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
-                                                    className="p-2 rounded-xl text-primary/30 hover:bg-gray-100 hover:text-primary transition-all active:scale-90"
+                                                    className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
                                                     title="Edit"
                                                 >
                                                     <Edit3 className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
-                                                    className="p-2 rounded-xl text-red-300 hover:bg-red-50 hover:text-red-500 transition-all active:scale-90"
+                                                    className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95"
                                                     title="Hapus"
                                                 >
                                                     <Trash2 className="w-4 h-4" />

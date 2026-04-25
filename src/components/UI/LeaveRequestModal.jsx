@@ -64,16 +64,18 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
             onClick={onClose}
         >
             <div 
-                className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
+
                 <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+                    onClick={onClose}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
                 >
                     <X className="w-5 h-5" />
                 </button>
+
 
                 {/* Header */}
                 <div className="relative p-8 pb-6 bg-primary overflow-hidden shrink-0">
@@ -92,8 +94,9 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                 </div>
 
-                {/* Form */}
-                <div className="p-8 border-t-[0.5px] border-primary/5">
+                {/* Form Body - Scrollable */}
+                <div className="p-8 overflow-y-auto scrollbar-hide flex-1 bg-gray-50/30">
+
                     {isSubmitted ? (
                         <div className="text-center py-6 animate-fade-in">
                             <div className="w-20 h-20 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-green-500">
@@ -130,7 +133,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                 />
                             </div>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <CustomDatePicker
                                     label="Tanggal Mulai"
                                     value={startDate}
@@ -145,6 +148,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                 />
                             </div>
 
+
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Alasan Terperinci</label>
                                 <div className="relative">
@@ -154,8 +158,9 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                         value={reason}
                                         onChange={(e) => setReason(e.target.value)}
                                         rows={3}
-                                        className="w-full pl-10 pr-4 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm resize-none"
+                                        className="w-full pl-10 pr-4 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm resize-none"
                                     />
+
                                 </div>
                             </div>
 

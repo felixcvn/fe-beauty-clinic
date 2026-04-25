@@ -98,6 +98,53 @@ export const MockDataProvider = ({ children }) => {
         { id: 'STF-014', name: 'Ana Farhana', divisi: 'Apoteker', posisi: 'Apoteker', email: 'ana.apoteker@clinic.com', phone: '0812-3434-5656', username: 'apoteker', password: 'password123', status: 'Aktif', nik: '3171012101010001', tanggal_lahir: '1990-01-01', alamat: 'Jl. Apotek No. 1', tanggal_bergabung: '2023-01-01', cabang: 'Jember' }
     ]);
     
+    const [leaveRequests, setLeaveRequests] = useState([
+        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
+        { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui', attachment: 'surat_sakit_budi.jpg' },
+        { id: 'LR-003', staffName: 'Maya Sari', role: 'Perawat', type: 'Izin Lainnya', startDate: '2026-03-22', endDate: '2026-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
+        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Menunggu' },
+        { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
+    ]);
+
+    const [overtimeRequests, setOvertimeRequests] = useState([
+        {
+            id: 'OT-001', staffName: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi',
+            primaryType: 'Terlambat', anomalyTypes: ['Terlambat'],
+            scheduledTime: '08:45', detectedTime: '09:15', diffMinutes: 30,
+            notes: 'Motor mogok di tengah jalan, terpaksa menunggu tukang tambal ban hampir 30 menit.',
+            date: '2026-04-18', status: 'Menunggu', hrdNote: ''
+        },
+        {
+            id: 'OT-002', staffName: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi',
+            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
+            scheduledTime: '17:00', detectedTime: '18:30', diffMinutes: 90,
+            notes: 'Pasien emergency masuk pukul 16:45. Harus ditangani sampai selesai karena kondisi kritis.',
+            date: '2026-04-17', status: 'Disetujui', hrdNote: ''
+        },
+        {
+            id: 'OT-003', staffName: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal',
+            primaryType: 'Terlambat', anomalyTypes: ['Terlambat', 'Luar Kantor'],
+            scheduledTime: '08:00', detectedTime: '09:30', diffMinutes: 90,
+            notes: 'Menghadiri rapat dengan mitra bisnis di luar kantor yang dijadwalkan mendadak oleh atasan.',
+            date: '2026-04-18', status: 'Menunggu', hrdNote: ''
+        },
+        {
+            id: 'OT-004', staffName: 'Bambang Heru', role: 'OB', shift: 'ob_normal',
+            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
+            scheduledTime: '17:00', detectedTime: '19:10', diffMinutes: 130,
+            notes: 'Diminta Bapak Supervisor untuk membersihkan ruang rapat setelah acara client selesai.',
+            date: '2026-04-16', status: 'Ditolak', hrdNote: 'Harus konfirmasi terlebih dahulu ke HRD sebelum melakukan lembur.'
+        },
+        {
+            id: 'OT-005', staffName: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi',
+            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
+            scheduledTime: '20:00', detectedTime: '21:30', diffMinutes: 90,
+            notes: 'Terjadi insiden kendaraan di area parkir, harus menunggu proses dokumentasi selesai.',
+            date: '2026-04-15', status: 'Disetujui', hrdNote: ''
+        }
+
+    ]);
+
     const [slotAvailability, setSlotAvailability] = useState([
         { time: '08:00', available: true },
         { time: '09:00', available: true },
@@ -105,6 +152,7 @@ export const MockDataProvider = ({ children }) => {
         { time: '11:00', available: true },
         { time: '12:00', available: true },
     ]);
+
 
 
     const addPatient = (patient) => {
@@ -275,6 +323,18 @@ export const MockDataProvider = ({ children }) => {
         setSlotAvailability(prev => prev.map(slot => slot.time === time ? { ...slot, available } : slot));
     };
 
+    const updateLeaveStatus = (id, status) => {
+        setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req));
+    };
+
+    const updateOvertimeStatus = (id, status, hrdNote) => {
+        setOvertimeRequests(prev => prev.map(req => req.id === id ? { ...req, status, hrdNote } : req));
+    };
+
+    const addLeaveRequest = (req) => setLeaveRequests(prev => [req, ...prev]);
+    const addOvertimeRequest = (req) => setOvertimeRequests(prev => [req, ...prev]);
+
+
 
     // Promo Functions
     const addPromo = (promo) => {
@@ -303,8 +363,11 @@ export const MockDataProvider = ({ children }) => {
             staff, addStaff, updateStaff, deleteStaff,
             bookings, addBooking, updateBooking, deleteBooking,
             promos, addPromo, updatePromo, deletePromo,
-            slotAvailability, updateSlotAvailability
+            slotAvailability, updateSlotAvailability,
+            leaveRequests, updateLeaveStatus, addLeaveRequest,
+            overtimeRequests, updateOvertimeStatus, addOvertimeRequest
         }}>
+
 
             {children}
         </MockDataContext.Provider>

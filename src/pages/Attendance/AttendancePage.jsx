@@ -14,13 +14,17 @@ import OvertimeApprovalModal from '../../components/UI/OvertimeApprovalModal';
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
+import { useMockData } from '../../context/MockDataContext';
 import { getActiveShift } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
 
+
 const AttendancePage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
+
+
 
     // ─── Global States ─────────────────────────────────────────────────────────
     const [searchTerm, setSearchTerm] = useState('');
@@ -83,53 +87,10 @@ const AttendancePage = () => {
         { name: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi', checkIn: '07:30', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
     ]);
 
-    // ─── Mock Data: Leave Requests ───────────────────────────────────────────────
-    const [leaveRequests, setLeaveRequests] = useState([
-        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
-        { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui', attachment: 'surat_sakit_budi.jpg' },
-        { id: 'LR-003', staffName: 'Maya Sari', role: 'Perawat', type: 'Izin Lainnya', startDate: '2026-03-22', endDate: '2026-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
-        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Menunggu' },
-        { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
-    ]);
-
-    // ─── Mock Data: Overtime Requests ───────────────────────────────────────────
-    const [overtimeRequests, setOvertimeRequests] = useState([
-        {
-            id: 'OT-001', staffName: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi',
-            primaryType: 'Terlambat', anomalyTypes: ['Terlambat'],
-            scheduledTime: '08:45', detectedTime: '09:15', diffMinutes: 30,
-            notes: 'Motor mogok di tengah jalan, terpaksa menunggu tukang tambal ban hampir 30 menit.',
-            date: '2026-04-18', status: 'Menunggu', hrdNote: ''
-        },
-        {
-            id: 'OT-002', staffName: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi',
-            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
-            scheduledTime: '17:00', detectedTime: '18:30', diffMinutes: 90,
-            notes: 'Pasien emergency masuk pukul 16:45. Harus ditangani sampai selesai karena kondisi kritis.',
-            date: '2026-04-17', status: 'Disetujui', hrdNote: ''
-        },
-        {
-            id: 'OT-003', staffName: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal',
-            primaryType: 'Terlambat', anomalyTypes: ['Terlambat', 'Luar Kantor'],
-            scheduledTime: '08:00', detectedTime: '09:30', diffMinutes: 90,
-            notes: 'Menghadiri rapat dengan mitra bisnis di luar kantor yang dijadwalkan mendadak oleh atasan.',
-            date: '2026-04-18', status: 'Menunggu', hrdNote: ''
-        },
-        {
-            id: 'OT-004', staffName: 'Bambang Heru', role: 'OB', shift: 'ob_normal',
-            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
-            scheduledTime: '17:00', detectedTime: '19:10', diffMinutes: 130,
-            notes: 'Diminta Bapak Supervisor untuk membersihkan ruang rapat setelah acara client selesai.',
-            date: '2026-04-16', status: 'Ditolak', hrdNote: 'Harus konfirmasi terlebih dahulu ke HRD sebelum melakukan lembur.'
-        },
-        {
-            id: 'OT-005', staffName: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi',
-            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
-            scheduledTime: '20:00', detectedTime: '21:30', diffMinutes: 90,
-            notes: 'Terjadi insiden kendaraan di area parkir, harus menunggu proses dokumentasi selesai.',
-            date: '2026-04-15', status: 'Disetujui', hrdNote: ''
-        },
-    ]);
+    const { 
+        leaveRequests, updateLeaveStatus, addLeaveRequest,
+        overtimeRequests, updateOvertimeStatus, addOvertimeRequest 
+    } = useMockData();
 
     const handleOpenScan = (type, staffId = null) => {
         setScanType(type);
@@ -225,11 +186,12 @@ const AttendancePage = () => {
             status: 'Menunggu',
             hrdNote: ''
         };
-        setOvertimeRequests(prev => [newRequest, ...prev]);
+        addOvertimeRequest(newRequest);
         setIsOvertimeNoteOpen(false);
         setPendingAnomalyData(null);
         showToast('Pengajuan berhasil dikirim ke HRD untuk review.', 'success');
     };
+
 
     // ─── Filter Logic ─────────────────────────────────────────────────────────────
     const filteredManagerAttendance = staffAttendance.filter(record => {
@@ -368,12 +330,13 @@ const AttendancePage = () => {
                 onClose={() => setIsApprovalModalOpen(false)}
                 requestData={selectedLeaveRequest}
                 showActions={canApproveLeave}
-                onUpdateStatus={(id, status) => setLeaveRequests(prev => prev.map(req => req.id === id ? { ...req, status } : req))}
+                onUpdateStatus={updateLeaveStatus}
             />
             <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={(data) => {
                 const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, attachment: data.attachment, status: 'Menunggu' };
-                setLeaveRequests([newRequest, ...leaveRequests]);
+                addLeaveRequest(newRequest);
             }} />
+
             <OvertimeNoteModal
                 isOpen={isOvertimeNoteOpen}
                 onClose={() => { setIsOvertimeNoteOpen(false); setPendingAnomalyData(null); showToast('Absensi tercatat. Pengajuan dibatalkan.', 'info'); }}
@@ -386,10 +349,9 @@ const AttendancePage = () => {
                 onClose={() => setIsOvertimeApprovalOpen(false)}
                 requestData={selectedOvertimeReq}
                 showActions={canApproveLeave}
-                onUpdateStatus={(id, status, hrdNote) =>
-                    setOvertimeRequests(prev => prev.map(req => req.id === id ? { ...req, status, hrdNote } : req))
-                }
+                onUpdateStatus={updateOvertimeStatus}
             />
+
 
             {/* ─── Header Section ─────────────────────────────────────────────── */}
             {canAccessReports ? (

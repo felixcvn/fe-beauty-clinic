@@ -310,7 +310,7 @@ const ApotekerInventoryPage = () => {
                                             {!isViewOnly && (
                                                 <td className="px-4 py-2 text-right">
                                                     <div className="flex justify-end gap-2">
-                                                        <button onClick={() => openEditModal(item)} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary transition-all"><Edit3 className="w-4 h-4" /></button>
+                                                        <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
                                                     </div>
                                                 </td>
                                             )}

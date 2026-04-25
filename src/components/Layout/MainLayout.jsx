@@ -2,6 +2,55 @@ import React from 'react';
 import Sidebar from './Sidebar';
 import Header from './Header';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { useMockData } from '../../context/MockDataContext';
+import { useToast } from '../../context/ToastContext';
+import { ROLES } from '../../utils/rbac';
+
+const NotificationWatcher = () => {
+    const { user } = useAuth();
+    const { products, leaveRequests, overtimeRequests } = useMockData();
+    const { showToast } = useToast();
+    const hasNotified = React.useRef(false);
+
+    React.useEffect(() => {
+        if (!user || hasNotified.current) return;
+
+        // Gudang Notification
+        if (user.role === ROLES.GUDANG_UMUM && products.length > 0) {
+            const lowStockProducts = products.filter(p => p.stock <= p.minStock);
+            if (lowStockProducts.length > 0) {
+                const timer = setTimeout(() => {
+                    showToast(`Peringatan: Ada ${lowStockProducts.length} produk dengan stok menipis!`, 'warning');
+                    hasNotified.current = true;
+                }, 1500);
+                return () => clearTimeout(timer);
+            }
+        }
+
+        // HRD Notification
+        if (user.role === ROLES.HRD) {
+            const pendingLeave = leaveRequests?.filter(r => r.status === 'Menunggu') || [];
+            const pendingOvertime = overtimeRequests?.filter(r => r.status === 'Menunggu') || [];
+            
+            if (pendingLeave.length > 0 || pendingOvertime.length > 0) {
+                const timer = setTimeout(() => {
+                    let msg = '';
+                    if (pendingLeave.length > 0) msg += `${pendingLeave.length} pengajuan cuti`;
+                    if (pendingOvertime.length > 0) msg += (msg ? ' dan ' : '') + `${pendingOvertime.length} pengajuan lembur/anomali`;
+                    
+                    showToast(`Peringatan: Ada ${msg} yang menunggu persetujuan!`, 'info');
+                    hasNotified.current = true;
+                }, 2000);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [user, products, leaveRequests, overtimeRequests, showToast]);
+
+    return null;
+};
+
+
 
 const MainLayout = ({ children }) => {
     const [isMobileOpen, setIsMobileOpen] = React.useState(false);
@@ -19,6 +68,7 @@ const MainLayout = ({ children }) => {
 
     return (
         <div className="flex min-h-screen bg-secondary-light">
+            <NotificationWatcher />
             <Sidebar 
                 isOpen={isMobileOpen} 
                 toggle={toggleSidebar} 

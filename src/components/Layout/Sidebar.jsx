@@ -24,6 +24,7 @@ import logo from '../../assets/logo.png';
 import logo1 from '../../assets/logo-1.png';
 import { useAuth } from '../../context/AuthContext';
 import { hasPermission, ROLES } from '../../utils/rbac';
+import ConfirmModal from '../UI/ConfirmModal';
 
 const ALL_NAV_ITEMS = [
     { icon: Squares2X2Icon, label: 'Dashboard', path: '/' },
@@ -50,7 +51,7 @@ const ALL_NAV_ITEMS = [
 const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIsHovered }) => {
     const { logout, user } = useAuth();
     const [openMenu, setOpenMenu] = useState(null);
-    const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState(null);
 
     const effectivelyCollapsed = isCollapsed && !isHovered;
 
@@ -181,10 +182,18 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
                     })}
                 </nav>
 
-                {/* 3. FOOTER (Fixed/Tetap di bawah berkat flex-col & shrink-0) */}
                 <div className="border-t border-gray-100 px-3 py-4 space-y-0.5 shrink-0 bg-white">
                     <button 
-                        onClick={() => setIsLogoutModalOpen(true)} 
+                        onClick={() => setConfirmConfig({
+                            icon: 'delete',
+                            header: 'Konfirmasi Keluar',
+                            message: 'Apakah Anda yakin ingin keluar dari sistem? Sesi Anda akan berakhir.',
+                            acceptLabel: 'Ya, Keluar',
+                            onAccept: () => {
+                                logout();
+                                handleItemClick();
+                            }
+                        })} 
                         className={`w-full flex items-center overflow-hidden rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all ${effectivelyCollapsed ? 'justify-center p-2.5' : 'gap-3 px-4 py-2.5'}`}>
                         <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
                         <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-auto opacity-100'}`}>Keluar</span>
@@ -192,39 +201,11 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
                 </div>
             </aside>
 
-            {/* Logout Confirmation Modal */}
-            {isLogoutModalOpen && createPortal(
-                <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 animate-fade-in">
-                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsLogoutModalOpen(false)} />
-                    <div className="relative w-full max-w-sm bg-white rounded-[2.5rem] p-8 shadow-2xl border border-primary/5 text-center animate-fade-in-up">
-                        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                            <ArrowRightStartOnRectangleIcon className="w-8 h-8" />
-                        </div>
-                        <h3 className="text-xl font-black text-primary tracking-tighter mb-2">Konfirmasi Keluar</h3>
-                        <p className="text-sm text-primary/40 font-bold mb-8">
-                            Apakah Anda yakin ingin keluar dari sistem? Sesi Anda akan berakhir.
-                        </p>
-                        <div className="flex gap-3">
-                            <button 
-                                onClick={() => setIsLogoutModalOpen(false)} 
-                                className="flex-1 py-4 rounded-2xl bg-secondary/40 text-primary font-black text-[10px] uppercase tracking-widest hover:bg-secondary transition-all"
-                            >
-                                Batal
-                            </button>
-                            <button 
-                                onClick={() => {
-                                    logout();
-                                    handleItemClick();
-                                    setIsLogoutModalOpen(false);
-                                }} 
-                                className="flex-1 py-4 rounded-2xl bg-red-500 text-white font-black text-[10px] uppercase tracking-widest hover:bg-red-600 hover:shadow-lg transition-all"
-                            >
-                                Ya, Keluar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            , document.body)}
+
+            <ConfirmModal 
+                config={confirmConfig} 
+                onClose={() => setConfirmConfig(null)} 
+            />
         </>
     );
 };

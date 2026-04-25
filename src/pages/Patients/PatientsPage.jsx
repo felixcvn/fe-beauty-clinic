@@ -232,7 +232,8 @@ const PatientsPage = () => {
                                                             setSelectedPatient(patient);
                                                             setIsFormModalOpen(true);
                                                         }}
-                                                        className="text-primary/40 hover:text-accent-gold transition-all duration-300 p-2 rounded-xl hover:bg-white hover:shadow-sm active:scale-90"
+                                                        className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
+                                                        title="Edit"
                                                     >
                                                         <Pencil className="w-4 h-4" />
                                                     </button>

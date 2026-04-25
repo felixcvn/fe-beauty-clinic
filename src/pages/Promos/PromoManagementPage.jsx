@@ -267,10 +267,10 @@ const PromoManagementPage = () => {
                                     </td>
                                     <td className="px-4 py-2 text-right">
                                         <div className="flex justify-end gap-1">
-                                            <button onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-accent-gold hover:shadow-sm transition-all active:scale-90" title="Edit">
+                                            <button onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit">
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => handleOpenDelete(promo)} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-red-500 hover:shadow-sm transition-all active:scale-90" title="Hapus">
+                                            <button onClick={() => handleOpenDelete(promo)} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>

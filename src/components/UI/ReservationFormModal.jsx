@@ -72,7 +72,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData }) => {
             message: isEditMode ? 
                 `Simpan perubahan untuk reservasi ${formData.name}?` : 
                 `Buat reservasi baru untuk ${formData.name}?`,
-            acceptLabel: isEditMode ? 'Ya, Simpan' : 'Ya, Buat Reservasi',
+            acceptLabel: isEditMode ? 'Ya, Simpan' : 'Ya, Simpan',
             onAccept: () => {
                 if (isEditMode) {
                     updateBooking({ ...initialData, ...formData });
