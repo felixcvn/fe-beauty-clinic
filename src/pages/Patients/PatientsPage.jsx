@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Search, Plus, ChevronRight, Pencil } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Search, Plus, ChevronRight, Pencil, Wifi, WifiOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
+import { pasienAPI } from '../../services/api';
 import CustomSelect from '../../components/UI/CustomSelect';
 import PatientEditModal from '../../components/UI/PatientEditModal';
 import BookingFormModal from '../../components/UI/ReservationFormModal';
@@ -11,7 +12,24 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 
-
+// ── Helper: Konversi data pasien dari backend ke format UI ──────────────────
+const mapPatientFromAPI = (p) => ({
+    id: p.id,
+    kodeCustomer: p.kode_Customer,
+    noMember: p.no_member,
+    tipeMember: p.Tipe_member || p.tipe_member || p.Tipe_Member,
+    noRM: p.no_RM,
+    namaLengkap: p.Nama_pasien,
+    noIdentitas: p.no_Identitas,
+    tempatLahir: p.Tempat_Lahir,
+    tanggalLahir: p.Tanggal_Lahir,
+    jenisKelamin: p.Jenis_Kelamin === 'P' ? 'Perempuan' : 'Laki-laki',
+    email: p.Email,
+    noTelepon: p.no_Telp,
+    alamat: p.Alamat,
+    kabupatenKota: p.KabKota_id,
+    kecamatan: p.Kec_id
+});
 const PatientsPage = () => {
     const { patients, updatePatient, addPatient } = useMockData();
     const { showToast } = useToast();
@@ -27,12 +45,48 @@ const PatientsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [confirmConfig, setConfirmConfig] = useState(null);
 
+    // Live API State
+    const [isApiMode, setIsApiMode] = useState(false);
+    const [apiError, setApiError] = useState(null);
+    const [apiPatients, setApiPatients] = useState([]);
+    const [apiPagination, setApiPagination] = useState(null);
+    const pendingSaveRef = useRef(null);
 
-    // Simulate loading
+    // ── Fetch Data ─────────────────────────────────────────────────────────────
+    const fetchPasien = useCallback(async (page = 1) => {
+        if (!user?.token) return;
+        setIsLoading(true);
+        setApiError(null);
+
+        try {
+            const result = await pasienAPI.getAll(user.token, page);
+            
+            if (result.success && result.data) {
+                const responseData = result.data.data || result.data;
+                const patientArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                const paginatedData = responseData.data ? responseData : null;
+                
+                const mapped = patientArray.map(mapPatientFromAPI);
+                setApiPatients(mapped);
+                setApiPagination(paginatedData);
+                setIsApiMode(true);
+            } else {
+                // Fallback ke mock data
+                setIsApiMode(false);
+                setApiError(result.message || null);
+            }
+        } catch (error) {
+            console.error('[PatientPage] Fetch error:', error);
+            setIsApiMode(false);
+            setApiError('Gagal terhubung ke server');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [user?.token]);
+
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
-    }, []);
+        fetchPasien(1);
+    }, [fetchPasien]);
 
     const isCS = user?.role === 'Customer Service';
     const isOwnerOrKomisaris = ['Owner', 'Komisaris'].includes(user?.role);
@@ -52,6 +106,7 @@ const PatientsPage = () => {
     };
 
     const handleSaveForm = (formData) => {
+        pendingSaveRef.current = formData;
         const isEdit = !!selectedPatient;
         const patientName = formData.namaLengkap || formData.name || 'Pasien';
         
@@ -62,15 +117,34 @@ const PatientsPage = () => {
                 `Simpan perubahan data untuk ${patientName}?` : 
                 `Daftarkan ${patientName} sebagai pasien baru?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Daftarkan',
-            onAccept: () => {
-                if (isEdit) {
-                    updatePatient(formData);
-                    showToast('Data pasien berhasil diperbarui!', 'success');
+            onAccept: async () => {
+                if (isApiMode) {
+                    setIsLoading(true);
+                    let result;
+                    if (isEdit) {
+                        result = await pasienAPI.update(user.token, selectedPatient.id, pendingSaveRef.current);
+                    } else {
+                        result = await pasienAPI.create(user.token, pendingSaveRef.current);
+                    }
+                    setIsLoading(false);
+
+                    if (result.success) {
+                        showToast(isEdit ? 'Data pasien berhasil diperbarui!' : 'Pasien baru berhasil didaftarkan!', 'success');
+                        fetchPasien(currentPage);
+                        setIsFormModalOpen(false);
+                    } else {
+                        showToast(result.message || 'Gagal menyimpan pasien', 'error');
+                    }
                 } else {
-                    addPatient(formData);
-                    showToast('Pasien baru berhasil didaftarkan!', 'success');
+                    if (isEdit) {
+                        updatePatient(pendingSaveRef.current);
+                        showToast('Data pasien berhasil diperbarui (Mock)!', 'success');
+                    } else {
+                        addPatient(pendingSaveRef.current);
+                        showToast('Pasien baru berhasil didaftarkan (Mock)!', 'success');
+                    }
+                    setIsFormModalOpen(false);
                 }
-                setIsFormModalOpen(false);
             }
         });
     };
@@ -81,13 +155,40 @@ const PatientsPage = () => {
         setIsFormModalOpen(true);
     };
 
+    const handleOpenEdit = async (e, patient) => {
+        e.stopPropagation();
+        if (isApiMode && user?.token) {
+            setIsLoading(true);
+            try {
+                const result = await pasienAPI.getById(user.token, patient.id);
+                if (result.success && result.data) {
+                    const mappedDetail = mapPatientFromAPI(result.data);
+                    setSelectedPatient(mappedDetail);
+                } else {
+                    setSelectedPatient(patient);
+                }
+            } catch (error) {
+                console.error('Error fetching detail:', error);
+                setSelectedPatient(patient);
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
+            setSelectedPatient(patient);
+        }
+        setIsFormModalOpen(true);
+    };
+
     // SABUK PENGAMAN 1: Fungsi untuk ambil inisial nama dengan aman
     const getInitials = (name) => {
         if (!name) return 'NN'; // No Name cadangan
         return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
     };
 
-    const filteredPatients = patients.filter(patient => {
+    // Gunakan apiPatients jika dalam mode API, kalau gagal fallback ke mock patients
+    const activeData = isApiMode ? apiPatients : patients;
+
+    const filteredPatients = activeData.filter(patient => {
         // SABUK PENGAMAN 2: Antisipasi perbedaan nama key (name vs namaLengkap)
         const patientName = patient.namaLengkap || patient.name || '';
         const patientId = patient.id || patient.noIdentitas || patient.noMember || '';
@@ -95,7 +196,7 @@ const PatientsPage = () => {
         const matchesSearch = patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             patientId.toLowerCase().includes(searchTerm.toLowerCase());
             
-        const patientMemberType = patient.tipeMember || 'GOLD';
+        const patientMemberType = patient.tipeMember || 'Non Member';
         const matchesMemberType = memberFilter === 'Semua Tipe' || patientMemberType === memberFilter;
         
         return matchesSearch && matchesMemberType;
@@ -126,7 +227,18 @@ const PatientsPage = () => {
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Data Pasien</h2>
+                    <div className="flex items-center gap-4">
+                        <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Data Pasien</h2>
+                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                            isApiMode
+                                ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+                                : 'bg-amber-50 text-amber-600 border border-amber-200'
+                        }`}>
+                            {isApiMode
+                                ? <><Wifi className="w-3 h-3" /> Live API</>
+                                : <><WifiOff className="w-3 h-3" /> Mock Data</>}
+                        </span>
+                    </div>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola seluruh data pasien terdaftar di klinik</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
@@ -160,9 +272,8 @@ const PatientsPage = () => {
                             onChange={setMemberFilter}
                             options={[
                                 { value: 'Semua Tipe', label: 'Semua Tipe' },
-                                { value: 'SILVER', label: 'Silver' },
-                                { value: 'GOLD', label: 'Gold' },
-                                { value: 'PLATINUM', label: 'Platinum' }
+                                { value: 'Member', label: 'Member' },
+                                { value: 'Non Member', label: 'Non Member' }
                             ]}
                         />
                     </div>
@@ -198,7 +309,7 @@ const PatientsPage = () => {
                                         className="border-b border-primary/5 last:border-0 cursor-pointer hover:bg-primary/[0.02] transition-colors"
                                     >
                                         <td className="px-4 py-2">
-                                            <span className="font-medium text-blue-600 text-sm tracking-tight">{pId}</span>
+                                            <span className="font-medium text-blue-600 text-sm tracking-tight">{patient.kodeCustomer || '-'}</span>
                                         </td>
                                         <td className="px-4 py-2">
                                             <div className="flex items-center gap-3">
@@ -216,22 +327,18 @@ const PatientsPage = () => {
                                         </td>
                                         <td className="px-4 py-2">
                                             <span className={`font-bold text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-full shadow-sm border border-white/50 ${
-                                                (patient.tipeMember || 'GOLD') === 'PLATINUM' ? 'bg-slate-100 text-slate-600' :
-                                                (patient.tipeMember || 'GOLD') === 'GOLD' ? 'bg-accent-gold/10 text-accent-gold' :
-                                                'bg-gray-100 text-gray-500' 
+                                                (patient.tipeMember || 'Non Member') === 'Member' 
+                                                    ? 'bg-accent-gold/10 text-accent-gold border-accent-gold/20' 
+                                                    : 'bg-gray-100 text-gray-500'
                                             }`}>
-                                                {patient.tipeMember || 'GOLD'}
+                                                {patient.tipeMember || 'Non Member'}
                                             </span>
                                         </td>
                                         {!isOwner && (
                                             <td className="px-4 py-2">
                                                 <div className="flex items-center justify-end gap-1">
                                                     <button 
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            setSelectedPatient(patient);
-                                                            setIsFormModalOpen(true);
-                                                        }}
+                                                        onClick={(e) => handleOpenEdit(e, patient)}
                                                         className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
                                                         title="Edit"
                                                     >
@@ -281,11 +388,11 @@ const PatientsPage = () => {
                                         </div>
                                     </div>
                                     <span className={`font-black text-[10px] tracking-widest uppercase px-2 py-1 rounded-md mt-1 ${
-                                        (patient.tipeMember || 'GOLD') === 'PLATINUM' ? 'bg-slate-100 text-slate-600' :
-                                        (patient.tipeMember || 'GOLD') === 'GOLD' ? 'bg-accent-gold/10 text-accent-gold' :
-                                        'bg-gray-100 text-gray-500'
+                                        (patient.tipeMember || 'Non Member') === 'Member'
+                                            ? 'bg-accent-gold/10 text-accent-gold'
+                                            : 'bg-gray-100 text-gray-500'
                                     }`}>
-                                        {patient.tipeMember || 'GOLD'}
+                                        {patient.tipeMember || 'Non Member'}
                                     </span>
                                 </div>
                                 
@@ -303,11 +410,7 @@ const PatientsPage = () => {
                                 <div className="flex justify-end gap-2 mt-2">
                                     {!isOwner && (
                                         <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                setSelectedPatient(patient);
-                                                setIsFormModalOpen(true);
-                                            }}
+                                            onClick={(e) => handleOpenEdit(e, patient)}
                                             className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
                                         >
                                             <Pencil className="w-3 h-3" /> Edit

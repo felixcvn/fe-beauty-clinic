@@ -5,4 +5,13 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ command }) => ({
   plugins: [react()],
   base: command === 'serve' ? '/' : (process.env.VITE_BASE_PATH || '/personalb-react-app/'),
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://bade-112-78-133-197.ngrok-free.app',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 }))

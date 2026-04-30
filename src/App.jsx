@@ -19,7 +19,6 @@ import PatientsPage from './pages/Patients/PatientsPage';
 import PatientDetailPage from './pages/Patients/PatientDetailPage'; 
 
 import PatientForm from './pages/Patients/PatientForm';
-import SettingsPage from './pages/Settings/SettingsPage';
 import Login from './pages/Auth/Login';
 import SalesPage from './pages/Sales/SalesPage';
 import AttendancePage from './pages/Attendance/AttendancePage';
@@ -107,7 +106,6 @@ function App() {
                                             <Route path="/reservations" element={<RoleProtectedRoute><ReservationsPage /></RoleProtectedRoute>} />
                                             <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
                                             <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
-                                            <Route path="/settings" element={<RoleProtectedRoute><SettingsPage /></RoleProtectedRoute>} />
                                             <Route path="/management" element={<RoleProtectedRoute><ItemManagementPage /></RoleProtectedRoute>} />
                                             <Route path="/cs-products" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="product" fixedTitle="Stok" /></RoleProtectedRoute>} />
                                             <Route path="/apotek-inventory" element={<RoleProtectedRoute><ApotekerInventoryPage /></RoleProtectedRoute>} />

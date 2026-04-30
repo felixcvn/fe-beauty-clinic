@@ -9,13 +9,13 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import ConfirmModal from '../../components/UI/ConfirmModal';
+import { stokProdukAPI } from '../../services/api';
 
 
 const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const { user } = useAuth();
     const isViewOnly = user?.role === ROLES.CS || user?.role === ROLES.SUPERVISOR_PRODUK;
     const {
-        products, addProduct, updateProduct, deleteProduct,
         treatments, addTreatment, updateTreatment, deleteTreatment,
         racikans, addRacikan, updateRacikan, deleteRacikan,
         materials, addMaterial, updateMaterial, deleteMaterial,
@@ -40,26 +40,38 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const [modalType, setModalType] = useState('product'); // to determine which form to show
     const [confirmConfig, setConfirmConfig] = useState(null);
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+    const [products, setProducts] = useState([]);
 
-
-    const calculateDiscountedPrice = (price, itemPromos) => {
-        if (!price || !itemPromos || itemPromos.length === 0) return price;
-        let finalPrice = price;
-        itemPromos.forEach(p => {
-            if (p.type === 'Persen') {
-                finalPrice -= (finalPrice * (p.value / 100));
-            } else {
-                finalPrice -= p.value;
-            }
-        });
-        return Math.max(0, finalPrice);
+    const fetchProducts = async () => {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        const res = await stokProdukAPI.getAll(token);
+        if (res.success) {
+            const mapped = res.data.map(item => ({
+                uid: item.id,
+                id: item.Kode_Produk,
+                name: item.Nama_produk,
+                category: item.Kategori,
+                price: Number(item.Harga),
+                stock: Number(item.Stok),
+                minStock: Number(item.Batas_minimal_stok),
+            }));
+            setProducts(mapped);
+        } else {
+            showToast(res.message || 'Gagal memuat stok produk dari server', 'error');
+        }
+        setIsLoading(false);
     };
 
-    // Simulate loading
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
+        fetchProducts();
     }, []);
+
+
+
+
+
+
 
     // Combine data
     const allItems = [
@@ -115,14 +127,25 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 `Simpan perubahan untuk ${data.name}?` : 
                 `Tambahkan ${data.name} ke daftar ${modalType === 'product' ? 'stok' : modalType}?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
-            onAccept: () => {
+            onAccept: async () => {
                 if (modalType === 'product') {
+                    const token = localStorage.getItem('token');
                     if (isEdit) {
-                        updateProduct(data);
-                        showToast('Stok berhasil diperbarui', 'success');
+                        const res = await stokProdukAPI.update(token, data.uid, data);
+                        if (res.success) {
+                            showToast('Stok berhasil diperbarui', 'success');
+                            fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal memperbarui stok', 'error');
+                        }
                     } else {
-                        addProduct(data);
-                        showToast('Stok berhasil ditambahkan', 'success');
+                        const res = await stokProdukAPI.create(token, data);
+                        if (res.success) {
+                            showToast('Stok berhasil ditambahkan', 'success');
+                            fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal menambah stok', 'error');
+                        }
                     }
                 } else if (modalType === 'treatment') {
                     if (isEdit) {
@@ -161,10 +184,16 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
             header: 'Hapus Item?',
             message: `Yakin ingin menghapus ${item.name}?`,
             acceptLabel: 'Ya, Hapus',
-            onAccept: () => {
+            onAccept: async () => {
                 if (item._type === 'product') {
-                    deleteProduct(item.id);
-                    showToast('Stok berhasil dihapus', 'success');
+                    const token = localStorage.getItem('token');
+                    const res = await stokProdukAPI.delete(token, item.uid);
+                    if (res.success) {
+                        showToast('Stok berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus stok', 'error');
+                    }
                 } else if (item._type === 'treatment') {
                     deleteTreatment(item.id);
                     showToast('Treatment berhasil dihapus', 'success');
@@ -383,7 +412,6 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                         <th className="px-4 py-3 text-primary/80">Nama</th>
                                         <th className="px-4 py-3 text-primary/80">Jml Paket</th>
                                         <th className="px-4 py-3 text-primary/80">Biaya</th>
-                                        <th className="px-4 py-3 text-primary/80">Promo Aktif</th>
                                         {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                                     </tr>
                                 </thead>
@@ -402,30 +430,9 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary">{item.packageCount || '-'}</td>
                                             <td className="px-4 py-2">
-                                                {(() => {
-                                                    const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
-                                                    const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
-                                                    const hasDiscount = finalPrice !== item.price;
-                                                    
-                                                    return hasDiscount ? (
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
-                                                            <span className="text-primary font-black">Rp {finalPrice.toLocaleString('id-ID')}</span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-primary font-medium text-sm">
-                                                            {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
-                                                        </span>
-                                                    );
-                                                })()}
-                                            </td>
-                                            <td className="px-4 py-2">
-                                                {promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name)).map(p => (
-                                                    <div key={p.id} className="flex items-center gap-1.5 text-blue-600 font-bold text-[9px] uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md border border-blue-100/50 mb-1 last:mb-0">
-                                                        <Tag className="w-3 h-3" />
-                                                        {p.code} ({p.type === 'Persen' ? `${p.value}%` : `Rp${(p.value/1000)}k`})
-                                                    </div>
-                                                ))}
+                                                <span className="text-primary font-medium text-sm">
+                                                    {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
+                                                </span>
                                             </td>
                                             {!isViewOnly && (
                                                 <td className="px-4 py-2 text-right">
@@ -460,7 +467,6 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                         <th className="px-4 py-3 text-primary/80">Kategori</th>
                                         <th className="px-4 py-3 text-primary/80">Harga</th>
                                         <th className="px-4 py-3 text-primary/80">Stok</th>
-                                        <th className="px-4 py-3 text-primary/80">Promo Aktif</th>
                                         {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                                     </tr>
                                 </thead>
@@ -471,22 +477,9 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category}</td>
                                             <td className="px-4 py-2">
-                                                {(() => {
-                                                    const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
-                                                    const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
-                                                    const hasDiscount = finalPrice !== item.price;
-
-                                                    return hasDiscount ? (
-                                                        <div className="flex flex-col">
-                                                            <span className="text-[10px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
-                                                            <span className="text-primary font-black">Rp {finalPrice.toLocaleString('id-ID')}</span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-primary font-medium text-sm">
-                                                            Rp {item.price.toLocaleString('id-ID')}
-                                                        </span>
-                                                    );
-                                                })()}
+                                                <span className="text-primary font-medium text-sm">
+                                                    Rp {item.price.toLocaleString('id-ID')}
+                                                </span>
                                             </td>
                                             <td className="px-4 py-2">
                                                 {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
@@ -501,14 +494,6 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                 ) : (
                                                     <span className="font-medium text-xl text-primary/20">-</span>
                                                 )}
-                                            </td>
-                                            <td className="px-4 py-2">
-                                                {promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name)).map(p => (
-                                                    <div key={p.id} className="flex items-center gap-1.5 text-blue-600 font-bold text-[9px] uppercase tracking-widest bg-blue-50 px-2 py-1 rounded-md border border-blue-100/50 mb-1 last:mb-0">
-                                                        <Tag className="w-3 h-3" />
-                                                        {p.code} ({p.type === 'Persen' ? `${p.value}%` : `Rp${(p.value/1000)}k`})
-                                                    </div>
-                                                ))}
                                             </td>
                                             {!isViewOnly && (
                                                 <td className="px-4 py-2 text-right">
@@ -565,20 +550,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                 </div>
                                 <div className="flex-1 p-3">
                                     <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Biaya</p>
-                                    {(() => {
-                                        const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
-                                        const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
-                                        const hasDiscount = finalPrice !== item.price;
-
-                                        return hasDiscount ? (
-                                            <div className="flex flex-col">
-                                                <span className="text-[8px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
-                                                <span className="text-xs font-black text-gray-700">Rp {finalPrice.toLocaleString('id-ID')}</span>
-                                            </div>
-                                        ) : (
-                                            <p className="text-xs font-black text-gray-700">{item.price ? `Rp. ${item.price.toLocaleString('id-ID')}` : '-'}</p>
-                                        );
-                                    })()}
+                                    <p className="text-xs font-black text-gray-700">{item.price ? `Rp. ${item.price.toLocaleString('id-ID')}` : '-'}</p>
                                 </div>
                             </div>
 
@@ -616,20 +588,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                             <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
                                 <div className="flex-1 p-3">
                                     <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga</p>
-                                    {(() => {
-                                        const itemPromos = promos?.filter(p => p.status === 'Aktif' && p.targetItems?.includes(item.name));
-                                        const finalPrice = calculateDiscountedPrice(item.price, itemPromos);
-                                        const hasDiscount = finalPrice !== item.price;
-
-                                        return hasDiscount ? (
-                                            <div className="flex flex-col">
-                                                <span className="text-[8px] text-red-400 line-through">Rp {item.price.toLocaleString('id-ID')}</span>
-                                                <span className="text-xs font-black text-gray-700">Rp {finalPrice.toLocaleString('id-ID')}</span>
-                                            </div>
-                                        ) : (
-                                            <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
-                                        );
-                                    })()}
+                                    <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
                                 </div>
                                 {(item._type === 'product' || item._type === 'racikan' || item._type === 'material') && (
                                     <div className="flex-1 p-3">

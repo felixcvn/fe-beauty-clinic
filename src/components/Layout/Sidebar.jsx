@@ -7,8 +7,6 @@ import {
     ShoppingCartIcon,
     CalendarDaysIcon,
     ChartBarIcon,
-    Cog6ToothIcon,
-    ArrowRightStartOnRectangleIcon,
     KeyIcon,
     XMarkIcon,
     ChevronDownIcon,
@@ -19,12 +17,10 @@ import {
     SparklesIcon,
 } from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
-import { createPortal } from 'react-dom';
 import logo from '../../assets/logo.png';
 import logo1 from '../../assets/logo-1.png';
 import { useAuth } from '../../context/AuthContext';
 import { hasPermission, ROLES } from '../../utils/rbac';
-import ConfirmModal from '../UI/ConfirmModal';
 
 const ALL_NAV_ITEMS = [
     { icon: Squares2X2Icon, label: 'Dashboard', path: '/' },
@@ -45,13 +41,11 @@ const ALL_NAV_ITEMS = [
     { icon: ArchiveBoxIcon, label: 'Stok', path: '/apotek-inventory' },
     { icon: ArchiveBoxIcon, label: 'Stok', path: '/superadmin-inventory' },
     { icon: SparklesIcon, label: 'Treatment', path: '/cs-treatments' },
-    { icon: Cog6ToothIcon, label: 'Pengaturan', path: '/settings' },
 ];
 
 const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIsHovered }) => {
-    const { logout, user } = useAuth();
+    const { user } = useAuth();
     const [openMenu, setOpenMenu] = useState(null);
-    const [confirmConfig, setConfirmConfig] = useState(null);
 
     const effectivelyCollapsed = isCollapsed && !isHovered;
 
@@ -182,30 +176,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
                     })}
                 </nav>
 
-                <div className="border-t border-gray-100 px-3 py-4 space-y-0.5 shrink-0 bg-white">
-                    <button 
-                        onClick={() => setConfirmConfig({
-                            icon: 'delete',
-                            header: 'Konfirmasi Keluar',
-                            message: 'Apakah Anda yakin ingin keluar dari sistem? Sesi Anda akan berakhir.',
-                            acceptLabel: 'Ya, Keluar',
-                            onAccept: () => {
-                                logout();
-                                handleItemClick();
-                            }
-                        })} 
-                        className={`w-full flex items-center overflow-hidden rounded-xl text-gray-500 hover:text-primary hover:bg-primary/5 transition-all ${effectivelyCollapsed ? 'justify-center p-2.5' : 'gap-3 px-4 py-2.5'}`}>
-                        <ArrowRightStartOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
-                        <span className={`text-sm font-medium whitespace-nowrap transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-auto opacity-100'}`}>Keluar</span>
-                    </button>
-                </div>
             </aside>
-
-
-            <ConfirmModal 
-                config={confirmConfig} 
-                onClose={() => setConfirmConfig(null)} 
-            />
         </>
     );
 };

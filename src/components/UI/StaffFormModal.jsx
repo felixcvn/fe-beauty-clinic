@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import CustomSelect from './CustomSelect';
-import { getShiftOptionsByDivisi, getDefaultShiftByDivisi } from '../../utils/shiftConfig';
 
 const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [] }) => {
     const isEdit = !!initialData;
@@ -20,7 +19,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         alamat: '',
         username: '',
         password: '',
-        shift: '',
+        tempat_lahir: '',
+        tanggal_bergabung: '',
     });
 
     const [errors, setErrors] = useState({});
@@ -35,21 +35,23 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                 setFormState({
                     name: initialData.name || '',
                     nik: initialData.nik || '',
+                    tempat_lahir: initialData.tempat_lahir || '',
                     tanggal_lahir: initialData.tanggal_lahir || '',
                     divisi: initialData.divisi || 'Dokter',
-                    posisi: initialData.posisi || 'Anggota',
+                    posisi: initialData.posisi || 'Anggota Staff',
                     cabang: initialData.cabang || 'Jember',
                     email: initialData.email || '',
                     phone: initialData.phone || '',
                     alamat: initialData.alamat || '',
                     username: initialData.username || '',
                     password: initialData.password || '',
-                    shift: initialData.shift || getDefaultShiftByDivisi(initialData.divisi || 'Dokter'),
+                    tanggal_bergabung: initialData.tanggal_bergabung ? initialData.tanggal_bergabung.split('T')[0] : '',
                 });
             } else {
                 setFormState({
                     name: '',
                     nik: '',
+                    tempat_lahir: '',
                     tanggal_lahir: '',
                     divisi: '',
                     posisi: '',
@@ -59,7 +61,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     alamat: '',
                     username: '',
                     password: '',
-                    shift: '',
+                    tanggal_bergabung: new Date().toISOString().split('T')[0], // Default ke hari ini
                 });
             }
         }
@@ -75,16 +77,14 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         else if (!/^\d+$/.test(formState.nik)) newErrors.nik = "NIK hanya boleh berisi angka (tidak boleh ada huruf/simbol)";
         else if (formState.nik.length < 16) newErrors.nik = "NIK minimal 16 angka";
 
+        if (!formState.tempat_lahir.trim()) newErrors.tempat_lahir = "Tempat lahir wajib diisi";
         if (!formState.tanggal_lahir) newErrors.tanggal_lahir = "Tanggal lahir wajib diisi";
 
         if (!formState.divisi) newErrors.divisi = "Divisi wajib diisi";
-        
-        const singleRoles = ['HRD', 'Owner', 'Komisaris'];
-        if (!singleRoles.includes(formState.divisi) && !formState.posisi) {
-            newErrors.posisi = "Posisi wajib diisi";
-        }
+        if (!formState.posisi) newErrors.posisi = "Posisi wajib diisi";
 
         if (!formState.cabang) newErrors.cabang = "Cabang wajib diisi";
+        if (!formState.tanggal_bergabung) newErrors.tanggal_bergabung = "Tanggal bergabung wajib diisi";
 
         if (!formState.phone.trim()) newErrors.phone = "Nomor telepon wajib diisi";
         else if (!/^\d+$/.test(formState.phone)) newErrors.phone = "Nomor telepon hanya boleh berisi angka";
@@ -143,10 +143,6 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         } else {
             if (validateStep3()) {
                 const finalData = { ...formState };
-                const singleRoles = ['HRD', 'Owner', 'Komisaris'];
-                if (singleRoles.includes(finalData.divisi)) {
-                    finalData.posisi = finalData.divisi; // Atur posisi sama dengan divisi untuk role tunggal
-                }
                 onSave(finalData);
             }
         }
@@ -155,10 +151,6 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
     const handleChange = (field, value) => {
         setFormState(prev => {
             const updated = { ...prev, [field]: value };
-            // Auto-reset shift ketika divisi berubah
-            if (field === 'divisi') {
-                updated.shift = getDefaultShiftByDivisi(value);
-            }
             return updated;
         });
         if (errors[field]) {
@@ -253,6 +245,19 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                             />
                                             {errors.nik && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1 animate-pulse">{errors.nik}</p>}
                                         </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tempat Lahir</label>
+                                            <input
+                                                type="text"
+                                                value={formState.tempat_lahir}
+                                                onChange={(e) => handleChange('tempat_lahir', e.target.value)}
+                                                placeholder="Contoh: Jakarta"
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tempat_lahir ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`}
+                                            />
+                                            {errors.tempat_lahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tempat_lahir}</p>}
+                                        </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Lahir</label>
                                             <input
@@ -283,7 +288,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                 <div className="space-y-4">
                                     <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Posisi & Penempatan</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className={`space-y-2 ${['HRD', 'Owner', 'Komisaris'].includes(formState.divisi) ? 'col-span-full' : ''}`}>
+                                        <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Divisi Karyawan</label>
                                             <CustomSelect
                                                 value={formState.divisi}
@@ -294,8 +299,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                     { value: 'Perawat', label: 'Perawat' },
                                                     { value: 'Staff Gudang', label: 'Staff Gudang' },
                                                     { value: 'Kasir', label: 'Kasir' },
-                                                    { value: 'Supervisor Treatment', label: 'Supervisor Treatment' },
-                                                    { value: 'Supervisor Produk', label: 'Supervisor Produk' },
+                                                    { value: 'Manager', label: 'Manager' },
                                                     { value: 'HRD', label: 'HRD' },
                                                     { value: 'Owner', label: 'Owner' },
                                                     { value: 'Komisaris', label: 'Komisaris' }
@@ -303,20 +307,18 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                             />
                                             {errors.divisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.divisi}</p>}
                                         </div>
-                                        {!['HRD', 'Owner', 'Komisaris'].includes(formState.divisi) && (
-                                            <div className="space-y-2">
-                                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Posisi Jabatan</label>
-                                                <CustomSelect
-                                                    value={formState.posisi}
-                                                    onChange={(value) => handleChange('posisi', value)}
-                                                    options={[
-                                                        { value: 'Lead', label: 'Lead (Kepala Divisi)' },
-                                                        { value: 'Anggota', label: 'Anggota (Staff)' }
-                                                    ]}
-                                                />
-                                                {errors.posisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.posisi}</p>}
-                                            </div>
-                                        )}
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Posisi Jabatan</label>
+                                            <CustomSelect
+                                                value={formState.posisi}
+                                                onChange={(value) => handleChange('posisi', value)}
+                                                options={[
+                                                    { value: 'Lead', label: 'Lead' },
+                                                    { value: 'Anggota Staff', label: 'Anggota Staff' }
+                                                ]}
+                                            />
+                                            {errors.posisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.posisi}</p>}
+                                        </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Cabang</label>
                                             <CustomSelect
@@ -328,16 +330,16 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                 ]}
                                             />
                                         </div>
-                                    </div>
-                                    {/* Shift Kerja */}
-                                    <div className="space-y-2">
-                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Shift Kerja</label>
-                                        <CustomSelect
-                                            value={formState.shift}
-                                            onChange={(value) => handleChange('shift', value)}
-                                            options={getShiftOptionsByDivisi(formState.divisi)}
-                                        />
-                                        <p className="text-[9px] text-primary/30 font-bold ml-1">Shift ditetapkan berdasarkan divisi karyawan</p>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Bergabung</label>
+                                            <input
+                                                type="date"
+                                                value={formState.tanggal_bergabung}
+                                                onChange={(e) => handleChange('tanggal_bergabung', e.target.value)}
+                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_bergabung ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`}
+                                            />
+                                            {errors.tanggal_bergabung && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tanggal_bergabung}</p>}
+                                        </div>
                                     </div>
                                 </div>
 

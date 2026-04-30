@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Calendar, FileText, Gift } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
+import { useAuth } from '../../context/AuthContext';
+import { pasienAPI, wilayahAPI } from '../../services/api';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 
 const PatientDetailPage = () => {
@@ -9,17 +11,68 @@ const PatientDetailPage = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('stok');
     const { getPatient } = useMockData();
+    const { user } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
+    const [apiPatient, setApiPatient] = useState(null);
+    const [kabKotaName, setKabKotaName] = useState('-');
+    const [kecamatanName, setKecamatanName] = useState('-');
 
-    // Simulate loading
+    // Fetch dari API atau gunakan Mock
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
-    }, [activeTab]); // Show skeleton when switching tabs for smooth UX
+        const fetchPatientDetail = async () => {
+            setIsLoading(true);
+            if (user?.token) {
+                try {
+                    const res = await pasienAPI.getById(user.token, id);
+                    if (res.success && res.data) {
+                        setApiPatient(res.data);
+                    }
+                } catch (error) {
+                    console.error("Gagal mengambil detail pasien dari API:", error);
+                }
+            }
+            // Delay sedikit untuk UX (opsional)
+            setTimeout(() => setIsLoading(false), 800);
+        };
 
-    const patient = getPatient(id);
+        fetchPatientDetail();
+    }, [id, user?.token, activeTab]);
 
-    if (!patient) {
+    // Fetch nama KabKota berdasarkan ID
+    useEffect(() => {
+        if (apiPatient?.KabKota_id && user?.token) {
+            wilayahAPI.getKabKota(user.token).then(res => {
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const found = dataArray.find(k => k.id == apiPatient.KabKota_id);
+                    if (found) {
+                        setKabKotaName(found.nama || found.name || found.KabKota || found.kabupaten_kota || `Kab/Kota ${found.id}`);
+                    }
+                }
+            });
+        }
+    }, [apiPatient?.KabKota_id, user?.token]);
+
+    // Fetch nama Kecamatan berdasarkan ID
+    useEffect(() => {
+        if (apiPatient?.KabKota_id && apiPatient?.Kec_id && user?.token) {
+            wilayahAPI.getKecamatan(user.token, apiPatient.KabKota_id).then(res => {
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const found = dataArray.find(k => k.id == apiPatient.Kec_id);
+                    if (found) {
+                        setKecamatanName(found.nama || found.name || found.Kecamatan || found.kecamatan || `Kecamatan ${found.id}`);
+                    }
+                }
+            });
+        }
+    }, [apiPatient?.KabKota_id, apiPatient?.Kec_id, user?.token]);
+
+    const mockPatient = getPatient(id);
+    const isApiData = !!apiPatient;
+
+    // Jika tidak ada di API maupun Mock Data
+    if (!isLoading && !apiPatient && !mockPatient) {
         return (
             <div className="flex flex-col items-center justify-center h-64 text-primary/40">
                 <FileText className="w-12 h-12 mb-3" />
@@ -28,22 +81,31 @@ const PatientDetailPage = () => {
         );
     }
 
-    const patientDetail = {
-        name: patient.namaLengkap || patient.name,
-        tier: patient.tipeMember || '-',
-        noMember: patient.noMember || '-',
-        noRM: patient.noRM || '-',
-        noIdentitas: patient.noIdentitas || '-',
-        tanggalLahir: patient.tanggalLahir || '-',
-        kabupatenKota: patient.kabupatenKota || '-',
-        kecamatan: patient.kecamatan || '-',
+    const patientDetail = isApiData ? {
+        name: apiPatient.Nama_pasien || '-',
+        tier: apiPatient.Tipe_member || apiPatient.tipe_member || apiPatient.Tipe_Member || 'Non Member',
+        noMember: apiPatient.no_member || '-',
+        noRM: apiPatient.no_RM || '-',
+        noIdentitas: apiPatient.no_Identitas || '-',
+        tanggalLahir: apiPatient.Tanggal_Lahir || '-',
+        kabupatenKota: kabKotaName !== '-' ? kabKotaName : (apiPatient.kabkota?.nama || apiPatient.kabkota?.name || '-'),
+        kecamatan: kecamatanName !== '-' ? kecamatanName : (apiPatient.kecamatan?.nama || apiPatient.kecamatan?.name || '-'),
+    } : {
+        name: mockPatient?.namaLengkap || mockPatient?.name,
+        tier: mockPatient?.tipeMember || 'Non Member',
+        noMember: mockPatient?.noMember || '-',
+        noRM: mockPatient?.noRM || '-',
+        noIdentitas: mockPatient?.noIdentitas || '-',
+        tanggalLahir: mockPatient?.tanggalLahir || '-',
+        kabupatenKota: mockPatient?.kabupatenKota || '-',
+        kecamatan: mockPatient?.kecamatan || '-',
     };
 
     // Gunakan data riwayat point dari pasien jika ada, atau array kosong
-    const pointHistory = patient.pointHistory || [];
+    const pointHistory = isApiData ? [] : (mockPatient?.pointHistory || []);
 
     // Gunakan data riwayat stok dari pasien jika ada, atau array kosong
-    const productHistory = patient.productHistory || [];
+    const productHistory = isApiData ? [] : (mockPatient?.productHistory || []);
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -68,73 +130,58 @@ const PatientDetailPage = () => {
                     {/* Kartu Profil */}
                     <div className="bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 p-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-                        
-                        <div className="text-center mb-8 relative z-10">
-                            <h3 className="text-xl font-black text-primary">{patientDetail.name}</h3>
-                            <span className={`inline-block mt-2 px-4 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-full ${
-                                patientDetail.tier === 'PLATINUM' ? 'bg-slate-100 text-slate-600' :
-                                patientDetail.tier === 'GOLD' ? 'bg-accent-gold/10 text-accent-gold' :
-                                'bg-gray-100 text-gray-500'
+
+                        {/* Avatar */}
+                        <div className="flex flex-col items-center text-center mb-8 relative z-10">
+                            <div className="w-24 h-24 rounded-full bg-gray-100 border-4 border-white shadow-lg flex items-center justify-center mb-4 overflow-hidden">
+                                <svg className="w-14 h-14 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+                                </svg>
+                            </div>
+                            <h3 className="text-xl font-black text-primary tracking-tight">{patientDetail.name}</h3>
+                            <span className={`inline-block mt-2 px-4 py-1 text-[10px] font-black uppercase tracking-widest rounded-full ${
+                                patientDetail.tier === 'Member' 
+                                ? 'bg-accent-gold/10 text-accent-gold border border-accent-gold/20' 
+                                    : 'bg-gray-100 text-gray-500'
                             }`}>
-                                {patientDetail.tier} MEMBER
+                                {patientDetail.tier}
                             </span>
                         </div>
 
-                        <div className="space-y-6 relative z-10">
-                            <div className="grid grid-cols-2 gap-4">
+                        {/* Info Grid */}
+                        <div className="relative z-10 space-y-5">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
                                 <div>
-                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">No Member</p>
-                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.noMember}</p>
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">No Member</p>
+                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.noMember}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">No RM</p>
-                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.noRM}</p>
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">No. RM</p>
+                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.noRM}</p>
                                 </div>
                             </div>
                             <div className="h-px w-full bg-primary/5" />
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
                                 <div>
-                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">No. Identitas</p>
-                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.noIdentitas}</p>
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">No. Identitas</p>
+                                    <p className="font-bold text-teal-500 text-sm break-all">{patientDetail.noIdentitas}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Tanggal Lahir</p>
-                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.tanggalLahir}</p>
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">Tanggal Lahir</p>
+                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.tanggalLahir}</p>
                                 </div>
                             </div>
                             <div className="h-px w-full bg-primary/5" />
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
                                 <div>
-                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Kabupaten/Kota</p>
-                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.kabupatenKota}</p>
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">Kabupaten/Kota</p>
+                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.kabupatenKota}</p>
                                 </div>
                                 <div>
-                                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest mb-1">Kecamatan</p>
-                                    <p className="font-bold text-primary text-sm text-teal-500">{patientDetail.kecamatan}</p>
+                                    <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">Kecamatan</p>
+                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.kecamatan}</p>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Kartu Poin */}
-                    <div className="bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 overflow-hidden">
-                        <div className="p-6 border-b border-primary/5 flex justify-between items-center">
-                            <h3 className="text-lg font-black text-primary flex items-center gap-2">
-                                <Gift className="w-5 h-5 text-accent-gold" />
-                                Riwayat Point
-                            </h3>
-                            <span className="text-xs font-black text-primary/60">Total Point: <span className="text-accent-gold">{patient.totalPoint ?? 0}</span></span>
-                        </div>
-                        <div className="p-6 space-y-4">
-                            {pointHistory.length > 0 ? pointHistory.map((pt, index) => (
-                                <div key={index} className="flex justify-between items-start gap-4 text-xs font-bold border-b border-primary/5 pb-4 last:border-0 last:pb-0">
-                                    <div className="text-teal-500 shrink-0">{pt.date}</div>
-                                    <div className="flex-1 text-primary/60">{pt.desc} ({pt.change})</div>
-                                    <div className="text-primary font-black shrink-0">({pt.total})</div>
-                                </div>
-                            )) : (
-                                <p className="text-xs text-primary/40 font-bold text-center py-4">Belum ada riwayat point.</p>
-                            )}
                         </div>
                     </div>
                 </div>

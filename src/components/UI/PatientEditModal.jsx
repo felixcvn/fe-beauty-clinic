@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Mail, Phone } from 'lucide-react';
+import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Mail, Phone, Home } from 'lucide-react';
 import CustomSelect from './CustomSelect';
+import { useAuth } from '../../context/AuthContext';
+import { wilayahAPI, pasienAPI } from '../../services/api';
 
 const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     const isEdit = !!initialData;
+    const { user } = useAuth();
+    
+    const [kabKotaOptions, setKabKotaOptions] = useState([]);
+    const [kecamatanOptions, setKecamatanOptions] = useState([]);
 
     const [formData, setFormData] = useState({
         noMember: '',
+        tipeMember: 'Non Member',
         noRM: '',
         namaLengkap: '',
         noIdentitas: '',
@@ -16,9 +23,51 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         jenisKelamin: 'Laki-laki',
         kabupatenKota: '',
         kecamatan: '',
+        alamat: '',
         email: '',
         noTelepon: ''
     });
+
+    useEffect(() => {
+        if (isOpen && user?.token) {
+            wilayahAPI.getKabKota(user.token).then(res => {
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    setKabKotaOptions(dataArray.map(item => ({
+                        value: item.id,
+                        label: item.nama || item.name || item.KabKota || item.kabupaten_kota || `Kab/Kota ${item.id}`
+                    })));
+                }
+            });
+
+            if (!isEdit) {
+                pasienAPI.getNextNumbers(user.token).then(res => {
+                    if (res.success && res.data) {
+                        setFormData(prev => ({
+                            ...prev,
+                            noRM: res.data.no_RM || res.data.no_rm || res.data.noRM || prev.noRM
+                        }));
+                    }
+                });
+            }
+        }
+    }, [isOpen, user?.token, isEdit]);
+
+    useEffect(() => {
+        if (formData.kabupatenKota && user?.token) {
+            wilayahAPI.getKecamatan(user.token, formData.kabupatenKota).then(res => {
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    setKecamatanOptions(dataArray.map(item => ({
+                        value: item.id,
+                        label: item.nama || item.name || item.Kecamatan || item.kecamatan || `Kecamatan ${item.id}`
+                    })));
+                }
+            });
+        } else {
+            setKecamatanOptions([]);
+        }
+    }, [formData.kabupatenKota, user?.token]);
 
     useEffect(() => {
         if (isOpen) {
@@ -26,6 +75,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                 setFormData({
                     id: initialData.id,
                     noMember: initialData.noMember || '',
+                    tipeMember: initialData.tipeMember || 'Non Member',
                     noRM: initialData.noRM || '',
                     namaLengkap: initialData.namaLengkap || initialData.name || '',
                     noIdentitas: initialData.noIdentitas || '',
@@ -34,12 +84,14 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     jenisKelamin: initialData.jenisKelamin || 'Laki-laki',
                     kabupatenKota: initialData.kabupatenKota || '',
                     kecamatan: initialData.kecamatan || '',
+                    alamat: initialData.alamat || '',
                     email: initialData.email || '',
                     noTelepon: initialData.noTelepon || initialData.phone || ''
                 });
             } else {
                 setFormData({
                     noMember: '',
+                    tipeMember: 'Non Member',
                     noRM: '',
                     namaLengkap: '',
                     noIdentitas: '',
@@ -48,6 +100,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     jenisKelamin: 'Laki-laki',
                     kabupatenKota: '',
                     kecamatan: '',
+                    alamat: '',
                     email: '',
                     noTelepon: ''
                 });
@@ -154,7 +207,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                 <div className="p-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className={labelClass}>No. Member</label>
                                 <div className={inputWrapperClass}>
@@ -169,14 +222,26 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 </div>
                             </div>
                             <div>
+                                <label className={labelClass}>Tipe Member</label>
+                                <CustomSelect 
+                                    value={formData.tipeMember} 
+                                    onChange={(value) => handleChange('tipeMember', value)}
+                                    options={[
+                                        { value: 'Member', label: 'Member' },
+                                        { value: 'Non Member', label: 'Non Member' }
+                                    ]}
+                                />
+                            </div>
+                            <div>
                                 <label className={labelClass}>No. RM (Rekam Medis)</label>
                                 <div className={inputWrapperClass}>
                                     <Hash className={iconClass} />
                                     <input
                                         type="text"
                                         placeholder="Nomor Rekam Medis"
-                                        className={getInputWithIconClass(false)}
+                                        className={`${getInputWithIconClass(false)} ${!isEdit ? 'bg-secondary/30 text-primary/60 cursor-not-allowed' : ''}`}
                                         value={formData.noRM}
+                                        readOnly={!isEdit}
                                         onChange={(e) => handleChange('noRM', e.target.value)}
                                     />
                                 </div>
@@ -272,6 +337,22 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                             </div>
                         </div>
 
+                        <div className="grid grid-cols-1 gap-6">
+                            <div>
+                                <label className={labelClass}>Alamat Lengkap</label>
+                                <div className={inputWrapperClass}>
+                                    <Home className={iconClass} />
+                                    <input
+                                        type="text"
+                                        placeholder="Detail Alamat"
+                                        className={getInputWithIconClass(false)}
+                                        value={formData.alamat}
+                                        onChange={(e) => handleChange('alamat', e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className={labelClass}>No. Telepon / WhatsApp</label>
@@ -294,21 +375,13 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 <label className={labelClass}>Kabupaten/Kota</label>
                                 <CustomSelect 
                                     value={formData.kabupatenKota} 
-                                    onChange={(value) => handleChange('kabupatenKota', value)}
-                                    placeholder="Pilih Kabupaten/Kota"
+                                    onChange={(value) => {
+                                        handleChange('kabupatenKota', value);
+                                        handleChange('kecamatan', ''); // reset kecamatan saat kabkota berubah
+                                    }}
+                                    placeholder={kabKotaOptions.length > 0 ? "Pilih Kabupaten/Kota" : "Memuat..."}
                                     searchable={true}
-                                    options={[
-                                        { value: 'Jakarta Selatan', label: 'Jakarta Selatan' },
-                                        { value: 'Jakarta Pusat', label: 'Jakarta Pusat' },
-                                        { value: 'Jakarta Barat', label: 'Jakarta Barat' },
-                                        { value: 'Jakarta Timur', label: 'Jakarta Timur' },
-                                        { value: 'Jakarta Utara', label: 'Jakarta Utara' },
-                                        { value: 'Tangerang', label: 'Tangerang' },
-                                        { value: 'Tangerang Selatan', label: 'Tangerang Selatan' },
-                                        { value: 'Depok', label: 'Depok' },
-                                        { value: 'Bogor', label: 'Bogor' },
-                                        { value: 'Bekasi', label: 'Bekasi' }
-                                    ]}
+                                    options={kabKotaOptions}
                                 />
                                 {errors.kabupatenKota && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kabupatenKota}</p>}
                             </div>
@@ -317,20 +390,14 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 <CustomSelect 
                                     value={formData.kecamatan} 
                                     onChange={(value) => handleChange('kecamatan', value)}
-                                    placeholder="Pilih Kecamatan"
+                                    placeholder={
+                                        !formData.kabupatenKota 
+                                        ? "Pilih Kab/Kota dahulu" 
+                                        : (kecamatanOptions.length > 0 ? "Pilih Kecamatan" : "Memuat...")
+                                    }
                                     searchable={true}
-                                    options={[
-                                        { value: 'Kebayoran Baru', label: 'Kebayoran Baru' },
-                                        { value: 'Menteng', label: 'Menteng' },
-                                        { value: 'Tebet', label: 'Tebet' },
-                                        { value: 'Setiabudi', label: 'Setiabudi' },
-                                        { value: 'Kembangan', label: 'Kembangan' },
-                                        { value: 'Kelapa Gading', label: 'Kelapa Gading' },
-                                        { value: 'Kemayoran', label: 'Kemayoran' },
-                                        { value: 'Cilandak', label: 'Cilandak' },
-                                        { value: 'Serpong', label: 'Serpong' },
-                                        { value: 'Pamulang', label: 'Pamulang' }
-                                    ]}
+                                    options={kecamatanOptions}
+                                    disabled={!formData.kabupatenKota}
                                 />
                                 {errors.kecamatan && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kecamatan}</p>}
                             </div>

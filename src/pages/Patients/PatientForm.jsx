@@ -1,27 +1,79 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
-import { User, Calendar, Hash, CreditCard, MapPin, Mail, Phone } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { User, Calendar, Hash, CreditCard, MapPin, Mail, Phone, Home } from 'lucide-react';
+import CustomSelect from '../../components/UI/CustomSelect';
+import { pasienAPI, wilayahAPI } from '../../services/api';
 
 const PatientForm = () => {
     const { addPatient } = useMockData();
     const { showToast } = useToast();
     const navigate = useNavigate();
+    const { user } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [kabKotaOptions, setKabKotaOptions] = useState([]);
+    const [kecamatanOptions, setKecamatanOptions] = useState([]);
 
     const [formData, setFormData] = useState({
+        kodeCustomer: '',
         noMember: '',
+        tipeMember: 'Non Member',
         noRM: '',
         namaLengkap: '',
         noIdentitas: '',
         tempatLahir: '',
         tanggalLahir: '',
-        jenisKelamin: 'Laki-laki', // Default value
+        jenisKelamin: 'Laki-laki',
         alamat: '',
+        kabupatenKota: '',
+        kecamatan: '',
         email: '',
         noTelepon: ''
     });
     const [errors, setErrors] = useState({});
+
+    useEffect(() => {
+        if (user?.token) {
+            wilayahAPI.getKabKota(user.token).then(res => {
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    setKabKotaOptions(dataArray.map(item => ({
+                        value: item.id,
+                        label: item.nama || item.name || item.KabKota || item.kabupaten_kota || `Kab/Kota ${item.id}`
+                    })));
+                }
+            });
+
+            // Fetch auto-generated numbers for new patient
+            pasienAPI.getNextNumbers(user.token).then(res => {
+                if (res.success && res.data) {
+                    setFormData(prev => ({
+                        ...prev,
+                        noRM: res.data.no_RM || res.data.no_rm || res.data.noRM || prev.noRM
+                    }));
+                }
+            });
+        }
+    }, [user?.token]);
+
+    useEffect(() => {
+        if (formData.kabupatenKota && user?.token) {
+            wilayahAPI.getKecamatan(user.token, formData.kabupatenKota).then(res => {
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    setKecamatanOptions(dataArray.map(item => ({
+                        value: item.id,
+                        label: item.nama || item.name || item.Kecamatan || item.kecamatan || `Kecamatan ${item.id}`
+                    })));
+                }
+            });
+        } else {
+            setKecamatanOptions([]);
+        }
+    }, [formData.kabupatenKota, user?.token]);
 
     const validateForm = () => {
         let newErrors = {};
@@ -44,17 +96,36 @@ const PatientForm = () => {
         else if (!/^\d+$/.test(formData.noTelepon)) newErrors.noTelepon = "Nomor telepon hanya boleh berisi angka";
 
         if (!formData.alamat.trim()) newErrors.alamat = "Alamat lengkap wajib diisi";
+        if (!formData.kabupatenKota) newErrors.kabupatenKota = "Kabupaten/Kota wajib dipilih";
+        if (!formData.kecamatan) newErrors.kecamatan = "Kecamatan wajib dipilih";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (validateForm()) {
-            addPatient(formData);
-            showToast('Pasien berhasil didaftarkan!', 'success');
-            navigate('/patients');
+            setIsLoading(true);
+            try {
+                if (user?.token) {
+                    const result = await pasienAPI.create(user.token, formData);
+                    if (result.success) {
+                        showToast('Pasien berhasil didaftarkan!', 'success');
+                        navigate('/patients');
+                    } else {
+                        showToast(result.message || 'Gagal mendaftarkan pasien', 'error');
+                    }
+                } else {
+                    addPatient(formData);
+                    showToast('Pasien berhasil didaftarkan (Mock)!', 'success');
+                    navigate('/patients');
+                }
+            } catch (error) {
+                showToast('Gagal terhubung ke server', 'error');
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -106,8 +177,9 @@ const PatientForm = () => {
                                     <input
                                         type="text"
                                         placeholder="Nomor Rekam Medis"
-                                        className={getInputWithIconClass(false)}
+                                        className={`${getInputWithIconClass(false)} bg-secondary/30 text-primary/60 cursor-not-allowed`}
                                         value={formData.noRM}
+                                        readOnly
                                         onChange={(e) => handleChange('noRM', e.target.value)}
                                     />
                                 </div>
@@ -181,14 +253,14 @@ const PatientForm = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div>
                                 <label className={labelClass}>7. Jenis Kelamin</label>
-                                <select
-                                    className={getInputClass(false)}
-                                    value={formData.jenisKelamin}
-                                    onChange={(e) => handleChange('jenisKelamin', e.target.value)}
-                                >
-                                    <option value="Laki-laki">Laki-laki</option>
-                                    <option value="Perempuan">Perempuan</option>
-                                </select>
+                                <CustomSelect 
+                                    value={formData.jenisKelamin} 
+                                    onChange={(value) => handleChange('jenisKelamin', value)}
+                                    options={[
+                                        { value: 'Laki-laki', label: 'Laki-laki' },
+                                        { value: 'Perempuan', label: 'Perempuan' }
+                                    ]}
+                                />
                             </div>
                             <div>
                                 <label className={labelClass}>8. Email</label>
@@ -224,9 +296,43 @@ const PatientForm = () => {
                             </div>
                         </div>
 
-                        {/* Baris 6: Alamat (Full Width) */}
+                        {/* Baris 6: Alamat */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label className={labelClass}>10. Kabupaten/Kota</label>
+                                <CustomSelect 
+                                    value={formData.kabupatenKota} 
+                                    onChange={(value) => {
+                                        handleChange('kabupatenKota', value);
+                                        handleChange('kecamatan', ''); // reset kecamatan
+                                    }}
+                                    placeholder={kabKotaOptions.length > 0 ? "Pilih Kabupaten/Kota" : "Memuat..."}
+                                    searchable={true}
+                                    options={kabKotaOptions}
+                                />
+                                {errors.kabupatenKota && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kabupatenKota}</p>}
+                            </div>
+                            <div>
+                                <label className={labelClass}>11. Kecamatan</label>
+                                <CustomSelect 
+                                    value={formData.kecamatan} 
+                                    onChange={(value) => handleChange('kecamatan', value)}
+                                    placeholder={
+                                        !formData.kabupatenKota 
+                                        ? "Pilih Kab/Kota dahulu" 
+                                        : (kecamatanOptions.length > 0 ? "Pilih Kecamatan" : "Memuat...")
+                                    }
+                                    searchable={true}
+                                    options={kecamatanOptions}
+                                    disabled={!formData.kabupatenKota}
+                                />
+                                {errors.kecamatan && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kecamatan}</p>}
+                            </div>
+                        </div>
+
+                        {/* Baris 7: Detail Alamat */}
                         <div>
-                            <label className={labelClass}>10. Alamat Lengkap</label>
+                            <label className={labelClass}>12. Detail Alamat</label>
                             <textarea
                                 rows="3"
                                 placeholder="Detail alamat domisili pasien..."
