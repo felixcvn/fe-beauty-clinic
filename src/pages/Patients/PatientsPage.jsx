@@ -383,7 +383,7 @@ const PatientsPage = () => {
                                             {getInitials(pName)}
                                         </div>
                                         <div>
-                                            <span className="font-bold text-blue-500 text-xs tracking-tight">{pId}</span>
+                                            <span className="font-bold text-blue-500 text-xs tracking-tight">{patient.kodeCustomer || '-'}</span>
                                             <h4 className="font-black text-primary text-sm tracking-tight mt-0.5">{pName}</h4>
                                         </div>
                                     </div>
