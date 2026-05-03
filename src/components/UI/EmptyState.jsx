@@ -3,6 +3,7 @@ import emptyData from '../../assets/illustrations/empty_data.png';
 import emptyPatient from '../../assets/illustrations/empty_patient.png';
 import emptySales from '../../assets/illustrations/empty_sales.png';
 import emptyRecords from '../../assets/illustrations/empty_records.png';
+import emptyStaff from '../../assets/illustrations/empty_karyawan.png';
 
 /**
  * EmptyState Component
@@ -15,6 +16,8 @@ const EmptyState = ({ type = 'data', title, description, action }) => {
             case 'patient': return emptyPatient;
             case 'sales': return emptySales;
             case 'records': return emptyRecords;
+            case 'staff': return emptyStaff;
+            case 'karyawan': return emptyStaff;
             default: return emptyData;
         }
     };

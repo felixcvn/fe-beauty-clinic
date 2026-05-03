@@ -12,9 +12,17 @@ import ConfirmModal from '../../components/UI/ConfirmModal';
 import { stokProdukAPI } from '../../services/api';
 
 
+/**
+ * Halaman utama untuk manajemen stok barang (produk), layanan treatment,
+ * obat racikan, dan bahan medis. Mendukung pencarian, filter kategori, 
+ * pagination, serta operasi CRUD (Tambah, Edit, Hapus).
+ */
 const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const { user } = useAuth();
-    const isViewOnly = user?.role === ROLES.CS || user?.role === ROLES.SUPERVISOR_PRODUK;
+    // Mengecek apakah user memiliki akses hanya baca (CS)
+    const isViewOnly = user?.role === ROLES.CS;
+
+    // Mengambil data mock untuk kategori selain produk yang belum terintegrasi API penuh
     const {
         treatments, addTreatment, updateTreatment, deleteTreatment,
         racikans, addRacikan, updateRacikan, deleteRacikan,
@@ -23,38 +31,49 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     } = useMockData();
     const { showToast } = useToast();
 
-    // Filter state: 'all', 'product', 'treatment'
-    const [activeFilter, setActiveFilter] = useState(fixedFilter || 'all');
+    // State untuk filter aktif: 'all', 'product', 'treatment', 'racikan', 'material'
+    const [activeFilter, setActiveFilter] = useState(fixedFilter || (user?.role === ROLES.GUDANG_UMUM ? 'product' : 'all'));
+
 
     useEffect(() => {
         if (fixedFilter) {
             setActiveFilter(fixedFilter);
+        } else if (user?.role === ROLES.GUDANG_UMUM) {
+            setActiveFilter('product');
         }
-    }, [fixedFilter]);
+    }, [fixedFilter, user?.role]);
 
     // UI states
+    // State untuk kontrol UI dan manajemen data produk dari API
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [editingItem, setEditingItem] = useState(null);
-    const [modalType, setModalType] = useState('product'); // to determine which form to show
-    const [confirmConfig, setConfirmConfig] = useState(null);
+    const [modalType, setModalType] = useState('product'); // Menentukan jenis form (produk, treatment, dll)
+    const [confirmConfig, setConfirmConfig] = useState(null); // Konfigurasi untuk modal konfirmasi
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
-    const [products, setProducts] = useState([]);
+    const [products, setProducts] = useState([]); // Data produk yang diambil dari backend
 
+
+    /**
+     * Mengambil daftar produk dari server menggunakan API stokProduk
+     * dan memetakan datanya ke format yang digunakan di UI.
+     */
     const fetchProducts = async () => {
         setIsLoading(true);
         const token = localStorage.getItem('token');
         const res = await stokProdukAPI.getAll(token);
         if (res.success) {
+            // Map data dari backend (Database Case) ke UI format
             const mapped = res.data.map(item => ({
                 uid: item.id,
                 id: item.Kode_Produk,
                 name: item.Nama_produk,
                 category: item.Kategori,
-                price: Number(item.Harga),
-                stock: Number(item.Stok),
-                minStock: Number(item.Batas_minimal_stok),
+                price: Number(item.Harga || item.harga || 0),
+                priceDistributor: Number(item.Harga_Distributor || item.harga_distributor || item.Price_Distributor || 0),
+                stock: Number(item.Stok || item.stok || 0),
+                minStock: Number(item.Batas_minimal_stok || item.batas_minimal_stok || 0),
             }));
             setProducts(mapped);
         } else {
@@ -62,6 +81,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         }
         setIsLoading(false);
     };
+
 
     useEffect(() => {
         fetchProducts();
@@ -73,7 +93,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
 
 
 
-    // Combine data
+    // Menggabungkan semua data dari berbagai kategori menjadi satu array untuk pencarian/filter global
     const allItems = [
         ...products.map(p => ({ ...p, _type: 'product' })),
         ...treatments.map(t => ({ ...t, _type: 'treatment' })),
@@ -81,17 +101,19 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         ...materials.map(m => ({ ...m, _type: 'material' }))
     ];
 
-    // Apply filters
+    // Filter berdasarkan kategori (activeFilter) dan kata kunci pencarian (searchTerm)
     const currentData = activeFilter === 'all' ? allItems : allItems.filter(item => item._type === activeFilter);
     const filteredData = currentData.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    // Pagination Logic
+
+    // Logika Pagination untuk membagi data ke beberapa halaman
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
+    // Reset ke halaman pertama jika filter atau kata kunci pencarian berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm, activeFilter]);
@@ -109,6 +131,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         if (currentPage > 1) setCurrentPage(prev => prev - 1);
     };
 
+
     const toggleFilter = (type) => {
         if (activeFilter === type) {
             setActiveFilter('all');
@@ -117,6 +140,10 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         }
     };
 
+    /**
+     * Menangani proses penyimpanan data (Tambah baru atau Update)
+     * Menampilkan modal konfirmasi sebelum melakukan aksi API/Global State.
+     */
     const handleSave = (data) => {
         const isEdit = !!editingItem;
         
@@ -131,6 +158,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 if (modalType === 'product') {
                     const token = localStorage.getItem('token');
                     if (isEdit) {
+                        // Aksi update produk ke API
                         const res = await stokProdukAPI.update(token, data.uid, data);
                         if (res.success) {
                             showToast('Stok berhasil diperbarui', 'success');
@@ -139,6 +167,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                             showToast(res.message || 'Gagal memperbarui stok', 'error');
                         }
                     } else {
+                        // Aksi tambah produk baru ke API
                         const res = await stokProdukAPI.create(token, data);
                         if (res.success) {
                             showToast('Stok berhasil ditambahkan', 'success');
@@ -148,6 +177,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         }
                     }
                 } else if (modalType === 'treatment') {
+                    // Update atau Tambah Treatment di Mock Data
                     if (isEdit) {
                         updateTreatment(data);
                         showToast('Treatment berhasil diperbarui', 'success');
@@ -156,6 +186,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         showToast('Treatment berhasil ditambahkan', 'success');
                     }
                 } else if (modalType === 'racikan') {
+                    // Update atau Tambah Racikan di Mock Data
                     if (isEdit) {
                         updateRacikan(data);
                         showToast('Racikan berhasil diperbarui', 'success');
@@ -164,6 +195,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         showToast('Racikan berhasil ditambahkan', 'success');
                     }
                 } else if (modalType === 'material') {
+                    // Update atau Tambah Bahan Medis di Mock Data
                     if (isEdit) {
                         updateMaterial(data);
                         showToast('Bahan berhasil diperbarui', 'success');
@@ -178,6 +210,10 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         });
     };
 
+
+    /**
+     * Menangani penghapusan item berdasarkan tipe (Product via API, lainnya via Mock)
+     */
     const handleDelete = (item) => {
         setConfirmConfig({
             icon: 'delete',
@@ -209,6 +245,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     };
 
 
+
     const openAddModal = (type) => {
         setModalType(type);
         setEditingItem(null);
@@ -236,7 +273,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 </div>
 
                 <div className="w-full lg:w-auto relative">
-                    {!isViewOnly && (
+                    {!isViewOnly && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
                         <>
                             {/* Gudang Umum: langsung buka modal tambah stok, tanpa dropdown */}
                             {user?.role === ROLES.GUDANG_UMUM ? (
@@ -340,7 +377,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
             <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-6 flex flex-col items-stretch gap-6">
 
                 {/* Pill Filters — hidden for Gudang Umum (only shows products) */}
-                {!fixedFilter && user?.role !== 'Gudang Umum' && (
+                {!fixedFilter && user?.role !== ROLES.GUDANG_UMUM && (
                     <div className="flex flex-wrap gap-3">
                         <button
                             onClick={() => setActiveFilter('all')}
@@ -427,8 +464,22 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                     </span>
                                                 )}
                                             </td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary">{item.packageCount || '-'}</td>
+                                            <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">
+                                                <div>{item.name}</div>
+                                                {item.isPackage && item.package_treatment_ids && (
+                                                    <div className="text-[10px] text-primary/40 font-bold mt-1 flex flex-wrap gap-1">
+                                                        {item.package_treatment_ids.map((tid, idx) => {
+                                                            const tName = treatments.find(t => t.id === tid)?.name || tid;
+                                                            return (
+                                                                <span key={tid} className="bg-primary/5 px-1.5 py-0.5 rounded">
+                                                                    {tName}{idx < item.package_treatment_ids.length - 1 ? ',' : ''}
+                                                                </span>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
+                                            </td>
+                                            <td className="px-4 py-2 text-sm font-medium text-primary">{item.packageCount || '-'} Sesi</td>
                                             <td className="px-4 py-2">
                                                 <span className="text-primary font-medium text-sm">
                                                     {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
@@ -438,7 +489,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                 <td className="px-4 py-2 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
-                                                        {user?.role !== ROLES.GUDANG_UMUM && (
+                                                        {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
                                                             <button onClick={() => openDeleteConfirm(item)} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus"><Trash2 className="w-4 h-4" /></button>
                                                         )}
                                                     </div>
@@ -448,11 +499,12 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                     ))}
                                     {filteredData.length === 0 && (
                                         <tr>
-                                            <td colSpan={6} className="px-8 py-16 text-center">
-                                                <div className="flex flex-col items-center gap-3">
-                                                    <Inbox className="w-12 h-12 text-primary/10" />
-                                                    <p className="text-primary/40 font-bold text-xs">Tidak ada data yang ditemukan.</p>
-                                                </div>
+                                            <td colSpan={6}>
+                                                <EmptyState 
+                                                    type="data"
+                                                    title="Treatment Tidak Ditemukan"
+                                                    description="Sistem tidak menemukan layanan treatment yang sesuai dengan pencarian Anda."
+                                                />
                                             </td>
                                         </tr>
                                     )}
@@ -465,7 +517,14 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                         <th className="px-4 py-3 text-primary/80">Kode</th>
                                         <th className="px-4 py-3 text-primary/80">Nama</th>
                                         <th className="px-4 py-3 text-primary/80">Kategori</th>
-                                        <th className="px-4 py-3 text-primary/80">Harga</th>
+                                        {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                                            <>
+                                                <th className="px-4 py-3 text-primary/80">Harga Normal</th>
+                                                <th className="px-4 py-3 text-primary/80">Harga Distributor</th>
+                                            </>
+                                        ) : user?.role !== ROLES.GUDANG_UMUM && (
+                                            <th className="px-4 py-3 text-primary/80">Harga</th>
+                                        )}
                                         <th className="px-4 py-3 text-primary/80">Stok</th>
                                         {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                                     </tr>
@@ -476,11 +535,38 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category}</td>
-                                            <td className="px-4 py-2">
-                                                <span className="text-primary font-medium text-sm">
-                                                    Rp {item.price.toLocaleString('id-ID')}
-                                                </span>
-                                            </td>
+                                            {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                                                <>
+                                                    <td className="px-4 py-2">
+                                                        {item.price === 0 ? (
+                                                            <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-md uppercase tracking-widest w-max italic">
+                                                                <Tag className="w-3 h-3" /> Produk Baru
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-primary font-medium text-sm">
+                                                                Rp {item.price.toLocaleString('id-ID')}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-2">
+                                                        {item.priceDistributor === 0 ? (
+                                                            <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-md uppercase tracking-widest w-max italic">
+                                                                <Tag className="w-3 h-3" /> Belum di Set
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-primary font-medium text-sm">
+                                                                Rp {item.priceDistributor.toLocaleString('id-ID')}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                </>
+                                            ) : user?.role !== ROLES.GUDANG_UMUM && (
+                                                <td className="px-4 py-2">
+                                                    <span className="text-primary font-medium text-sm">
+                                                        Rp {item.price.toLocaleString('id-ID')}
+                                                    </span>
+                                                </td>
+                                            )}
                                             <td className="px-4 py-2">
                                                 {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
                                                     <div className="flex items-center gap-2">
@@ -499,7 +585,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                 <td className="px-4 py-2 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
-                                                        {user?.role !== ROLES.GUDANG_UMUM && (
+                                                        {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
                                                             <button onClick={() => openDeleteConfirm(item)} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus"><Trash2 className="w-4 h-4" /></button>
                                                         )}
                                                     </div>
@@ -531,6 +617,14 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                             <div className="flex justify-between items-start">
                                 <div>
                                     <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
+                                    {item.isPackage && item.package_treatment_ids && (
+                                        <div className="text-[9px] text-primary/40 font-bold mb-3 flex flex-wrap gap-1">
+                                            {item.package_treatment_ids.map((tid) => {
+                                                const tName = treatments.find(t => t.id === tid)?.name || tid;
+                                                return <span key={tid} className="bg-primary/5 px-1 rounded">{tName}</span>;
+                                            })}
+                                        </div>
+                                    )}
                                     <div className="flex items-center gap-2">
                                         <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
                                         {item.isPackage && (
@@ -545,8 +639,8 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
 
                             <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
                                 <div className="flex-1 p-3">
-                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jml Paket</p>
-                                    <p className="text-xs font-black text-gray-700">{item.packageCount || '-'}</p>
+                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jml Sesi</p>
+                                    <p className="text-xs font-black text-gray-700">{item.packageCount || '-'} Sesi</p>
                                 </div>
                                 <div className="flex-1 p-3">
                                     <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Biaya</p>
@@ -562,7 +656,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                     >
                                         <Edit3 className="w-3.5 h-3.5" /> Edit
                                     </button>
-                                    {user?.role !== ROLES.GUDANG_UMUM && (
+                                    {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
                                         <button
                                             onClick={() => openDeleteConfirm(item)}
                                             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"
@@ -585,11 +679,36 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                 </div>
                             </div>
 
-                            <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
-                                <div className="flex-1 p-3">
-                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga</p>
-                                    <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
-                                </div>
+                            <div className={`flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm ${user?.role === ROLES.GUDANG_UMUM ? 'justify-end' : ''}`}>
+                                {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                                    <>
+                                        <div className="flex-1 p-3">
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Normal</p>
+                                            {item.price === 0 ? (
+                                                <span className="flex items-center gap-1 text-[8px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md uppercase tracking-widest w-max italic">
+                                                    Produk Baru
+                                                </span>
+                                            ) : (
+                                                <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
+                                            )}
+                                        </div>
+                                        <div className="flex-1 p-3">
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Distributor</p>
+                                            {item.priceDistributor === 0 ? (
+                                                <span className="flex items-center gap-1 text-[8px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md uppercase tracking-widest w-max italic">
+                                                    Belum di Set
+                                                </span>
+                                            ) : (
+                                                <p className="text-xs font-black text-gray-700">Rp {item.priceDistributor.toLocaleString('id-ID')}</p>
+                                            )}
+                                        </div>
+                                    </>
+                                ) : user?.role !== ROLES.GUDANG_UMUM && (
+                                    <div className="flex-1 p-3">
+                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga</p>
+                                        <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
+                                    </div>
+                                )}
                                 {(item._type === 'product' || item._type === 'racikan' || item._type === 'material') && (
                                     <div className="flex-1 p-3">
                                         <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Stok</p>
@@ -611,7 +730,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                     >
                                         <Edit3 className="w-3.5 h-3.5" /> Edit
                                     </button>
-                                    {user?.role !== ROLES.GUDANG_UMUM && (
+                                    {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
                                         <button
                                             onClick={() => openDeleteConfirm(item)}
                                             className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"

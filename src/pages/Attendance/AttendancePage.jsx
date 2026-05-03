@@ -18,6 +18,7 @@ import { useMockData } from '../../context/MockDataContext';
 import { getActiveShift } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
+import EmptyState from '../../components/UI/EmptyState';
 
 
 const AttendancePage = () => {
@@ -579,6 +580,17 @@ const AttendancePage = () => {
                                             </tr>
                                         );
                                     })}
+                                    {finalAttendance.length === 0 && (
+                                        <tr>
+                                            <td colSpan={canAccessReports ? 7 : 5}>
+                                                <EmptyState 
+                                                    type="staff"
+                                                    title="Data Kehadiran Tidak Ditemukan"
+                                                    description="Sistem tidak menemukan riwayat kehadiran yang sesuai dengan filter atau pencarian Anda."
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -623,7 +635,11 @@ const AttendancePage = () => {
                                 );
                             })}
                             {finalAttendance.length === 0 && (
-                                <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">Tidak ada data kehadiran</div>
+                                <EmptyState 
+                                    type="staff"
+                                    title="Data Kehadiran Tidak Ditemukan"
+                                    description="Sistem tidak menemukan riwayat kehadiran yang sesuai dengan filter atau pencarian Anda."
+                                />
                             )}
                         </div>
                             </>
@@ -642,6 +658,7 @@ const AttendancePage = () => {
             )}
 
             {/* â•â•â• TAB 2: CUTI / IZIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+            {/* ————————————————————————————— TAB 2: CUTI / IZIN ————————————————————————————————————————————— */}
             {activeTab === 'leave' && (
                 <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                     <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
@@ -703,7 +720,18 @@ const AttendancePage = () => {
                                         )}
                                     </tr>
                                 ))}
-                            </tbody>
+                                {filteredLeave.length === 0 && (
+                                        <tr>
+                                            <td colSpan={canApproveLeave ? 6 : 5}>
+                                                <EmptyState 
+                                                    type="staff"
+                                                    title="Data Pengajuan Tidak Ditemukan"
+                                                    description="Sistem tidak menemukan pengajuan cuti atau izin yang sesuai dengan pencarian Anda."
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
                         </table>
                     </div>
 
@@ -734,7 +762,11 @@ const AttendancePage = () => {
                             </div>
                         ))}
                         {filteredLeave.length === 0 && (
-                            <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">Tidak ada data pengajuan</div>
+                            <EmptyState 
+                                type="staff"
+                                title="Data Pengajuan Tidak Ditemukan"
+                                description="Sistem tidak menemukan pengajuan cuti atau izin yang sesuai dengan pencarian Anda."
+                            />
                         )}
                     </div>
                         </>
@@ -851,8 +883,12 @@ const AttendancePage = () => {
                                     })}
                                     {filteredOvertime.length === 0 && (
                                         <tr>
-                                            <td colSpan={canApproveLeave ? 7 : 6} className="px-4 py-16 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">
-                                                Tidak ada pengajuan lembur
+                                            <td colSpan={canApproveLeave ? 7 : 6}>
+                                                <EmptyState 
+                                                    type="staff"
+                                                    title="Pengajuan Lembur Kosong"
+                                                    description="Sistem tidak menemukan pengajuan lembur yang sesuai dengan kriteria Anda."
+                                                />
                                             </td>
                                         </tr>
                                     )}
@@ -901,7 +937,11 @@ const AttendancePage = () => {
                                 );
                             })}
                             {filteredOvertime.length === 0 && (
-                                <div className="p-12 text-center text-primary/20 font-black uppercase text-[10px] tracking-widest">Tidak ada pengajuan lembur</div>
+                                <EmptyState 
+                                    type="staff"
+                                    title="Pengajuan Lembur Kosong"
+                                    description="Sistem tidak menemukan pengajuan lembur yang sesuai dengan kriteria Anda."
+                                />
                             )}
                         </div>
                             </>

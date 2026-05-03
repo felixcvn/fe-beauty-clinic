@@ -6,8 +6,11 @@ import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
 
 const Dashboard = () => {
+    // Mengambil data user dari context autentikasi
     const { user } = useAuth();
+    // Mengambil data booking/pertemuan dari context mock data
     const { bookings } = useMockData();
+
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -16,7 +19,7 @@ const Dashboard = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Dashboard</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse"></span>
-                        Welcome back, <span className="text-primary/70">{user?.name || 'User'}</span>
+                        Selamat datang, <span className="text-primary/70">{user?.name || 'User'}</span>
                     </p>
                 </div>
                 <button className="w-full sm:w-auto px-6 py-3 md:py-4 bg-primary text-secondary rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300">

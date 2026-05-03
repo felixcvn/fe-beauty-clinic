@@ -54,7 +54,7 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                                 }`}>
                                     {staff.status}
                                 </span>
-                                <span className="text-white/80 text-[10px] font-bold tracking-widest uppercase border border-white/20 px-2 py-0.5 rounded-full">{staff.id}</span>
+                                <span className="text-white/80 text-[10px] font-bold tracking-widest uppercase border border-white/20 px-2 py-0.5 rounded-full">{staff.kode_karyawan || staff.id}</span>
                                 <span className="text-white/90 text-[10px] font-bold tracking-widest uppercase bg-secondary/20 px-2 py-0.5 rounded-full flex items-center gap-1">
                                     <Building2 className="w-3 h-3" /> {staff.cabang}
                                 </span>

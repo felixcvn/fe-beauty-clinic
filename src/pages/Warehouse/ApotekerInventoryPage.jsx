@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit3, AlertTriangle, Package, Inbox, ChevronDown, Beaker } from 'lucide-react';
-import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import ApotekerFormModal from '../../components/UI/ApotekerFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -8,22 +7,24 @@ import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import ConfirmModal from '../../components/UI/ConfirmModal';
+import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, stokProdukAPI } from '../../services/api';
 
 
 const ApotekerInventoryPage = () => {
     const { user } = useAuth();
     const isViewOnly = false; // Apoteker is the main actor here
 
-    const {
-        materials, addMaterial, updateMaterial,
-        medicals, addMedical, updateMedical,
-        infusions, addInfusion, updateInfusion,
-        apotekItems, addApotekItem, updateApotekItem
-    } = useMockData();
     const { showToast } = useToast();
 
-    // Filter state: 'all', 'material', 'medical', 'infusion', 'apotekItem'
-    const [activeFilter, setActiveFilter] = useState('all');
+    // API Data States
+    const [materials, setMaterials] = useState([]);
+    const [medicals, setMedicals] = useState([]);
+    const [infusions, setInfusions] = useState([]);
+    const [apotekItems, setApotekItems] = useState([]);
+    const [products, setProducts] = useState([]);
+
+    // Filter state: 'material', 'medical', 'infusion', 'apotekItem', 'product'
+    const [activeFilter, setActiveFilter] = useState('material');
 
     // UI states
     const [searchTerm, setSearchTerm] = useState('');
@@ -34,11 +35,101 @@ const ApotekerInventoryPage = () => {
     const [confirmConfig, setConfirmConfig] = useState(null);
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
+    const fetchAllData = async () => {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        
+        try {
+            const [resMaterial, resMedical, resInfusion, resApotek, resProduct] = await Promise.all([
+                bahanTreatmentAPI.getAll(token),
+                bahanMedisAPI.getAll(token),
+                bahanInfusAPI.getAll(token),
+                barangApotekAPI.getAll(token),
+                stokProdukAPI.getAll(token)
+            ]);
 
-    // Simulate loading
+            if (resMaterial.success && Array.isArray(resMaterial.data)) {
+                setMaterials(resMaterial.data.map(item => {
+                    console.log('[Material] Raw API data:', item);
+                    return {
+                        uid: item.id,
+                        id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                        name: item.Nama_produk || '',
+                        category: item.Kategori || '',
+                        price: Number(item.Harga || 0),
+                        stock: Number(item.Stok || 0),
+                        minStock: Number(item.Batas_minimal_stok || 0)
+                    };
+                }));
+            } else if (resMaterial.success) {
+                console.warn("resMaterial.data is not an array:", resMaterial.data);
+            }
+
+            if (resMedical.success && Array.isArray(resMedical.data)) {
+                setMedicals(resMedical.data.map(item => {
+                    console.log('[Medical] Raw API data:', item);
+                    return {
+                        uid: item.id,
+                        id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                        name: item.Nama_bahan_medis || '',
+                        category: item.Kategori || '',
+                        stock: Number(item.Stok || 0),
+                        minStock: Number(item.Batas_minimal_stok || 0)
+                    };
+                }));
+            } else if (resMedical.success) {
+                console.warn("resMedical.data is not an array:", resMedical.data);
+            }
+
+            if (resInfusion.success && Array.isArray(resInfusion.data)) {
+                setInfusions(resInfusion.data.map(item => {
+                    console.log('[Infusion] Raw API data:', item);
+                    return {
+                        uid: item.id,
+                        id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                        name: item.Nama_bahan_infus || '',
+                        category: item.Kategori || '',
+                        stock: Number(item.Stok || 0),
+                        minStock: Number(item.Batas_minimal_stok || 0)
+                    };
+                }));
+            } else if (resInfusion.success) {
+                console.warn("resInfusion.data is not an array:", resInfusion.data);
+            }
+
+            if (resApotek.success && Array.isArray(resApotek.data)) {
+                setApotekItems(resApotek.data.map(item => {
+                    console.log('[Apotek] Raw API data:', item);
+                    return {
+                        uid: item.id,
+                        id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                        name: item.Nama_barang_apotek || '',
+                        category: item.Kategori || '',
+                        stock: Number(item.Stok || 0),
+                        minStock: Number(item.Batas_minimal_stok || 0)
+                    };
+                }));
+            }
+
+            if (resProduct.success && Array.isArray(resProduct.data)) {
+                setProducts(resProduct.data.map(item => ({
+                    uid: item.id,
+                    id: String(item.Kode_Produk || item.id || ''),
+                    name: item.Nama_produk || '',
+                    category: item.Kategori || '',
+                    stock: Number(item.Stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || 0)
+                })));
+            }
+        } catch (error) {
+            console.error("Error fetching apoteker data:", error);
+            showToast("Gagal memuat data dari server.", "error");
+        }
+        setIsLoading(false);
+    };
+
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
+        fetchAllData();
     }, []);
 
     // Combine data
@@ -46,11 +137,12 @@ const ApotekerInventoryPage = () => {
         ...materials.map(m => ({ ...m, _type: 'material' })),
         ...medicals.map(m => ({ ...m, _type: 'medical' })),
         ...infusions.map(i => ({ ...i, _type: 'infusion' })),
-        ...apotekItems.map(a => ({ ...a, _type: 'apotekItem' }))
+        ...apotekItems.map(a => ({ ...a, _type: 'apotekItem' })),
+        ...products.map(p => ({ ...p, _type: 'product' }))
     ];
 
     // Apply filters
-    const currentData = activeFilter === 'all' ? allItems : allItems.filter(item => item._type === activeFilter);
+    const currentData = allItems.filter(item => item._type === activeFilter);
     const filteredData = currentData.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.id.toLowerCase().includes(searchTerm.toLowerCase())
@@ -95,34 +187,26 @@ const ApotekerInventoryPage = () => {
                 `Simpan perubahan untuk ${data.name}?` : 
                 `Tambahkan ${data.name} ke daftar stok?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
-            onAccept: () => {
+            onAccept: async () => {
+                const token = localStorage.getItem('token');
+                let res;
+                
                 if (modalType === 'material') {
-                    if (isEdit) {
-                        updateMaterial(data);
-                    } else {
-                        addMaterial(data);
-                    }
+                    res = isEdit ? await bahanTreatmentAPI.update(token, editingItem.uid, data) : await bahanTreatmentAPI.create(token, data);
                 } else if (modalType === 'medical') {
-                    if (isEdit) {
-                        updateMedical(data);
-                    } else {
-                        addMedical(data);
-                    }
+                    res = isEdit ? await bahanMedisAPI.update(token, editingItem.uid, data) : await bahanMedisAPI.create(token, data);
                 } else if (modalType === 'infusion') {
-                    if (isEdit) {
-                        updateInfusion(data);
-                    } else {
-                        addInfusion(data);
-                    }
+                    res = isEdit ? await bahanInfusAPI.update(token, editingItem.uid, data) : await bahanInfusAPI.create(token, data);
                 } else if (modalType === 'apotekItem') {
-                    if (isEdit) {
-                        updateApotekItem(data);
-                    } else {
-                        addApotekItem(data);
-                    }
+                    res = isEdit ? await barangApotekAPI.update(token, editingItem.uid, data) : await barangApotekAPI.create(token, data);
                 }
                 
-                showToast(`Data berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                if (res?.success) {
+                    showToast(`Data berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                    fetchAllData();
+                } else {
+                    showToast(res?.message || `Gagal ${isEdit ? 'memperbarui' : 'menambahkan'} data`, 'error');
+                }
                 setIsModalOpen(false);
                 setEditingItem(null);
             }
@@ -225,10 +309,11 @@ const ApotekerInventoryPage = () => {
 
                 <div className="flex flex-wrap gap-3">
                     <button
-                        onClick={() => setActiveFilter('all')}
-                        className={`flex items-center justify-center px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'all' ? 'bg-primary border-primary text-secondary shadow-lg shadow-primary/20 scale-105' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}
+                        onClick={() => setActiveFilter('product')}
+                        className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-full border transition-all duration-300 ${activeFilter === 'product' ? 'bg-primary border-primary text-secondary shadow-lg shadow-primary/20 scale-105' : 'bg-secondary border-primary/10 text-primary hover:bg-secondary/80'}`}
                     >
-                        <span className="text-xs font-black uppercase tracking-widest">Semua Item</span>
+                        <Package className="w-4 h-4" />
+                        <span className="text-xs font-black uppercase tracking-widest">Stok Produk</span>
                     </button>
 
                     <button
@@ -288,7 +373,7 @@ const ApotekerInventoryPage = () => {
                                         <th className="px-4 py-3 text-primary/80">Nama</th>
                                         <th className="px-4 py-3 text-primary/80">Kategori</th>
                                         <th className="px-4 py-3 text-primary/80">Stok</th>
-                                        {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
+                                        {!isViewOnly && activeFilter !== 'product' && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
@@ -296,7 +381,7 @@ const ApotekerInventoryPage = () => {
                                         <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
                                             <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
                                             <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category}</td>
+                                            <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category || '-'}</td>
                                             <td className="px-4 py-2">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`font-medium text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
@@ -307,7 +392,7 @@ const ApotekerInventoryPage = () => {
                                                     )}
                                                 </div>
                                             </td>
-                                            {!isViewOnly && (
+                                            {!isViewOnly && activeFilter !== 'product' && (
                                                 <td className="px-4 py-2 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
@@ -340,7 +425,7 @@ const ApotekerInventoryPage = () => {
                                             <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
                                             <div className="flex items-center gap-2">
                                                 <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
-                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.category}</span>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.category || 'Tanpa Kategori'}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -357,7 +442,7 @@ const ApotekerInventoryPage = () => {
                                         </div>
                                     </div>
 
-                                    {!isViewOnly && (
+                                    {!isViewOnly && activeFilter !== 'product' && (
                                         <div className="flex gap-2 pt-1 border-t border-primary/5 mt-3 pt-3">
                                             <button
                                                 onClick={() => openEditModal(item)}

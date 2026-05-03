@@ -35,6 +35,13 @@ import PromoManagementPage from './pages/Promos/PromoManagementPage';
 import ReservationsPage from './pages/Reservations/ReservationsPage';
 import OwnerDashboard from './pages/Dashboard/OwnerDashboard';
 import SuperAdminInventoryPage from './pages/Warehouse/SuperAdminInventoryPage';
+import ApotekerDashboard from './pages/Warehouse/ApotekerDashboard';
+import DoctorDashboard from './pages/Dashboard/DoctorDashboard';
+import CSDashboard from './pages/Dashboard/CSDashboard';
+import HRDashboard from './pages/Dashboard/HRDashboard';
+import TreatmentDashboard from './pages/Dashboard/TreatmentDashboard';
+import MarketingDashboard from './pages/Dashboard/MarketingDashboard';
+import SimpleStaffDashboard from './pages/Dashboard/SimpleStaffDashboard';
 
 import { hasPermission } from './utils/rbac';
 
@@ -67,15 +74,46 @@ const RoleProtectedRoute = ({ children }) => {
 const DashboardSwitcher = () => {
     const { user } = useAuth();
     
-    if (user?.role === 'Gudang Umum') {
-        return <WarehouseDashboard />;
-    }
+    // Normalisasi role untuk perbandingan yang lebih aman (case-insensitive)
+    const role = user?.role?.toLowerCase().trim();
     
-    if (user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'Super Admin') {
-        return <OwnerDashboard />;
+    switch (role) {
+        case 'gudang umum':
+            return <WarehouseDashboard />;
+        
+        case 'apoteker':
+        case 'asisten apoteker':
+            return <ApotekerDashboard />;
+        
+        case 'owner':
+        case 'komisaris':
+        case 'super admin':
+            return <OwnerDashboard />;
+        
+        case 'dokter':
+            return <DoctorDashboard />;
+        
+        case 'customer service':
+            return <CSDashboard />;
+        
+        case 'hrd':
+            return <HRDashboard />;
+        
+        case 'supervisor treatment':
+        case 'asisten supervisor treatment':
+            return <TreatmentDashboard />;
+        
+        case 'manajer marketing of sales':
+        case 'marketing of sales':
+            return <MarketingDashboard />;
+        
+        case 'staff ob':
+        case 'staff satpam':
+            return <SimpleStaffDashboard />;
+            
+        default:
+            return <Dashboard />;
     }
-    
-    return <Dashboard />;
 };
 
 function App() {

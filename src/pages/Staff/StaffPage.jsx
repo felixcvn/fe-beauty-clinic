@@ -8,16 +8,27 @@ import { karyawanAPI } from '../../services/api';
 import StaffFormModal from '../../components/UI/StaffFormModal';
 import StaffDetailModal from '../../components/UI/StaffDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import EmptyState from '../../components/UI/EmptyState';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 
 // ── Helper: Konversi data karyawan dari backend ke format UI ──────────────────
 const formatTitleCase = (str) => {
     if (!str) return '';
+    // Clean redundant dashes and spaces
     let cleaned = str.replace(/\s*-\s*/g, ' - ').replace(/(\s*-\s*)+$/, '').trim();
-    return cleaned.split(' ').map(word => {
+    
+    return cleaned.split(' ').map((word, index) => {
         if (word === '-') return '-';
+        const lower = word.toLowerCase();
         const upper = word.toUpperCase();
+        
+        // Keep acronyms uppercase
         if (['HRD', 'OB', 'CS', 'IT'].includes(upper)) return upper;
+        
+        // Keep conjunctions lowercase (except if it's the first word)
+        if (['of', 'and'].includes(lower) && index !== 0) return lower;
+        
+        // Default: Capitalize first letter
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     }).join(' ');
 };
@@ -62,6 +73,7 @@ const mapKaryawanFromAPI = (k) => {
         tempat_lahir: k.Tempat_Lahir || k.tempat_lahir,
         alamat:   k.Alamat || k.alamat,
         tanggal_bergabung: k.Tanggal_bergabung || k.tanggal_bergabung,
+        kode_karyawan: k.kode_karyawan || k.Kode_Karyawan,
         _source:  'api',
     };
 };
@@ -238,31 +250,7 @@ const StaffPage = () => {
         });
     };
 
-    const handleOpenDelete = (staff) => {
-        setConfirmConfig({
-            icon:        'delete',
-            header:      'Konfirmasi Hapus',
-            message:     <>Hapus data <strong>{staff.name}</strong>?</>,
-            acceptLabel: 'Ya, Hapus',
-            onAccept: async () => {
-                if (isApiMode) {
-                    setIsLoading(true);
-                    const token = user?.token || localStorage.getItem('token');
-                    const result = await karyawanAPI.delete(token, staff.id);
-                    if (result.success) {
-                        showToast(`Data ${staff.name} telah dihapus`, 'success');
-                        fetchKaryawan(currentPage);
-                    } else {
-                        showToast(result.message || 'Gagal menghapus karyawan', 'error');
-                    }
-                    setIsLoading(false);
-                } else {
-                    deleteStaff(staff.id);
-                    showToast(`Data ${staff.name} telah dihapus (Mock)`, 'success');
-                }
-            },
-        });
-    };
+
 
     const handleOpenDetail = async (staff) => {
         if (!isApiMode) {
@@ -371,10 +359,6 @@ const StaffPage = () => {
                         className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50/50 border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all"
                     />
                 </div>
-                <button className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white border border-primary/5 text-primary text-[10px] md:text-xs font-black uppercase tracking-widest hover:bg-primary hover:text-secondary transition-all shadow-sm active:scale-95">
-                    <Filter className="w-4 h-4" />
-                    <span>Filter Jabatan</span>
-                </button>
             </div>
 
             {/* Table */}
@@ -438,13 +422,7 @@ const StaffPage = () => {
                                                 >
                                                     <Edit3 className="w-4 h-4" />
                                                 </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
-                                                    className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95"
-                                                    title="Hapus"
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </button>
+
                                             </div>
                                         </td>
                                     )}
@@ -452,8 +430,12 @@ const StaffPage = () => {
                             ))}
                             {currentStaff.length === 0 && (
                                 <tr>
-                                    <td colSpan={isReadOnly ? 5 : 6} className="px-6 py-16 text-center text-sm text-primary/30 font-bold">
-                                        Tidak ada data karyawan yang ditemukan.
+                                    <td colSpan={isReadOnly ? 5 : 6}>
+                                        <EmptyState 
+                                            type="staff"
+                                            title="Karyawan Tidak Ditemukan"
+                                            description="Sistem tidak menemukan data karyawan yang sesuai dengan kriteria pencarian Anda. Pastikan nama atau jabatan yang Anda masukkan sudah benar."
+                                        />
                                     </td>
                                 </tr>
                             )}
@@ -472,7 +454,7 @@ const StaffPage = () => {
                                     </div>
                                     <div>
                                         <h4 className="text-sm font-black text-primary tracking-tight">{staff.name}</h4>
-                                        <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{staff.id}</p>
+                                        <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{staff.kode_karyawan || staff.id}</p>
                                     </div>
                                 </div>
                                 <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[8px] font-black uppercase tracking-widest">
@@ -506,16 +488,18 @@ const StaffPage = () => {
                                     >
                                         <Edit3 className="w-3.5 h-3.5" /> Edit
                                     </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); handleOpenDelete(staff); }}
-                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
-                                    >
-                                        <Trash2 className="w-3.5 h-3.5" /> Hapus
-                                    </button>
+
                                 </div>
                             )}
                         </div>
                     ))}
+                    {currentStaff.length === 0 && (
+                        <EmptyState 
+                            type="staff"
+                            title="Karyawan Tidak Ditemukan"
+                            description="Sistem tidak menemukan data karyawan yang sesuai dengan kriteria pencarian Anda."
+                        />
+                    )}
                 </div>
                     </>
                 )}

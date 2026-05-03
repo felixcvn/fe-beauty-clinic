@@ -3,12 +3,18 @@ import { createPortal } from 'react-dom';
 import { Camera, X, CheckCircle2, AlertCircle, Loader2, MapPin } from 'lucide-react';
 import { getActiveShift, checkIsLate, checkIsOvertime } from '../../utils/shiftConfig';
 
+/**
+ * Modal untuk melakukan absensi (Check-in/Check-out) menggunakan Face Scan
+ * dan validasi Geolocation (GPS). Mendeteksi apakah user berada di dalam radius kantor.
+ */
 const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, isRamadhan = false }) => {
+
     const videoRef = useRef(null);
-    const [stream, setStream] = useState(null);
+    const [stream, setStream] = useState(null); // Stream video dari kamera
     const [scanStatus, setScanStatus] = useState('initializing'); // initializing, scanning, success, error
-    const [progress, setProgress] = useState(0);
-    const [locationStatus, setLocationStatus] = useState('unknown'); // unknown, inside, outside
+    const [progress, setProgress] = useState(0); // Progress simulasi scanning
+    const [locationStatus, setLocationStatus] = useState('unknown'); // Mendeteksi apakah di dalam radius: unknown, inside, outside
+
 
     useEffect(() => {
         if (isOpen) {
@@ -22,6 +28,10 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         return () => stopCamera();
     }, [isOpen]);
 
+    /**
+     * Memulai akses kamera dan mengambil lokasi GPS user secara bersamaan.
+     * Menghitung jarak antara koordinat user dengan koordinat kantor.
+     */
     const startCamera = async () => {
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -31,15 +41,17 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
             if (videoRef.current) {
                 videoRef.current.srcObject = mediaStream;
             }
+
+            // Validasi Geolocation untuk memastikan user di lokasi yang benar
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     (pos) => {
-                        // Simulasi: koordinat kantor (lat, lng)
-                        // Di produksi, ganti dengan koordinat kantor yang sesungguhnya
+                        // Koordinat kantor (Contoh: Jember)
                         const OFFICE_LAT = -8.1702;
                         const OFFICE_LNG = 113.7120;
-                        const RADIUS_METERS = 500;
+                        const RADIUS_METERS = 500; // Toleransi jarak 500 meter
 
+                        // Rumus Haversine untuk menghitung jarak antara dua titik koordinat
                         const R = 6371000; // radius bumi dalam meter
                         const dLat = (pos.coords.latitude - OFFICE_LAT) * Math.PI / 180;
                         const dLng = (pos.coords.longitude - OFFICE_LNG) * Math.PI / 180;
@@ -62,10 +74,11 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
                 setScanStatus('ready');
             }
         } catch (err) {
-            console.error("Error accessing camera:", err);
+            console.error("Error mengakses kamera:", err);
             setScanStatus('error');
         }
     };
+
 
     const stopCamera = () => {
         if (stream) {
@@ -88,11 +101,16 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         }, 300);
     };
 
+    /**
+     * Dipanggil saat scanning selesai. Mendeteksi anomali absensi:
+     * - Terlambat (Late)
+     * - Lembur (Overtime)
+     * - Di luar lokasi (Outside)
+     */
     const handleScanSuccess = () => {
         setScanStatus('success');
         const mockPhoto = `https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop`;
 
-        // ── Deteksi Anomali ──────────────────────────────────────────────
         const now = new Date();
         const detectedTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
         const shift = employeeShift ? getActiveShift(employeeShift, isRamadhan) : null;
@@ -100,10 +118,12 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         let isLate = false, isOvertime = false, diffMinutes = 0;
         if (shift) {
             if (type === 'in') {
+                // Mengecek apakah terlambat masuk
                 const result = checkIsLate(detectedTime, shift.checkIn);
                 isLate = result.isLate;
                 diffMinutes = result.diffMinutes;
             } else {
+                // Mengecek apakah pulang lebih lama (lembur)
                 const result = checkIsOvertime(detectedTime, shift.checkOut, shift.overnight);
                 isOvertime = result.isOvertime;
                 diffMinutes = result.diffMinutes;
@@ -112,6 +132,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         const isOutside = locationStatus === 'outside';
 
         const anomalyInfo = { isLate, isOvertime, isOutside, detectedTime, shift, diffMinutes, scheduledTime: type === 'in' ? shift?.checkIn : shift?.checkOut };
+
         // ────────────────────────────────────────────────────────────────
 
         setTimeout(() => {

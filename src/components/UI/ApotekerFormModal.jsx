@@ -3,20 +3,30 @@ import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Package, Beaker } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 
+/**
+ * Modal formulir khusus untuk Apoteker dan Gudang Farmasi.
+ * Menangani penambahan/pengeditan bahan treatment, bahan medis, bahan infus, dan barang apotek.
+ */
 const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
+
+    // State untuk menyimpan data input formulir
     const [formState, setFormState] = useState({
         name: '',
         category: '',
         stock: '',
         minStock: '',
+        price: '',
         id: ''
     });
     
-    // Warn inputs specific to Apoteker requirement.
+    // State untuk menyimpan pesan error validasi
     const [errors, setErrors] = useState({});
 
-    // type: 'material', 'medical', 'infusion', 'apotekItem'
+    // type menentukan kategori item: 'material', 'medical', 'infusion', 'apotekItem'
 
+    /**
+     * Mendapatkan label human-readable berdasarkan tipe item
+     */
     const getTypeLabel = () => {
         if (type === 'material') return 'bahan treatment';
         if (type === 'medical') return 'bahan medis';
@@ -24,6 +34,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         if (type === 'apotekItem') return 'barang apotek';
         return 'item';
     };
+
 
     useEffect(() => {
         if (isOpen) {
@@ -34,6 +45,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     category: initialData.category || '',
                     stock: initialData.stock !== undefined ? initialData.stock : '',
                     minStock: initialData.minStock !== undefined ? initialData.minStock : '',
+                    price: initialData.price !== undefined ? initialData.price : '',
                     id: initialData.id || ''
                 });
             } else {
@@ -42,6 +54,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     category: '',
                     stock: '',
                     minStock: '',
+                    price: '',
                     id: ''
                 });
             }
@@ -50,6 +63,10 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
     if (!isOpen) return null;
 
+    /**
+     * Memvalidasi apakah field wajib (Nama, Stok, Kategori) sudah diisi.
+     * Khusus tipe 'material', harga juga wajib diisi.
+     */
     const validate = () => {
         let newErrors = {};
         const typeLabel = getTypeLabel();
@@ -57,11 +74,21 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         if (!formState.name || !formState.name.trim()) newErrors.name = `Nama ${typeLabel} wajib diisi`;
         if (formState.stock === '' || formState.stock === null) newErrors.stock = "Stok wajib diisi";
         if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
-        if (!formState.category) newErrors.category = "Kategori wajib diisi";
+        
+        // Kategori hanya wajib untuk bahan treatment dan bahan medis
+        if ((type === 'material' || type === 'medical') && !formState.category) {
+            newErrors.category = "Kategori wajib diisi";
+        }
+
+        // Validasi harga khusus untuk tipe material
+        if (type === 'material' && (formState.price === '' || formState.price === null || formState.price === undefined)) {
+            newErrors.price = "Harga wajib diisi";
+        }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -86,15 +113,19 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
     const getCategoryOptions = () => {
         if (type === 'material') {
             return [
-                { value: 'Bahan Habis Pakai', label: 'Bahan Habis Pakai' },
-                { value: 'Alat Medis', label: 'Alat Medis' },
-                { value: 'Cairan', label: 'Cairan' },
+                { value: 'Serum', label: 'Serum' },
+                { value: 'Masker', label: 'Masker' },
+                { value: 'Peeling', label: 'Peeling' },
+                { value: 'Alat', label: 'Alat' },
             ];
         }
         if (type === 'medical') {
             return [
-                { value: 'Alat Kesehatan', label: 'Alat Kesehatan' },
-                { value: 'Peralatan Medis', label: 'Peralatan Medis' }
+                { value: 'Benang', label: 'Benang' },
+                { value: 'Filler', label: 'Filler' },
+                { value: 'Botox', label: 'Botox' },
+                { value: 'Skinbooster', label: 'Skinbooster' },
+                { value: 'Alkes', label: 'Alkes' },
             ];
         }
         if (type === 'infusion') {
@@ -183,15 +214,31 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                             {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
                         </div>
 
-                        <div>
-                            <CustomSelect
-                                label="Kategori"
-                                value={formState.category}
-                                onChange={(value) => handleChange('category', value)}
-                                options={getCategoryOptions()}
-                            />
-                            {errors.category && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.category}</p>}
-                        </div>
+                        {(type === 'material' || type === 'medical') && (
+                            <div>
+                                <CustomSelect
+                                    label="Kategori"
+                                    value={formState.category}
+                                    onChange={(value) => handleChange('category', value)}
+                                    options={getCategoryOptions()}
+                                />
+                                {errors.category && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.category}</p>}
+                            </div>
+                        )}
+
+                        {type === 'material' && (
+                            <div>
+                                <label className={labelClassName}>Harga (Rp)</label>
+                                <input
+                                    type="number"
+                                    value={formState.price}
+                                    onChange={(e) => handleChange('price', e.target.value === '' ? '' : Number(e.target.value))}
+                                    className={getDynamicInputClass('price')}
+                                    placeholder="Contoh: 50000"
+                                />
+                                {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.price}</p>}
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>

@@ -128,6 +128,17 @@ const PatientList = () => {
                                     </td>
                                 </tr>
                             ))}
+                            {filteredPatients.length === 0 && (
+                                <tr>
+                                    <td colSpan={6}>
+                                        <EmptyState 
+                                            type="records"
+                                            title="Data Medis Tidak Ditemukan"
+                                            description="Sistem tidak menemukan riwayat medis yang sesuai dengan pencarian Anda. Pastikan nama atau ID yang Anda masukkan sudah benar."
+                                        />
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>

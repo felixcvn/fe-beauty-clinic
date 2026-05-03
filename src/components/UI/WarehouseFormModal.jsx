@@ -4,16 +4,21 @@ import { X, CheckCircle2, Package, Activity, Beaker } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import { useMockData } from '../../context/MockDataContext';
+import { useAuth } from '../../context/AuthContext';
+import { ROLES } from '../../utils/rbac';
 
 const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
-    const { materials } = useMockData();
+    const { user } = useAuth();
+    const { materials, treatments } = useMockData();
     const [formState, setFormState] = useState({
         name: '',
         category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
         price: '',
+        priceDistributor: '',
         stock: '',
         minStock: '',
         bahan_ids: [],
+        package_treatment_ids: [],
         id: '',
         isPackage: false,
         packageCount: ''
@@ -26,7 +31,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
             if (initialData) {
                 setFormState({
                     ...initialData,
+                    priceDistributor: initialData.priceDistributor || '',
                     bahan_ids: initialData.bahan_ids || [],
+                    package_treatment_ids: initialData.package_treatment_ids || [],
                     isPackage: initialData.isPackage || false,
                     packageCount: initialData.packageCount || '',
                     id: initialData.id || ''
@@ -36,9 +43,11 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     name: '',
                     category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
                     price: '',
+                    priceDistributor: '',
                     stock: '',
                     minStock: '',
                     bahan_ids: [],
+                    package_treatment_ids: [],
                     id: '',
                     isPackage: false,
                     packageCount: ''
@@ -56,13 +65,23 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         
         if (type === 'product' || type === 'racikan' || type === 'material') {
             if (!formState.category) newErrors.category = "Kategori wajib dipilih";
-            if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
+            if (user?.role === ROLES.MANAJER_MARKETING_SALES) {
+                if (formState.price === '' || formState.price === null) newErrors.price = "Harga Normal wajib diisi";
+                if (formState.priceDistributor === '' || formState.priceDistributor === null) newErrors.priceDistributor = "Harga Distributor wajib diisi";
+            } else if (user?.role !== ROLES.GUDANG_UMUM) {
+                if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
+            }
             if (formState.stock === '' || formState.stock === null) newErrors.stock = "Stok wajib diisi";
             if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
         } else {
             if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
-            if (formState.isPackage && (!formState.packageCount || formState.packageCount <= 0)) {
-                newErrors.packageCount = "Jumlah paket wajib diisi";
+            if (formState.isPackage) {
+                if (!formState.packageCount || formState.packageCount <= 0) {
+                    newErrors.packageCount = "Jumlah sesi wajib diisi";
+                }
+                if (!formState.package_treatment_ids || formState.package_treatment_ids.length === 0) {
+                    newErrors.package_treatment_ids = "Pilih minimal satu treatment dalam paket";
+                }
             }
         }
 
@@ -93,6 +112,11 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
     const materialOptions = materials.map(m => ({
         value: m.id,
         label: `${m.name} (${m.stock} unit)`
+    }));
+    
+    const treatmentOptions = treatments.map(t => ({
+        value: t.id,
+        label: t.name
     }));
 
     return createPortal(
@@ -136,7 +160,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 {/* Form Section */}
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
                     <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
+                        <div className="relative z-[60]">
                             <label className={labelClassName}>Kode {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
                             <input
                                 type="text"
@@ -148,7 +172,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                             {errors.id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.id}</p>}
                         </div>
                         
-                        <div>
+                        <div className="relative z-[50]">
                             <label className={labelClassName}>Nama {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
                             <input
                                 type="text"
@@ -162,7 +186,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
                         {type === 'treatment' && (
                             <>
-                                <div className="p-4 rounded-2xl border border-primary/5 bg-gray-50/50 space-y-4">
+                                <div className="relative z-[40] p-4 rounded-2xl border border-primary/5 bg-gray-50/50 space-y-4">
                                     <label className="flex items-center gap-3 cursor-pointer group w-max">
                                         <div className="relative flex items-center justify-center">
                                             <input 
@@ -179,22 +203,37 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                     </label>
 
                                     {formState.isPackage && (
-                                        <div className="pt-2 animate-fade-in-up">
-                                            <label className={labelClassName}>Jumlah Treatment Dalam Paket</label>
-                                            <input
-                                                type="number"
-                                                value={formState.packageCount}
-                                                onChange={(e) => handleChange('packageCount', e.target.value === '' ? '' : Number(e.target.value))}
-                                                className={getDynamicInputClass('packageCount')}
-                                                placeholder="Contoh: 5"
-                                                min="1"
-                                            />
-                                            {errors.packageCount && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.packageCount}</p>}
+                                        <div className="pt-2 animate-fade-in-up space-y-4">
+                                            <div>
+                                                <label className={labelClassName}>Jumlah Sesi Dalam Paket</label>
+                                                <input
+                                                    type="number"
+                                                    value={formState.packageCount}
+                                                    onChange={(e) => handleChange('packageCount', e.target.value === '' ? '' : Number(e.target.value))}
+                                                    className={getDynamicInputClass('packageCount')}
+                                                    placeholder="Contoh: 5"
+                                                    min="1"
+                                                />
+                                                {errors.packageCount && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.packageCount}</p>}
+                                            </div>
+
+                                            <div>
+                                                <CustomMultiSelect
+                                                    label="Treatment Dalam Paket"
+                                                    placeholder="Pilih treatment..."
+                                                    values={formState.package_treatment_ids}
+                                                    onChange={(val) => handleChange('package_treatment_ids', val)}
+                                                    options={treatmentOptions}
+                                                    searchable={true}
+                                                />
+                                                {errors.package_treatment_ids && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.package_treatment_ids}</p>}
+                                                <p className="text-[9px] font-bold text-primary/30 mt-2 px-1">Pilih satu atau lebih treatment yang termasuk dalam paket ini.</p>
+                                            </div>
                                         </div>
                                     )}
                                 </div>
 
-                                <div>
+                                <div className="relative z-[30]">
                                     <CustomMultiSelect
                                         label="Bahan yang digunakan"
                                         placeholder="Pilih bahan..."
@@ -208,9 +247,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                             </>
                         )}
 
-                        <div className={(type === 'product' || type === 'racikan' || type === 'material') ? "grid grid-cols-2 gap-4" : "block"}>
+                        <div className={`relative z-[20] ${(type === 'product' || type === 'racikan' || type === 'material') ? "grid grid-cols-2 gap-4" : "block"}`}>
                             {(type === 'product' || type === 'racikan' || type === 'material') && (
-                                <div>
+                                <div className="relative z-[25]">
                                     <CustomSelect
                                         label="Kategori"
                                         value={formState.category}
@@ -231,17 +270,44 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                 </div>
                             )}
                             
-                            <div>
-                                <label className={labelClassName}>Harga (Rp)</label>
-                                <input
-                                    type="number"
-                                    value={formState.price}
-                                    onChange={(e) => handleChange('price', e.target.value === '' ? '' : Number(e.target.value))}
-                                    className={getDynamicInputClass('price')}
-                                    placeholder="0"
-                                />
-                                {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.price}</p>}
-                            </div>
+                            {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                                <div className="grid grid-cols-2 gap-4 col-span-2">
+                                    <div className="relative z-[22]">
+                                        <label className={labelClassName}>Harga Normal (Rp)</label>
+                                        <input
+                                            type="number"
+                                            value={formState.price}
+                                            onChange={(e) => handleChange('price', e.target.value === '' ? '' : Number(e.target.value))}
+                                            className={getDynamicInputClass('price')}
+                                            placeholder="0"
+                                        />
+                                        {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.price}</p>}
+                                    </div>
+                                    <div className="relative z-[22]">
+                                        <label className={labelClassName}>Harga Distributor (Rp)</label>
+                                        <input
+                                            type="number"
+                                            value={formState.priceDistributor}
+                                            onChange={(e) => handleChange('priceDistributor', e.target.value === '' ? '' : Number(e.target.value))}
+                                            className={getDynamicInputClass('priceDistributor')}
+                                            placeholder="0"
+                                        />
+                                        {errors.priceDistributor && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.priceDistributor}</p>}
+                                    </div>
+                                </div>
+                            ) : user?.role !== ROLES.GUDANG_UMUM ? (
+                                <div className="relative z-[22]">
+                                    <label className={labelClassName}>Harga (Rp)</label>
+                                    <input
+                                        type="number"
+                                        value={formState.price}
+                                        onChange={(e) => handleChange('price', e.target.value === '' ? '' : Number(e.target.value))}
+                                        className={getDynamicInputClass('price')}
+                                        placeholder="0"
+                                    />
+                                    {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.price}</p>}
+                                </div>
+                            ) : null}
                         </div>
 
                         {(type === 'product' || type === 'racikan' || type === 'material') && (
@@ -273,7 +339,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
                         <button 
                             type="submit" 
-                            className="w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 mt-4"
+                            className="relative z-[1] w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 mt-4"
                         >
                             <CheckCircle2 className="w-4 h-4" />
                             Simpan Data

@@ -11,6 +11,7 @@ const CustomDatePicker = ({
     className = '',
 }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [viewMode, setViewMode] = useState('days'); // 'days', 'months', 'years'
     const [viewDate, setViewDate] = useState(new Date(value || new Date()));
     const containerRef = useRef(null);
 
@@ -45,6 +46,10 @@ const CustomDatePicker = ({
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+        if (!isOpen) setViewMode('days');
+    }, [isOpen]);
 
     const daysInMonth = new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 0).getDate();
     const firstDayOfMonth = new Date(viewDate.getFullYear(), viewDate.getMonth(), 1).getDay();
@@ -117,9 +122,22 @@ const CustomDatePicker = ({
                     >
                         <ChevronLeft className="w-3 h-3" />
                     </button>
-                    <span className="font-black text-[11px] text-primary tracking-tight">
-                        {monthNames[viewDate.getMonth()]} {viewDate.getFullYear()}
-                    </span>
+                    <div className="flex items-center gap-1">
+                        <button
+                            type="button"
+                            onClick={() => setViewMode(viewMode === 'months' ? 'days' : 'months')}
+                            className={`font-black text-[11px] tracking-tight hover:bg-primary/5 rounded px-2 py-1 transition-colors ${viewMode === 'months' ? 'bg-primary/10 text-primary' : 'text-primary'}`}
+                        >
+                            {monthNames[viewDate.getMonth()]}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setViewMode(viewMode === 'years' ? 'days' : 'years')}
+                            className={`font-black text-[11px] tracking-tight hover:bg-primary/5 rounded px-2 py-1 transition-colors ${viewMode === 'years' ? 'bg-primary/10 text-primary' : 'text-primary'}`}
+                        >
+                            {viewDate.getFullYear()}
+                        </button>
+                    </div>
                     <button 
                         type="button" 
                         onClick={handleNextMonth}
@@ -129,44 +147,80 @@ const CustomDatePicker = ({
                     </button>
                 </div>
 
-                {/* Days of Week */}
-                <div className="grid grid-cols-7 p-2 pb-1">
-                    {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
-                        <div key={day} className="text-center text-[8px] font-black text-primary/30 uppercase tracking-widest">
-                            {day}
+                {/* Views */}
+                {viewMode === 'days' && (
+                    <>
+                        <div className="grid grid-cols-7 p-2 pb-1">
+                            {['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'].map((day) => (
+                                <div key={day} className="text-center text-[8px] font-black text-primary/30 uppercase tracking-widest">
+                                    {day}
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                        <div className="grid grid-cols-7 p-2 pt-0">
+                            {days.map((day, index) => {
+                                const dateString = day ? getFormattedDate(new Date(viewDate.getFullYear(), viewDate.getMonth(), day)) : null;
+                                const isSelected = value === dateString;
+                                const isToday = getFormattedDate(new Date()) === dateString;
 
-                {/* Date Grid */}
-                <div className="grid grid-cols-7 p-2 pt-0">
-                    {days.map((day, index) => {
-                        const dateString = day ? getFormattedDate(new Date(viewDate.getFullYear(), viewDate.getMonth(), day)) : null;
-                        const isSelected = value === dateString;
-                        const isToday = getFormattedDate(new Date()) === dateString;
+                                if (!day) return <div key={`empty-${index}`} className="w-full h-7" />;
 
-                        if (!day) {
-                            return <div key={`empty-${index}`} className="w-full h-7" />;
-                        }
+                                return (
+                                    <button
+                                        key={`day-${day}`}
+                                        type="button"
+                                        onClick={() => handleDateSelect(day)}
+                                        className={`w-full h-7 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-200 ${
+                                            isSelected 
+                                                ? 'bg-primary text-secondary shadow-sm shadow-primary/20 scale-105' 
+                                                : isToday
+                                                    ? 'bg-primary/5 text-primary border border-primary/10 hover:bg-primary/10'
+                                                    : 'text-primary/70 hover:bg-secondary hover:text-primary'
+                                        }`}
+                                    >
+                                        {day}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </>
+                )}
 
-                        return (
+                {viewMode === 'months' && (
+                    <div className="grid grid-cols-3 gap-2 p-3">
+                        {monthNames.map((m, i) => (
                             <button
-                                key={`day-${day}`}
+                                key={m}
                                 type="button"
-                                onClick={() => handleDateSelect(day)}
-                                className={`w-full h-7 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-200 ${
-                                    isSelected 
-                                        ? 'bg-primary text-secondary shadow-sm shadow-primary/20 scale-105' 
-                                        : isToday
-                                            ? 'bg-primary/5 text-primary border border-primary/10 hover:bg-primary/10'
-                                            : 'text-primary/70 hover:bg-secondary hover:text-primary'
-                                }`}
+                                onClick={() => {
+                                    setViewDate(new Date(viewDate.getFullYear(), i, 1));
+                                    setViewMode('days');
+                                }}
+                                className={`py-2 rounded-lg text-[10px] font-bold transition-colors ${viewDate.getMonth() === i ? 'bg-primary text-secondary shadow-sm shadow-primary/20' : 'hover:bg-primary/10 text-primary/70 hover:text-primary'}`}
                             >
-                                {day}
+                                {m.substring(0, 3)}
                             </button>
-                        );
-                    })}
-                </div>
+                        ))}
+                    </div>
+                )}
+
+                {viewMode === 'years' && (
+                    <div className="grid grid-cols-4 gap-2 p-3 max-h-[200px] overflow-y-auto custom-scrollbar">
+                        {Array.from({ length: 101 }, (_, i) => new Date().getFullYear() - 80 + i).map(year => (
+                            <button
+                                key={year}
+                                type="button"
+                                onClick={() => {
+                                    setViewDate(new Date(year, viewDate.getMonth(), 1));
+                                    setViewMode('days');
+                                }}
+                                className={`py-2 rounded-lg text-[10px] font-bold transition-colors ${viewDate.getFullYear() === year ? 'bg-primary text-secondary shadow-sm shadow-primary/20' : 'hover:bg-primary/10 text-primary/70 hover:text-primary'}`}
+                            >
+                                {year}
+                            </button>
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Hidden native input for form validation validation */}

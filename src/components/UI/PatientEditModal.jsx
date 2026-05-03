@@ -2,16 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Mail, Phone, Home } from 'lucide-react';
 import CustomSelect from './CustomSelect';
+import CustomDatePicker from './CustomDatePicker';
 import { useAuth } from '../../context/AuthContext';
 import { wilayahAPI, pasienAPI } from '../../services/api';
 
+/**
+ * Modal untuk menambah atau mengedit data pasien.
+ * Menangani pengambilan data wilayah (Kabupaten/Kota & Kecamatan) secara dinamis
+ * serta validasi input formulir sebelum disimpan.
+ */
 const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     const isEdit = !!initialData;
     const { user } = useAuth();
+
     
+    // State untuk daftar pilihan wilayah dari API
     const [kabKotaOptions, setKabKotaOptions] = useState([]);
     const [kecamatanOptions, setKecamatanOptions] = useState([]);
 
+    // State untuk menampung data formulir pasien
     const [formData, setFormData] = useState({
         noMember: '',
         tipeMember: 'Non Member',
@@ -20,13 +29,14 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         noIdentitas: '',
         tempatLahir: '',
         tanggalLahir: '',
-        jenisKelamin: 'Laki-laki',
+        jenisKelamin: 'Perempuan',
         kabupatenKota: '',
         kecamatan: '',
         alamat: '',
         email: '',
         noTelepon: ''
     });
+
 
     useEffect(() => {
         if (isOpen && user?.token) {
@@ -81,7 +91,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     noIdentitas: initialData.noIdentitas || '',
                     tempatLahir: initialData.tempatLahir || '',
                     tanggalLahir: initialData.tanggalLahir || '',
-                    jenisKelamin: initialData.jenisKelamin || 'Laki-laki',
+                    jenisKelamin: initialData.jenisKelamin || 'Perempuan',
                     kabupatenKota: initialData.kabupatenKota || '',
                     kecamatan: initialData.kecamatan || '',
                     alamat: initialData.alamat || '',
@@ -97,7 +107,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     noIdentitas: '',
                     tempatLahir: '',
                     tanggalLahir: '',
-                    jenisKelamin: 'Laki-laki',
+                    jenisKelamin: 'Perempuan',
                     kabupatenKota: '',
                     kecamatan: '',
                     alamat: '',
@@ -118,11 +128,16 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
 
     if (!isOpen) return null;
 
+    /**
+     * Melakukan validasi pada setiap field formulir yang wajib diisi
+     * atau memiliki format khusus (Nomor Identitas, Email, No Telepon).
+     */
     const validateForm = () => {
         let newErrors = {};
 
         if (!formData.namaLengkap.trim()) newErrors.namaLengkap = "Nama lengkap wajib diisi";
 
+        // Validasi No. Identitas: harus angka, minimal 16 karakter
         if (!formData.noIdentitas.trim()) newErrors.noIdentitas = "No. Identitas wajib diisi";
         else if (!/^\d+$/.test(formData.noIdentitas)) newErrors.noIdentitas = "No. Identitas hanya boleh berisi angka";
         else if (formData.noIdentitas.length < 16) newErrors.noIdentitas = "No. Identitas minimal 16 karakter";
@@ -131,6 +146,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         
         if (!formData.tanggalLahir) newErrors.tanggalLahir = "Tanggal lahir wajib diisi";
 
+        // Validasi Email (Opsional tapi harus format benar jika diisi)
         if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
             newErrors.email = "Format email tidak valid";
         }
@@ -144,6 +160,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -296,15 +313,12 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                             </div>
                             <div>
                                 <label className={labelClass}>Tanggal Lahir</label>
-                                <div className={inputWrapperClass}>
-                                    <Calendar className={iconClass} />
-                                    <input
-                                        type="date"
-                                        className={getInputWithIconClass(errors.tanggalLahir)}
-                                        value={formData.tanggalLahir}
-                                        onChange={(e) => handleChange('tanggalLahir', e.target.value)}
-                                    />
-                                </div>
+                                <CustomDatePicker
+                                    value={formData.tanggalLahir}
+                                    onChange={(value) => handleChange('tanggalLahir', value)}
+                                    placeholder="Pilih Tanggal Lahir"
+                                    required={true}
+                                />
                                 {errors.tanggalLahir && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.tanggalLahir}</p>}
                             </div>
                         </div>

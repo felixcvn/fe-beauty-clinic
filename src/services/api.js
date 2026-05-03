@@ -11,7 +11,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : 'https://bade-112-78-133-197.ngrok-free.app/';
+const BASE_URL = isLocalhost ? '/api' : '  https://composite-footprint-overarch.ngrok-free.dev/api/';
 
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
@@ -340,6 +340,9 @@ export const pasienAPI = {
                 no_RM: data.noRM,
                 Nama_pasien: data.namaLengkap,
                 no_Identitas: data.noIdentitas,
+                No_Identitas: data.noIdentitas,
+                Nomor_Identitas: data.noIdentitas,
+                no_identitas: data.noIdentitas,
                 Tempat_Lahir: data.tempatLahir,
                 Tanggal_Lahir: data.tanggalLahir,
                 Jenis_Kelamin: data.jenisKelamin,
@@ -384,6 +387,9 @@ export const pasienAPI = {
                 no_RM: data.noRM,
                 Nama_pasien: data.namaLengkap,
                 no_Identitas: data.noIdentitas,
+                No_Identitas: data.noIdentitas,
+                Nomor_Identitas: data.noIdentitas,
+                no_identitas: data.noIdentitas,
                 Tempat_Lahir: data.tempatLahir,
                 Tanggal_Lahir: data.tanggalLahir,
                 Jenis_Kelamin: data.jenisKelamin,
@@ -521,6 +527,8 @@ export const stokProdukAPI = {
                 Nama_produk: data.name,
                 Kategori: data.category,
                 Harga: data.price,
+                Harga_Distributor: data.priceDistributor,
+                harga_distributor: data.priceDistributor,
                 Stok: data.stock,
                 Batas_minimal_stok: data.minStock,
             };
@@ -554,6 +562,8 @@ export const stokProdukAPI = {
                 Nama_produk: data.name,
                 Kategori: data.category,
                 Harga: data.price,
+                Harga_Distributor: data.priceDistributor,
+                harga_distributor: data.priceDistributor,
                 Stok: data.stock,
                 Batas_minimal_stok: data.minStock,
             };
@@ -600,4 +610,181 @@ export const stokProdukAPI = {
     },
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI };
+/* ─────────────────────────────────────────────────────────────
+   Apoteker Inventory APIs
+───────────────────────────────────────────────────────────── */
+export const bahanTreatmentAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-treatment`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_produk: data.name,
+                Kategori: data.category,
+                Harga: data.price || 0,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-bahan-treatment`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_produk: data.name,
+                Kategori: data.category,
+                Harga: data.price || 0,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-bahan-treatment/${id}`, { method: 'PUT', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export const bahanMedisAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-medis`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_bahan_medis: data.name,
+                Kategori: data.category,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-bahan-medis`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_bahan_medis: data.name,
+                Kategori: data.category,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-bahan-medis/${id}`, { method: 'PUT', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export const bahanInfusAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-infus`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_bahan_infus: data.name,
+                Kategori: data.category || null,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-bahan-infus`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_bahan_infus: data.name,
+                Kategori: data.category || null,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-bahan-infus/${id}`, { method: 'PUT', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export const barangApotekAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-barang-apotek`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_barang_apotek: data.name,
+                Kategori: data.category || null,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-barang-apotek`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_barang_apotek: data.name,
+                Kategori: data.category || null,
+                Stok: data.stock,
+                Batas_minimal_stok: data.minStock,
+            };
+            const response = await fetch(`${BASE_URL}/stok-barang-apotek/${id}`, { method: 'PUT', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI };

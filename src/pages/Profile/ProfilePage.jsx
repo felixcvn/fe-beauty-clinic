@@ -21,7 +21,8 @@ const roleBadgeColor = {
     'Customer Service': 'bg-emerald-100 text-emerald-600',
     HRD: 'bg-violet-100 text-violet-600',
     'Supervisor Treatment': 'bg-amber-100 text-amber-600',
-    'Supervisor Produk': 'bg-amber-100 text-amber-600',
+    'Manajer Marketing of Sales': 'bg-amber-100 text-amber-600',
+    'Marketing of Sales': 'bg-amber-100 text-amber-600',
 };
 
 const ProfilePage = () => {
@@ -124,8 +125,8 @@ const ProfilePage = () => {
             {/* Page Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">My Profile</h2>
-                    <p className="text-primary/40 mt-2 md:mt-3 font-bold text-sm">View and manage your personal information</p>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Profil Saya</h2>
+                    <p className="text-primary/40 mt-2 md:mt-3 font-bold text-sm">Kelola Informasi Pribadi Anda</p>
                 </div>
 
                 <div className="flex gap-2">

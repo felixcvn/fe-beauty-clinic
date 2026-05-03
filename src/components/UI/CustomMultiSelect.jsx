@@ -40,7 +40,7 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
     const selectedOptions = options.filter(opt => values.includes(opt.value));
 
     return (
-        <div ref={selectRef} className={`relative w-full ${className}`}>
+        <div ref={selectRef} className={`relative w-full ${isOpen ? 'z-[100]' : 'z-[10]'} ${className}`}>
             {label && <label className="block text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 mb-2">{label}</label>}
             
             <div
@@ -80,7 +80,7 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
 
             {/* Dropdown Menu */}
             <div 
-                className={`absolute z-[100] w-full mt-2 bg-white border border-primary/5 rounded-[1.5rem] shadow-2xl shadow-primary/10 overflow-hidden transition-all duration-300 transform origin-top ${
+                className={`absolute z-[200] w-full mt-2 bg-white border border-primary/10 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden transition-all duration-300 transform origin-top ${
                     isOpen 
                         ? 'opacity-100 scale-y-100 translate-y-0 visible' 
                         : 'opacity-0 scale-y-95 -translate-y-2 invisible'
@@ -88,7 +88,7 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
             >
                 {/* Search Bar */}
                 {searchable && (
-                    <div className="p-3 border-b border-primary/5 bg-secondary/10">
+                    <div className="p-3 border-b border-primary/5 bg-gray-50">
                         <div className="relative">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
                             <input

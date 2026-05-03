@@ -5,27 +5,31 @@ export const ROLES = {
     CS: 'Customer Service',
     HRD: 'HRD',
     SUPERVISOR_TREATMENT: 'Supervisor Treatment',
-    SUPERVISOR_PRODUK: 'Supervisor Produk',
+    MANAJER_MARKETING_SALES: 'Manajer Marketing of Sales',
     GUDANG_UMUM: 'Gudang Umum',
     STAFF_OB: 'Staff OB',
     STAFF_SATPAM: 'Staff Satpam',
     APOTEKER: 'Apoteker',
-    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment'
+    ASISTEN_APOTEKER: 'Asisten Apoteker',
+    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment',
+    MARKETING_SALES: 'Marketing of Sales'
 };
 
 
 export const ROLE_PERMISSIONS = {
-    [ROLES.SUPER_ADMIN]: ['*'], // Full access to everything
+    [ROLES.SUPER_ADMIN]: ['*'],
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations', '/cs-products', '/cs-treatments'],
     [ROLES.HRD]: ['/', '/staff', '/patients', '/attendance'],
     [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance', '/cs-treatments'],
-    [ROLES.SUPERVISOR_PRODUK]: ['/', '/promos', '/attendance', '/cs-products'],
+    [ROLES.MANAJER_MARKETING_SALES]: ['/', '/promos', '/attendance', '/cs-products', '/products'],
+    [ROLES.MARKETING_SALES]: ['/', '/promos', '/attendance', '/products'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management'],
-    [ROLES.STAFF_OB]: ['/attendance'],
-    [ROLES.STAFF_SATPAM]: ['/attendance'],
+    [ROLES.STAFF_OB]: ['/', '/attendance'],
+    [ROLES.STAFF_SATPAM]: ['/', '/attendance'],
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
+    [ROLES.ASISTEN_APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_SUPERVISOR_TREATMENT]: ['/', '/reservations', '/attendance'],
 };
 

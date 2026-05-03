@@ -8,7 +8,7 @@ export default defineConfig(({ command }) => ({
   server: {
     proxy: {
       '/api': {
-        target: 'https://bade-112-78-133-197.ngrok-free.app',
+        target: '  https://composite-footprint-overarch.ngrok-free.dev',
         changeOrigin: true,
         secure: false,
       }

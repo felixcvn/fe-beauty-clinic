@@ -20,7 +20,7 @@ const mapPatientFromAPI = (p) => ({
     tipeMember: p.Tipe_member || p.tipe_member || p.Tipe_Member,
     noRM: p.no_RM,
     namaLengkap: p.Nama_pasien,
-    noIdentitas: p.no_Identitas,
+    noIdentitas: p.no_Identitas || p.No_Identitas || p.Nomor_Identitas || p.no_identitas,
     tempatLahir: p.Tempat_Lahir,
     tanggalLahir: p.Tanggal_Lahir,
     jenisKelamin: p.Jenis_Kelamin === 'P' ? 'Perempuan' : 'Laki-laki',
@@ -54,9 +54,13 @@ const PatientsPage = () => {
 
     // ── Fetch Data ─────────────────────────────────────────────────────────────
     const fetchPasien = useCallback(async (page = 1) => {
-        if (!user?.token) return;
         setIsLoading(true);
         setApiError(null);
+        
+        if (!user?.token) {
+            setIsLoading(false);
+            return;
+        }
 
         try {
             const result = await pasienAPI.getAll(user.token, page);

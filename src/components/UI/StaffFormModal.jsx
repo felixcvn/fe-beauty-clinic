@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import CustomSelect from './CustomSelect';
+import CustomDatePicker from './CustomDatePicker';
+import { ROLES } from '../../utils/rbac';
 
 const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [] }) => {
     const isEdit = !!initialData;
@@ -258,13 +260,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                             />
                                             {errors.tempat_lahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tempat_lahir}</p>}
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Lahir</label>
-                                            <input
-                                                type="date"
+                                        <div className="space-y-2 flex flex-col justify-end">
+                                            <CustomDatePicker
+                                                label="Tanggal Lahir"
                                                 value={formState.tanggal_lahir}
-                                                onChange={(e) => handleChange('tanggal_lahir', e.target.value)}
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_lahir ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`}
+                                                onChange={(val) => handleChange('tanggal_lahir', val)}
+                                                placeholder="Pilih Tanggal Lahir"
                                             />
                                             {errors.tanggal_lahir && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tanggal_lahir}</p>}
                                         </div>
@@ -293,17 +294,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                             <CustomSelect
                                                 value={formState.divisi}
                                                 onChange={(value) => handleChange('divisi', value)}
-                                                options={[
-                                                    { value: 'Dokter', label: 'Dokter' },
-                                                    { value: 'Customer Service', label: 'Customer Service' },
-                                                    { value: 'Perawat', label: 'Perawat' },
-                                                    { value: 'Staff Gudang', label: 'Staff Gudang' },
-                                                    { value: 'Kasir', label: 'Kasir' },
-                                                    { value: 'Manager', label: 'Manager' },
-                                                    { value: 'HRD', label: 'HRD' },
-                                                    { value: 'Owner', label: 'Owner' },
-                                                    { value: 'Komisaris', label: 'Komisaris' }
-                                                ]}
+                                                options={Object.values(ROLES).map(role => ({ value: role, label: role }))}
                                             />
                                             {errors.divisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.divisi}</p>}
                                         </div>
@@ -330,13 +321,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                 ]}
                                             />
                                         </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Tanggal Bergabung</label>
-                                            <input
-                                                type="date"
+                                        <div className="space-y-2 flex flex-col justify-end">
+                                            <CustomDatePicker
+                                                label="Tanggal Bergabung"
                                                 value={formState.tanggal_bergabung}
-                                                onChange={(e) => handleChange('tanggal_bergabung', e.target.value)}
-                                                className={`w-full px-5 py-3.5 rounded-2xl bg-white border ${errors.tanggal_bergabung ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/10 focus:ring-primary/10'} outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm`}
+                                                onChange={(val) => handleChange('tanggal_bergabung', val)}
+                                                placeholder="Pilih Tanggal Bergabung"
                                             />
                                             {errors.tanggal_bergabung && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.tanggal_bergabung}</p>}
                                         </div>

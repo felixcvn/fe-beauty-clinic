@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { User, Calendar, Hash, CreditCard, MapPin, Mail, Phone, Home } from 'lucide-react';
 import CustomSelect from '../../components/UI/CustomSelect';
+import CustomDatePicker from '../../components/UI/CustomDatePicker';
 import { pasienAPI, wilayahAPI } from '../../services/api';
 
 const PatientForm = () => {
@@ -26,7 +27,7 @@ const PatientForm = () => {
         noIdentitas: '',
         tempatLahir: '',
         tanggalLahir: '',
-        jenisKelamin: 'Laki-laki',
+        jenisKelamin: 'Perempuan',
         alamat: '',
         kabupatenKota: '',
         kecamatan: '',
@@ -236,15 +237,12 @@ const PatientForm = () => {
                             </div>
                             <div>
                                 <label className={labelClass}>6. Tanggal Lahir</label>
-                                <div className={inputWrapperClass}>
-                                    <Calendar className={iconClass} />
-                                    <input
-                                        type="date"
-                                        className={getInputWithIconClass(errors.tanggalLahir)}
-                                        value={formData.tanggalLahir}
-                                        onChange={(e) => handleChange('tanggalLahir', e.target.value)}
-                                    />
-                                </div>
+                                <CustomDatePicker
+                                    value={formData.tanggalLahir}
+                                    onChange={(value) => handleChange('tanggalLahir', value)}
+                                    placeholder="Pilih Tanggal Lahir"
+                                    required={true}
+                                />
                                 {errors.tanggalLahir && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.tanggalLahir}</p>}
                             </div>
                         </div>

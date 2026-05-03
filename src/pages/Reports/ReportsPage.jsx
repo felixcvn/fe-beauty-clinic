@@ -377,6 +377,17 @@ const ReportsPage = () => {
                                     </td>
                                 </tr>
                             ))}
+                            {filteredTransactions.length === 0 && (
+                                <tr>
+                                    <td colSpan={6}>
+                                        <EmptyState 
+                                            type="sales"
+                                            title="Transaksi Tidak Ditemukan"
+                                            description="Sistem tidak menemukan transaksi yang sesuai dengan kriteria filter atau pencarian Anda."
+                                        />
+                                    </td>
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
