@@ -5,15 +5,14 @@ export const ROLES = {
     CS: 'Customer Service',
     HRD: 'HRD',
     SUPERVISOR_TREATMENT: 'Supervisor Treatment',
-    SUPERVISOR_PRODUK: 'Manajer Marketing of Sales',
+    SUPERVISOR_PRODUK: 'Supervisor Produk',
     MANAJER_MARKETING_SALES: 'Manajer Marketing of Sales',
     GUDANG_UMUM: 'Gudang Umum',
     STAFF_OB: 'Staff OB',
     STAFF_SATPAM: 'Staff Satpam',
     APOTEKER: 'Apoteker',
     ASISTEN_APOTEKER: 'Asisten Apoteker',
-    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment',
-    MARKETING_SALES: 'Marketing of Sales'
+    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment'
 };
 
 

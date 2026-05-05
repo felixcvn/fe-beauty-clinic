@@ -145,7 +145,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
      * Menampilkan modal konfirmasi sebelum melakukan aksi API/Global State.
      */
     const handleSave = (data) => {
-        const isEdit = !!editingItem;
+        const isEdit = !!(editingItem && editingItem.uid);
 
         setConfirmConfig({
             icon: 'save',

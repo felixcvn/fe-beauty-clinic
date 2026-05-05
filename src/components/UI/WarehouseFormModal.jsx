@@ -6,6 +6,7 @@ import CustomMultiSelect from './CustomMultiSelect';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
+import { stokProdukAPI } from '../../services/api';
 
 const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
     const { user } = useAuth();
@@ -52,6 +53,17 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     isPackage: false,
                     packageCount: ''
                 });
+
+                // Fetch auto-generate code immediately for products
+                if (type === 'product') {
+                    const token = localStorage.getItem('token');
+                    stokProdukAPI.getNextCode(token).then(res => {
+                        if (res.success && res.data) {
+                            const nextCode = res.data.next_number || res.data.next_number || res.data.nextNumber || res.data.next_code || (typeof res.data === 'string' ? res.data : '');
+                            setFormState(prev => ({ ...prev, id: nextCode }));
+                        }
+                    });
+                }
             }
         }
     }, [isOpen, initialData, type]);
@@ -148,7 +160,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {initialData ? 'Edit' : 'Tambah'} {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}
+                                {initialData?.uid ? 'Edit' : 'Tambah'} {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
                                 Formulir Data Master
@@ -166,8 +178,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                 type="text"
                                 value={formState.id}
                                 onChange={(e) => handleChange('id', e.target.value)}
-                                className={getDynamicInputClass('id')}
-                                placeholder={`Contoh: ${type === 'product' ? 'PRD-001' : type === 'racikan' ? 'RCK-001' : type === 'material' ? 'MAT-001' : 'TRT-001'}`}
+                                className={`${getDynamicInputClass('id')} ${!initialData?.uid ? 'bg-gray-100 text-primary/60 cursor-not-allowed' : ''}`}
+                                placeholder="Memuat kode otomatis..."
+                                readOnly={!initialData?.uid}
                             />
                             {errors.id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.id}</p>}
                         </div>

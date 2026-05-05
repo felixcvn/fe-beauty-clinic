@@ -11,7 +11,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : '  https://composite-footprint-overarch.ngrok-free.dev/api/';
+const BASE_URL = isLocalhost ? '/api' : 'https://heidi-overloose-removably.ngrok-free.dev/api';
 
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
@@ -160,19 +160,41 @@ export const karyawanAPI = {
             // Map frontend state to backend expected fields
             const payload = {
                 NamaLengkap_karyawan: data.name,
+                nama_lengkap: data.name,
                 Nomor_Identitas: data.nik,
+                nomor_identitas: data.nik,
+                nik: data.nik,
                 Tanggal_Lahir: data.tanggal_lahir,
+                tanggal_lahir: data.tanggal_lahir,
                 Tempat_Lahir: data.tempat_lahir || "Tidak Diketahui",
+                tempat_lahir: data.tempat_lahir || "Tidak Diketahui",
                 Alamat: data.alamat,
+                alamat: data.alamat,
                 Divisi: data.divisi,
+                divisi: data.divisi,
                 Jabatan: data.posisi,
+                jabatan: data.posisi,
+                posisi: data.posisi,
                 Cabang: data.cabang,
+                cabang: data.cabang,
                 Email: data.email,
+                email: data.email,
                 No_Telp: data.phone,
+                no_telp: data.phone,
                 Username: data.username,
+                username: data.username,
                 Password: data.password,
+                password: data.password,
                 Tanggal_bergabung: data.tanggal_bergabung || new Date().toISOString().split('T')[0],
+                tanggal_bergabung: data.tanggal_bergabung || new Date().toISOString().split('T')[0],
             };
+
+            // Logic backend: Owner dan Super Admin tidak punya Jabatan (null)
+            if (payload.Divisi === 'Owner' || payload.Divisi === 'Super Admin') {
+                payload.Jabatan = null;
+                payload.jabatan = null;
+                payload.posisi = null;
+            }
 
             const response = await fetch(`${BASE_URL}/karyawan`, {
                 method: 'POST',
@@ -205,28 +227,53 @@ export const karyawanAPI = {
     update: async (token, id, data) => {
         try {
             // Map frontend state to backend expected fields
+            // Gunakan banyak alias agar kompatibel dengan berbagai versi backend
             const payload = {
+                _method: 'PUT', // Trik Laravel untuk handle PUT via POST
                 NamaLengkap_karyawan: data.name,
+                nama_lengkap: data.name,
                 Nomor_Identitas: data.nik,
+                nomor_identitas: data.nik,
+                nik: data.nik,
                 Tanggal_Lahir: data.tanggal_lahir,
+                tanggal_lahir: data.tanggal_lahir,
                 Tempat_Lahir: data.tempat_lahir || "Tidak Diketahui",
+                tempat_lahir: data.tempat_lahir || "Tidak Diketahui",
                 Alamat: data.alamat,
+                alamat: data.alamat,
                 Divisi: data.divisi,
+                divisi: data.divisi,
                 Jabatan: data.posisi,
+                jabatan: data.posisi,
+                posisi: data.posisi,
                 Cabang: data.cabang,
+                cabang: data.cabang,
                 Email: data.email,
+                email: data.email,
                 No_Telp: data.phone,
+                no_telp: data.phone,
                 Username: data.username,
+                username: data.username,
                 Tanggal_bergabung: data.tanggal_bergabung,
+                tanggal_bergabung: data.tanggal_bergabung,
             };
+
+            // Pastikan Jabatan dihapus (null) jika divisi adalah Owner atau Super Admin sesuai logic backend
+            if (payload.Divisi === 'Owner' || payload.Divisi === 'Super Admin') {
+                payload.Jabatan = null;
+                payload.jabatan = null;
+                payload.posisi = null;
+            }
 
             // Only send password if it's being updated
             if (data.password && data.password.trim() !== '') {
                 payload.Password = data.password;
+                payload.password = data.password;
             }
 
+            // Gunakan POST dengan _method: 'PUT' karena lebih stabil di PHP/Laravel
             const response = await fetch(`${BASE_URL}/karyawan/${id}`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: getHeaders(token),
                 body: JSON.stringify(payload),
             });
@@ -379,6 +426,7 @@ export const pasienAPI = {
     update: async (token, id, data) => {
         try {
             const payload = {
+                _method: 'PUT',
                 kode_Customer: data.kodeCustomer || null,
                 no_member: data.noMember || null,
                 Tipe_member: data.tipeMember || 'Non Member',
@@ -386,23 +434,30 @@ export const pasienAPI = {
                 Tipe_Member: data.tipeMember || 'Non Member',
                 no_RM: data.noRM,
                 Nama_pasien: data.namaLengkap,
+                nama_pasien: data.namaLengkap,
                 no_Identitas: data.noIdentitas,
                 No_Identitas: data.noIdentitas,
                 Nomor_Identitas: data.noIdentitas,
                 no_identitas: data.noIdentitas,
+                nik: data.noIdentitas,
                 Tempat_Lahir: data.tempatLahir,
+                tempat_lahir: data.tempatLahir,
                 Tanggal_Lahir: data.tanggalLahir,
+                tanggal_lahir: data.tanggal_lahir,
                 Jenis_Kelamin: data.jenisKelamin,
                 jenis_kelamin: data.jenisKelamin,
                 Email: data.email || null,
+                email: data.email || null,
                 no_Telp: data.noTelepon,
+                no_telp: data.noTelepon,
                 Alamat: data.alamat || null,
+                alamat: data.alamat || null,
                 KabKota_id: data.kabupatenKota || null,
                 Kec_id: data.kecamatan || null,
             };
-
+            
             const response = await fetch(`${BASE_URL}/pasien/${id}`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: getHeaders(token),
                 body: JSON.stringify(payload),
             });
@@ -499,6 +554,22 @@ export const stokProdukAPI = {
             return { success: false, message: json.message || 'Gagal mengambil data stok produk' };
         } catch (error) {
             console.error('[API] Get stok produk error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-produk/next-number`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) {
+                return { success: true, data: json.data || json };
+            }
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) {
+            console.error('[API] Get next code error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
@@ -622,6 +693,14 @@ export const bahanTreatmentAPI = {
             return { success: false, message: json.message || 'Gagal mengambil data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-treatment/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
     create: async (token, data) => {
         try {
             const payload = {
@@ -667,6 +746,14 @@ export const bahanMedisAPI = {
             return { success: false, message: json.message || 'Gagal mengambil data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-medis/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
     create: async (token, data) => {
         try {
             const payload = {
@@ -710,6 +797,14 @@ export const bahanInfusAPI = {
             return { success: false, message: json.message || 'Gagal mengambil data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-infus/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
     create: async (token, data) => {
         try {
             const payload = {
@@ -751,6 +846,14 @@ export const barangApotekAPI = {
             const json = await response.json();
             if (response.ok) return { success: true, data: json.data || json };
             return { success: false, message: json.message || 'Gagal mengambil data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-barang-apotek/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
     create: async (token, data) => {

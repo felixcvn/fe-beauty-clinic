@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Package, Beaker } from 'lucide-react';
 import CustomSelect from './CustomSelect';
+import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI } from '../../services/api';
 
 /**
  * Modal formulir khusus untuk Apoteker dan Gudang Farmasi.
@@ -57,6 +58,23 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     price: '',
                     id: ''
                 });
+
+                // Fetch auto-generate code immediately based on type
+                const token = localStorage.getItem('token');
+                let apiCall;
+                if (type === 'material') apiCall = bahanTreatmentAPI.getNextCode(token);
+                else if (type === 'medical') apiCall = bahanMedisAPI.getNextCode(token);
+                else if (type === 'infusion') apiCall = bahanInfusAPI.getNextCode(token);
+                else if (type === 'apotekItem') apiCall = barangApotekAPI.getNextCode(token);
+
+                if (apiCall) {
+                    apiCall.then(res => {
+                        if (res.success && res.data) {
+                            const nextCode = res.data.next_number || res.data.next_number || res.data.nextNumber || res.data.next_code || (typeof res.data === 'string' ? res.data : '');
+                            setFormState(prev => ({ ...prev, id: nextCode }));
+                        }
+                    });
+                }
             }
         }
     }, [isOpen, initialData, type]);
@@ -178,7 +196,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {initialData ? 'Edit' : 'Tambah'} {titleType}
+                                {initialData?.uid ? 'Edit' : 'Tambah'} {titleType}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
                                 Formulir Stok Apotek
@@ -196,8 +214,9 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                 type="text"
                                 value={formState.id}
                                 onChange={(e) => handleChange('id', e.target.value)}
-                                className={getDynamicInputClass('id')}
-                                placeholder="Dikosongkan untuk auto-generate..."
+                                className={`${getDynamicInputClass('id')} ${!initialData?.uid ? 'bg-gray-100 text-primary/60 cursor-not-allowed' : ''}`}
+                                placeholder="Memuat kode otomatis..."
+                                readOnly={!initialData?.uid}
                             />
                             {/* Not strictly required, so no error mostly but we can show formatting */}
                         </div>

@@ -8,7 +8,7 @@ export default defineConfig(({ command }) => ({
   server: {
     proxy: {
       '/api': {
-        target: '  https://composite-footprint-overarch.ngrok-free.dev',
+        target: 'https://heidi-overloose-removably.ngrok-free.dev/',
         changeOrigin: true,
         secure: false,
       }

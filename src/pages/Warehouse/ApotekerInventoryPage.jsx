@@ -178,7 +178,8 @@ const ApotekerInventoryPage = () => {
     };
 
     const handleSave = (data) => {
-        const isEdit = !!editingItem;
+        // Hanya dianggap Edit jika memiliki UID dari database
+        const isEdit = !!(editingItem && editingItem.uid);
 
         setConfirmConfig({
             icon: 'save',
