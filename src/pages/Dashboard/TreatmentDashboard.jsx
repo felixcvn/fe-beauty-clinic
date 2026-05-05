@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Scissors, Clock, TrendingUp, Calendar, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Sparkles, Scissors, Clock, TrendingUp, Calendar, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';

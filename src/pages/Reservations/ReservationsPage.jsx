@@ -129,7 +129,7 @@ const ReservationsPage = () => {
             {/* Header Section */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8 lg:gap-0">
                 <div className="w-full lg:w-auto">
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-black text-primary tracking-tighter leading-[0.9]">
+                    <h2 className="text-4xl md:text-5xl lg:text-4xl font-black text-primary tracking-tighter leading-[0.9]">
                         Ringkasan <br className="hidden sm:block lg:hidden" /> Reservasi
                     </h2>
                     <p className="text-primary/40 mt-4 font-bold text-sm md:text-base">
@@ -241,38 +241,38 @@ const ReservationsPage = () => {
                                     {filteredBookings.length > 0 ? (
                                         filteredBookings.map((booking) => (
                                             <tr key={booking.id} className="group hover:bg-primary/[0.02] transition-colors cursor-default">
-                                                <td className="px-6 py-5">
+                                                <td className="px-6 py-1.5">
                                                     <div className="flex items-center gap-3 text-primary/80">
                                                         <div className="w-8 h-8 rounded-lg bg-primary/5 flex items-center justify-center">
                                                             <Clock className="w-4 h-4 text-primary/60" />
                                                         </div>
-                                                        <span className="text-sm font-bold">{booking.time}</span>
+                                                        <span className="text-sm font-medium">{booking.time}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
-                                                    <p className="text-sm font-bold text-primary tracking-tight">{booking.name}</p>
+                                                <td className="px-6 py-1.5">
+                                                    <p className="text-sm font-medium text-primary tracking-tight">{booking.name}</p>
                                                 </td>
-                                                <td className="px-6 py-5">
+                                                <td className="px-6 py-3">
                                                     <div className="flex items-center gap-2 text-sm font-medium text-primary/80">
                                                         <Phone className="w-3.5 h-3.5 text-primary/40" />
                                                         {booking.phone}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
+                                                <td className="px-6 py-1.5">
                                                     <div className="flex items-center gap-2 text-primary/80">
                                                         <div className="w-6 h-6 rounded-full bg-secondary flex items-center justify-center border border-primary/5">
                                                             <User className="w-3 h-3" />
                                                         </div>
-                                                        <span className="text-xs font-bold uppercase tracking-wider">{booking.broughtByStaff}</span>
+                                                        <span className="text-xs font-medium uppercase tracking-wider">{booking.broughtByStaff}</span>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5">
+                                                <td className="px-6 py-1.5">
                                                     <div className="flex items-start gap-2 max-w-xs text-primary/80">
                                                         <Info className="w-3.5 h-3.5 mt-0.5 flex-shrink-0 text-primary/30" />
                                                         <p className="text-xs font-medium leading-relaxed line-clamp-2">{booking.notes || 'Tidak ada catatan khusus'}</p>
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-5 text-right">
+                                                <td className="px-6 py-1.5 text-right">
                                                     <div className="flex justify-end gap-2">
                                                         <button
                                                             onClick={() => openEditModal(booking)}
@@ -301,7 +301,7 @@ const ReservationsPage = () => {
                                                     </div>
                                                     <div>
                                                         <p className="text-primary font-black uppercase tracking-widest text-xs">Data tidak ditemukan</p>
-                                                        <p className="text-primary/30 text-[10px] font-bold uppercase tracking-widest mt-1">Gunakan kata kunci pencarian lainnya</p>
+                                                        <p className="text-primary/30 text-[10px] font-medium uppercase tracking-widest mt-1">Gunakan kata kunci pencarian lainnya</p>
                                                     </div>
                                                 </div>
                                             </td>

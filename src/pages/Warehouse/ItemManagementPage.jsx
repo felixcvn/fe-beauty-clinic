@@ -146,12 +146,12 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
      */
     const handleSave = (data) => {
         const isEdit = !!editingItem;
-        
+
         setConfirmConfig({
             icon: 'save',
             header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
-            message: isEdit ? 
-                `Simpan perubahan untuk ${data.name}?` : 
+            message: isEdit ?
+                `Simpan perubahan untuk ${data.name}?` :
                 `Tambahkan ${data.name} ke daftar ${modalType === 'product' ? 'stok' : modalType}?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
             onAccept: async () => {
@@ -440,316 +440,316 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         {/* Desktop View Table */}
                         <div className="hidden md:block overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[800px]">
-                        {(activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
-                            <>
-                                <thead>
-                                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                        <th className="px-4 py-3 text-primary/80">Kode</th>
-                                        <th className="px-4 py-3 text-primary/80">Paket</th>
-                                        <th className="px-4 py-3 text-primary/80">Nama</th>
-                                        <th className="px-4 py-3 text-primary/80">Jml Paket</th>
-                                        <th className="px-4 py-3 text-primary/80">Biaya</th>
-                                        {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-primary/5">
-                                    {currentItems.map((item) => (
-                                        <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
-                                            <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
-                                            <td className="px-4 py-2">
+                                {(activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
+                                    <>
+                                        <thead>
+                                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
+                                                <th className="px-4 py-2 text-primary/80">Kode</th>
+                                                <th className="px-4 py-2 text-primary/80">Paket</th>
+                                                <th className="px-4 py-2 text-primary/80">Nama</th>
+                                                <th className="px-4 py-2 text-primary/80">Jml Paket</th>
+                                                <th className="px-4 py-2 text-primary/80">Biaya</th>
+                                                {!isViewOnly && <th className="px-4 py-2 text-right text-primary/80">Aksi</th>}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-primary/5">
+                                            {currentItems.map((item) => (
+                                                <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
+                                                    <td className="px-4 py-1 font-medium text-xs text-primary/80">{item.id}</td>
+                                                    <td className="px-4 py-1">
+                                                        {item.isPackage && (
+                                                            <span className="flex items-center gap-1.5 text-green-600 font-bold text-[10px] uppercase tracking-widest bg-green-50 px-2 py-0.5 rounded-md w-max">
+                                                                <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                                                Paket
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-1 text-sm font-medium text-primary tracking-tight">
+                                                        <div>{item.name}</div>
+                                                        {item.isPackage && item.package_treatment_ids && (
+                                                            <div className="text-[10px] text-primary/40 font-bold mt-1 flex flex-wrap gap-1">
+                                                                {item.package_treatment_ids.map((tid, idx) => {
+                                                                    const tName = treatments.find(t => t.id === tid)?.name || tid;
+                                                                    return (
+                                                                        <span key={tid} className="bg-primary/5 px-1.5 py-0.5 rounded">
+                                                                            {tName}{idx < item.package_treatment_ids.length - 1 ? ',' : ''}
+                                                                        </span>
+                                                                    );
+                                                                })}
+                                                            </div>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-4 py-1 text-sm font-medium text-primary">{item.packageCount || '-'} Sesi</td>
+                                                    <td className="px-4 py-1">
+                                                        <span className="text-primary font-medium text-sm">
+                                                            {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
+                                                        </span>
+                                                    </td>
+                                                    {!isViewOnly && (
+                                                        <td className="px-4 py-1 text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                <button onClick={() => openEditModal(item)} className="p-2 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
+                                                                {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
+                                                                    <button onClick={() => openDeleteConfirm(item)} className="p-2 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus"><Trash2 className="w-3.5 h-3.5" /></button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                            {filteredData.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={6}>
+                                                        <EmptyState
+                                                            type="data"
+                                                            title="Treatment Tidak Ditemukan"
+                                                            description="Sistem tidak menemukan layanan treatment yang sesuai dengan pencarian Anda."
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </>
+                                ) : (
+                                    <>
+                                        <thead>
+                                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
+                                                <th className="px-4 py-2 text-primary/80">Kode</th>
+                                                <th className="px-4 py-2 text-primary/80">Nama</th>
+                                                <th className="px-4 py-2 text-primary/80">Kategori</th>
+                                                {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                                                    <>
+                                                        <th className="px-4 py-2 text-primary/80">Harga Normal</th>
+                                                        <th className="px-4 py-2 text-primary/80">Harga Distributor</th>
+                                                    </>
+                                                ) : user?.role !== ROLES.GUDANG_UMUM && (
+                                                    <th className="px-4 py-2 text-primary/80">Harga</th>
+                                                )}
+                                                <th className="px-4 py-2 text-primary/80">Stok</th>
+                                                {!isViewOnly && <th className="px-4 py-2 text-right text-primary/80">Aksi</th>}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-primary/5">
+                                            {currentItems.map((item) => (
+                                                <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
+                                                    <td className="px-4 py-1 font-medium text-xs text-primary/80">{item.id}</td>
+                                                    <td className="px-4 py-1 text-sm font-medium text-primary tracking-tight">{item.name}</td>
+                                                    <td className="px-4 py-1 text-sm font-medium text-primary/80">{item.category}</td>
+                                                    {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                                                        <>
+                                                            <td className="px-4 py-1">
+                                                                {item.price === 0 ? (
+                                                                    <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-md uppercase tracking-widest w-max italic">
+                                                                        <Tag className="w-3 h-3" /> Produk Baru
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-primary font-medium text-sm">
+                                                                        Rp {item.price.toLocaleString('id-ID')}
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-4 py-1">
+                                                                {item.priceDistributor === 0 ? (
+                                                                    <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-0.5 rounded-md uppercase tracking-widest w-max italic">
+                                                                        <Tag className="w-3 h-3" /> Belum di Set
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-primary font-medium text-sm">
+                                                                        Rp {item.priceDistributor.toLocaleString('id-ID')}
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                        </>
+                                                    ) : user?.role !== ROLES.GUDANG_UMUM && (
+                                                        <td className="px-4 py-1">
+                                                            <span className="text-primary font-medium text-sm">
+                                                                Rp {item.price.toLocaleString('id-ID')}
+                                                            </span>
+                                                        </td>
+                                                    )}
+                                                    <td className="px-4 py-1">
+                                                        {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`font-medium text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
+                                                                {item.stock <= (item.minStock || 5) && (
+                                                                    <span className="flex items-center gap-1 text-[10px] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-widest">
+                                                                        <AlertTriangle className="w-3 h-3" /> Low
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        ) : (
+                                                            <span className="font-medium text-xl text-primary/20">-</span>
+                                                        )}
+                                                    </td>
+                                                    {!isViewOnly && (
+                                                        <td className="px-4 py-1 text-right">
+                                                            <div className="flex justify-end gap-2">
+                                                                <button onClick={() => openEditModal(item)} className="p-2 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
+                                                                {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
+                                                                    <button onClick={() => openDeleteConfirm(item)} className="p-2 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus"><Trash2 className="w-3.5 h-3.5" /></button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    )}
+                                                </tr>
+                                            ))}
+                                            {filteredData.length === 0 && (
+                                                <tr>
+                                                    <td colSpan={6}>
+                                                        <EmptyState
+                                                            type="data"
+                                                            title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
+                                                            description={`Sistem tidak menemukan ${fixedTitle?.toLowerCase() || 'data'} yang sesuai dengan kriteria pencarian Anda.`}
+                                                        />
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </>
+                                )}
+                            </table>
+                        </div>
+
+                        {/* Mobile Card View */}
+                        <div className="md:hidden divide-y divide-primary/5">
+                            {currentItems.map((item) => (activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
+                                <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
+                                            {item.isPackage && item.package_treatment_ids && (
+                                                <div className="text-[9px] text-primary/40 font-bold mb-3 flex flex-wrap gap-1">
+                                                    {item.package_treatment_ids.map((tid) => {
+                                                        const tName = treatments.find(t => t.id === tid)?.name || tid;
+                                                        return <span key={tid} className="bg-primary/5 px-1 rounded">{tName}</span>;
+                                                    })}
+                                                </div>
+                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
                                                 {item.isPackage && (
-                                                    <span className="flex items-center gap-1.5 text-green-600 font-bold text-[10px] uppercase tracking-widest bg-green-50 px-2 py-1 rounded-md w-max">
+                                                    <span className="flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-md">
                                                         <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                                         Paket
                                                     </span>
                                                 )}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">
-                                                <div>{item.name}</div>
-                                                {item.isPackage && item.package_treatment_ids && (
-                                                    <div className="text-[10px] text-primary/40 font-bold mt-1 flex flex-wrap gap-1">
-                                                        {item.package_treatment_ids.map((tid, idx) => {
-                                                            const tName = treatments.find(t => t.id === tid)?.name || tid;
-                                                            return (
-                                                                <span key={tid} className="bg-primary/5 px-1.5 py-0.5 rounded">
-                                                                    {tName}{idx < item.package_treatment_ids.length - 1 ? ',' : ''}
-                                                                </span>
-                                                            );
-                                                        })}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary">{item.packageCount || '-'} Sesi</td>
-                                            <td className="px-4 py-2">
-                                                <span className="text-primary font-medium text-sm">
-                                                    {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
-                                                </span>
-                                            </td>
-                                            {!isViewOnly && (
-                                                <td className="px-4 py-2 text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
-                                                        {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
-                                                            <button onClick={() => openDeleteConfirm(item)} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus"><Trash2 className="w-4 h-4" /></button>
-                                                        )}
-                                                    </div>
-                                                </td>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
+                                        <div className="flex-1 p-3">
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jml Sesi</p>
+                                            <p className="text-xs font-black text-gray-700">{item.packageCount || '-'} Sesi</p>
+                                        </div>
+                                        <div className="flex-1 p-3">
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Biaya</p>
+                                            <p className="text-xs font-black text-gray-700">{item.price ? `Rp. ${item.price.toLocaleString('id-ID')}` : '-'}</p>
+                                        </div>
+                                    </div>
+
+                                    {!isViewOnly && (
+                                        <div className="flex gap-2 pt-1">
+                                            <button
+                                                onClick={() => openEditModal(item)}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:text-primary active:scale-95 transition-all ${user?.role === ROLES.GUDANG_UMUM ? 'w-full' : ''}`}
+                                            >
+                                                <Edit3 className="w-3.5 h-3.5" /> Edit
+                                            </button>
+                                            {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
+                                                <button
+                                                    onClick={() => openDeleteConfirm(item)}
+                                                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" /> Hapus
+                                                </button>
                                             )}
-                                        </tr>
-                                    ))}
-                                    {filteredData.length === 0 && (
-                                        <tr>
-                                            <td colSpan={6}>
-                                                <EmptyState 
-                                                    type="data"
-                                                    title="Treatment Tidak Ditemukan"
-                                                    description="Sistem tidak menemukan layanan treatment yang sesuai dengan pencarian Anda."
-                                                />
-                                            </td>
-                                        </tr>
+                                        </div>
                                     )}
-                                </tbody>
-                            </>
-                        ) : (
-                            <>
-                                <thead>
-                                    <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                        <th className="px-4 py-3 text-primary/80">Kode</th>
-                                        <th className="px-4 py-3 text-primary/80">Nama</th>
-                                        <th className="px-4 py-3 text-primary/80">Kategori</th>
+                                </div>
+                            ) : (
+                                <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
+                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.category}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={`flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm ${user?.role === ROLES.GUDANG_UMUM ? 'justify-end' : ''}`}>
                                         {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
                                             <>
-                                                <th className="px-4 py-3 text-primary/80">Harga Normal</th>
-                                                <th className="px-4 py-3 text-primary/80">Harga Distributor</th>
+                                                <div className="flex-1 p-3">
+                                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Normal</p>
+                                                    {item.price === 0 ? (
+                                                        <span className="flex items-center gap-1 text-[8px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md uppercase tracking-widest w-max italic">
+                                                            Produk Baru
+                                                        </span>
+                                                    ) : (
+                                                        <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
+                                                    )}
+                                                </div>
+                                                <div className="flex-1 p-3">
+                                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Distributor</p>
+                                                    {item.priceDistributor === 0 ? (
+                                                        <span className="flex items-center gap-1 text-[8px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md uppercase tracking-widest w-max italic">
+                                                            Belum di Set
+                                                        </span>
+                                                    ) : (
+                                                        <p className="text-xs font-black text-gray-700">Rp {item.priceDistributor.toLocaleString('id-ID')}</p>
+                                                    )}
+                                                </div>
                                             </>
                                         ) : user?.role !== ROLES.GUDANG_UMUM && (
-                                            <th className="px-4 py-3 text-primary/80">Harga</th>
-                                        )}
-                                        <th className="px-4 py-3 text-primary/80">Stok</th>
-                                        {!isViewOnly && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-primary/5">
-                                    {currentItems.map((item) => (
-                                        <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
-                                            <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category}</td>
-                                            {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
-                                                <>
-                                                    <td className="px-4 py-2">
-                                                        {item.price === 0 ? (
-                                                            <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-md uppercase tracking-widest w-max italic">
-                                                                <Tag className="w-3 h-3" /> Produk Baru
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-primary font-medium text-sm">
-                                                                Rp {item.price.toLocaleString('id-ID')}
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                    <td className="px-4 py-2">
-                                                        {item.priceDistributor === 0 ? (
-                                                            <span className="flex items-center gap-1 text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-md uppercase tracking-widest w-max italic">
-                                                                <Tag className="w-3 h-3" /> Belum di Set
-                                                            </span>
-                                                        ) : (
-                                                            <span className="text-primary font-medium text-sm">
-                                                                Rp {item.priceDistributor.toLocaleString('id-ID')}
-                                                            </span>
-                                                        )}
-                                                    </td>
-                                                </>
-                                            ) : user?.role !== ROLES.GUDANG_UMUM && (
-                                                <td className="px-4 py-2">
-                                                    <span className="text-primary font-medium text-sm">
-                                                        Rp {item.price.toLocaleString('id-ID')}
-                                                    </span>
-                                                </td>
-                                            )}
-                                            <td className="px-4 py-2">
-                                                {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
-                                                    <div className="flex items-center gap-2">
-                                                        <span className={`font-medium text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
-                                                        {item.stock <= (item.minStock || 5) && (
-                                                            <span className="flex items-center gap-1 text-[10px] font-medium text-red-500 bg-red-50 px-2 py-1 rounded-md uppercase tracking-widest">
-                                                                <AlertTriangle className="w-3 h-3" /> Low
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <span className="font-medium text-xl text-primary/20">-</span>
-                                                )}
-                                            </td>
-                                            {!isViewOnly && (
-                                                <td className="px-4 py-2 text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
-                                                        {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
-                                                            <button onClick={() => openDeleteConfirm(item)} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus"><Trash2 className="w-4 h-4" /></button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            )}
-                                        </tr>
-                                    ))}
-                                    {filteredData.length === 0 && (
-                                        <tr>
-                                            <td colSpan={6}>
-                                                <EmptyState 
-                                                    type="data"
-                                                    title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
-                                                    description={`Sistem tidak menemukan ${fixedTitle?.toLowerCase() || 'data'} yang sesuai dengan kriteria pencarian Anda.`}
-                                                />
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </>
-                        )}
-                    </table>
-                </div>
-
-                {/* Mobile Card View */}
-                <div className="md:hidden divide-y divide-primary/5">
-                    {currentItems.map((item) => (activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
-                        <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
-                                    {item.isPackage && item.package_treatment_ids && (
-                                        <div className="text-[9px] text-primary/40 font-bold mb-3 flex flex-wrap gap-1">
-                                            {item.package_treatment_ids.map((tid) => {
-                                                const tName = treatments.find(t => t.id === tid)?.name || tid;
-                                                return <span key={tid} className="bg-primary/5 px-1 rounded">{tName}</span>;
-                                            })}
-                                        </div>
-                                    )}
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
-                                        {item.isPackage && (
-                                            <span className="flex items-center gap-1 text-[10px] font-bold text-green-700 bg-green-50 px-2 py-1 rounded-md">
-                                                <svg viewBox="0 0 24 24" fill="none" className="w-3 h-3" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                                                Paket
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
-                                <div className="flex-1 p-3">
-                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Jml Sesi</p>
-                                    <p className="text-xs font-black text-gray-700">{item.packageCount || '-'} Sesi</p>
-                                </div>
-                                <div className="flex-1 p-3">
-                                    <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Biaya</p>
-                                    <p className="text-xs font-black text-gray-700">{item.price ? `Rp. ${item.price.toLocaleString('id-ID')}` : '-'}</p>
-                                </div>
-                            </div>
-
-                            {!isViewOnly && (
-                                <div className="flex gap-2 pt-1">
-                                    <button
-                                        onClick={() => openEditModal(item)}
-                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:text-primary active:scale-95 transition-all ${user?.role === ROLES.GUDANG_UMUM ? 'w-full' : ''}`}
-                                    >
-                                        <Edit3 className="w-3.5 h-3.5" /> Edit
-                                    </button>
-                                    {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
-                                        <button
-                                            onClick={() => openDeleteConfirm(item)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" /> Hapus
-                                        </button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    ) : (
-                        <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
-                                        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{item.category}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className={`flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm ${user?.role === ROLES.GUDANG_UMUM ? 'justify-end' : ''}`}>
-                                {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
-                                    <>
-                                        <div className="flex-1 p-3">
-                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Normal</p>
-                                            {item.price === 0 ? (
-                                                <span className="flex items-center gap-1 text-[8px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md uppercase tracking-widest w-max italic">
-                                                    Produk Baru
-                                                </span>
-                                            ) : (
+                                            <div className="flex-1 p-3">
+                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga</p>
                                                 <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
-                                            )}
-                                        </div>
-                                        <div className="flex-1 p-3">
-                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Distributor</p>
-                                            {item.priceDistributor === 0 ? (
-                                                <span className="flex items-center gap-1 text-[8px] font-bold text-orange-500 bg-orange-50 px-1.5 py-0.5 rounded-md uppercase tracking-widest w-max italic">
-                                                    Belum di Set
-                                                </span>
-                                            ) : (
-                                                <p className="text-xs font-black text-gray-700">Rp {item.priceDistributor.toLocaleString('id-ID')}</p>
-                                            )}
-                                        </div>
-                                    </>
-                                ) : user?.role !== ROLES.GUDANG_UMUM && (
-                                    <div className="flex-1 p-3">
-                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga</p>
-                                        <p className="text-xs font-black text-gray-700">Rp {item.price.toLocaleString('id-ID')}</p>
+                                            </div>
+                                        )}
+                                        {(item._type === 'product' || item._type === 'racikan' || item._type === 'material') && (
+                                            <div className="flex-1 p-3">
+                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Stok</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className={`text-xs font-black ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-gray-700'}`}>{item.stock} Unit</p>
+                                                    {item.stock <= (item.minStock || 5) && (
+                                                        <AlertTriangle className="w-3 h-3 text-red-500" />
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                                {(item._type === 'product' || item._type === 'racikan' || item._type === 'material') && (
-                                    <div className="flex-1 p-3">
-                                        <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Stok</p>
-                                        <div className="flex items-center gap-2">
-                                            <p className={`text-xs font-black ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-gray-700'}`}>{item.stock} Unit</p>
-                                            {item.stock <= (item.minStock || 5) && (
-                                                <AlertTriangle className="w-3 h-3 text-red-500" />
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
 
-                            {!isViewOnly && (
-                                <div className="flex gap-2 pt-1 border-t border-primary/5 mt-3 pt-3">
-                                    <button
-                                        onClick={() => openEditModal(item)}
-                                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:text-primary active:scale-95 transition-all ${user?.role === ROLES.GUDANG_UMUM ? 'w-full' : ''}`}
-                                    >
-                                        <Edit3 className="w-3.5 h-3.5" /> Edit
-                                    </button>
-                                    {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
-                                        <button
-                                            onClick={() => openDeleteConfirm(item)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"
-                                        >
-                                            <Trash2 className="w-3.5 h-3.5" /> Hapus
-                                        </button>
+                                    {!isViewOnly && (
+                                        <div className="flex gap-2 pt-1 border-t border-primary/5 mt-3 pt-3">
+                                            <button
+                                                onClick={() => openEditModal(item)}
+                                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 bg-white border border-gray-200 rounded-xl text-[10px] font-bold uppercase tracking-widest text-gray-600 hover:text-primary active:scale-95 transition-all ${user?.role === ROLES.GUDANG_UMUM ? 'w-full' : ''}`}
+                                            >
+                                                <Edit3 className="w-3.5 h-3.5" /> Edit
+                                            </button>
+                                            {user?.role !== ROLES.GUDANG_UMUM && user?.role !== ROLES.MANAJER_MARKETING_SALES && (
+                                                <button
+                                                    onClick={() => openDeleteConfirm(item)}
+                                                    className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50/50 border border-red-100 rounded-xl text-[10px] font-bold uppercase tracking-widest text-red-500 hover:bg-red-50 active:scale-95 transition-all"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" /> Hapus
+                                                </button>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
+                            ))}
+                            {filteredData.length === 0 && (
+                                <EmptyState
+                                    type="data"
+                                    title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
+                                    description={`Sistem tidak menemukan ${fixedTitle?.toLowerCase() || 'data'} yang sesuai dengan kriteria pencarian Anda.`}
+                                />
                             )}
                         </div>
-                    ))}
-                    {filteredData.length === 0 && (
-                        <EmptyState 
-                            type="data"
-                            title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
-                            description={`Sistem tidak menemukan ${fixedTitle?.toLowerCase() || 'data'} yang sesuai dengan kriteria pencarian Anda.`}
-                        />
-                    )}
-                </div>
                     </>
                 )}
 

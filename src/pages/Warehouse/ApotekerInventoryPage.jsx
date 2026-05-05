@@ -38,7 +38,7 @@ const ApotekerInventoryPage = () => {
     const fetchAllData = async () => {
         setIsLoading(true);
         const token = localStorage.getItem('token');
-        
+
         try {
             const [resMaterial, resMedical, resInfusion, resApotek, resProduct] = await Promise.all([
                 bahanTreatmentAPI.getAll(token),
@@ -179,18 +179,18 @@ const ApotekerInventoryPage = () => {
 
     const handleSave = (data) => {
         const isEdit = !!editingItem;
-        
+
         setConfirmConfig({
             icon: 'save',
             header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
-            message: isEdit ? 
-                `Simpan perubahan untuk ${data.name}?` : 
+            message: isEdit ?
+                `Simpan perubahan untuk ${data.name}?` :
                 `Tambahkan ${data.name} ke daftar stok?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
             onAccept: async () => {
                 const token = localStorage.getItem('token');
                 let res;
-                
+
                 if (modalType === 'material') {
                     res = isEdit ? await bahanTreatmentAPI.update(token, editingItem.uid, data) : await bahanTreatmentAPI.create(token, data);
                 } else if (modalType === 'medical') {
@@ -200,7 +200,7 @@ const ApotekerInventoryPage = () => {
                 } else if (modalType === 'apotekItem') {
                     res = isEdit ? await barangApotekAPI.update(token, editingItem.uid, data) : await barangApotekAPI.create(token, data);
                 }
-                
+
                 if (res?.success) {
                     showToast(`Data berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
                     fetchAllData();
@@ -369,33 +369,33 @@ const ApotekerInventoryPage = () => {
                             <table className="w-full text-left border-collapse min-w-[800px]">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                        <th className="px-4 py-3 text-primary/80">Kode</th>
-                                        <th className="px-4 py-3 text-primary/80">Nama</th>
-                                        <th className="px-4 py-3 text-primary/80">Kategori</th>
-                                        <th className="px-4 py-3 text-primary/80">Stok</th>
-                                        {!isViewOnly && activeFilter !== 'product' && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
+                                        <th className="px-4 py-2 text-primary/80">Kode</th>
+                                        <th className="px-4 py-2 text-primary/80">Nama</th>
+                                        <th className="px-4 py-2 text-primary/80">Kategori</th>
+                                        <th className="px-4 py-2 text-primary/80">Stok</th>
+                                        {!isViewOnly && activeFilter !== 'product' && <th className="px-4 py-2 text-right text-primary/80">Aksi</th>}
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
                                     {currentItems.map((item) => (
                                         <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
-                                            <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category || '-'}</td>
-                                            <td className="px-4 py-2">
+                                            <td className="px-4 py-1 font-medium text-xs text-primary/80">{item.id}</td>
+                                            <td className="px-4 py-1 text-sm font-medium text-primary tracking-tight">{item.name}</td>
+                                            <td className="px-4 py-1 text-sm font-medium text-primary/80">{item.category || '-'}</td>
+                                            <td className="px-4 py-1">
                                                 <div className="flex items-center gap-2">
                                                     <span className={`font-medium text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
                                                     {item.stock <= (item.minStock || 5) && (
-                                                        <span className="flex items-center gap-1 text-[10px] font-medium text-red-500 bg-red-50 px-2 py-1 rounded-md uppercase tracking-widest">
+                                                        <span className="flex items-center gap-1 text-[10px] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-widest">
                                                             <AlertTriangle className="w-3 h-3" /> Low
                                                         </span>
                                                     )}
                                                 </div>
                                             </td>
                                             {!isViewOnly && activeFilter !== 'product' && (
-                                                <td className="px-4 py-2 text-right">
+                                                <td className="px-4 py-1 text-right">
                                                     <div className="flex justify-end gap-2">
-                                                        <button onClick={() => openEditModal(item)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-4 h-4" /></button>
+                                                        <button onClick={() => openEditModal(item)} className="p-2 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit"><Edit3 className="w-3.5 h-3.5" /></button>
                                                     </div>
                                                 </td>
                                             )}
@@ -404,7 +404,7 @@ const ApotekerInventoryPage = () => {
                                     {filteredData.length === 0 && (
                                         <tr>
                                             <td colSpan={5}>
-                                                <EmptyState 
+                                                <EmptyState
                                                     type="data"
                                                     title={`Data Tidak Ditemukan`}
                                                     description={`Sistem tidak menemukan data yang sesuai dengan kriteria pencarian Anda.`}
@@ -455,7 +455,7 @@ const ApotekerInventoryPage = () => {
                                 </div>
                             ))}
                             {filteredData.length === 0 && (
-                                <EmptyState 
+                                <EmptyState
                                     type="data"
                                     title={`Data Tidak Ditemukan`}
                                     description={`Sistem tidak menemukan data yang sesuai dengan kriteria pencarian Anda.`}
