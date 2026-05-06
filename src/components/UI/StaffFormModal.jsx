@@ -92,7 +92,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         else if (!/^\d+$/.test(formState.phone)) newErrors.phone = "Nomor telepon hanya boleh berisi angka";
 
         if (!formState.email.trim()) newErrors.email = "Email wajib diisi";
-        else if (!/\S+@\S+\.\S+/.test(formState.email)) newErrors.email = "Format email tidak valid";
+        else if (!formState.email.endsWith('@gmail.com')) newErrors.email = "Email harus menggunakan format @gmail.com";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;

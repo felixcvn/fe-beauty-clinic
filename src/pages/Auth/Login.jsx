@@ -76,7 +76,7 @@ const Login = () => {
                                 <input
                                     type="text"
                                     placeholder="Masukkan Username Anda"
-                                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-primary/[0.02] border border-primary/5 outline-none focus:border-primary/20 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary text-sm placeholder:text-primary/20 shadow-sm"
+                                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-primary/[0.02] border border-primary/5 outline-none focus:border-primary/20 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary text-sm placeholder:text-primary/20"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
@@ -90,7 +90,7 @@ const Login = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="Kata Sandi"
-                                    className="w-full pl-12 pr-12 py-4 rounded-2xl bg-primary/[0.02] border border-primary/5 outline-none focus:border-primary/20 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary text-sm placeholder:text-primary/20 shadow-sm"
+                                    className="w-full pl-12 pr-12 py-4 rounded-2xl bg-primary/[0.02] border border-primary/5 outline-none focus:border-primary/20 focus:bg-white focus:ring-4 focus:ring-primary/5 transition-all font-medium text-primary text-sm placeholder:text-primary/20"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required

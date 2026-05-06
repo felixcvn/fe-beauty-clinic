@@ -12,6 +12,7 @@ import {
     CameraIcon,
 } from '@heroicons/react/24/solid';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import CustomDatePicker from '../../components/UI/CustomDatePicker';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 
@@ -25,8 +26,39 @@ const roleBadgeColor = {
     'Marketing of Sales': 'bg-amber-100 text-amber-600',
 };
 
+const InfoRow = ({ icon: Icon, label, field, type = 'text', isEditing, form, handleChange, setForm }) => (
+    <div className="flex items-start gap-4 py-4 border-b border-primary/5 last:border-0">
+        <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0 mt-0.5">
+            <Icon className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mb-1">{label}</p>
+            {isEditing ? (
+                type === 'date' ? (
+                    <CustomDatePicker
+                        value={form[field]}
+                        onChange={(val) => setForm(prev => ({ ...prev, [field]: val }))}
+                        className="-ml-4 -mt-2"
+                    />
+                ) : (
+                    <input
+                        name={field}
+                        type={type}
+                        value={form[field]}
+                        onChange={handleChange}
+                        className="w-full text-sm font-semibold text-primary bg-secondary/60 border border-primary/10 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
+                    />
+                )
+            ) : (
+                <p className="text-sm font-semibold text-primary truncate">{form[field] || <span className="text-primary/30 italic">Not set</span>}</p>
+            )}
+        </div>
+    </div>
+);
+
 const ProfilePage = () => {
     const { user, updateProfile } = useAuth();
+    const { showToast } = useToast();
 
     const [isEditing, setIsEditing] = useState(false);
     const [form, setForm] = useState({
@@ -60,6 +92,12 @@ const ProfilePage = () => {
     };
 
     const handleSave = () => {
+        // Enforce @gmail.com validation
+        if (form.email && !form.email.endsWith('@gmail.com')) {
+            showToast('Email harus menggunakan format @gmail.com', 'error');
+            return;
+        }
+
         setConfirmConfig({
             icon: 'save',
             header: 'Simpan Profil?',
@@ -90,35 +128,6 @@ const ProfilePage = () => {
 
     const badgeClass = roleBadgeColor[user?.role] || 'bg-gray-100 text-gray-600';
 
-    const InfoRow = ({ icon: Icon, label, field, type = 'text' }) => (
-        <div className="flex items-start gap-4 py-4 border-b border-primary/5 last:border-0">
-            <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0 mt-0.5">
-                <Icon className="w-4 h-4" />
-            </div>
-            <div className="flex-1 min-w-0">
-                <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mb-1">{label}</p>
-                {isEditing ? (
-                    type === 'date' ? (
-                        <CustomDatePicker
-                            value={form[field]}
-                            onChange={(val) => setForm(prev => ({ ...prev, [field]: val }))}
-                            className="-ml-4 -mt-2"
-                        />
-                    ) : (
-                        <input
-                            name={field}
-                            type={type}
-                            value={form[field]}
-                            onChange={handleChange}
-                            className="w-full text-sm font-semibold text-primary bg-secondary/60 border border-primary/10 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
-                        />
-                    )
-                ) : (
-                    <p className="text-sm font-semibold text-primary truncate">{form[field] || <span className="text-primary/30 italic">Not set</span>}</p>
-                )}
-            </div>
-        </div>
-    );
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -221,11 +230,11 @@ const ProfilePage = () => {
                     <p className="text-xs font-bold text-primary/30 mb-6">Your contact details and workplace information</p>
 
                     <div className="divide-y divide-primary/5">
-                        <InfoRow icon={EnvelopeIcon} label="Email Address" field="email" type="email" />
-                        <InfoRow icon={PhoneIcon} label="Phone Number" field="phone" type="tel" />
-                        <InfoRow icon={BriefcaseIcon} label="Position / Title" field="position" />
-                        <InfoRow icon={CalendarDaysIcon} label="Join Date" field="joinDate" type="date" />
-                        <InfoRow icon={MapPinIcon} label="Address" field="address" />
+                        <InfoRow icon={EnvelopeIcon} label="Email Address" field="email" type="email" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={PhoneIcon} label="Phone Number" field="phone" type="tel" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={BriefcaseIcon} label="Position / Title" field="position" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={CalendarDaysIcon} label="Join Date" field="joinDate" type="date" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={MapPinIcon} label="Address" field="address" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
                     </div>
                 </div>
             </div>

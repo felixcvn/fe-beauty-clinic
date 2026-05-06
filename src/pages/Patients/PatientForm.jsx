@@ -89,8 +89,8 @@ const PatientForm = () => {
         
         if (!formData.tanggalLahir) newErrors.tanggalLahir = "Tanggal lahir wajib diisi";
 
-        if (formData.email.trim() && !/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Format email tidak valid";
+        if (formData.email.trim() && !formData.email.endsWith('@gmail.com')) {
+            newErrors.email = "Email harus menggunakan format @gmail.com";
         }
 
         if (!formData.noTelepon.trim()) newErrors.noTelepon = "Nomor telepon wajib diisi";

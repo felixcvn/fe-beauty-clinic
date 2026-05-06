@@ -11,7 +11,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : 'https://heidi-overloose-removably.ngrok-free.dev/api';
+const BASE_URL = isLocalhost ? '/api' : ' https://composite-footprint-overarch.ngrok-free.dev/api';
 
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
