@@ -7,8 +7,9 @@ import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import { stokProdukAPI } from '../../services/api';
+import ConfirmModal from './ConfirmModal';
 
-const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
+const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, products = [] }) => {
     const { user } = useAuth();
     const { materials, treatments } = useMockData();
     const [formState, setFormState] = useState({
@@ -22,9 +23,12 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         package_treatment_ids: [],
         id: '',
         isPackage: false,
-        packageCount: ''
+        packageCount: '',
+        package_items: [], // Array of { id, quantity }
+        description: ''
     });
     const [errors, setErrors] = useState({});
+    const [confirmConfig, setConfirmConfig] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -37,6 +41,8 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     package_treatment_ids: initialData.package_treatment_ids || [],
                     isPackage: initialData.isPackage || false,
                     packageCount: initialData.packageCount || '',
+                    package_items: initialData.package_items || (initialData.package_product_ids ? initialData.package_product_ids.map(id => ({ id, quantity: 1 })) : []),
+                    description: initialData.description || '',
                     id: initialData.id || ''
                 });
             } else {
@@ -51,7 +57,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     package_treatment_ids: [],
                     id: '',
                     isPackage: false,
-                    packageCount: ''
+                    packageCount: '',
+                    package_items: [],
+                    description: ''
                 });
 
                 // Fetch auto-generate code immediately for products
@@ -85,6 +93,12 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
             }
             if (formState.stock === '' || formState.stock === null) newErrors.stock = "Stok wajib diisi";
             if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
+            
+            if (formState.isPackage) {
+                if (!formState.package_items || formState.package_items.length === 0) {
+                    newErrors.package_items = "Pilih minimal satu produk dalam paket";
+                }
+            }
         } else {
             if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
             if (formState.isPackage) {
@@ -131,10 +145,28 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         label: t.name
     }));
 
+    const productOptions = products
+        .filter(p => Number(p.uid) !== Number(initialData?.uid)) // Prevent selecting self
+        .map(p => ({
+            value: p.uid,
+            label: p.name
+        }));
+
+    const handleCloseAttempt = () => {
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
+    };
+
     return createPortal(
         <div 
             className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/30"
-            onClick={onClose}
+            onClick={handleCloseAttempt}
         >
             <div 
                 className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
@@ -142,7 +174,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
             >
                 <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseAttempt(); }}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
                 >
                     <X className="w-5 h-5" />
@@ -160,7 +192,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {initialData?.uid ? 'Edit' : 'Tambah'} {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}
+                            {formState.isPackage ? (initialData?.uid ? 'Edit' : 'Tambah') + ' Paket' : (initialData?.uid ? 'Edit' : 'Tambah') + ' ' + (type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment')}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
                                 Formulir Data Master
@@ -186,7 +218,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                         
                         <div className="relative z-[50]">
-                            <label className={labelClassName}>Nama {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
+                            <label className={labelClassName}>Nama {formState.isPackage ? 'Paket' : (type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment')}</label>
                             <input
                                 type="text"
                                 value={formState.name}
@@ -196,6 +228,87 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                             />
                             {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
                         </div>
+
+                        {type === 'product' && (
+                            <div className="relative z-[45] p-4 rounded-2xl border border-primary/5 bg-gray-50/50 space-y-4">
+                                <label className="flex items-center gap-3 cursor-pointer group w-max">
+                                    <div className="relative flex items-center justify-center">
+                                        <input 
+                                            type="checkbox" 
+                                            className="peer appearance-none w-5 h-5 border-2 border-primary/20 rounded-md checked:bg-blue-500 checked:border-blue-500 transition-all cursor-pointer group-hover:border-primary/40"
+                                            checked={formState.isPackage}
+                                            onChange={(e) => handleChange('isPackage', e.target.checked)}
+                                        />
+                                        <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    </div>
+                                    <span className="text-xs font-black uppercase tracking-widest text-primary/60 group-hover:text-primary transition-colors">
+                                        Produk ini merupakan paket (Bundle)
+                                    </span>
+                                </label>
+
+                                {formState.isPackage && (
+                                    <div className="pt-2 animate-fade-in-up space-y-4">
+                                        <div>
+                                            <CustomMultiSelect
+                                                label="Pilih Produk"
+                                                placeholder="Pilih produk untuk ditambahkan..."
+                                                values={formState.package_items.map(i => i.id)}
+                                                onChange={(ids) => {
+                                                    const newItems = ids.map(id => {
+                                                        const existing = formState.package_items.find(i => Number(i.id) === Number(id));
+                                                        return existing || { id, quantity: 1 };
+                                                    });
+                                                    handleChange('package_items', newItems);
+                                                }}
+                                                options={productOptions}
+                                                searchable={true}
+                                            />
+                                            {errors.package_items && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.package_items}</p>}
+                                        </div>
+
+                                        {formState.package_items.length > 0 && (
+                                            <div className="space-y-3 bg-white p-4 rounded-2xl border border-primary/5 shadow-sm">
+                                                <label className={labelClassName}>Daftar Produk & Jumlah</label>
+                                                {formState.package_items.map((item, index) => {
+                                                    return (
+                                                        <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-primary/5">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-xs font-bold text-primary truncate">{products.find(p => Number(p.uid) === Number(item.id))?.name || item.id}</p>
+                                                            </div>
+                                                            <div className="w-24">
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    value={item.quantity}
+                                                                    onChange={(e) => {
+                                                                        const val = e.target.value === '' ? '' : Number(e.target.value);
+                                                                        const updatedItems = [...formState.package_items];
+                                                                        updatedItems[index].quantity = val;
+                                                                        handleChange('package_items', updatedItems);
+                                                                    }}
+                                                                    className="w-full px-2 py-1.5 rounded-lg bg-white border border-primary/10 text-xs font-bold text-center"
+                                                                    placeholder="Jumlah"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        <div>
+                                            <label className={labelClassName}>Deskripsi Paket</label>
+                                            <textarea
+                                                value={formState.description}
+                                                onChange={(e) => handleChange('description', e.target.value)}
+                                                className={`${getDynamicInputClass('description')} h-20 py-3 resize-none`}
+                                                placeholder="Contoh: Isi 2x Serum, 1x Sabun..."
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 
                         {type === 'treatment' && (
                             <>
@@ -283,7 +396,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                 </div>
                             )}
                             
-                            {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
+                            {(user?.role === ROLES.MANAJER_MARKETING_SALES || user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.OWNER) ? (
                                 <div className="grid grid-cols-2 gap-4 col-span-2">
                                     <div className="relative z-[22]">
                                         <label className={labelClassName}>Harga Normal (Rp)</label>
@@ -331,8 +444,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                         type="number"
                                         value={formState.stock}
                                         onChange={(e) => handleChange('stock', e.target.value === '' ? '' : Number(e.target.value))}
-                                        className={getDynamicInputClass('stock')}
+                                        className={`${getDynamicInputClass('stock')} ${user?.role === ROLES.MANAJER_MARKETING_SALES ? 'bg-gray-100 text-primary/60 cursor-not-allowed shadow-none' : ''}`}
                                         placeholder="0"
+                                        readOnly={user?.role === ROLES.MANAJER_MARKETING_SALES}
                                     />
                                     {errors.stock && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.stock}</p>}
                                 </div>
@@ -342,8 +456,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                         type="number"
                                         value={formState.minStock}
                                         onChange={(e) => handleChange('minStock', e.target.value === '' ? '' : Number(e.target.value))}
-                                        className={getDynamicInputClass('minStock')}
+                                        className={`${getDynamicInputClass('minStock')} ${user?.role === ROLES.MANAJER_MARKETING_SALES ? 'bg-gray-100 text-primary/60 cursor-not-allowed shadow-none' : ''}`}
                                         placeholder="5"
+                                        readOnly={user?.role === ROLES.MANAJER_MARKETING_SALES}
                                     />
                                     {errors.minStock && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.minStock}</p>}
                                 </div>
@@ -360,6 +475,10 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     </form>
                 </div>
             </div>
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>,
         document.body
     );

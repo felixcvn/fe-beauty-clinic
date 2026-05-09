@@ -593,15 +593,56 @@ export const stokProdukAPI = {
 
     create: async (token, data) => {
         try {
+            // Super-Redundant Payload: Kirim SEMUA variasi field agar pasti masuk ke database
             const payload = {
+                // Identitas & Nama
                 Kode_Produk: data.id,
+                Kode_paket: data.id,
                 Nama_produk: data.name,
-                Kategori: data.category,
-                Harga: data.price,
-                Harga_Distributor: data.priceDistributor,
-                harga_distributor: data.priceDistributor,
-                Stok: data.stock,
-                Batas_minimal_stok: data.minStock,
+                Nama_paket: data.name,
+                Deskripsi: data.description || '',
+                Kategori: data.category || (data.isPackage ? 'Paket' : 'Lainnya'),
+                
+                // Harga
+                Harga: data.price || 0,
+                Harga_paket: data.price || 0,
+                Harga_Distributor: data.priceDistributor || 0,
+                harga_distributor: data.priceDistributor || 0,
+                Harga_Distributor_paket: data.priceDistributor || 0,
+                
+                // Stok
+                Stok: data.stock || 0,
+                stok: data.stock || 0,
+                Batas_minimal_stok: data.minStock || 0,
+                batas_minimal_stok: data.minStock || 0,
+                
+                // Flag
+                is_package: data.isPackage ? 1 : 0,
+                is_paket: data.isPackage ? 1 : 0,
+
+                // Daftar Produk Paket (Kirim dalam berbagai format)
+                produks: (data.package_items || []).map(item => ({
+                    stok_produk_id: item.id,
+                    produk_id: item.id,
+                    id: item.id,
+                    Jumlah: item.quantity,
+                    jumlah: item.quantity,
+                    qty: item.quantity
+                })),
+                produk: (data.package_items || []).map(item => ({
+                    stok_produk_id: item.id,
+                    produk_id: item.id,
+                    id: item.id,
+                    Jumlah: item.quantity,
+                    jumlah: item.quantity,
+                    qty: item.quantity
+                })),
+                package_items: (data.package_items || []).map(item => ({
+                    stok_produk_id: item.id,
+                    Jumlah: item.quantity
+                })),
+                produk_ids: (data.package_items || []).map(item => item.id),
+                quantities: (data.package_items || []).map(item => item.quantity)
             };
 
             const response = await fetch(`${BASE_URL}/stok-produk`, {
@@ -628,19 +669,61 @@ export const stokProdukAPI = {
 
     update: async (token, id, data) => {
         try {
+            // Super-Redundant Payload untuk Update
             const payload = {
+                _method: 'PUT',
+                // Identitas & Nama
                 Kode_Produk: data.id,
+                Kode_paket: data.id,
                 Nama_produk: data.name,
-                Kategori: data.category,
-                Harga: data.price,
-                Harga_Distributor: data.priceDistributor,
-                harga_distributor: data.priceDistributor,
-                Stok: data.stock,
-                Batas_minimal_stok: data.minStock,
+                Nama_paket: data.name,
+                Deskripsi: data.description || '',
+                Kategori: data.category || (data.isPackage ? 'Paket' : 'Lainnya'),
+                
+                // Harga
+                Harga: data.price || 0,
+                Harga_paket: data.price || 0,
+                Harga_Distributor: data.priceDistributor || 0,
+                harga_distributor: data.priceDistributor || 0,
+                Harga_Distributor_paket: data.priceDistributor || 0,
+                
+                // Stok
+                Stok: data.stock || 0,
+                stok: data.stock || 0,
+                Batas_minimal_stok: data.minStock || 0,
+                batas_minimal_stok: data.minStock || 0,
+                
+                // Flag
+                is_package: data.isPackage ? 1 : 0,
+                is_paket: data.isPackage ? 1 : 0,
+
+                // Daftar Produk Paket
+                produks: (data.package_items || []).map(item => ({
+                    stok_produk_id: item.id,
+                    produk_id: item.id,
+                    id: item.id,
+                    Jumlah: item.quantity,
+                    jumlah: item.quantity,
+                    qty: item.quantity
+                })),
+                produk: (data.package_items || []).map(item => ({
+                    stok_produk_id: item.id,
+                    produk_id: item.id,
+                    id: item.id,
+                    Jumlah: item.quantity,
+                    jumlah: item.quantity,
+                    qty: item.quantity
+                })),
+                package_items: (data.package_items || []).map(item => ({
+                    stok_produk_id: item.id,
+                    Jumlah: item.quantity
+                })),
+                produk_ids: (data.package_items || []).map(item => item.id),
+                quantities: (data.package_items || []).map(item => item.quantity)
             };
 
             const response = await fetch(`${BASE_URL}/stok-produk/${id}`, {
-                method: 'PUT',
+                method: 'POST',
                 headers: getHeaders(token),
                 body: JSON.stringify(payload),
             });

@@ -4,6 +4,7 @@ import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff } f
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { ROLES } from '../../utils/rbac';
+import ConfirmModal from './ConfirmModal';
 
 const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [] }) => {
     const isEdit = !!initialData;
@@ -27,6 +28,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -119,6 +121,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         let newErrors = {};
         if (!formState.password) newErrors.password = "Password wajib diisi";
         else if (formState.password.length < 6) newErrors.password = "Password minimal 6 karakter";
+        else if (!/^[a-zA-Z0-9]+$/.test(formState.password)) newErrors.password = "Password hanya boleh berisi huruf dan angka (tidak boleh ada simbol)";
+        else if (!(/[a-zA-Z]/.test(formState.password) && /\d/.test(formState.password))) newErrors.password = "Password harus terdiri dari kombinasi huruf dan angka";
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
@@ -160,10 +164,21 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         }
     };
 
+    const handleCloseAttempt = () => {
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
+    };
+
     return createPortal(
         <div
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 transition-opacity"
-            onClick={onClose}
+            onClick={handleCloseAttempt}
         >
             <div
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
@@ -172,7 +187,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                 {/* Tombol Silang Luar (z-index tinggi) */}
                 <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseAttempt(); }}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
                 >
                     <X className="w-5 h-5" />
@@ -475,6 +490,10 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     </form>
                 </div>
             </div>
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>,
         document.body
     );

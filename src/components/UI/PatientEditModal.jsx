@@ -5,6 +5,7 @@ import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { useAuth } from '../../context/AuthContext';
 import { wilayahAPI, pasienAPI } from '../../services/api';
+import ConfirmModal from './ConfirmModal';
 
 /**
  * Modal untuk menambah atau mengedit data pasien.
@@ -119,6 +120,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     }, [isOpen, initialData]);
 
     const [errors, setErrors] = useState({});
+    const [confirmConfig, setConfirmConfig] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -182,10 +184,21 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     const iconClass = "absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors";
     const labelClass = "text-[10px] font-black text-primary/40 uppercase tracking-widest ml-1 block mb-2";
 
+    const handleCloseAttempt = () => {
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
+    };
+
     return createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30 transition-opacity"
-            onClick={onClose}
+            onClick={handleCloseAttempt}
         >
             <div 
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up duration-200"
@@ -193,7 +206,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
             >
                 <button
                     type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); onClose(); }}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseAttempt(); }}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
                 >
                     <X className="w-5 h-5" />
@@ -427,6 +440,10 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     </form>
                 </div>
             </div>
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>,
         document.body
     );

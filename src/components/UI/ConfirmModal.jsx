@@ -25,7 +25,10 @@ const ConfirmModal = ({ config, onClose }) => {
     const actionBtnBg = isDelete ? 'bg-[#C53030] hover:bg-[#A62828]' : 'bg-[#0D3B28] hover:bg-[#0A2E1F]';
     
     return createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6 animate-fade-in">
+        <div 
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-6 animate-fade-in"
+            onClick={(e) => e.stopPropagation()}
+        >
             {/* Backdrop */}
             <div
                 className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"

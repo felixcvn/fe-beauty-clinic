@@ -24,8 +24,8 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
 
     const handleSelect = (optionValue) => {
         let newValues;
-        if (values.includes(optionValue)) {
-            newValues = values.filter(v => v !== optionValue);
+        if (values.some(v => String(v) === String(optionValue))) {
+            newValues = values.filter(v => String(v) !== String(optionValue));
         } else {
             newValues = [...values, optionValue];
         }
@@ -37,7 +37,7 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
         onChange(values.filter(v => v !== optionValue));
     };
 
-    const selectedOptions = options.filter(opt => values.includes(opt.value));
+    const selectedOptions = options.filter(opt => values.some(v => String(v) === String(opt.value)));
 
     return (
         <div ref={selectRef} className={`relative w-full ${isOpen ? 'z-[100]' : 'z-[10]'} ${className}`}>
@@ -107,7 +107,7 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
                 <div className="max-h-[250px] overflow-y-auto scrollbar-hide py-2">
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option, index) => {
-                            const isSelected = values.includes(option.value);
+                            const isSelected = values.some(v => String(v) === String(option.value));
                             return (
                                 <button
                                     key={index}

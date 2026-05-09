@@ -67,13 +67,16 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
             // Map data dari backend (Database Case) ke UI format
             const mapped = res.data.map(item => ({
                 uid: item.id,
-                id: item.Kode_Produk,
-                name: item.Nama_produk,
-                category: item.Kategori,
-                price: Number(item.Harga || item.harga || 0),
-                priceDistributor: Number(item.Harga_Distributor || item.harga_distributor || item.Price_Distributor || 0),
+                id: item.Kode_Produk || item.Kode_paket,
+                name: item.Nama_produk || item.Nama_paket,
+                category: item.Kategori || (item.Kode_paket ? 'Paket' : 'Lainnya'),
+                price: Number(item.Harga || item.harga || item.Harga_paket || 0),
+                priceDistributor: Number(item.Harga_Distributor || item.harga_distributor || item.Price_Distributor || item.Harga_Distributor_paket || 0),
                 stock: Number(item.Stok || item.stok || 0),
                 minStock: Number(item.Batas_minimal_stok || item.batas_minimal_stok || 0),
+                isPackage: item.is_package == 1 || item.is_package === true || item.isPackage === true || !!item.Kode_paket || !!item.Nama_paket || !!item.Harga_paket || (Array.isArray(item.produks) && item.produks.length > 0),
+                description: item.Deskripsi || item.description || '',
+                package_items: Array.isArray(item.produks || item.produk) ? (item.produks || item.produk).map(p => ({ id: Number(p.stok_produk_id || p.produk_id || p.id || p.pivot?.stok_produk_id), quantity: Number(p.pivot?.Jumlah || p.Jumlah || p.jumlah || p.qty || 0) })) : []
             }));
             setProducts(mapped);
         } else {
@@ -499,7 +502,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             ))}
                                             {filteredData.length === 0 && (
                                                 <tr>
-                                                    <td colSpan={6}>
+                                                    <td colSpan={10}>
                                                         <EmptyState
                                                             type="data"
                                                             title="Treatment Tidak Ditemukan"
@@ -517,6 +520,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                 <th className="px-4 py-2 text-primary/80">Kode</th>
                                                 <th className="px-4 py-2 text-primary/80">Nama</th>
                                                 <th className="px-4 py-2 text-primary/80">Kategori</th>
+                                                <th className="px-4 py-2 text-primary/80">Tipe</th>
                                                 {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
                                                     <>
                                                         <th className="px-4 py-2 text-primary/80">Harga Normal</th>
@@ -533,8 +537,44 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             {currentItems.map((item) => (
                                                 <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
                                                     <td className="px-4 py-1 font-medium text-xs text-primary/80">{item.id}</td>
-                                                    <td className="px-4 py-1 text-sm font-medium text-primary tracking-tight">{item.name}</td>
+                                                     <td className="px-4 py-1 text-sm font-medium text-primary tracking-tight">
+                                                         <div className="flex items-center gap-2 mb-1">
+                                                             <span>{item.name}</span>
+                                                             {item.isPackage && (
+                                                                 <span className="flex items-center gap-1 text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">
+                                                                     Paket
+                                                                 </span>
+                                                             )}
+                                                         </div>
+                                                         {item.isPackage && (
+                                                             <div className="text-[10px] text-primary/40 font-bold mt-1">
+                                                                 {item.description ? (
+                                                                     <span className="italic">{item.description}</span>
+                                                                 ) : (
+                                                                     <div className="flex flex-wrap gap-1">
+                                                                         {(item.package_items || []).map((pi, idx) => {
+                                                                             const pName = products.find(p => p.id === pi.id)?.name || pi.id;
+                                                                             return (
+                                                                                 <span key={pi.id} className="bg-primary/5 px-1.5 py-0.5 rounded">
+                                                                                     {pi.quantity}x {pName}{idx < item.package_items.length - 1 ? ',' : ''}
+                                                                                 </span>
+                                                                             );
+                                                                         })}
+                                                                     </div>
+                                                                 )}
+                                                             </div>
+                                                         )}
+                                                     </td>
                                                     <td className="px-4 py-1 text-sm font-medium text-primary/80">{item.category}</td>
+                                                    <td className="px-4 py-1">
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-widest ${
+                                                            item.isPackage 
+                                                                ? 'text-blue-600 bg-blue-50' 
+                                                                : 'text-green-600 bg-green-50'
+                                                        }`}>
+                                                            {item.isPackage ? 'Paket' : 'Produk'}
+                                                        </span>
+                                                    </td>
                                                     {user?.role === ROLES.MANAJER_MARKETING_SALES ? (
                                                         <>
                                                             <td className="px-4 py-1">
@@ -595,7 +635,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             ))}
                                             {filteredData.length === 0 && (
                                                 <tr>
-                                                    <td colSpan={6}>
+                                                    <td colSpan={10}>
                                                         <EmptyState
                                                             type="data"
                                                             title={`${fixedTitle || 'Data'} Tidak Ditemukan`}
@@ -778,6 +818,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 onSave={handleSave}
                 initialData={editingItem}
                 type={modalType}
+                products={products}
             />
 
             <ConfirmModal
