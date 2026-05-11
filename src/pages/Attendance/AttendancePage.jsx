@@ -19,6 +19,7 @@ import { getActiveShift } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
 import EmptyState from '../../components/UI/EmptyState';
+import { exportAttendanceToExcel } from '../../utils/excelExport';
 
 
 const AttendancePage = () => {
@@ -279,35 +280,34 @@ const AttendancePage = () => {
     const currentOvertime = filteredOvertime.slice(idxFirstOvertime, idxLastOvertime);
     const totalOvertimePages = Math.ceil(filteredOvertime.length / itemsPerPage);
 
-    const handleExport = () => {
-        let csvContent = "sep=,\n";
+    const handleExport = async () => {
+        let dataToExport = [];
+        let title = '';
+        let filename = '';
+
         if (activeTab === 'attendance') {
-            csvContent += "ID,nama karyawan,Role,Shift,Tanggal,Jam Masuk,Jam Keluar,Status\n";
-            finalAttendance.forEach(record => {
-                csvContent += `${record.id},"${record.name}","${record.role}","${record.shift}",${record.date},${record.checkIn},${record.checkOut},${record.status}\n`;
-            });
+            dataToExport = finalAttendance;
+            title = 'Laporan Kehadiran Karyawan';
+            filename = 'laporan_kehadiran';
         } else if (activeTab === 'leave') {
-            csvContent += "ID,nama karyawan,Role,Jenis Pengajuan,Tanggal Mulai,Tanggal Selesai,Alasan,Status\n";
-            filteredLeave.forEach(req => {
-                csvContent += `${req.id},"${req.staffName}","${req.role}","${req.type}",${req.startDate},${req.endDate},"${req.reason}",${req.status}\n`;
-            });
+            dataToExport = filteredLeave;
+            title = 'Laporan Pengajuan Cuti / Izin';
+            filename = 'laporan_cuti';
         } else {
-            csvContent += "ID,nama karyawan,Role,Shift,Jenis,Jam Jadwal,Jam Aktual,Keterangan,Status\n";
-            filteredOvertime.forEach(req => {
-                csvContent += `${req.id},"${req.staffName}","${req.role}","${req.shift}","${req.primaryType}",${req.scheduledTime},${req.detectedTime},"${req.notes}",${req.status}\n`;
-            });
+            dataToExport = filteredOvertime;
+            title = 'Laporan Pengajuan Lembur';
+            filename = 'laporan_lembur';
         }
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.setAttribute("href", url);
-        const tabLabel = activeTab === 'attendance' ? 'Kehadiran' : activeTab === 'leave' ? 'Cuti' : 'Lembur';
-        link.setAttribute("download", `Laporan_${tabLabel}_${new Date().toISOString().split('T')[0]}.csv`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        showToast('Laporan berhasil diexport ke format Excel', 'success');
+        showToast('Menyiapkan file Excel...', 'info');
+        
+        try {
+            await exportAttendanceToExcel(dataToExport, activeTab, title, filename);
+            showToast('Laporan berhasil diexport ke format Excel', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            showToast('Gagal mengekspor laporan', 'error');
+        }
     };
 
     // Ambil info shift aktif user yang login (untuk tampil di header)

@@ -84,27 +84,32 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
     return (
         <>
             {isOpen && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[45] md:hidden" onClick={toggle} />
+                <div 
+                    className="fixed inset-0 bg-black/40 backdrop-blur-md z-[45] md:hidden transition-opacity duration-500 ease-in-out" 
+                    onClick={toggle} 
+                />
             )}
 
             {/* UBAH STRUKTUR KELAS ASIDE DI SINI */}
             <aside 
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                className={`fixed left-0 top-0 h-screen bg-white flex flex-col z-50 border-r border-gray-200 transition-all duration-500 ease-in-out ${effectivelyCollapsed ? 'w-64 md:w-[88px]' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
+                className={`fixed left-0 top-0 h-screen bg-white flex flex-col z-50 border-r border-gray-200 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${effectivelyCollapsed ? 'w-64 md:w-[88px]' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
             >
                 
                 {/* 1. HEADER (Fixed/Tetap di atas) */}
-                <div className={`bg-primary px-4 h-16 flex items-center shrink-0 ${effectivelyCollapsed ? 'justify-center md:px-0' : 'justify-between'}`}>
+                <div className={`bg-primary px-4 h-16 flex items-center shrink-0 shadow-lg relative z-10 ${effectivelyCollapsed ? 'justify-center md:px-0' : 'justify-between'}`}>
                     <div className="flex items-center gap-2 shrink-0 overflow-hidden">
                         <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden border border-white/20 shrink-0 bg-white">
                             <img src={logo} alt="Logo" className="w-full h-full object-cover" />
                         </div>
-                        <img src={logo1} alt="Logo Text" className={`h-auto object-contain shrink-0 transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-32 opacity-100'}`} />
+                        <img src={logo1} alt="Logo Text" className={`h-auto object-contain shrink-0 transition-all duration-300 ${effectivelyCollapsed ? 'w-0 opacity-0 md:hidden' : 'w-28 opacity-100'}`} />
                     </div>
-                    <button onClick={toggle} className={`md:hidden p-2 text-white/50 hover:text-white transition-colors ${effectivelyCollapsed ? 'hidden' : ''}`}>
-                        <XMarkIcon className="w-5 h-5" />
-                    </button>
+                    {isOpen && (
+                        <button onClick={toggle} className="md:hidden p-2 text-white/50 hover:text-white transition-all active:scale-90">
+                            <XMarkIcon className="w-6 h-6" />
+                        </button>
+                    )}
                 </div>
 
                 {/* 2. NAV ITEMS (Bisa di-scroll, menggunakan flex-1) */}

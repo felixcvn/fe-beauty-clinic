@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit3, AlertTriangle, Package, Inbox, ChevronDown, Beaker } from 'lucide-react';
+import { Search, Plus, Edit3, AlertTriangle, Package, Inbox, ChevronDown, Beaker, Download } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import ApotekerFormModal from '../../components/UI/ApotekerFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -8,6 +8,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, stokProdukAPI } from '../../services/api';
+import { exportToExcel } from '../../utils/excelExport';
 
 
 const ApotekerInventoryPage = () => {
@@ -34,6 +35,7 @@ const ApotekerInventoryPage = () => {
     const [modalType, setModalType] = useState('material'); // to determine which form to show
     const [confirmConfig, setConfirmConfig] = useState(null);
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
+    const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
 
     const fetchAllData = async () => {
         setIsLoading(true);
@@ -148,6 +150,23 @@ const ApotekerInventoryPage = () => {
         item.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleExport = async (exportType) => {
+        const dataToExport = exportType === 'all' ? allItems : filteredData;
+        const filename = exportType === 'all' ? 'semua_stok_apotek' : 'stok_apotek_terfilter';
+        const title = exportType === 'all' ? 'Laporan Semua Stok Apotek' : 'Laporan Stok Apotek Terfilter';
+        
+        setIsExportDropdownOpen(false);
+        showToast('Menyiapkan file Excel...', 'info');
+        
+        try {
+            await exportToExcel(dataToExport, title, filename);
+            showToast('Data berhasil diekspor ke Excel', 'success');
+        } catch (error) {
+            console.error('Export error:', error);
+            showToast('Gagal mengekspor data', 'error');
+        }
+    };
+
     // Pagination Logic
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -236,7 +255,41 @@ const ApotekerInventoryPage = () => {
                     <p className="text-primary/40 mt-3 font-bold text-sm tracking-tight">Kelola stok apotek dan medis klinik</p>
                 </div>
 
-                <div className="w-full lg:w-auto relative">
+                <div className="w-full lg:w-auto relative flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    {/* Export Button */}
+                    <div className="relative w-full sm:w-auto z-[85]">
+                        <button
+                            onClick={() => setIsExportDropdownOpen(!isExportDropdownOpen)}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white border border-primary/10 text-primary px-6 py-4 rounded-2xl hover:bg-gray-50 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm"
+                        >
+                            <Download className="w-4 h-4" />
+                            <span>Export</span>
+                            <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isExportDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isExportDropdownOpen && (
+                            <div className="absolute top-full right-0 mt-2 w-full sm:w-56 bg-white rounded-2xl shadow-xl border border-primary/5 py-2 z-[90] animate-fade-in-up origin-top-right overflow-hidden">
+                                <button
+                                    onClick={() => handleExport('all')}
+                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-left text-xs font-bold text-primary"
+                                >
+                                    <span>Semua Data</span>
+                                </button>
+                                <button
+                                    onClick={() => handleExport('filtered')}
+                                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-primary/5 transition-colors text-left text-xs font-bold text-primary"
+                                >
+                                    <span>Data Terfilter</span>
+                                </button>
+                            </div>
+                        )}
+                        {isExportDropdownOpen && (
+                            <div
+                                className="fixed inset-0 z-[80]"
+                                onClick={() => setIsExportDropdownOpen(false)}
+                            />
+                        )}
+                    </div>
+
                     <button
                         onClick={() => setIsAddDropdownOpen(!isAddDropdownOpen)}
                         className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"

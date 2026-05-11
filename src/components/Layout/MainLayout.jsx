@@ -79,7 +79,7 @@ const MainLayout = ({ children }) => {
             />
             <div className={`flex-1 flex flex-col min-h-screen relative z-10 transition-all duration-700 ease-in-out ${isDesktopCollapsed && !isHovered ? 'md:ml-[88px]' : 'ml-0 md:ml-64'}`}>
                 <Header toggleSidebar={toggleSidebar} />
-                <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+                <main className="flex-1 p-3.5 md:p-6 lg:p-8 overflow-y-auto">
                     <div 
                         key={location.key}
                         className="max-w-[1600px] mx-auto animate-page-in"
