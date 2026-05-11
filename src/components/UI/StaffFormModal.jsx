@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { ROLES } from '../../utils/rbac';
 import ConfirmModal from './ConfirmModal';
 
-const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [] }) => {
+const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [], mode = 'full' }) => {
     const isEdit = !!initialData;
 
     const [step, setStep] = useState(1);
@@ -32,7 +32,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
     useEffect(() => {
         if (isOpen) {
-            setStep(1);
+            // Jika mode credentials (lock icon), langsung ke step 3 (Password)
+            setStep(mode === 'credentials' ? 3 : 1);
             setErrors({});
             setShowPassword(false);
             if (initialData) {
@@ -69,7 +70,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                 });
             }
         }
-    }, [isOpen, initialData]);
+    }, [isOpen, initialData, mode]);
 
     if (!isOpen) return null;
 
@@ -132,7 +133,12 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         if (step === 1 && validateStep1()) {
             setStep(2);
         } else if (step === 2 && validateStep2()) {
-            setStep(3);
+            if (mode === 'full') {
+                setStep(3);
+            } else if (mode === 'personal') {
+                // Dalam mode personal, step 2 adalah akhir (Username)
+                onSave({ ...formState });
+            }
         }
     };
 
@@ -144,12 +150,28 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (step < 3) {
-            handleNext();
-        } else {
+        
+        if (mode === 'credentials') {
+            // Mode gembok: hanya edit password (Step 3)
             if (validateStep3()) {
-                const finalData = { ...formState };
-                onSave(finalData);
+                onSave({ ...formState });
+            }
+            return;
+        }
+
+        if (step === 1) {
+            handleNext();
+        } else if (step === 2) {
+            if (validateStep2()) {
+                if (mode === 'personal') {
+                    onSave({ ...formState });
+                } else {
+                    setStep(3);
+                }
+            }
+        } else if (step === 3) {
+            if (validateStep3()) {
+                onSave({ ...formState });
             }
         }
     };
@@ -201,14 +223,20 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
                     <div className="relative z-10 flex items-center gap-4 pr-12">
                         <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10 shrink-0">
-                            {isEdit ? <User className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />}
+                            {mode === 'credentials' ? <ShieldCheck className="w-6 h-6" /> : (isEdit ? <User className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />)}
                         </div>
                         <div>
                             <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">
-                                {isEdit ? 'Edit Data karyawan' : 'Tambah Karyawan Baru'}
+                                {isEdit ? (
+                                    mode === 'personal' ? 'Edit Data & Akun' :
+                                    mode === 'credentials' ? 'Reset Password' :
+                                    'Edit Data Karyawan'
+                                ) : 'Tambah Karyawan Baru'}
                             </h3>
                             <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">
-                                Langkah {step} dari 3 • {step === 1 ? 'Data Diri & Penempatan' : step === 2 ? 'Detail Akun (Username)' : 'Keamanan (Password)'}
+                                {mode === 'personal' ? `Langkah ${step} dari 2 • ${step === 1 ? 'Data Personal' : 'Username'}` : 
+                                 mode === 'credentials' ? 'Keamanan (Password)' :
+                                 `Langkah ${step} dari 3 • ${step === 1 ? 'Data Diri' : step === 2 ? 'Username' : 'Password'}`}
                             </p>
                         </div>
                     </div>
@@ -219,15 +247,34 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
                     {/* Progress Bar Dinamis */}
                     <div className="flex gap-2 mb-8">
-                        <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
-                            <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 1 ? 'w-full' : 'w-0'}`} />
-                        </div>
-                        <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
-                            <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 2 ? 'w-full' : 'w-0'}`} />
-                        </div>
-                        <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
-                            <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 3 ? 'w-full' : 'w-0'}`} />
-                        </div>
+                        {mode === 'full' && (
+                            <>
+                                <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                                    <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 1 ? 'w-full' : 'w-0'}`} />
+                                </div>
+                                <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                                    <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 2 ? 'w-full' : 'w-0'}`} />
+                                </div>
+                                <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                                    <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 3 ? 'w-full' : 'w-0'}`} />
+                                </div>
+                            </>
+                        )}
+                        {mode === 'personal' && (
+                            <>
+                                <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                                    <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 1 ? 'w-full' : 'w-0'}`} />
+                                </div>
+                                <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                                    <div className={`h-full bg-primary transition-all duration-500 ease-out ${step >= 2 ? 'w-full' : 'w-0'}`} />
+                                </div>
+                            </>
+                        )}
+                        {mode === 'credentials' && (
+                            <div className="h-1.5 flex-1 rounded-full bg-primary/20 overflow-hidden">
+                                <div className="h-full bg-primary w-full" />
+                            </div>
+                        )}
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
@@ -422,14 +469,25 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                         <ArrowLeft className="w-4 h-4 mr-1" />
                                         Sebelumnya
                                     </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleNext}
-                                        className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                                    >
-                                        Selanjutnya
-                                        <ArrowRight className="w-4 h-4 ml-1" />
-                                    </button>
+                                    
+                                    {mode === 'personal' ? (
+                                        <button
+                                            type="submit"
+                                            className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                        >
+                                            <CheckCircle2 className="w-4 h-4 mr-1" />
+                                            Simpan Perubahan
+                                        </button>
+                                    ) : (
+                                        <button
+                                            type="button"
+                                            onClick={handleNext}
+                                            className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                        >
+                                            Selanjutnya
+                                            <ArrowRight className="w-4 h-4 ml-1" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         )}
@@ -468,14 +526,16 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
                                 {/* Aksi Bawah */}
                                 <div className="pt-4 border-t border-primary/5 mt-8 flex sm:flex-row flex-col gap-3">
-                                    <button
-                                        type="button"
-                                        onClick={handlePrev}
-                                        className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-sm"
-                                    >
-                                        <ArrowLeft className="w-4 h-4 mr-1" />
-                                        Sebelumnya
-                                    </button>
+                                    {mode === 'full' && (
+                                        <button
+                                            type="button"
+                                            onClick={handlePrev}
+                                            className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-sm"
+                                        >
+                                            <ArrowLeft className="w-4 h-4 mr-1" />
+                                            Sebelumnya
+                                        </button>
+                                    )}
                                     <button
                                         type="submit"
                                         className="sm:flex-1 w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 active:scale-[0.98] transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20"

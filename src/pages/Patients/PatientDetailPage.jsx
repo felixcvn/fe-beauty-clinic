@@ -125,8 +125,8 @@ const PatientDetailPage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                {/* KOLOM KIRI: Identitas & Poin */}
-                <div className="space-y-6">
+                {/* KOLOM KIRI: Identitas */}
+                <div className="lg:col-span-1 space-y-6">
                     {/* Kartu Profil */}
                     <div className="bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 p-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
@@ -148,20 +148,18 @@ const PatientDetailPage = () => {
                             </span>
                         </div>
 
-                        {/* Info Grid */}
+                        {/* Info Grid - Responsive Columns */}
                         <div className="relative z-10 space-y-5">
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-x-4 gap-y-5">
                                 <div>
                                     <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">No Member</p>
-                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.noMember}</p>
+                                    <p className="font-bold text-teal-600 text-sm">{patientDetail.noMember}</p>
                                 </div>
                                 <div>
                                     <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">No. RM</p>
-                                    <p className="font-bold text-teal-500 text-sm">{patientDetail.noRM}</p>
+                                    <p className="font-bold text-teal-600 text-sm">{patientDetail.noRM}</p>
                                 </div>
-                            </div>
-                            <div className="h-px w-full bg-primary/5" />
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                                <div className="sm:col-span-2 lg:col-span-1 xl:col-span-2 h-px w-full bg-primary/5 my-1" />
                                 <div>
                                     <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">No. Identitas</p>
                                     <p className="font-bold text-teal-500 text-sm break-all">{patientDetail.noIdentitas}</p>
@@ -170,9 +168,7 @@ const PatientDetailPage = () => {
                                     <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">Tanggal Lahir</p>
                                     <p className="font-bold text-teal-500 text-sm">{patientDetail.tanggalLahir}</p>
                                 </div>
-                            </div>
-                            <div className="h-px w-full bg-primary/5" />
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-5">
+                                <div className="sm:col-span-2 lg:col-span-1 xl:col-span-2 h-px w-full bg-primary/5 my-1" />
                                 <div>
                                     <p className="text-[9px] font-black text-primary/40 uppercase tracking-widest mb-1">Kabupaten/Kota</p>
                                     <p className="font-bold text-teal-500 text-sm">{patientDetail.kabupatenKota}</p>
@@ -189,23 +185,23 @@ const PatientDetailPage = () => {
                 {/* KOLOM KANAN: Riwayat Transaksi */}
                 <div className="lg:col-span-2 bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 overflow-hidden flex flex-col h-full">
                     <div className="flex items-center justify-between border-b border-primary/5 p-4 md:p-6 bg-primary/5">
-                        <div className="flex gap-4">
+                        <div className="flex gap-2 sm:gap-4">
                             <button 
                                 onClick={() => setActiveTab('stok')}
-                                className={`px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${activeTab === 'stok' ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-white'}`}
+                                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest transition-all ${activeTab === 'stok' ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-white'}`}
                             >
                                 Riwayat Stok
                             </button>
                             <button 
                                 onClick={() => setActiveTab('treatment')}
-                                className={`px-6 py-3 rounded-xl font-black text-[11px] uppercase tracking-widest transition-all ${activeTab === 'treatment' ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-white'}`}
+                                className={`px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl font-black text-[10px] sm:text-[11px] uppercase tracking-widest transition-all ${activeTab === 'treatment' ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-white'}`}
                             >
                                 Riwayat Treatment
                             </button>
                         </div>
                     </div>
 
-                    <div className="p-6 flex-1 bg-gray-50/50 space-y-6">
+                    <div className="p-4 sm:p-6 flex-1 bg-gray-50/50 space-y-6">
                         {isLoading ? (
                             <TableSkeleton mode="card" rows={3} />
                         ) : (
@@ -217,7 +213,7 @@ const PatientDetailPage = () => {
                                                 {trx.id}
                                             </div>
                                             <div className="p-5 pt-0">
-                                                <div className="flex justify-between items-center mb-4 pb-4 border-b border-primary/5">
+                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-4 border-b border-primary/5">
                                                     <span className="font-bold text-primary/60 text-sm">Total Order: Rp {trx.total.toLocaleString('id-ID')}</span>
                                                     <span className="flex items-center gap-1.5 text-xs text-primary/40 font-bold"><Calendar className="w-3.5 h-3.5" /> {trx.date}</span>
                                                 </div>

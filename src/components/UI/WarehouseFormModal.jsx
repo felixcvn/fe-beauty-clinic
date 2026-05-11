@@ -6,7 +6,7 @@ import CustomMultiSelect from './CustomMultiSelect';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
-import { stokProdukAPI } from '../../services/api';
+import { stokProdukAPI, paketBundlingsAPI } from '../../services/api';
 import ConfirmModal from './ConfirmModal';
 
 const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, products = [] }) => {
@@ -65,10 +65,19 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                 // Fetch auto-generate code immediately for products
                 if (type === 'product') {
                     const token = localStorage.getItem('token');
-                    stokProdukAPI.getNextCode(token).then(res => {
+                    // Tentukan apakah paket atau bukan berdasarkan initialData atau default (false untuk baru)
+                    const isBundle = initialData ? (initialData.isPackage || !!initialData.Kode_paket) : false;
+                    const apiToUse = isBundle ? paketBundlingsAPI : stokProdukAPI;
+                    
+                    apiToUse.getNextCode(token).then(res => {
                         if (res.success && res.data) {
-                            const nextCode = res.data.next_number || res.data.next_number || res.data.nextNumber || res.data.next_code || (typeof res.data === 'string' ? res.data : '');
-                            setFormState(prev => ({ ...prev, id: nextCode }));
+                            const data = res.data;
+                            const nextCode = 
+                                (data.data && typeof data.data === 'object' ? (data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                                data.next_number || data.nextNumber || data.next_code || data.data || 
+                                (typeof data === 'string' ? data : '');
+                            
+                            if (nextCode) setFormState(prev => ({ ...prev, id: nextCode }));
                         }
                     });
                 }
@@ -91,8 +100,10 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
             } else if (user?.role !== ROLES.GUDANG_UMUM) {
                 if (formState.price === '' || formState.price === null) newErrors.price = "Harga wajib diisi";
             }
-            if (formState.stock === '' || formState.stock === null) newErrors.stock = "Stok wajib diisi";
-            if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
+            if (!formState.isPackage) {
+                if (formState.stock === '' || formState.stock === null) newErrors.stock = "Stok wajib diisi";
+                if (formState.minStock === '' || formState.minStock === null) newErrors.minStock = "Batas minimal stok wajib diisi";
+            }
             
             if (formState.isPackage) {
                 if (!formState.package_items || formState.package_items.length === 0) {
@@ -123,7 +134,41 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
     };
 
     const handleChange = (field, value) => {
-        setFormState(prev => ({ ...prev, [field]: value }));
+        setFormState(prev => {
+            const newState = { ...prev, [field]: value };
+            
+            // Jika toggle isPackage berubah pada mode TAMBAH
+            if (field === 'isPackage' && !initialData?.uid && type === 'product') {
+                const token = localStorage.getItem('token');
+                const apiToUse = value ? paketBundlingsAPI : stokProdukAPI;
+                
+                if (value) {
+                    // Set kategori Paket, stok 0 dan ambil kode paket otomatis
+                    setFormState(current => ({ 
+                        ...current, 
+                        category: 'Paket',
+                        stock: 0,
+                        minStock: 0
+                    }));
+                } else {
+                    setFormState(current => ({ ...current, category: '' }));
+                }
+
+                apiToUse.getNextCode(token).then(res => {
+                    if (res.success && res.data) {
+                        const data = res.data;
+                        const nextCode = 
+                            (data.data && typeof data.data === 'object' ? (data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                            data.next_number || data.nextNumber || data.next_code || data.data || 
+                            (typeof data === 'string' ? data : '');
+                        
+                        if (nextCode) setFormState(current => ({ ...current, id: nextCode }));
+                    }
+                });
+            }
+            
+            return newState;
+        });
         if (errors[field]) {
             setErrors(prev => ({ ...prev, [field]: null }));
         }
@@ -210,7 +255,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                 type="text"
                                 value={formState.id}
                                 onChange={(e) => handleChange('id', e.target.value)}
-                                className={`${getDynamicInputClass('id')} ${!initialData?.uid ? 'bg-gray-100 text-primary/60 cursor-not-allowed' : ''}`}
+                                className={`${getDynamicInputClass('id')} ${!initialData?.uid ? 'bg-white text-primary' : 'bg-gray-100 text-primary/60 cursor-not-allowed'}`}
                                 placeholder="Memuat kode otomatis..."
                                 readOnly={!initialData?.uid}
                             />
@@ -380,7 +425,8 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                         label="Kategori"
                                         value={formState.category}
                                         onChange={(value) => handleChange('category', value)}
-                                        options={type === 'product' ? [
+                                        disabled={formState.isPackage}
+                                        options={formState.isPackage ? [{ value: 'Paket', label: 'Paket Bundling' }] : (type === 'product' ? [
                                             { value: 'Obat', label: 'Obat' },
                                             { value: 'Skincare', label: 'Skincare' },
                                             { value: 'Lainnya', label: 'Lainnya' },
@@ -390,7 +436,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                             { value: 'Cairan', label: 'Cairan' },
                                         ] : [
                                             { value: 'Racikan', label: 'Racikan Khusus' }
-                                        ]}
+                                        ])}
                                     />
                                     {errors.category && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.category}</p>}
                                 </div>
@@ -436,7 +482,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                             ) : null}
                         </div>
 
-                        {(type === 'product' || type === 'racikan' || type === 'material') && (
+                        {(type === 'product' || type === 'racikan' || type === 'material') && !formState.isPackage && (
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className={labelClassName}>Stok Tersedia</label>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck, RefreshCw, Wifi, WifiOff, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -74,6 +74,7 @@ const mapKaryawanFromAPI = (k) => {
         alamat:   k.Alamat || k.alamat,
         tanggal_bergabung: k.Tanggal_bergabung || k.tanggal_bergabung,
         kode_karyawan: k.kode_karyawan || k.Kode_Karyawan,
+        username: k.username || k.Username || '',
         _source:  'api',
     };
 };
@@ -136,6 +137,7 @@ const StaffPage = () => {
     // Modal State
     const [editingStaff, setEditingStaff] = useState(null);
     const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
+    const [modalMode, setModalMode] = useState('full'); // 'full', 'personal', 'credentials'
     const [detailStaff, setDetailStaff] = useState(null);
 
     // Confirm Dialog State
@@ -166,11 +168,16 @@ const StaffPage = () => {
         : filteredStaff.length;
 
     /* ── Handlers ── */
-    const handleOpenAdd  = () => { setEditingStaff(null);  setIsStaffModalOpen(true); };
+    const handleOpenAdd  = () => { 
+        setEditingStaff(null);  
+        setModalMode('full');
+        setIsStaffModalOpen(true); 
+    };
     
     const handleOpenEdit = async (staff) => {
         if (!isApiMode) {
             setEditingStaff(staff);
+            setModalMode('personal');
             setIsStaffModalOpen(true);
             return;
         }
@@ -191,6 +198,34 @@ const StaffPage = () => {
             showToast('Terjadi kesalahan koneksi saat memuat data', 'error');
         } finally {
             setIsLoading(false);
+            setModalMode('personal');
+            setIsStaffModalOpen(true);
+        }
+    };
+
+    const handleOpenCredentials = async (staff) => {
+        if (!isApiMode) {
+            setEditingStaff(staff);
+            setModalMode('credentials');
+            setIsStaffModalOpen(true);
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            const token = user?.token || localStorage.getItem('token');
+            const result = await karyawanAPI.getById(token, staff.id);
+            
+            if (result.success && result.data) {
+                setEditingStaff(mapKaryawanFromAPI(result.data));
+            } else {
+                setEditingStaff(staff);
+            }
+        } catch (error) {
+            setEditingStaff(staff);
+        } finally {
+            setIsLoading(false);
+            setModalMode('credentials');
             setIsStaffModalOpen(true);
         }
     };
@@ -213,12 +248,23 @@ const StaffPage = () => {
                     setIsLoading(true);
                     try {
                         if (isEdit) {
-                            const result = await karyawanAPI.update(token, editingStaff.id, pendingSaveRef.current);
+                            let result;
+                            if (modalMode === 'credentials') {
+                                result = await karyawanAPI.resetPassword(token, editingStaff.id, pendingSaveRef.current);
+                            } else {
+                                result = await karyawanAPI.update(token, editingStaff.id, pendingSaveRef.current);
+                            }
+
                             if (result.success) {
-                                showToast('Data karyawan berhasil diperbarui', 'success');
+                                showToast(
+                                    modalMode === 'credentials' 
+                                        ? 'Password berhasil direset' 
+                                        : 'Data karyawan berhasil diperbarui', 
+                                    'success'
+                                );
                                 fetchKaryawan(currentPage);
                             } else {
-                                showToast(result.message || 'Gagal memperbarui karyawan', 'error');
+                                showToast(result.message || 'Gagal memperbarui data', 'error');
                             }
                         } else {
                             const result = await karyawanAPI.create(token, pendingSaveRef.current);
@@ -293,6 +339,7 @@ const StaffPage = () => {
                 onSave={handleRequestSave}
                 initialData={editingStaff}
                 existingStaff={staffList}
+                mode={modalMode}
             />
             <StaffDetailModal
                 isOpen={!!detailStaff}
@@ -418,9 +465,16 @@ const StaffPage = () => {
                                                 <button
                                                     onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
                                                     className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
-                                                    title="Edit"
+                                                    title="Edit Profil & Username"
                                                 >
                                                     <Edit3 className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={(e) => { e.stopPropagation(); handleOpenCredentials(staff); }}
+                                                    className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95"
+                                                    title="Reset Password"
+                                                >
+                                                    <Lock className="w-4 h-4" />
                                                 </button>
 
                                             </div>
@@ -486,7 +540,13 @@ const StaffPage = () => {
                                         onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
                                         className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
                                     >
-                                        <Edit3 className="w-3.5 h-3.5" /> Edit
+                                        <Edit3 className="w-3.5 h-3.5" /> Data Diri
+                                    </button>
+                                    <button
+                                        onClick={(e) => { e.stopPropagation(); handleOpenCredentials(staff); }}
+                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
+                                    >
+                                        <Lock className="w-3.5 h-3.5" /> Akun
                                     </button>
 
                                 </div>

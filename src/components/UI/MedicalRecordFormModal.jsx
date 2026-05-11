@@ -10,6 +10,18 @@ import ConfirmModal from './ConfirmModal';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { pasienAPI, karyawanAPI } from '../../services/api';
+
+const mapPatientFromAPI = (p) => ({
+    id: p.id,
+    name: p.Nama_pasien || p.nama_pasien || p.namaLengkap,
+});
+
+const mapStaffFromAPI = (k) => ({
+    id: k.id,
+    name: k.nama_lengkap || k.NamaLengkap_karyawan || k.nama || 'Tanpa Nama',
+    divisi: k.divisi || k.Divisi || k.Jabatan || k.jabatan || k.posisi || '',
+});
 
 const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName = null }) => {
     const { patients, products, racikans, treatments, staff, addRecord } = useMockData();
@@ -41,13 +53,23 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [errors, setErrors] = useState({});
     const [confirmConfig, setConfirmConfig] = useState(null);
 
+    // API State
+    const [apiPatients, setApiPatients] = useState([]);
+    const [apiStaff, setApiStaff] = useState([]);
+    const [isFetchingData, setIsFetchingData] = useState(false);
+
 
     // Options mapping
-    const doctorOptions = staff
-        .filter(s => s.divisi === 'Dokter')
+    const activeStaff = apiStaff.length > 0 ? apiStaff : staff;
+    const doctorOptions = activeStaff
+        .filter(s => {
+            const div = (s.divisi || '').toLowerCase();
+            return div.includes('dokter') || div.includes('dr.');
+        })
         .map(s => ({ value: s.id, label: s.name }));
     
-    const patientOptions = patients.map(p => ({ value: p.id, label: `${p.name} (${p.id})` }));
+    const activePatients = apiPatients.length > 0 ? apiPatients : patients;
+    const patientOptions = activePatients.map(p => ({ value: p.id, label: `${p.name} (${p.id})` }));
     const treatmentOptions = treatments.map(t => ({ value: t.id, label: t.name }));
     const productOptions = products.map(p => ({ value: p.id, label: `${p.name} (${p.category})` }));
     const racikanOptions = racikans.map(r => ({ value: r.id, label: r.name }));
@@ -65,6 +87,37 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 setSelectedDoctorId(doc?.id || '');
             } else {
                 setSelectedDoctorId('');
+            }
+
+            // Fetch Data if user has token
+            if (user?.token) {
+                const fetchData = async () => {
+                    setIsFetchingData(true);
+                    try {
+                        // Parallel fetch for speed
+                        const [patientResult, staffResult] = await Promise.all([
+                            pasienAPI.getAll(user.token, 1),
+                            karyawanAPI.getAll(user.token, 1, 'per_page=100')
+                        ]);
+
+                        if (patientResult.success && patientResult.data) {
+                            const responseData = patientResult.data.data || patientResult.data;
+                            const patientArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                            setApiPatients(patientArray.map(mapPatientFromAPI));
+                        }
+
+                        if (staffResult.success && staffResult.data) {
+                            const responseData = staffResult.data.data || staffResult.data;
+                            const staffArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                            setApiStaff(staffArray.map(mapStaffFromAPI));
+                        }
+                    } catch (error) {
+                        console.error('Error fetching data for MR:', error);
+                    } finally {
+                        setIsFetchingData(false);
+                    }
+                };
+                fetchData();
             }
 
             setPerawatanSebelumnya('');

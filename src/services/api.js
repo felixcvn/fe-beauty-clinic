@@ -11,7 +11,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : ' https://composite-footprint-overarch.ngrok-free.dev/api';
+const BASE_URL = isLocalhost ? '/api' : 'https://heidi-overloose-removably.ngrok-free.dev/api';
 
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
@@ -100,9 +100,10 @@ export const karyawanAPI = {
      * @param {number} page
      * @returns {Promise<{success: boolean, data?: object, message?: string}>}
      */
-    getAll: async (token, page = 1) => {
+    getAll: async (token, page = 1, params = '') => {
         try {
-            const response = await fetch(`${BASE_URL}/karyawan?page=${page}`, {
+            const queryParams = params ? `&${params}` : '';
+            const response = await fetch(`${BASE_URL}/karyawan?page=${page}${queryParams}`, {
                 method: 'GET',
                 headers: getHeaders(token),
             });
@@ -290,6 +291,36 @@ export const karyawanAPI = {
             }
         } catch (error) {
             console.error('[API] Update karyawan error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+
+    /**
+     * Reset password karyawan
+     * @param {string} token
+     * @param {string|number} id
+     * @param {object} data
+     */
+    resetPassword: async (token, id, data) => {
+        try {
+            const payload = {
+                Password: data.password,
+                password: data.password,
+            };
+            const response = await fetch(`${BASE_URL}/karyawan/${id}/reset-password`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mereset password' };
+        } catch (error) {
+            console.error('[API] Reset password error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
@@ -557,6 +588,9 @@ export const stokProdukAPI = {
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
+
+
+
     getNextCode: async (token) => {
         try {
             const response = await fetch(`${BASE_URL}/stok-produk/next-number`, {
@@ -564,85 +598,28 @@ export const stokProdukAPI = {
                 headers: getHeaders(token),
             });
             const json = await response.json();
-            if (response.ok) {
-                return { success: true, data: json.data || json };
-            }
+            if (response.ok) return { success: true, data: json };
             return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
-        } catch (error) {
-            console.error('[API] Get next code error:', error);
-            return { success: false, message: 'Tidak dapat terhubung ke server.' };
-        }
-    },
-
-    getById: async (token, id) => {
-        try {
-            const response = await fetch(`${BASE_URL}/stok-produk/${id}`, {
-                method: 'GET',
-                headers: getHeaders(token),
-            });
-            const json = await response.json();
-            if (response.ok) {
-                return { success: true, data: json.data || json };
-            }
-            return { success: false, message: json.message || 'Gagal mengambil detail stok produk' };
-        } catch (error) {
-            console.error('[API] Get detail stok produk error:', error);
-            return { success: false, message: 'Tidak dapat terhubung ke server.' };
-        }
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
 
     create: async (token, data) => {
         try {
-            // Super-Redundant Payload: Kirim SEMUA variasi field agar pasti masuk ke database
-            const payload = {
-                // Identitas & Nama
-                Kode_Produk: data.id,
-                Kode_paket: data.id,
-                Nama_produk: data.name,
-                Nama_paket: data.name,
-                Deskripsi: data.description || '',
-                Kategori: data.category || (data.isPackage ? 'Paket' : 'Lainnya'),
-                
-                // Harga
-                Harga: data.price || 0,
-                Harga_paket: data.price || 0,
-                Harga_Distributor: data.priceDistributor || 0,
-                harga_distributor: data.priceDistributor || 0,
-                Harga_Distributor_paket: data.priceDistributor || 0,
-                
-                // Stok
-                Stok: data.stock || 0,
-                stok: data.stock || 0,
-                Batas_minimal_stok: data.minStock || 0,
-                batas_minimal_stok: data.minStock || 0,
-                
-                // Flag
-                is_package: data.isPackage ? 1 : 0,
-                is_paket: data.isPackage ? 1 : 0,
+            // Jika paket (bundle), gunakan paketBundlingsAPI
+            if (data.isPackage) {
+                return await paketBundlingsAPI.create(token, data);
+            }
 
-                // Daftar Produk Paket (Kirim dalam berbagai format)
-                produks: (data.package_items || []).map(item => ({
-                    stok_produk_id: item.id,
-                    produk_id: item.id,
-                    id: item.id,
-                    Jumlah: item.quantity,
-                    jumlah: item.quantity,
-                    qty: item.quantity
-                })),
-                produk: (data.package_items || []).map(item => ({
-                    stok_produk_id: item.id,
-                    produk_id: item.id,
-                    id: item.id,
-                    Jumlah: item.quantity,
-                    jumlah: item.quantity,
-                    qty: item.quantity
-                })),
-                package_items: (data.package_items || []).map(item => ({
-                    stok_produk_id: item.id,
-                    Jumlah: item.quantity
-                })),
-                produk_ids: (data.package_items || []).map(item => item.id),
-                quantities: (data.package_items || []).map(item => item.quantity)
+            const payload = {
+                Kode_Produk: data.id,
+                Nama_produk: data.name,
+                Deskripsi: data.description || '',
+                Kategori: data.category || 'Lainnya',
+                Harga: data.price || 0,
+                Harga_Distributor: data.priceDistributor || 0,
+                Stok: data.stock || 0,
+                Batas_minimal_stok: data.minStock || 0,
+                is_package: 0
             };
 
             const response = await fetch(`${BASE_URL}/stok-produk`, {
@@ -669,57 +646,22 @@ export const stokProdukAPI = {
 
     update: async (token, id, data) => {
         try {
-            // Super-Redundant Payload untuk Update
+            // Jika paket (bundle), gunakan paketBundlingsAPI
+            if (data.isPackage) {
+                return await paketBundlingsAPI.update(token, id, data);
+            }
+
             const payload = {
                 _method: 'PUT',
-                // Identitas & Nama
                 Kode_Produk: data.id,
-                Kode_paket: data.id,
                 Nama_produk: data.name,
-                Nama_paket: data.name,
                 Deskripsi: data.description || '',
-                Kategori: data.category || (data.isPackage ? 'Paket' : 'Lainnya'),
-                
-                // Harga
+                Kategori: data.category || 'Lainnya',
                 Harga: data.price || 0,
-                Harga_paket: data.price || 0,
                 Harga_Distributor: data.priceDistributor || 0,
-                harga_distributor: data.priceDistributor || 0,
-                Harga_Distributor_paket: data.priceDistributor || 0,
-                
-                // Stok
                 Stok: data.stock || 0,
-                stok: data.stock || 0,
                 Batas_minimal_stok: data.minStock || 0,
-                batas_minimal_stok: data.minStock || 0,
-                
-                // Flag
-                is_package: data.isPackage ? 1 : 0,
-                is_paket: data.isPackage ? 1 : 0,
-
-                // Daftar Produk Paket
-                produks: (data.package_items || []).map(item => ({
-                    stok_produk_id: item.id,
-                    produk_id: item.id,
-                    id: item.id,
-                    Jumlah: item.quantity,
-                    jumlah: item.quantity,
-                    qty: item.quantity
-                })),
-                produk: (data.package_items || []).map(item => ({
-                    stok_produk_id: item.id,
-                    produk_id: item.id,
-                    id: item.id,
-                    Jumlah: item.quantity,
-                    jumlah: item.quantity,
-                    qty: item.quantity
-                })),
-                package_items: (data.package_items || []).map(item => ({
-                    stok_produk_id: item.id,
-                    Jumlah: item.quantity
-                })),
-                produk_ids: (data.package_items || []).map(item => item.id),
-                quantities: (data.package_items || []).map(item => item.quantity)
+                is_package: 0
             };
 
             const response = await fetch(`${BASE_URL}/stok-produk/${id}`, {
@@ -744,9 +686,10 @@ export const stokProdukAPI = {
         }
     },
     
-    delete: async (token, id) => {
+    delete: async (token, id, isPackage = false) => {
         try {
-            const response = await fetch(`${BASE_URL}/stok-produk/${id}`, {
+            const endpoint = isPackage ? `/paket-bundling/${id}` : `/stok-produk/${id}`;
+            const response = await fetch(`${BASE_URL}${endpoint}`, {
                 method: 'DELETE',
                 headers: getHeaders(token),
             });
@@ -755,13 +698,106 @@ export const stokProdukAPI = {
                 return { success: true };
             } else {
                 const json = await response.json();
-                return { success: false, message: json.message || 'Gagal menghapus stok produk' };
+                return { success: false, message: json.message || 'Gagal menghapus item' };
             }
         } catch (error) {
             console.error('[API] Delete stok produk error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Paket Bundlings API
+───────────────────────────────────────────────────────────── */
+export const paketBundlingsAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/paket-bundling`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data paket bundling' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/paket-bundling/next-number`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                // Capitalized (as requested earlier)
+                Kode_paket: data.id,
+                Nama_paket: data.name,
+                Deskripsi: data.description || '',
+                Harga_paket: data.price || 0,
+                Harga_Distributor_paket: data.priceDistributor || 0,
+                produks: (data.package_items || []).map(item => ({
+                    stok_produk_id: Number(item.id),
+                    Jumlah: Number(item.quantity)
+                })),
+                
+                // Lowercase aliases (common for Laravel validation)
+                kode_paket: data.id,
+                nama_paket: data.name,
+                deskripsi: data.description || '',
+                harga_paket: data.price || 0,
+                harga_distributor_paket: data.priceDistributor || 0
+            };
+            const response = await fetch(`${BASE_URL}/paket-bundling`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah paket bundling' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                _method: 'PUT',
+                // Capitalized
+                Kode_paket: data.id,
+                Nama_paket: data.name,
+                Deskripsi: data.description || '',
+                Harga_paket: data.price || 0,
+                Harga_Distributor_paket: data.priceDistributor || 0,
+                produks: (data.package_items || []).map(item => ({
+                    stok_produk_id: Number(item.id),
+                    Jumlah: Number(item.quantity)
+                })),
+
+                // Lowercase aliases
+                kode_paket: data.id,
+                nama_paket: data.name,
+                deskripsi: data.description || '',
+                harga_paket: data.price || 0,
+                harga_distributor_paket: data.priceDistributor || 0
+            };
+            const response = await fetch(`${BASE_URL}/paket-bundling/${id}`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate paket bundling' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
 };
 
 /* ─────────────────────────────────────────────────────────────

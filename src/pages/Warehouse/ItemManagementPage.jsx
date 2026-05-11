@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import ConfirmModal from '../../components/UI/ConfirmModal';
-import { stokProdukAPI } from '../../services/api';
+import { stokProdukAPI, paketBundlingsAPI } from '../../services/api';
 
 
 /**
@@ -62,26 +62,66 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const fetchProducts = async () => {
         setIsLoading(true);
         const token = localStorage.getItem('token');
-        const res = await stokProdukAPI.getAll(token);
-        if (res.success) {
-            // Map data dari backend (Database Case) ke UI format
-            const mapped = res.data.map(item => ({
-                uid: item.id,
-                id: item.Kode_Produk || item.Kode_paket,
-                name: item.Nama_produk || item.Nama_paket,
-                category: item.Kategori || (item.Kode_paket ? 'Paket' : 'Lainnya'),
-                price: Number(item.Harga || item.harga || item.Harga_paket || 0),
-                priceDistributor: Number(item.Harga_Distributor || item.harga_distributor || item.Price_Distributor || item.Harga_Distributor_paket || 0),
-                stock: Number(item.Stok || item.stok || 0),
-                minStock: Number(item.Batas_minimal_stok || item.batas_minimal_stok || 0),
-                isPackage: item.is_package == 1 || item.is_package === true || item.isPackage === true || !!item.Kode_paket || !!item.Nama_paket || !!item.Harga_paket || (Array.isArray(item.produks) && item.produks.length > 0),
-                description: item.Deskripsi || item.description || '',
-                package_items: Array.isArray(item.produks || item.produk) ? (item.produks || item.produk).map(p => ({ id: Number(p.stok_produk_id || p.produk_id || p.id || p.pivot?.stok_produk_id), quantity: Number(p.pivot?.Jumlah || p.Jumlah || p.jumlah || p.qty || 0) })) : []
-            }));
-            setProducts(mapped);
-        } else {
-            showToast(res.message || 'Gagal memuat stok produk dari server', 'error');
+        
+        try {
+            // Fetch dari kedua endpoint secara paralel
+            const [stokRes, bundleRes] = await Promise.all([
+                stokProdukAPI.getAll(token),
+                paketBundlingsAPI.getAll(token)
+            ]);
+
+            let allProducts = [];
+
+            // Map data stok-produk
+            if (stokRes.success) {
+                const rawData = stokRes.data?.data || stokRes.data || [];
+                const mappedStok = (Array.isArray(rawData) ? rawData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_Produk,
+                    name: item.Nama_produk,
+                    category: item.Kategori || 'Lainnya',
+                    price: Number(item.Harga || item.harga || 0),
+                    priceDistributor: Number(item.Harga_Distributor || item.harga_distributor || 0),
+                    stock: Number(item.Stok || item.stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || item.batas_minimal_stok || 0),
+                    isPackage: false,
+                    description: item.Deskripsi || item.description || ''
+                }));
+                allProducts = [...allProducts, ...mappedStok];
+            }
+
+            // Map data paket-bundling
+            if (bundleRes.success) {
+                const rawBundleData = bundleRes.data?.data || bundleRes.data || [];
+                const mappedBundles = (Array.isArray(rawBundleData) ? rawBundleData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_paket,
+                    name: item.Nama_paket,
+                    category: 'Paket',
+                    price: Number(item.Harga_paket || 0),
+                    priceDistributor: Number(item.Harga_Distributor_paket || 0),
+                    stock: 0,
+                    minStock: 0,
+                    isPackage: true,
+                    description: item.Deskripsi || '',
+                    package_items: Array.isArray(item.produks) ? item.produks.map(p => ({
+                        id: Number(p.stok_produk_id || p.id),
+                        quantity: Number(p.pivot?.Jumlah || p.Jumlah || 0)
+                    })) : []
+                }));
+                allProducts = [...allProducts, ...mappedBundles];
+            }
+
+            setProducts(allProducts);
+
+            if (!stokRes.success && !bundleRes.success) {
+                showToast('Gagal memuat data dari server', 'error');
+            }
+        } catch (error) {
+            console.error('[Inventory] Fetch error:', error);
+            showToast('Terjadi kesalahan saat memuat data', 'error');
         }
+        
         setIsLoading(false);
     };
 
@@ -226,7 +266,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
             onAccept: async () => {
                 if (item._type === 'product') {
                     const token = localStorage.getItem('token');
-                    const res = await stokProdukAPI.delete(token, item.uid);
+                    const res = await stokProdukAPI.delete(token, item.uid, item.isPackage);
                     if (res.success) {
                         showToast('Stok berhasil dihapus', 'success');
                         fetchProducts();
@@ -540,30 +580,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                      <td className="px-4 py-1 text-sm font-medium text-primary tracking-tight">
                                                          <div className="flex items-center gap-2 mb-1">
                                                              <span>{item.name}</span>
-                                                             {item.isPackage && (
-                                                                 <span className="flex items-center gap-1 text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase tracking-tighter">
-                                                                     Paket
-                                                                 </span>
-                                                             )}
                                                          </div>
-                                                         {item.isPackage && (
-                                                             <div className="text-[10px] text-primary/40 font-bold mt-1">
-                                                                 {item.description ? (
-                                                                     <span className="italic">{item.description}</span>
-                                                                 ) : (
-                                                                     <div className="flex flex-wrap gap-1">
-                                                                         {(item.package_items || []).map((pi, idx) => {
-                                                                             const pName = products.find(p => p.id === pi.id)?.name || pi.id;
-                                                                             return (
-                                                                                 <span key={pi.id} className="bg-primary/5 px-1.5 py-0.5 rounded">
-                                                                                     {pi.quantity}x {pName}{idx < item.package_items.length - 1 ? ',' : ''}
-                                                                                 </span>
-                                                                             );
-                                                                         })}
-                                                                     </div>
-                                                                 )}
-                                                             </div>
-                                                         )}
                                                      </td>
                                                     <td className="px-4 py-1 text-sm font-medium text-primary/80">{item.category}</td>
                                                     <td className="px-4 py-1">
@@ -610,8 +627,10 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                     <td className="px-4 py-1">
                                                         {item._type === 'product' || item._type === 'racikan' || item._type === 'material' ? (
                                                             <div className="flex items-center gap-2">
-                                                                <span className={`font-medium text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
-                                                                {item.stock <= (item.minStock || 5) && (
+                                                                <span className={`font-medium text-sm ${(!item.isPackage && item.stock <= (item.minStock || 5)) ? 'text-red-500' : 'text-primary'}`}>
+                                                                    {item.isPackage ? '-' : item.stock}
+                                                                </span>
+                                                                {!item.isPackage && item.stock <= (item.minStock || 5) && (
                                                                     <span className="flex items-center gap-1 text-[10px] font-medium text-red-500 bg-red-50 px-2 py-0.5 rounded-md uppercase tracking-widest">
                                                                         <AlertTriangle className="w-3 h-3" /> Low
                                                                     </span>

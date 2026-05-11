@@ -8,6 +8,7 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import ConfirmModal from '../../components/UI/ConfirmModal';
+import { stokProdukAPI, paketBundlingsAPI } from '../../services/api';
 
 
 const SuperAdminInventoryPage = () => {
@@ -21,6 +22,9 @@ const SuperAdminInventoryPage = () => {
         apotekItems, addApotekItem, updateApotekItem, deleteApotekItem
     } = useMockData();
     const { showToast } = useToast();
+
+    // Data produk dari backend
+    const [productsFromAPI, setProductsFromAPI] = useState([]);
 
     // Filter state: 'all', 'product', 'treatment', 'racikan', 'material', 'medical', 'infusion', 'apotekItem'
     const [activeFilter, setActiveFilter] = useState('all');
@@ -36,15 +40,83 @@ const SuperAdminInventoryPage = () => {
 
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
 
-    // Simulate loading
+    /**
+     * Mengambil daftar produk dari server menggunakan API stokProduk
+     * dan memetakan datanya ke format yang digunakan di UI.
+     */
+    const fetchProducts = async () => {
+        setIsLoading(true);
+        const token = localStorage.getItem('token');
+        
+        try {
+            // Fetch dari kedua endpoint secara paralel
+            const [stokRes, bundleRes] = await Promise.all([
+                stokProdukAPI.getAll(token),
+                paketBundlingsAPI.getAll(token)
+            ]);
+
+            let allProducts = [];
+
+            // Map data stok-produk
+            if (stokRes.success) {
+                const rawData = stokRes.data?.data || stokRes.data || [];
+                const mappedStok = (Array.isArray(rawData) ? rawData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_Produk,
+                    name: item.Nama_produk,
+                    category: item.Kategori || 'Lainnya',
+                    price: Number(item.Harga || item.harga || 0),
+                    priceDistributor: Number(item.Harga_Distributor || item.harga_distributor || 0),
+                    stock: Number(item.Stok || item.stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || item.batas_minimal_stok || 0),
+                    isPackage: false,
+                    description: item.Deskripsi || item.description || ''
+                }));
+                allProducts = [...allProducts, ...mappedStok];
+            }
+
+            // Map data paket-bundlings
+            if (bundleRes.success) {
+                const rawBundleData = bundleRes.data?.data || bundleRes.data || [];
+                const mappedBundles = (Array.isArray(rawBundleData) ? rawBundleData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_paket,
+                    name: item.Nama_paket,
+                    category: 'Paket',
+                    price: Number(item.Harga_paket || 0),
+                    priceDistributor: Number(item.Harga_Distributor_paket || 0),
+                    stock: 0, // Bundles don't have stock usually
+                    minStock: 0,
+                    isPackage: true,
+                    description: item.Deskripsi || '',
+                    package_items: Array.isArray(item.produks) ? item.produks.map(p => ({
+                        id: Number(p.stok_produk_id || p.id),
+                        quantity: Number(p.pivot?.Jumlah || p.Jumlah || 0)
+                    })) : []
+                }));
+                allProducts = [...allProducts, ...mappedBundles];
+            }
+
+            setProductsFromAPI(allProducts);
+
+            if (!stokRes.success && !bundleRes.success) {
+                showToast('Gagal memuat data dari server', 'error');
+            }
+        } catch (error) {
+            console.error('[Inventory] Fetch error:', error);
+            showToast('Terjadi kesalahan saat memuat data', 'error');
+        }
+        
+        setIsLoading(false);
+    };
+
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
+        fetchProducts();
     }, []);
 
     // Combine data (excluding treatments and racikans as requested)
     const allItems = [
-        ...products.map(p => ({ ...p, _type: 'product' })),
+        ...productsFromAPI.map(p => ({ ...p, _type: 'product' })),
         ...materials.map(m => ({ ...m, _type: 'material' })),
         ...medicals.map(m => ({ ...m, _type: 'medical' })),
         ...infusions.map(i => ({ ...i, _type: 'infusion' })),
@@ -97,31 +169,53 @@ const SuperAdminInventoryPage = () => {
                 `Simpan perubahan untuk ${data.name}?` : 
                 `Tambahkan ${data.name} ke daftar stok?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
-            onAccept: () => {
+            onAccept: async () => {
+                const token = localStorage.getItem('token');
+                
                 if (modalType === 'product') {
-                    if (editingItem) updateProduct(data);
-                    else addProduct(data);
+                    if (isEdit) {
+                        const res = await stokProdukAPI.update(token, data.uid, data);
+                        if (res.success) {
+                            showToast('Stok berhasil diperbarui', 'success');
+                            fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal memperbarui stok', 'error');
+                        }
+                    } else {
+                        const res = await stokProdukAPI.create(token, data);
+                        if (res.success) {
+                            showToast('Stok berhasil ditambahkan', 'success');
+                            fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal menambah stok', 'error');
+                        }
+                    }
                 } else if (modalType === 'treatment') {
                     if (editingItem) updateTreatment(data);
                     else addTreatment(data);
+                    showToast('Data berhasil disimpan', 'success');
                 } else if (modalType === 'racikan') {
                     if (editingItem) updateRacikan(data);
                     else addRacikan(data);
+                    showToast('Data berhasil disimpan', 'success');
                 } else if (modalType === 'material') {
                     if (editingItem) updateMaterial(data);
                     else addMaterial(data);
+                    showToast('Data berhasil disimpan', 'success');
                 } else if (modalType === 'medical') {
                     if (editingItem) updateMedical(data);
                     else addMedical(data);
+                    showToast('Data berhasil disimpan', 'success');
                 } else if (modalType === 'infusion') {
                     if (editingItem) updateInfusion(data);
                     else addInfusion(data);
+                    showToast('Data berhasil disimpan', 'success');
                 } else if (modalType === 'apotekItem') {
                     if (editingItem) updateApotekItem(data);
                     else addApotekItem(data);
+                    showToast('Data berhasil disimpan', 'success');
                 }
                 
-                showToast('Data berhasil disimpan', 'success');
                 setIsWarehouseModalOpen(false);
                 setIsApotekModalOpen(false);
                 setEditingItem(null);
@@ -135,16 +229,23 @@ const SuperAdminInventoryPage = () => {
             header: 'Hapus Item?',
             message: `Yakin ingin menghapus ${item.name}?`,
             acceptLabel: 'Ya, Hapus',
-            onAccept: () => {
-                if (item._type === 'product') deleteProduct(item.id);
-                else if (item._type === 'treatment') deleteTreatment(item.id);
-                else if (item._type === 'racikan') deleteRacikan(item.id);
-                else if (item._type === 'material') deleteMaterial(item.id);
-                else if (item._type === 'medical') deleteMedical(item.id);
-                else if (item._type === 'infusion') deleteInfusion(item.id);
-                else if (item._type === 'apotekItem') deleteApotekItem(item.id);
-                
-                showToast('Data berhasil dihapus', 'success');
+            onAccept: async () => {
+                const token = localStorage.getItem('token');
+                if (item._type === 'product') {
+                    const res = await stokProdukAPI.delete(token, item.uid, item.isPackage);
+                    if (res.success) {
+                        showToast('Stok berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus stok', 'error');
+                    }
+                }
+                else if (item._type === 'treatment') { deleteTreatment(item.id); showToast('Data berhasil dihapus', 'success'); }
+                else if (item._type === 'racikan') { deleteRacikan(item.id); showToast('Data berhasil dihapus', 'success'); }
+                else if (item._type === 'material') { deleteMaterial(item.id); showToast('Data berhasil dihapus', 'success'); }
+                else if (item._type === 'medical') { deleteMedical(item.id); showToast('Data berhasil dihapus', 'success'); }
+                else if (item._type === 'infusion') { deleteInfusion(item.id); showToast('Data berhasil dihapus', 'success'); }
+                else if (item._type === 'apotekItem') { deleteApotekItem(item.id); showToast('Data berhasil dihapus', 'success'); }
             }
         });
     };
@@ -287,9 +388,24 @@ const SuperAdminInventoryPage = () => {
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
                                         <th className="px-4 py-3 text-primary/80">Kode</th>
-                                        <th className="px-4 py-3 text-primary/80">Tipe</th>
-                                        <th className="px-4 py-3 text-primary/80">Nama</th>
-                                        <th className="px-4 py-3 text-primary/80">Kategori / Harga</th>
+                                        {activeFilter === 'product' ? (
+                                            <>
+                                                <th className="px-4 py-3 text-primary/80">Nama</th>
+                                                <th className="px-4 py-3 text-primary/80">Kategori</th>
+                                                <th className="px-4 py-3 text-primary/80">Tipe</th>
+                                                <th className="px-4 py-3 text-primary/80">Harga Normal</th>
+                                                <th className="px-4 py-3 text-primary/80">Harga Distributor</th>
+                                            </>
+                                        ) : (
+                                            <>
+                                                {/* Hapus Tipe untuk bahan medis, infus, dan treatment */}
+                                                {!['material', 'medical', 'infusion'].includes(activeFilter) && (
+                                                    <th className="px-4 py-3 text-primary/80">Tipe</th>
+                                                )}
+                                                <th className="px-4 py-3 text-primary/80">Nama</th>
+                                                <th className="px-4 py-3 text-primary/80">Harga</th>
+                                            </>
+                                        )}
                                         <th className="px-4 py-3 text-primary/80">Stok</th>
                                         <th className="px-4 py-3 text-right text-primary/80">Aksi</th>
                                     </tr>
@@ -298,30 +414,57 @@ const SuperAdminInventoryPage = () => {
                                     {currentItems.map((item) => (
                                         <tr key={`${item._type}-${item.id}`} className="group hover:bg-primary/[0.02] transition-colors">
                                             <td className="px-4 py-2 font-medium text-xs text-primary/80">{item.id}</td>
-                                            <td className="px-4 py-2">
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-2 py-1 rounded-md">
-                                                    {item._type === 'product' ? 'produk' : 
-                                                     item._type === 'material' ? 'bhn treatment' :
-                                                     item._type === 'medical' ? 'bhn medis' :
-                                                     item._type === 'infusion' ? 'bhn infus' :
-                                                     item._type === 'apotekItem' ? 'brg apotek' : item._type}
-                                                </span>
-                                            </td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
-                                            <td className="px-4 py-2 text-sm font-medium text-primary/80">
-                                                {item.category || (item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-')}
-                                            </td>
+                                            
+                                            {activeFilter === 'product' ? (
+                                                <>
+                                                    <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">
+                                                        <div className="flex items-center gap-2 mb-1">
+                                                            <span>{item.name}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-4 py-2 text-sm font-medium text-primary/80">{item.category}</td>
+                                                    <td className="px-4 py-2">
+                                                        <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${
+                                                            item.isPackage ? 'text-blue-600 bg-blue-50' : 'text-green-600 bg-green-50'
+                                                        }`}>
+                                                            {item.isPackage ? 'paket' : 'produk'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-4 py-2 text-sm font-medium text-primary/80">
+                                                        {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
+                                                    </td>
+                                                    <td className="px-4 py-2 text-sm font-medium text-primary/80">
+                                                        {item.priceDistributor ? `Rp ${item.priceDistributor.toLocaleString('id-ID')}` : '-'}
+                                                    </td>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    {!['material', 'medical', 'infusion'].includes(activeFilter) && (
+                                                        <td className="px-4 py-2">
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-2 py-1 rounded-md">
+                                                                {item._type === 'product' ? 'produk' : 
+                                                                item._type === 'material' ? 'bhn treatment' :
+                                                                item._type === 'medical' ? 'bhn medis' :
+                                                                item._type === 'infusion' ? 'bhn infus' :
+                                                                item._type === 'apotekItem' ? 'brg apotek' : item._type}
+                                                            </span>
+                                                        </td>
+                                                    )}
+                                                    <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
+                                                    <td className="px-4 py-2 text-sm font-medium text-primary/80">
+                                                        {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
+                                                    </td>
+                                                </>
+                                            )}
+
                                             <td className="px-4 py-2">
                                                 {item._type === 'treatment' ? (
                                                     <span className="font-medium text-xl text-primary/20">-</span>
                                                 ) : (
                                                     <div className="flex items-center gap-2">
-                                                        <span className={`font-medium text-sm ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-primary'}`}>{item.stock}</span>
-                                                        {item.stock <= (item.minStock || 5) && (
-                                                            <span className="flex items-center gap-1 text-[10px] font-medium text-red-500 bg-red-50 px-2 py-1 rounded-md uppercase tracking-widest">
-                                                                <AlertTriangle className="w-3 h-3" /> Low
-                                                            </span>
-                                                        )}
+                                                        <span className={`text-sm font-bold ${(!item.isPackage && item.stock <= (item.minStock || 5)) ? 'text-red-600' : 'text-primary'}`}>
+                                                            {item.isPackage ? '-' : item.stock}
+                                                        </span>
                                                     </div>
                                                 )}
                                             </td>
@@ -352,31 +495,50 @@ const SuperAdminInventoryPage = () => {
                         <div className="md:hidden divide-y divide-primary/5">
                             {currentItems.map((item) => (
                                 <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <h4 className="text-sm font-black text-primary tracking-tight uppercase leading-tight mb-2">{item.name}</h4>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
-                                                <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">
-                                                    {item._type === 'product' ? 'produk' : 
-                                                     item._type === 'material' ? 'bhn treatment' :
-                                                     item._type === 'medical' ? 'bhn medis' :
-                                                     item._type === 'infusion' ? 'bhn infus' :
-                                                     item._type === 'apotekItem' ? 'brg apotek' : item._type}
+                                    <div>
+                                        <h4 className="text-sm font-medium text-primary tracking-tight uppercase leading-tight mb-2">
+                                            {item.name}
+                                            {item.isPackage && (
+                                                <span className="ml-2 text-[8px] font-bold text-blue-600 bg-blue-50 px-1 py-0.5 rounded uppercase tracking-tighter">
+                                                    Paket
                                                 </span>
-                                            </div>
+                                            )}
+                                        </h4>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest bg-gray-100 px-2 py-1 rounded-md">{item.id}</span>
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">
+                                                {item._type === 'product' ? 'produk' : 
+                                                 item._type === 'material' ? 'bhn treatment' :
+                                                 item._type === 'medical' ? 'bhn medis' :
+                                                 item._type === 'infusion' ? 'bhn infus' :
+                                                 item._type === 'apotekItem' ? 'brg apotek' : item._type}
+                                            </span>
                                         </div>
                                     </div>
 
                                     <div className="flex bg-white rounded-xl border border-gray-100 divide-x divide-gray-100 overflow-hidden shadow-sm">
+                                        {activeFilter === 'product' && (
+                                            <div className="flex-1 p-3">
+                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Kategori</p>
+                                                <p className="text-xs font-medium text-gray-700">{item.category}</p>
+                                            </div>
+                                        )}
                                         <div className="flex-1 p-3">
-                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Kategori / Harga</p>
-                                            <p className="text-xs font-black text-gray-700">{item.category || (item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-')}</p>
+                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                                                {activeFilter === 'product' ? 'Hrg Normal' : 'Harga'}
+                                            </p>
+                                            <p className="text-xs font-medium text-gray-700">{item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}</p>
                                         </div>
+                                        {activeFilter === 'product' && (
+                                            <div className="flex-1 p-3">
+                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Dist.</p>
+                                                <p className="text-xs font-medium text-gray-700">{item.priceDistributor ? `Rp ${item.priceDistributor.toLocaleString('id-ID')}` : '-'}</p>
+                                            </div>
+                                        )}
                                         <div className="flex-1 p-3">
                                             <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Stok</p>
                                             <div className="flex items-center gap-2">
-                                                <p className={`text-xs font-black ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-gray-700'}`}>{item.stock} Unit</p>
+                                                <p className={`text-xs font-medium ${item.stock <= (item.minStock || 5) ? 'text-red-500' : 'text-gray-700'}`}>{item.stock}</p>
                                                 {item.stock <= (item.minStock || 5) && (
                                                     <AlertTriangle className="w-3 h-3 text-red-500" />
                                                 )}
@@ -436,6 +598,7 @@ const SuperAdminInventoryPage = () => {
                 onSave={handleSave}
                 initialData={editingItem}
                 type={modalType}
+                products={productsFromAPI}
             />
 
             <ApotekerFormModal

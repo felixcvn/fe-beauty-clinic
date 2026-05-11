@@ -600,36 +600,58 @@ const AttendancePage = () => {
                             {currentAttendance.map((record) => {
                                 const recordShift = getActiveShift(record.shift, isRamadhan);
                                 return (
-                                    <div key={record.id} onClick={() => handleOpenDetail(record)} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
+                                    <div key={record.id} onClick={() => handleOpenDetail(record)} className="p-5 sm:p-6 space-y-4 hover:bg-secondary/10 transition-all cursor-pointer group animate-fade-in">
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5">
+                                                <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 group-hover:scale-110 transition-transform">
                                                     {record.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <h4 className="text-sm font-black text-primary tracking-tight">{record.name}</h4>
-                                                    <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{record.role}</p>
-                                                    {recordShift && <p className="text-[9px] font-bold text-primary/20 mt-0.5">Shift {recordShift.label} · {recordShift.checkIn}–{recordShift.checkOut}</p>}
+                                                    <h4 className="text-sm font-black text-primary tracking-tight group-hover:text-teal-600 transition-colors">{record.name}</h4>
+                                                    <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
+                                                        <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">{record.role}</p>
+                                                        <span className="w-1 h-1 rounded-full bg-primary/10" />
+                                                        <p className="text-[9px] font-black text-primary/20 uppercase tracking-widest">{record.id}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${getStatusStyle(record.status)}`}>
-                                                {record.status === 'Hadir' ? <CheckCircle2 className="w-2 h-2" /> : record.status === 'Terlambat' ? <Clock className="w-2 h-2" /> : <XCircle className="w-2 h-2" />}
+                                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest shadow-sm border border-white/50 ${getStatusStyle(record.status)}`}>
+                                                {record.status === 'Hadir' ? <CheckCircle2 className="w-2.5 h-2.5" /> : record.status === 'Terlambat' ? <Clock className="w-2.5 h-2.5" /> : <XCircle className="w-2.5 h-2.5" />}
                                                 {record.status}
                                             </span>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-3 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
-                                            <div className="space-y-1">
-                                                <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Masuk</p>
-                                                <p className={`text-xs font-bold ${record.checkIn !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkIn}</p>
+
+                                        <div className="grid grid-cols-2 gap-3 bg-white/60 backdrop-blur-sm p-4 rounded-3xl border border-primary/5 shadow-sm group-hover:border-primary/20 transition-all">
+                                            <div className="space-y-1.5">
+                                                <div className="flex items-center gap-1.5 text-[8px] font-black text-primary/30 uppercase tracking-[0.2em] leading-none">
+                                                    <MapPin className="w-2.5 h-2.5" />
+                                                    Masuk
+                                                </div>
+                                                <p className={`text-xs font-black ${record.checkIn !== '--:--' ? 'text-primary' : 'text-primary/10'}`}>{record.checkIn}</p>
                                             </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Keluar</p>
-                                                <p className={`text-xs font-bold ${record.checkOut !== '--:--' ? 'text-primary' : 'text-primary/20'}`}>{record.checkOut}</p>
+                                            <div className="space-y-1.5">
+                                                <div className="flex items-center gap-1.5 text-[8px] font-black text-primary/30 uppercase tracking-[0.2em] leading-none">
+                                                    <LogOut className="w-2.5 h-2.5" />
+                                                    Keluar
+                                                </div>
+                                                <p className={`text-xs font-black ${record.checkOut !== '--:--' ? 'text-primary' : 'text-primary/10'}`}>{record.checkOut}</p>
                                             </div>
                                         </div>
-                                        <div className="flex justify-between items-center text-[10px] font-bold text-primary/30 px-1">
-                                            <span>{record.date}</span>
-                                            <div className="flex items-center gap-1"><span>Detail</span><ChevronRight className="w-3 h-3" /></div>
+
+                                        <div className="flex justify-between items-center text-[9px] font-black text-primary/20 px-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="uppercase tracking-widest">{record.date}</span>
+                                                {recordShift && (
+                                                    <>
+                                                        <span className="w-1 h-1 rounded-full bg-primary/10" />
+                                                        <span className="text-primary/40">Shift {recordShift.label}</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1 text-primary/40 group-hover:text-primary transition-colors">
+                                                <span className="uppercase tracking-widest">Detail</span>
+                                                <ChevronRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
+                                            </div>
                                         </div>
                                     </div>
                                 );
