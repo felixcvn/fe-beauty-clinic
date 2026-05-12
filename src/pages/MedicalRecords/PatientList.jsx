@@ -78,7 +78,7 @@ const PatientList = () => {
                     <TableSkeleton rows={8} columns={6} />
                 ) : (
                     <>
-                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                        <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
@@ -144,7 +144,7 @@ const PatientList = () => {
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="md:hidden divide-y divide-primary/5">
+                <div className="lg:hidden divide-y divide-primary/5">
                     {filteredPatients.map((patient) => (
                         <div
                             key={patient.id}

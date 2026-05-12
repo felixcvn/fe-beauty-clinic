@@ -156,7 +156,7 @@ const SalesPage = () => {
                     <TableSkeleton rows={10} columns={7} />
                 ) : (
                     <>
-                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                        <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left min-w-[1000px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5">
@@ -220,7 +220,7 @@ const SalesPage = () => {
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="md:hidden divide-y divide-primary/5">
+                <div className="lg:hidden divide-y divide-primary/5">
                     {currentSales.map((sale) => (
                         <div key={sale.id} className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-5">
                             <div className="flex justify-between items-start">

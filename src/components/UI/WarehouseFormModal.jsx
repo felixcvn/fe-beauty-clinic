@@ -276,8 +276,8 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
 
                         {type === 'product' && (
                             <div className="relative z-[45] p-4 rounded-2xl border border-primary/5 bg-gray-50/50 space-y-4">
-                                <label className="flex items-center gap-3 cursor-pointer group w-max">
-                                    <div className="relative flex items-center justify-center">
+                                <label className="flex items-start gap-3 cursor-pointer group">
+                                    <div className="relative flex items-center justify-center shrink-0 mt-0.5">
                                         <input 
                                             type="checkbox" 
                                             className="peer appearance-none w-5 h-5 border-2 border-primary/20 rounded-md checked:bg-blue-500 checked:border-blue-500 transition-all cursor-pointer group-hover:border-primary/40"
@@ -286,7 +286,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                         />
                                         <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                     </div>
-                                    <span className="text-xs font-black uppercase tracking-widest text-primary/60 group-hover:text-primary transition-colors">
+                                    <span className="text-xs font-black uppercase tracking-widest text-primary/60 group-hover:text-primary transition-colors flex-1 break-words leading-relaxed">
                                         Produk ini merupakan paket (Bundle)
                                     </span>
                                 </label>
@@ -358,8 +358,8 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                         {type === 'treatment' && (
                             <>
                                 <div className="relative z-[40] p-4 rounded-2xl border border-primary/5 bg-gray-50/50 space-y-4">
-                                    <label className="flex items-center gap-3 cursor-pointer group w-max">
-                                        <div className="relative flex items-center justify-center">
+                                    <label className="flex items-start gap-3 cursor-pointer group">
+                                        <div className="relative flex items-center justify-center shrink-0 mt-0.5">
                                             <input 
                                                 type="checkbox" 
                                                 className="peer appearance-none w-5 h-5 border-2 border-primary/20 rounded-md checked:bg-green-500 checked:border-green-500 transition-all cursor-pointer group-hover:border-primary/40"
@@ -368,7 +368,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                             />
                                             <svg viewBox="0 0 24 24" fill="none" className="w-3.5 h-3.5 text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                                         </div>
-                                        <span className="text-xs font-black uppercase tracking-widest text-primary/60 group-hover:text-primary transition-colors">
+                                        <span className="text-xs font-black uppercase tracking-widest text-primary/60 group-hover:text-primary transition-colors flex-1 break-words leading-relaxed">
                                             Treatment ini merupakan paket
                                         </span>
                                     </label>

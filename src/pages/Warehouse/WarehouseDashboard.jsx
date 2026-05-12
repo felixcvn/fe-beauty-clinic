@@ -130,7 +130,7 @@ const WarehouseDashboard = () => {
                 ) : (
                     <>
                         {/* Desktop View Table */}
-                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                        <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                     {lowStockProducts.length > 0 ? (
                         <table className="w-full text-left">
                             <thead>

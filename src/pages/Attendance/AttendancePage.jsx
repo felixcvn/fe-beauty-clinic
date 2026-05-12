@@ -517,7 +517,7 @@ const AttendancePage = () => {
                         ) : (
                             <>
                                 {/* Desktop Table */}
-                                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                                <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse min-w-[900px]">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
@@ -596,7 +596,7 @@ const AttendancePage = () => {
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-primary/5">
+                        <div className="lg:hidden divide-y divide-primary/5">
                             {currentAttendance.map((record) => {
                                 const recordShift = getActiveShift(record.shift, isRamadhan);
                                 return (
@@ -695,7 +695,7 @@ const AttendancePage = () => {
                     ) : (
                         <>
                             {/* Desktop Table */}
-                            <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                            <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                         <table className="w-full text-left border-collapse min-w-[900px]">
                             <thead>
                                 <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
@@ -758,7 +758,7 @@ const AttendancePage = () => {
                     </div>
 
                     {/* Mobile Card View */}
-                    <div className="md:hidden divide-y divide-primary/5">
+                    <div className="lg:hidden divide-y divide-primary/5">
                         {currentLeave.map((req) => (
                             <div key={req.id} onClick={() => { setSelectedLeaveRequest(req); setIsApprovalModalOpen(true); }} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <div className="flex justify-between items-start">
@@ -839,7 +839,7 @@ const AttendancePage = () => {
                             <TableSkeleton rows={itemsPerPage} columns={canApproveLeave ? 7 : 6} />
                         ) : (
                             <>
-                                <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                                <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse min-w-[1000px]">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
@@ -919,7 +919,7 @@ const AttendancePage = () => {
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-primary/5">
+                        <div className="lg:hidden divide-y divide-primary/5">
                             {currentOvertime.map((req) => {
                                 const shiftInfo = getActiveShift(req.shift, isRamadhan);
                                 return (

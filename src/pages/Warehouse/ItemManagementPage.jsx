@@ -534,7 +534,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 ) : (
                     <>
                         {/* Desktop View Table */}
-                        <div className="hidden md:block overflow-x-auto">
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[800px]">
                                 {(activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
                                     <>
@@ -723,7 +723,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-primary/5">
+                        <div className="lg:hidden divide-y divide-primary/5">
                             {currentItems.map((item) => (activeFilter === 'treatment' || fixedFilter === 'treatment') ? (
                                 <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
                                     <div className="flex justify-between items-start">

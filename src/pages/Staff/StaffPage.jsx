@@ -416,7 +416,7 @@ const StaffPage = () => {
                 ) : (
                     <>
                         {/* Desktop */}
-                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                        <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse" style={{ minWidth: '860px' }}>
                         <thead>
                             <tr className="border-b border-primary/5 bg-gray-50/30">
@@ -498,7 +498,7 @@ const StaffPage = () => {
                 </div>
 
                 {/* Mobile Cards */}
-                <div className="md:hidden divide-y divide-primary/5">
+                <div className="lg:hidden divide-y divide-primary/5">
                     {currentStaff.map((staff) => (
                         <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => handleOpenDetail(staff)}>
                             <div className="flex justify-between items-start">

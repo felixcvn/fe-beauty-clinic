@@ -225,7 +225,7 @@ const ReservationsPage = () => {
                 ) : (
                     <>
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                        <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
@@ -312,7 +312,7 @@ const ReservationsPage = () => {
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-primary/5">
+                        <div className="lg:hidden divide-y divide-primary/5">
                             {filteredBookings.length > 0 ? (
                                 filteredBookings.map((booking) => (
                                     <div key={booking.id} className="p-6 space-y-6 hover:bg-gray-50/30 transition-colors">

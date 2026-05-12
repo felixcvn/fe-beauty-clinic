@@ -419,7 +419,7 @@ const ApotekerInventoryPage = () => {
                     <TableSkeleton rows={8} columns={5} />
                 ) : (
                     <>
-                        <div className="hidden md:block overflow-x-auto">
+                        <div className="hidden lg:block overflow-x-auto">
                             <table className="w-full text-left border-collapse min-w-[800px]">
                                 <thead>
                                     <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
@@ -471,7 +471,7 @@ const ApotekerInventoryPage = () => {
                         </div>
 
                         {/* Mobile Card View */}
-                        <div className="md:hidden divide-y divide-primary/5">
+                        <div className="lg:hidden divide-y divide-primary/5">
                             {currentItems.map((item) => (
                                 <div key={`${item._type}-${item.id}`} className="p-4 space-y-3 hover:bg-gray-50/50 transition-colors">
                                     <div className="flex justify-between items-start">

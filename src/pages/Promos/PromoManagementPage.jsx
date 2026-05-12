@@ -201,7 +201,7 @@ const PromoManagementPage = () => {
                 ) : (
                     <>
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto scrollbar-hide">
+                        <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                     <table className="w-full text-left min-w-[900px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
@@ -282,7 +282,7 @@ const PromoManagementPage = () => {
                 </div>
 
                 {/* Mobile Card View */}
-                <div className="md:hidden divide-y divide-primary/5">
+                <div className="lg:hidden divide-y divide-primary/5">
                     {currentPromos.map((promo) => (
                         <div key={promo.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
                             <div className="flex justify-between items-start">
