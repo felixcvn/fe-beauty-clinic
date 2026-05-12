@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck, RefreshCw, Wifi, WifiOff, Lock } from 'lucide-react';
+import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck, Wifi, WifiOff, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -373,15 +373,6 @@ const StaffPage = () => {
                     )}
                 </div>
                 <div className="flex gap-3 w-full sm:w-auto">
-                    <button
-                        onClick={() => fetchKaryawan(currentPage)}
-                        disabled={isLoading}
-                        className="flex items-center justify-center gap-2 px-5 py-4 rounded-2xl bg-white border border-primary/10 text-primary hover:bg-primary/5 transition-all font-black text-xs uppercase tracking-widest active:scale-95 shadow-sm disabled:opacity-50"
-                        title="Refresh data dari server"
-                    >
-                        <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin' : ''}`} />
-                        <span className="hidden sm:inline">Refresh</span>
-                    </button>
                     {!isReadOnly && (
                         <button
                             onClick={handleOpenAdd}

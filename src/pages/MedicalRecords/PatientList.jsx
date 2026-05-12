@@ -11,7 +11,6 @@ const PatientList = () => {
     const { patients } = useMockData();
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('All Status');
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -22,10 +21,12 @@ const PatientList = () => {
     }, []);
 
     const filteredPatients = patients.filter(patient => {
-        const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            patient.id.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesStatus = statusFilter === 'All Status' || patient.status === statusFilter;
-        return matchesSearch && matchesStatus;
+        const matchesSearch = 
+            (patient.Nama_pasien || patient.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(patient.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(patient.no_RM || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(patient.no_member || '').toLowerCase().includes(searchTerm.toLowerCase());
+        return matchesSearch;
     });
 
     return (
@@ -55,21 +56,10 @@ const PatientList = () => {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
-                            placeholder="Cari nama pasien atau ID..."
+                            placeholder="Cari nama, ID, No RM, atau No Member..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all"
-                        />
-                    </div>
-                    <div className="w-48 relative z-50">
-                        <CustomSelect
-                            value={statusFilter}
-                            onChange={setStatusFilter}
-                            options={[
-                                { value: 'All Status', label: 'All Status' },
-                                { value: 'Aktif', label: 'Aktif' },
-                                { value: 'Selesai', label: 'Selesai' }
-                            ]}
                         />
                     </div>
                 </div>
@@ -82,11 +72,11 @@ const PatientList = () => {
                             <table className="w-full text-left min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
+                                <th className="px-4 py-3 text-primary/80">ID</th>
                                 <th className="px-4 py-3 text-primary/80">Nama Pasien</th>
-                                <th className="px-4 py-3 text-primary/80">Umur</th>
-                                <th className="px-4 py-3 text-primary/80">Terakhir Visit</th>
-                                <th className="px-4 py-3 text-primary/80">Treatment</th>
-                                <th className="px-4 py-3 text-center text-primary/80">Status</th>
+                                <th className="px-4 py-3 text-primary/80">No Member</th>
+                                <th className="px-4 py-3 text-primary/80">No RM</th>
+                                <th className="px-4 py-3 text-center text-primary/80">Tipe Member</th>
                                 <th className="px-4 py-3 text-right text-primary/80">Aksi</th>
                             </tr>
                         </thead>
@@ -95,30 +85,22 @@ const PatientList = () => {
                                 <tr
                                     key={patient.id}
                                     onClick={() => navigate(`/medical-records/${patient.id}`)}
-                                    className="border-b border-primary/5 last:border-0 cursor-pointer"
+                                    className="border-b border-primary/5 last:border-0 cursor-pointer hover:bg-primary/5 transition-colors"
                                 >
+                                    <td className="px-4 py-2 text-primary/80 font-black text-xs">{patient.id}</td>
                                     <td className="px-4 py-2">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5">
-                                                {patient.name.split(' ').map(n => n[0]).join('').substring(0,2)}
+                                                {(patient.Nama_pasien || patient.name || 'U').split(' ').map(n => n[0]).join('').substring(0,2)}
                                             </div>
-                                            <div className="font-medium text-primary text-sm tracking-tight">{patient.name}</div>
+                                            <div className="font-medium text-primary text-sm tracking-tight">{patient.Nama_pasien || patient.name}</div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm tracking-tight">{patient.age} Thn</td>
-                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{patient.lastVisit}</td>
-                                    <td className="px-4 py-2">
-                                        <div className="flex items-center gap-2 text-primary font-medium text-sm">
-                                            <FileText className="w-3.5 h-3.5 text-primary/40" />
-                                            {patient.condition}
-                                        </div>
-                                    </td>
+                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{patient.no_member || '-'}</td>
+                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{patient.no_RM || '-'}</td>
                                     <td className="px-4 py-2 text-center">
-                                        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm border border-white/50 ${patient.status === 'Aktif' ? 'bg-primary/10 text-primary' :
-                                            patient.status === 'Selesai' ? 'bg-accent-gold/10 text-accent-gold' :
-                                                'bg-red-50 text-red-500'
-                                            }`}>
-                                            {patient.status}
+                                        <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm border border-primary/10 bg-primary/5 text-primary">
+                                            {patient.Tipe_Member || patient.tipe_member || '-'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-right">
@@ -149,30 +131,26 @@ const PatientList = () => {
                         <div
                             key={patient.id}
                             onClick={() => navigate(`/medical-records/${patient.id}`)}
-                            className="p-6 border-b border-primary/5 last:border-0 flex items-center gap-4 cursor-pointer"
+                            className="p-6 border-b border-primary/5 last:border-0 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors"
                         >
                             <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
-                                {patient.name.split(' ').map(n => n[0]).join('')}
+                                {(patient.Nama_pasien || patient.name || 'U').split(' ').map(n => n[0]).join('').substring(0,2)}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                    <h4 className="font-black text-primary text-sm tracking-tight truncate">{patient.name}</h4>
-                                    <span className={`px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm shrink-0 ${patient.status === 'Aktif' ? 'bg-primary/10 text-primary' :
-                                        patient.status === 'Selesai' ? 'bg-accent-gold/10 text-accent-gold' :
-                                            'bg-red-50 text-red-400'
-                                        }`}>
-                                        {patient.status}
+                                    <h4 className="font-black text-primary text-sm tracking-tight truncate">{patient.Nama_pasien || patient.name}</h4>
+                                    <span className="px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm shrink-0 bg-primary/10 text-primary">
+                                        {patient.Tipe_Member || patient.tipe_member || '-'}
                                     </span>
                                 </div>
-                                <div className="flex justify-between items-center text-[10px] text-primary/40 font-bold uppercase tracking-wider">
-                                    <div className="flex items-center gap-2 truncate">
-                                        <FileText className="w-3 h-3 text-primary/20" />
-                                        <span className="truncate">{patient.condition}</span>
+                                <div className="flex justify-between items-center text-[10px] text-primary/60 font-bold uppercase tracking-wider mt-2">
+                                    <div className="flex flex-col gap-1">
+                                        <span className="flex items-center gap-1.5"><span className="text-primary/40">No Member:</span> {patient.no_member || '-'}</span>
+                                        <span className="flex items-center gap-1.5"><span className="text-primary/40">No RM:</span> {patient.no_RM || '-'}</span>
                                     </div>
-                                    <span className="shrink-0">{patient.lastVisit}</span>
-                                </div>
-                                <div className="mt-2 text-[9px] text-primary/30 font-black uppercase tracking-widest">
-                                    ID: {patient.id} • {patient.age} Thn
+                                    <div className="text-[10px] text-primary/30 font-black uppercase tracking-widest text-right">
+                                        ID: {patient.id}
+                                    </div>
                                 </div>
                             </div>
                         </div>

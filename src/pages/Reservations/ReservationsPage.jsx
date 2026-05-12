@@ -165,8 +165,8 @@ const ReservationsPage = () => {
             </div>
 
 
-            {/* Slot Management (Only for Assistant SPV Treatment or Admin) */}
-            {(user?.role === ROLES.ASISTEN_SUPERVISOR_TREATMENT || user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.OWNER) && (
+            {/* Slot Management (Only for SPV Treatment or Admin) */}
+            {(user?.role === ROLES.SUPERVISOR_TREATMENT || user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.OWNER) && (
                 <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-8 animate-fade-in-up">
                     <div className="flex items-center gap-4 mb-8">
                         <div className="w-12 h-12 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">

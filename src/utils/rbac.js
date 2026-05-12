@@ -21,7 +21,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.DOCTOR]: ['/', '/medical-records', '/patients', '/attendance'],
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/notifications', '/reservations', '/cs-products', '/cs-treatments'],
     [ROLES.HRD]: ['/', '/staff', '/patients', '/attendance'],
-    [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance', '/cs-treatments'],
+    [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance', '/reservations', '/cs-treatments'],
     [ROLES.MANAJER_MARKETING_SALES]: ['/', '/promos', '/attendance', '/cs-products', '/products'],
     [ROLES.MARKETING_SALES]: ['/', '/promos', '/attendance', '/products'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
