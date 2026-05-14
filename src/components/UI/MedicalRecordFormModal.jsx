@@ -39,6 +39,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [diinginkan, setDiinginkan] = useState([]);
     const [diinginkanLainnya, setDiinginkanLainnya] = useState('');
     const [tensi, setTensi] = useState('Normal');
+    const [keluhanPasien, setKeluhanPasien] = useState('');
     const [riwayatKesehatan, setRiwayatKesehatan] = useState([]);
     const [riwayatKesehatanLainnya, setRiwayatKesehatanLainnya] = useState('');
 
@@ -69,7 +70,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
         .map(s => ({ value: s.id, label: s.name }));
     
     const activePatients = apiPatients.length > 0 ? apiPatients : patients;
-    const patientOptions = activePatients.map(p => ({ value: p.id, label: `${p.name} (${p.id})` }));
+    const patientOptions = activePatients.map(p => ({ value: p.id, label: p.name }));
     const treatmentOptions = treatments.map(t => ({ value: t.id, label: t.name }));
     const productOptions = products.map(p => ({ value: p.id, label: `${p.name} (${p.category})` }));
     const racikanOptions = racikans.map(r => ({ value: r.id, label: r.name }));
@@ -124,6 +125,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
             setDiinginkan([]);
             setDiinginkanLainnya('');
             setTensi('Normal');
+            setKeluhanPasien('');
             setRiwayatKesehatan([]);
             setRiwayatKesehatanLainnya('');
 
@@ -204,6 +206,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                         diinginkan,
                         diinginkanLainnya: diinginkan.includes('Lainnya') ? diinginkanLainnya : null,
                         tensi,
+                        keluhanPasien,
                         riwayatKesehatan,
                         riwayatKesehatanLainnya: riwayatKesehatan.includes('Lainnya') ? riwayatKesehatanLainnya : null,
                     },
@@ -353,32 +356,46 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                         </div>
 
                                         {/* Conditions checkboxes */}
-                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2">
-                                            {['Kanker', 'Keloid', 'HIV / AIDS', 'Stroke', 'Epilepsi', 'Diabetes', 'Lainnya'].map((condition) => (
-                                                <button
-                                                    key={condition}
-                                                    type="button"
-                                                    onClick={() => toggleItem(riwayatKesehatan, setRiwayatKesehatan, condition)}
-                                                    className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${riwayatKesehatan.includes(condition) ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-primary/5 bg-white hover:border-primary/20'}`}
-                                                >
-                                                    <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${riwayatKesehatan.includes(condition) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
-                                                        {riwayatKesehatan.includes(condition) && <CheckCircle2 className="w-3 h-3 text-secondary" />}
-                                                    </div>
-                                                    <span className={`text-[10px] font-black uppercase tracking-tighter ${riwayatKesehatan.includes(condition) ? 'text-primary' : 'text-primary/40'}`}>
-                                                        {condition}
-                                                    </span>
-                                                </button>
-                                            ))}
+                                        <div>
+                                            <label className={labelClass}>Riwayat Penyakit</label>
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2">
+                                                {['Kanker', 'Keloid', 'HIV / AIDS', 'Stroke', 'Epilepsi', 'Diabetes', 'Lainnya'].map((condition) => (
+                                                    <button
+                                                        key={condition}
+                                                        type="button"
+                                                        onClick={() => toggleItem(riwayatKesehatan, setRiwayatKesehatan, condition)}
+                                                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${riwayatKesehatan.includes(condition) ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-primary/5 bg-white hover:border-primary/20'}`}
+                                                    >
+                                                        <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${riwayatKesehatan.includes(condition) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
+                                                            {riwayatKesehatan.includes(condition) && <CheckCircle2 className="w-3 h-3 text-secondary" />}
+                                                        </div>
+                                                        <span className={`text-[10px] font-black uppercase tracking-tighter ${riwayatKesehatan.includes(condition) ? 'text-primary' : 'text-primary/40'}`}>
+                                                            {condition}
+                                                        </span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                            {riwayatKesehatan.includes('Lainnya') && (
+                                                <input
+                                                    type="text"
+                                                    value={riwayatKesehatanLainnya}
+                                                    onChange={(e) => setRiwayatKesehatanLainnya(e.target.value)}
+                                                    placeholder="Sebutkan riwayat kesehatan lainnya..."
+                                                    className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm placeholder:text-primary/20 animate-fade-in mt-4"
+                                                />
+                                            )}
                                         </div>
-                                        {riwayatKesehatan.includes('Lainnya') && (
-                                            <input
-                                                type="text"
-                                                value={riwayatKesehatanLainnya}
-                                                onChange={(e) => setRiwayatKesehatanLainnya(e.target.value)}
-                                                placeholder="Sebutkan riwayat kesehatan lainnya..."
-                                                className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm placeholder:text-primary/20 animate-fade-in"
+
+                                        {/* Keluhan Pasien */}
+                                        <div>
+                                            <label className={labelClass}>Keluhan Pasien</label>
+                                            <textarea
+                                                value={keluhanPasien}
+                                                onChange={(e) => setKeluhanPasien(e.target.value)}
+                                                placeholder="Tuliskan keluhan pasien..."
+                                                className="w-full p-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-24 resize-none text-sm font-medium text-primary shadow-sm placeholder:text-primary/20"
                                             />
-                                        )}
+                                        </div>
                                     </div>
 
                                     {/* Perawatan Image 1 & 2 */}
