@@ -151,16 +151,6 @@ const PatientDetail = () => {
                         </div>
                     </div>
                 </div>
-
-                <div className="bg-red-50/50 p-6 md:p-7 rounded-[2rem] border border-red-100 flex items-start gap-4 w-full lg:max-w-sm shadow-sm">
-                    <div className="p-3 bg-red-100 rounded-2xl shadow-sm">
-                        <AlertCircle className="w-6 h-6 text-red-500 shrink-0" />
-                    </div>
-                    <div>
-                        <p className="text-[10px] font-black text-red-400 uppercase tracking-widest mb-1">Riwayat Alergi</p>
-                        <p className="text-sm font-bold text-red-700 leading-relaxed">{patient.allergies}</p>
-                    </div>
-                </div>
             </div>
 
             {/* Medical History Timeline */}
@@ -226,7 +216,15 @@ const PatientDetail = () => {
                                                         Edit Data
                                                     </button>
                                                     <button
-                                                        onClick={() => setSelectedRecord({...record, treatment: treatmentStr, specialist: specialistStr})}
+                                                                                                                 onClick={() => setSelectedRecord({
+                                                             ...record, 
+                                                             treatment: treatmentStr, 
+                                                             specialist: specialistStr,
+                                                             date: recordDate,
+                                                             notes: recordNote,
+                                                             beforeImage: beforeImg,
+                                                             afterImage: afterImg
+                                                         })}
                                                         className="w-full sm:w-auto px-8 py-3 text-[10px] font-black uppercase tracking-widest text-secondary bg-primary rounded-2xl hover:bg-primary/90 transition-all duration-500 shadow-xl shadow-primary/20 active:scale-95"
                                                     >
                                                         Lihat Laporan Lengkap

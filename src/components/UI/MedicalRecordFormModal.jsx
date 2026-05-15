@@ -97,31 +97,74 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
             setErrors({});
             
             if (mode === 'edit' && initialData) {
-                setSelectedPatientId(initialData.pasien_id || patientId || '');
-                setDate(initialData.tanggal || new Date().toISOString().split('T')[0]);
-                setSelectedDoctorId(initialData.karyawan_id || '');
+                setSelectedPatientId(initialData.data_pasien_id || initialData.pasien_id || patientId || '');
+                setDate(initialData.tanggal_kunjungan || initialData.tanggal || new Date().toISOString().split('T')[0]);
+                setSelectedDoctorId(initialData.dokter_id || initialData.karyawan_id || '');
                 
-                setPerawatanSebelumnya(initialData.perawatan_sebelumnya || '');
-                setTensi(initialData.tensi || 'Normal');
+                setPerawatanSebelumnya(initialData.perawatan_diklinik_sebelumnya || initialData.perawatan_sebelumnya || '');
+                setTensi(initialData.tekanan_darah || initialData.tensi || 'Normal');
                 setKeluhanPasien(initialData.keluhan_pasien || '');
                 
-                const parsedDiinginkan = Array.isArray(initialData.diinginkan) ? initialData.diinginkan : 
-                                         (typeof initialData.diinginkan === 'string' ? JSON.parse(initialData.diinginkan || '[]') : []);
-                setDiinginkan(parsedDiinginkan);
-                setDiinginkanLainnya(initialData.diinginkan_lainnya || '');
+                const rawRiwayat = initialData.riwayat_penyakit || initialData.riwayat_kesehatan || '';
+                const predefinedRiwayat = ['Kanker', 'Keloid', 'HIV / AIDS', 'Stroke', 'Epilepsi', 'Diabetes'];
                 
-                const parsedRiwayat = Array.isArray(initialData.riwayat_kesehatan) ? initialData.riwayat_kesehatan : 
-                                      (typeof initialData.riwayat_kesehatan === 'string' ? JSON.parse(initialData.riwayat_kesehatan || '[]') : []);
-                setRiwayatKesehatan(parsedRiwayat);
-                setRiwayatKesehatanLainnya(initialData.riwayat_kesehatan_lainnya || '');
+                let parsedRiwayat = [];
+
+                if (Array.isArray(rawRiwayat)) {
+                    parsedRiwayat = rawRiwayat;
+                } else if (typeof rawRiwayat === 'string') {
+                    if (rawRiwayat.startsWith('[')) {
+                        try {
+                            parsedRiwayat = JSON.parse(rawRiwayat);
+                        } catch (e) {
+                            parsedRiwayat = rawRiwayat.split(',').map(s => s.trim()).filter(Boolean);
+                        }
+                    } else {
+                        parsedRiwayat = rawRiwayat.split(',').map(s => s.trim()).filter(Boolean);
+                    }
+                }
+
+                // Separate predefined from custom (Lainnya)
+                const knownItems = parsedRiwayat.filter(item => predefinedRiwayat.includes(item));
+                const unknownItems = parsedRiwayat.filter(item => !predefinedRiwayat.includes(item));
+                
+                if (unknownItems.length > 0) {
+                    setRiwayatKesehatan([...knownItems, 'Lainnya']);
+                    setRiwayatKesehatanLainnya(unknownItems.join(', '));
+                } else {
+                    setRiwayatKesehatan(knownItems);
+                    setRiwayatKesehatanLainnya('');
+                }
+
+                setPerawatanSebelumnya(initialData.perawatan_diklinik_sebelumnya || initialData.perawatan_sebelumnya || '');
+                
+                const rawDiinginkan = initialData.perawatan_diinginkan || '';
+                const predefinedDiinginkan = ['Laser / IPL', 'Dermaroller', 'PRP', 'Botox'];
+                
+                let parsedDiinginkan = [];
+                if (typeof rawDiinginkan === 'string') {
+                    parsedDiinginkan = rawDiinginkan.split(',').map(i => i.trim()).filter(Boolean);
+                }
+
+                const knownDiinginkan = parsedDiinginkan.filter(i => predefinedDiinginkan.includes(i));
+                const unknownDiinginkan = parsedDiinginkan.filter(i => !predefinedDiinginkan.includes(i));
+
+                if (unknownDiinginkan.length > 0) {
+                    setDiinginkan([...knownDiinginkan, 'Lainnya']);
+                    setDiinginkanLainnya(unknownDiinginkan.join(', '));
+                } else {
+                    setDiinginkan(knownDiinginkan);
+                    setDiinginkanLainnya('');
+                }
                 
                 const treatmentsArr = Array.isArray(initialData.treatments) ? initialData.treatments.map(t => t.id || t) : [];
                 setSelectedTreatments(treatmentsArr);
                 
                 setDiagnosis(initialData.diagnosa || '');
-                setNotes(initialData.catatan || '');
+                setNotes(initialData.catatan_tindakan || initialData.catatan || '');
                 
-                const produksArr = Array.isArray(initialData.produks) ? initialData.produks.map(p => p.id || p) : [];
+                const produksArr = Array.isArray(initialData.reseps) ? initialData.reseps.map(p => p.id || p) : 
+                                 (Array.isArray(initialData.produks) ? initialData.produks.map(p => p.id || p) : []);
                 setSelectedProducts(produksArr);
                 setRacikanText(initialData.racikan || '');
                 
@@ -257,7 +300,13 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                     formData.append('riwayat_penyakit', riwayatStr);
                     
                     formData.append('keluhan_pasien', keluhanPasien);
+                    
                     formData.append('perawatan_diklinik_sebelumnya', perawatanSebelumnya);
+
+                    const combinedDiinginkan = diinginkan.includes('Lainnya')
+                        ? [...diinginkan.filter(i => i !== 'Lainnya'), diinginkanLainnya].filter(Boolean).join(', ')
+                        : diinginkan.join(', ');
+                    formData.append('perawatan_diinginkan', combinedDiinginkan);
                     formData.append('diagnosa', diagnosis);
                     formData.append('catatan_tindakan', notes);
 
@@ -619,8 +668,16 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Dokumentasi Foto</h4>
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
-                                                <ImageUpload label="Sebelum" onImageChange={setBeforeImage} />
-                                                <ImageUpload label="Sesudah" onImageChange={setAfterImage} />
+                                                <ImageUpload 
+                                                    label="Sebelum" 
+                                                    onImageChange={setBeforeImage} 
+                                                    initialPreview={initialData?.gambar_sebelum_url ? `${initialData.gambar_sebelum_url}?ngrok-skip-browser-warning=1` : null}
+                                                />
+                                                <ImageUpload 
+                                                    label="Sesudah" 
+                                                    onImageChange={setAfterImage} 
+                                                    initialPreview={initialData?.gambar_sesudah_url ? `${initialData.gambar_sesudah_url}?ngrok-skip-browser-warning=1` : null}
+                                                />
                                             </div>
                                         </div>
 

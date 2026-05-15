@@ -1,10 +1,16 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon } from 'lucide-react';
 
-const ImageUpload = ({ label, onImageChange }) => {
-    const [preview, setPreview] = useState(null);
+const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
+    const [preview, setPreview] = useState(initialPreview);
     const fileInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
+
+    React.useEffect(() => {
+        if (initialPreview) {
+            setPreview(initialPreview);
+        }
+    }, [initialPreview]);
 
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
