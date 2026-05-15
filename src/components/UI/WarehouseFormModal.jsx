@@ -6,12 +6,11 @@ import CustomMultiSelect from './CustomMultiSelect';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
-import { stokProdukAPI, paketBundlingsAPI } from '../../services/api';
+import { stokProdukAPI, paketBundlingsAPI, treatmentAPI } from '../../services/api';
 import ConfirmModal from './ConfirmModal';
 
-const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, products = [] }) => {
+const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, products = [], apiTreatments = [], apiMaterials = [] }) => {
     const { user } = useAuth();
-    const { materials, treatments } = useMockData();
     const [formState, setFormState] = useState({
         name: '',
         category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
@@ -62,24 +61,31 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                     description: ''
                 });
 
-                // Fetch auto-generate code immediately for products
-                if (type === 'product') {
+                // Fetch auto-generate code immediately for products and treatments
+                if (type === 'product' || type === 'treatment') {
                     const token = localStorage.getItem('token');
-                    // Tentukan apakah paket atau bukan berdasarkan initialData atau default (false untuk baru)
-                    const isBundle = initialData ? (initialData.isPackage || !!initialData.Kode_paket) : false;
-                    const apiToUse = isBundle ? paketBundlingsAPI : stokProdukAPI;
+                    let apiToUse;
+                    if (type === 'product') {
+                        // Tentukan apakah paket atau bukan berdasarkan initialData atau default (false untuk baru)
+                        const isBundle = initialData ? (initialData.isPackage || !!initialData.Kode_paket) : false;
+                        apiToUse = isBundle ? paketBundlingsAPI : stokProdukAPI;
+                    } else if (type === 'treatment') {
+                        apiToUse = treatmentAPI;
+                    }
                     
-                    apiToUse.getNextCode(token).then(res => {
-                        if (res.success && res.data) {
-                            const data = res.data;
-                            const nextCode = 
-                                (data.data && typeof data.data === 'object' ? (data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
-                                data.next_number || data.nextNumber || data.next_code || data.data || 
-                                (typeof data === 'string' ? data : '');
-                            
-                            if (nextCode) setFormState(prev => ({ ...prev, id: nextCode }));
-                        }
-                    });
+                    if (apiToUse) {
+                        apiToUse.getNextCode(token).then(res => {
+                            if (res.success && res.data) {
+                                const data = res.data;
+                                const nextCode = 
+                                    (data.data && typeof data.data === 'object' ? (data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                                    data.next_number || data.nextNumber || data.next_code || data.data || 
+                                    (typeof data === 'string' ? data : '');
+                                
+                                if (nextCode) setFormState(prev => ({ ...prev, id: nextCode }));
+                            }
+                        });
+                    }
                 }
             }
         }
@@ -180,13 +186,13 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
 
     const labelClassName = "text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2";
 
-    const materialOptions = materials.map(m => ({
-        value: m.id,
+    const materialOptions = apiMaterials.map(m => ({
+        value: m.uid,
         label: `${m.name} (${m.stock} unit)`
     }));
     
-    const treatmentOptions = treatments.map(t => ({
-        value: t.id,
+    const treatmentOptions = apiTreatments.map(t => ({
+        value: t.uid,
         label: t.name
     }));
 

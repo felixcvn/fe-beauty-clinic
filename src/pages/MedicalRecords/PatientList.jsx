@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Plus, FileText, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
+import { rekamMedisAPI } from '../../services/api';
 import CustomSelect from '../../components/UI/CustomSelect';
 import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -13,19 +14,38 @@ const PatientList = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [records, setRecords] = useState([]);
 
-    // Simulate loading
     React.useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
+        const fetchRecords = async () => {
+            setIsLoading(true);
+            try {
+                const token = localStorage.getItem('token');
+                if (token) {
+                    const result = await rekamMedisAPI.getAll(token);
+                    if (result.success) {
+                        const data = result.data.data || result.data;
+                        const recordsArray = Array.isArray(data) ? data : [];
+                        setRecords(recordsArray);
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch medical records", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchRecords();
     }, []);
 
-    const filteredPatients = patients.filter(patient => {
+    const filteredRecords = records.filter(record => {
+        const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || '';
+        const patientId = String(record.data_pasien_id || record.pasien_id || '');
+        
         const matchesSearch = 
-            (patient.Nama_pasien || patient.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(patient.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(patient.no_RM || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(patient.no_member || '').toLowerCase().includes(searchTerm.toLowerCase());
+            patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            patientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            String(record.no_RM || '').toLowerCase().includes(searchTerm.toLowerCase());
         return matchesSearch;
     });
 
@@ -81,26 +101,30 @@ const PatientList = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredPatients.map((patient) => (
+                            {filteredRecords.map((record) => {
+                                const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || 'Unknown';
+                                const patientId = record.data_pasien_id || record.pasien_id;
+                                
+                                return (
                                 <tr
-                                    key={patient.id}
-                                    onClick={() => navigate(`/medical-records/${patient.id}`)}
+                                    key={record.id}
+                                    onClick={() => navigate(`/medical-records/${patientId}`)}
                                     className="border-b border-primary/5 last:border-0 cursor-pointer hover:bg-primary/5 transition-colors"
                                 >
-                                    <td className="px-4 py-2 text-primary/80 font-black text-xs">{patient.id}</td>
+                                    <td className="px-4 py-2 text-primary/80 font-black text-xs">{record.id}</td>
                                     <td className="px-4 py-2">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5">
-                                                {(patient.Nama_pasien || patient.name || 'U').split(' ').map(n => n[0]).join('').substring(0,2)}
+                                                {patientName.split(' ').map(n => n[0]).join('').substring(0,2)}
                                             </div>
-                                            <div className="font-medium text-primary text-sm tracking-tight">{patient.Nama_pasien || patient.name}</div>
+                                            <div className="font-medium text-primary text-sm tracking-tight">{patientName}</div>
                                         </div>
                                     </td>
-                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{patient.no_member || '-'}</td>
-                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{patient.no_RM || '-'}</td>
+                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{record.pasien?.no_member || '-'}</td>
+                                    <td className="px-4 py-2 text-primary/80 font-medium text-sm">{record.pasien?.no_RM || record.no_RM || '-'}</td>
                                     <td className="px-4 py-2 text-center">
                                         <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest rounded-full shadow-sm border border-primary/10 bg-primary/5 text-primary">
-                                            {patient.Tipe_Member || patient.tipe_member || '-'}
+                                            {record.pasien?.Tipe_member || record.pasien?.tipe_member || '-'}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-right">
@@ -109,8 +133,8 @@ const PatientList = () => {
                                         </button>
                                     </td>
                                 </tr>
-                            ))}
-                            {filteredPatients.length === 0 && (
+                            )})}
+                            {filteredRecords.length === 0 && (
                                 <tr>
                                     <td colSpan={6}>
                                         <EmptyState 
@@ -127,35 +151,39 @@ const PatientList = () => {
 
                 {/* Mobile Card View */}
                 <div className="lg:hidden divide-y divide-primary/5">
-                    {filteredPatients.map((patient) => (
+                    {filteredRecords.map((record) => {
+                        const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || 'Unknown';
+                        const patientId = record.data_pasien_id || record.pasien_id;
+
+                        return (
                         <div
-                            key={patient.id}
-                            onClick={() => navigate(`/medical-records/${patient.id}`)}
+                            key={record.id}
+                            onClick={() => navigate(`/medical-records/${patientId}`)}
                             className="p-6 border-b border-primary/5 last:border-0 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors"
                         >
                             <div className="w-12 h-12 rounded-2xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
-                                {(patient.Nama_pasien || patient.name || 'U').split(' ').map(n => n[0]).join('').substring(0,2)}
+                                {patientName.split(' ').map(n => n[0]).join('').substring(0,2)}
                             </div>
                             <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-start mb-1 gap-2">
-                                    <h4 className="font-black text-primary text-sm tracking-tight truncate">{patient.Nama_pasien || patient.name}</h4>
+                                    <h4 className="font-black text-primary text-sm tracking-tight truncate">{patientName}</h4>
                                     <span className="px-2.5 py-1 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm shrink-0 bg-primary/10 text-primary">
-                                        {patient.Tipe_Member || patient.tipe_member || '-'}
+                                        {record.pasien?.Tipe_member || record.pasien?.tipe_member || '-'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center text-[10px] text-primary/60 font-bold uppercase tracking-wider mt-2">
                                     <div className="flex flex-col gap-1">
-                                        <span className="flex items-center gap-1.5"><span className="text-primary/40">No Member:</span> {patient.no_member || '-'}</span>
-                                        <span className="flex items-center gap-1.5"><span className="text-primary/40">No RM:</span> {patient.no_RM || '-'}</span>
+                                        <span className="flex items-center gap-1.5"><span className="text-primary/40">No Member:</span> {record.pasien?.no_member || '-'}</span>
+                                        <span className="flex items-center gap-1.5"><span className="text-primary/40">No RM:</span> {record.pasien?.no_RM || record.no_RM || '-'}</span>
                                     </div>
                                     <div className="text-[10px] text-primary/30 font-black uppercase tracking-widest text-right">
-                                        ID: {patient.id}
+                                        ID: {record.id}
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    ))}
-                    {filteredPatients.length === 0 && (
+                    )})}
+                    {filteredRecords.length === 0 && (
                         <EmptyState 
                             type="records"
                             title="Data Medis Tidak Ditemukan"
@@ -167,7 +195,7 @@ const PatientList = () => {
                 )}
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                    <span>Menampilkan {filteredPatients.length} dari {patients.length} data</span>
+                    <span>Menampilkan {filteredRecords.length} dari {records.length} data</span>
                     <div className="flex gap-3 w-full sm:w-auto">
                         <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
                         <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Selanjutnya</button>

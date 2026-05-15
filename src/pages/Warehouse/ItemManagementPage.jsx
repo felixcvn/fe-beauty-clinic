@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import ConfirmModal from '../../components/UI/ConfirmModal';
-import { stokProdukAPI, paketBundlingsAPI } from '../../services/api';
+import { stokProdukAPI, paketBundlingsAPI, treatmentAPI, bahanTreatmentAPI } from '../../services/api';
 import { exportToExcel } from '../../utils/excelExport';
 
 
@@ -55,10 +55,11 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     const [isAddDropdownOpen, setIsAddDropdownOpen] = useState(false);
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
     const [products, setProducts] = useState([]); // Data produk yang diambil dari backend
-
+    const [apiTreatments, setApiTreatments] = useState([]); // Data treatment dari backend
+    const [apiMaterials, setApiMaterials] = useState([]); // Data bahan dari backend
 
     /**
-     * Mengambil daftar produk dari server menggunakan API stokProduk
+     * Mengambil daftar produk dan treatment dari server
      * dan memetakan datanya ke format yang digunakan di UI.
      */
     const fetchProducts = async () => {
@@ -66,13 +67,17 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         const token = localStorage.getItem('token');
         
         try {
-            // Fetch dari kedua endpoint secara paralel
-            const [stokRes, bundleRes] = await Promise.all([
+            // Fetch dari keempat endpoint secara paralel
+            const [stokRes, bundleRes, treatmentRes, bahanRes] = await Promise.all([
                 stokProdukAPI.getAll(token),
-                paketBundlingsAPI.getAll(token)
+                paketBundlingsAPI.getAll(token),
+                treatmentAPI.getAll(token),
+                bahanTreatmentAPI.getAll(token)
             ]);
 
             let allProducts = [];
+            let allTreatments = [];
+            let allMaterials = [];
 
             // Map data stok-produk
             if (stokRes.success) {
@@ -116,7 +121,44 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
 
             setProducts(allProducts);
 
-            if (!stokRes.success && !bundleRes.success) {
+            // Map data treatment
+            if (treatmentRes.success) {
+                const rawTreatmentData = treatmentRes.data?.data || treatmentRes.data || [];
+                const mappedTreatments = (Array.isArray(rawTreatmentData) ? rawTreatmentData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_treatment || item.kode_treatment || item.id,
+                    name: item.Nama_treatment || item.nama_treatment || item.name,
+                    category: item.Kategori || item.kategori || item.category || 'Treatment',
+                    price: Number(item.Harga || item.harga || item.price || 0),
+                    isPackage: Boolean(item.is_paket || item.is_package),
+                    packageCount: Number(item.jumlah_sesi || item.packageCount || 0),
+                    bahan_ids: item.bahan ? item.bahan.map(b => b.bahan_id) : (item.bahan_ids || []),
+                    package_treatment_ids: item.package_treatment_ids || []
+                }));
+                allTreatments = mappedTreatments;
+            }
+            
+            setApiTreatments(allTreatments);
+
+            // Map data bahan
+            if (bahanRes.success) {
+                const rawBahanData = bahanRes.data?.data || bahanRes.data || [];
+                const mappedBahan = (Array.isArray(rawBahanData) ? rawBahanData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_Produk || item.kode_bahan || item.id,
+                    name: item.Nama_produk || item.nama_bahan || item.name,
+                    category: item.Kategori || item.kategori || item.category || 'Bahan',
+                    price: Number(item.Harga || item.harga || item.price || 0),
+                    stock: Number(item.Stok || item.stok || item.stock || 0),
+                    minStock: Number(item.Batas_minimal_stok || item.batas_minimal_stok || item.minStock || 0),
+                    unit: item.satuan || ''
+                }));
+                allMaterials = mappedBahan;
+            }
+            
+            setApiMaterials(allMaterials);
+
+            if (!stokRes.success && !bundleRes.success && !treatmentRes.success && !bahanRes.success) {
                 showToast('Gagal memuat data dari server', 'error');
             }
         } catch (error) {
@@ -141,9 +183,9 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
     // Menggabungkan semua data dari berbagai kategori menjadi satu array untuk pencarian/filter global
     const allItems = [
         ...products.map(p => ({ ...p, _type: 'product' })),
-        ...treatments.map(t => ({ ...t, _type: 'treatment' })),
+        ...apiTreatments.map(t => ({ ...t, _type: 'treatment' })),
         ...racikans.map(r => ({ ...r, _type: 'racikan' })),
-        ...materials.map(m => ({ ...m, _type: 'material' }))
+        ...apiMaterials.map(m => ({ ...m, _type: 'material' }))
     ];
 
     // Filter berdasarkan kategori (activeFilter) dan kata kunci pencarian (searchTerm)
@@ -239,13 +281,23 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         }
                     }
                 } else if (modalType === 'treatment') {
-                    // Update atau Tambah Treatment di Mock Data
+                    const token = localStorage.getItem('token');
                     if (isEdit) {
-                        updateTreatment(data);
-                        showToast('Treatment berhasil diperbarui', 'success');
+                        const res = await treatmentAPI.update(token, data.uid, data);
+                        if (res.success) {
+                            showToast('Treatment berhasil diperbarui', 'success');
+                            fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal memperbarui treatment', 'error');
+                        }
                     } else {
-                        addTreatment(data);
-                        showToast('Treatment berhasil ditambahkan', 'success');
+                        const res = await treatmentAPI.create(token, data);
+                        if (res.success) {
+                            showToast('Treatment berhasil ditambahkan', 'success');
+                            fetchProducts();
+                        } else {
+                            showToast(res.message || 'Gagal menambah treatment', 'error');
+                        }
                     }
                 } else if (modalType === 'racikan') {
                     // Update atau Tambah Racikan di Mock Data
@@ -293,8 +345,14 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                         showToast(res.message || 'Gagal menghapus stok', 'error');
                     }
                 } else if (item._type === 'treatment') {
-                    deleteTreatment(item.id);
-                    showToast('Treatment berhasil dihapus', 'success');
+                    const token = localStorage.getItem('token');
+                    const res = await treatmentAPI.delete(token, item.uid);
+                    if (res.success) {
+                        showToast('Treatment berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus treatment', 'error');
+                    }
                 } else if (item._type === 'racikan') {
                     deleteRacikan(item.id);
                     showToast('Racikan berhasil dihapus', 'success');
@@ -565,7 +623,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                                         {item.isPackage && item.package_treatment_ids && (
                                                             <div className="text-[10px] text-primary/40 font-bold mt-1 flex flex-wrap gap-1">
                                                                 {item.package_treatment_ids.map((tid, idx) => {
-                                                                    const tName = treatments.find(t => t.id === tid)?.name || tid;
+                                                                    const tName = apiTreatments.find(t => t.uid === tid)?.name || tid;
                                                                     return (
                                                                         <span key={tid} className="bg-primary/5 px-1.5 py-0.5 rounded">
                                                                             {tName}{idx < item.package_treatment_ids.length - 1 ? ',' : ''}
@@ -732,7 +790,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                             {item.isPackage && item.package_treatment_ids && (
                                                 <div className="text-[9px] text-primary/40 font-bold mb-3 flex flex-wrap gap-1">
                                                     {item.package_treatment_ids.map((tid) => {
-                                                        const tName = treatments.find(t => t.id === tid)?.name || tid;
+                                                        const tName = apiTreatments.find(t => t.uid === tid)?.name || tid;
                                                         return <span key={tid} className="bg-primary/5 px-1 rounded">{tName}</span>;
                                                     })}
                                                 </div>
@@ -891,6 +949,8 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                 initialData={editingItem}
                 type={modalType}
                 products={products}
+                apiTreatments={apiTreatments}
+                apiMaterials={apiMaterials}
             />
 
             <ConfirmModal

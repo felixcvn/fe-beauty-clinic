@@ -11,7 +11,10 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : 'https://heidi-overloose-removably.ngrok-free.dev/api';
+const BASE_URL = isLocalhost ? '/api' : 'https://composite-footprint-overarch.ngrok-free.dev/api';
+export const STORAGE_URL = '/storage';
+// Note: We use a relative path to leverage the Vite proxy (which adds the ngrok-skip header)
+// Note: We use the full URL to ensure consistency, and we'll append the skip header via query param in the component.
 
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
@@ -1009,4 +1012,166 @@ export const barangApotekAPI = {
     }
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI };
+/* ─────────────────────────────────────────────────────────────
+   Rekam Medis API
+───────────────────────────────────────────────────────────── */
+export const rekamMedisAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/rekam-medis`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data rekam medis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getById: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/rekam-medis/${id}`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil detail rekam medis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, formData) => {
+        try {
+            const headers = getHeaders(token);
+            delete headers['Content-Type']; // Let browser set multipart/form-data boundary
+            
+            const response = await fetch(`${BASE_URL}/rekam-medis`, {
+                method: 'POST',
+                headers: headers,
+                body: formData,
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah rekam medis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, formData) => {
+        try {
+            const headers = getHeaders(token);
+            delete headers['Content-Type'];
+            
+            formData.append('_method', 'PUT');
+
+            const response = await fetch(`${BASE_URL}/rekam-medis/${id}`, {
+                method: 'POST',
+                headers: headers,
+                body: formData,
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate rekam medis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Treatment API
+───────────────────────────────────────────────────────────── */
+export const treatmentAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/treatment`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data treatment' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/treatment/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                id: data.id,
+                kode_treatment: data.id,
+                Kode_treatment: data.id,
+                Kode_Treatment: data.id,
+                name: data.name,
+                nama_treatment: data.name,
+                Nama_treatment: data.name,
+                Nama_Treatment: data.name,
+                category: data.category,
+                kategori: data.category,
+                Kategori: data.category,
+                price: data.price || 0,
+                harga: data.price || 0,
+                Harga: data.price || 0,
+                is_package: data.isPackage ? 1 : 0,
+                is_paket: data.isPackage ? 1 : 0,
+                Is_paket: data.isPackage ? 1 : 0,
+                packageCount: data.packageCount || null,
+                Jumlah_sesi: data.packageCount || null,
+                bahan_ids: data.bahan_ids || [],
+                bahan: (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
+                Bahan: (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
+                package_treatment_ids: data.package_treatment_ids || [],
+                treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
+                treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
+                Treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
+                Treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id }))
+            };
+            const response = await fetch(`${BASE_URL}/treatment`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah treatment' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                _method: 'PUT',
+                id: data.id,
+                kode_treatment: data.id,
+                Kode_treatment: data.id,
+                Kode_Treatment: data.id,
+                name: data.name,
+                nama_treatment: data.name,
+                Nama_treatment: data.name,
+                Nama_Treatment: data.name,
+                category: data.category,
+                kategori: data.category,
+                Kategori: data.category,
+                price: data.price || 0,
+                harga: data.price || 0,
+                Harga: data.price || 0,
+                is_package: data.isPackage ? 1 : 0,
+                is_paket: data.isPackage ? 1 : 0,
+                Is_paket: data.isPackage ? 1 : 0,
+                packageCount: data.packageCount || null,
+                Jumlah_sesi: data.packageCount || null,
+                bahan_ids: data.bahan_ids || [],
+                bahan: (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
+                Bahan: (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
+                package_treatment_ids: data.package_treatment_ids || [],
+                treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
+                treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
+                Treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
+                Treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id }))
+            };
+            const response = await fetch(`${BASE_URL}/treatment/${id}`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate treatment' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/treatment/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus treatment' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI };

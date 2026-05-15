@@ -10,7 +10,7 @@ import ConfirmModal from './ConfirmModal';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { pasienAPI, karyawanAPI } from '../../services/api';
+import { pasienAPI, karyawanAPI, rekamMedisAPI, treatmentAPI, stokProdukAPI } from '../../services/api';
 
 const mapPatientFromAPI = (p) => ({
     id: p.id,
@@ -23,8 +23,19 @@ const mapStaffFromAPI = (k) => ({
     divisi: k.divisi || k.Divisi || k.Jabatan || k.jabatan || k.posisi || '',
 });
 
-const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName = null }) => {
-    const { patients, products, racikans, treatments, staff, addRecord } = useMockData();
+const mapTreatmentFromAPI = (t) => ({
+    id: t.id,
+    name: t.Nama_treatment || t.nama_treatment || t.name,
+});
+
+const mapProductFromAPI = (p) => ({
+    id: p.id,
+    name: p.Nama_produk || p.name,
+    category: p.Kategori || p.category || 'Obat',
+});
+
+const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName = null, mode = 'add', initialData = null, onSuccess }) => {
+    const { patients, products, racikans, treatments, staff } = useMockData();
     const { user } = useAuth();
     const { showToast } = useToast();
 
@@ -48,16 +59,18 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [diagnosis, setDiagnosis] = useState('');
     const [notes, setNotes] = useState('');
     const [selectedProducts, setSelectedProducts] = useState([]);
-    const [selectedRacikans, setSelectedRacikans] = useState([]);
+    const [racikanText, setRacikanText] = useState('');
     const [beforeImage, setBeforeImage] = useState(null);
     const [afterImage, setAfterImage] = useState(null);
     const [errors, setErrors] = useState({});
     const [confirmConfig, setConfirmConfig] = useState(null);
 
-    // API State
     const [apiPatients, setApiPatients] = useState([]);
     const [apiStaff, setApiStaff] = useState([]);
+    const [apiTreatments, setApiTreatments] = useState([]);
+    const [apiProducts, setApiProducts] = useState([]);
     const [isFetchingData, setIsFetchingData] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
 
     // Options mapping
@@ -71,23 +84,75 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     
     const activePatients = apiPatients.length > 0 ? apiPatients : patients;
     const patientOptions = activePatients.map(p => ({ value: p.id, label: p.name }));
-    const treatmentOptions = treatments.map(t => ({ value: t.id, label: t.name }));
-    const productOptions = products.map(p => ({ value: p.id, label: `${p.name} (${p.category})` }));
+    const activeTreatments = apiTreatments.length > 0 ? apiTreatments : treatments;
+    const treatmentOptions = activeTreatments.map(t => ({ value: t.id, label: t.name }));
+    const activeProducts = apiProducts.length > 0 ? apiProducts : products;
+    const productOptions = activeProducts.map(p => ({ value: p.id, label: `${p.name} (${p.category})` }));
     const racikanOptions = racikans.map(r => ({ value: r.id, label: r.name }));
 
     // Reset and auto-fill logic
     useEffect(() => {
         if (isOpen) {
             setStep(1);
-            setSelectedPatientId(patientId || '');
-            setDate(new Date().toISOString().split('T')[0]);
+            setErrors({});
             
-            // Auto-fill doctor if current user is a doctor
-            if (user?.role === 'Dokter') {
-                const doc = staff.find(s => s.name === user?.name || s.username === user?.username);
-                setSelectedDoctorId(doc?.id || '');
+            if (mode === 'edit' && initialData) {
+                setSelectedPatientId(initialData.pasien_id || patientId || '');
+                setDate(initialData.tanggal || new Date().toISOString().split('T')[0]);
+                setSelectedDoctorId(initialData.karyawan_id || '');
+                
+                setPerawatanSebelumnya(initialData.perawatan_sebelumnya || '');
+                setTensi(initialData.tensi || 'Normal');
+                setKeluhanPasien(initialData.keluhan_pasien || '');
+                
+                const parsedDiinginkan = Array.isArray(initialData.diinginkan) ? initialData.diinginkan : 
+                                         (typeof initialData.diinginkan === 'string' ? JSON.parse(initialData.diinginkan || '[]') : []);
+                setDiinginkan(parsedDiinginkan);
+                setDiinginkanLainnya(initialData.diinginkan_lainnya || '');
+                
+                const parsedRiwayat = Array.isArray(initialData.riwayat_kesehatan) ? initialData.riwayat_kesehatan : 
+                                      (typeof initialData.riwayat_kesehatan === 'string' ? JSON.parse(initialData.riwayat_kesehatan || '[]') : []);
+                setRiwayatKesehatan(parsedRiwayat);
+                setRiwayatKesehatanLainnya(initialData.riwayat_kesehatan_lainnya || '');
+                
+                const treatmentsArr = Array.isArray(initialData.treatments) ? initialData.treatments.map(t => t.id || t) : [];
+                setSelectedTreatments(treatmentsArr);
+                
+                setDiagnosis(initialData.diagnosa || '');
+                setNotes(initialData.catatan || '');
+                
+                const produksArr = Array.isArray(initialData.produks) ? initialData.produks.map(p => p.id || p) : [];
+                setSelectedProducts(produksArr);
+                setRacikanText(initialData.racikan || '');
+                
+                setBeforeImage(null);
+                setAfterImage(null);
             } else {
-                setSelectedDoctorId('');
+                setSelectedPatientId(patientId || '');
+                setDate(new Date().toISOString().split('T')[0]);
+                
+                if (user?.role === 'Dokter') {
+                    const doc = staff.find(s => s.name === user?.name || s.username === user?.username);
+                    setSelectedDoctorId(doc?.id || '');
+                } else {
+                    setSelectedDoctorId('');
+                }
+
+                setPerawatanSebelumnya('');
+                setDiinginkan([]);
+                setDiinginkanLainnya('');
+                setTensi('Normal');
+                setKeluhanPasien('');
+                setRiwayatKesehatan([]);
+                setRiwayatKesehatanLainnya('');
+
+                setSelectedTreatments([]);
+                setDiagnosis('');
+                setNotes('');
+                setSelectedProducts([]);
+                setRacikanText('');
+                setBeforeImage(null);
+                setAfterImage(null);
             }
 
             // Fetch Data if user has token
@@ -96,9 +161,11 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                     setIsFetchingData(true);
                     try {
                         // Parallel fetch for speed
-                        const [patientResult, staffResult] = await Promise.all([
+                        const [patientResult, staffResult, treatmentResult, productResult] = await Promise.all([
                             pasienAPI.getAll(user.token, 1),
-                            karyawanAPI.getAll(user.token, 1, 'per_page=100')
+                            karyawanAPI.getAll(user.token, 1, 'per_page=100'),
+                            treatmentAPI.getAll(user.token),
+                            stokProdukAPI.getAll(user.token)
                         ]);
 
                         if (patientResult.success && patientResult.data) {
@@ -112,6 +179,18 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                             const staffArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
                             setApiStaff(staffArray.map(mapStaffFromAPI));
                         }
+
+                        if (treatmentResult.success && treatmentResult.data) {
+                            const responseData = treatmentResult.data.data || treatmentResult.data;
+                            const treatmentArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                            setApiTreatments(treatmentArray.map(mapTreatmentFromAPI));
+                        }
+
+                        if (productResult.success && productResult.data) {
+                            const responseData = productResult.data.data || productResult.data;
+                            const productArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                            setApiProducts(productArray.map(mapProductFromAPI));
+                        }
                     } catch (error) {
                         console.error('Error fetching data for MR:', error);
                     } finally {
@@ -121,24 +200,8 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 fetchData();
             }
 
-            setPerawatanSebelumnya('');
-            setDiinginkan([]);
-            setDiinginkanLainnya('');
-            setTensi('Normal');
-            setKeluhanPasien('');
-            setRiwayatKesehatan([]);
-            setRiwayatKesehatanLainnya('');
-
-            setSelectedTreatments([]);
-            setDiagnosis('');
-            setNotes('');
-            setSelectedProducts([]);
-            setSelectedRacikans([]);
-            setBeforeImage(null);
-            setAfterImage(null);
-            setErrors({});
         }
-    }, [isOpen, patientId, user, staff]);
+    }, [isOpen, patientId, user, staff, mode, initialData]);
 
     if (!isOpen) return null;
 
@@ -173,50 +236,66 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
 
         setConfirmConfig({
             icon: 'save',
-            header: 'Simpan Rekam Medis',
-            message: `Simpan data rekam medis untuk ${patientName || 'pasien'}?`,
+            header: mode === 'edit' ? 'Update Rekam Medis' : 'Simpan Rekam Medis',
+            message: mode === 'edit' 
+                ? `Update data rekam medis untuk pasien ini?` 
+                : `Simpan data rekam medis untuk ${patientName || 'pasien'}?`,
             acceptLabel: 'Ya, Simpan',
-            onAccept: () => {
-                const doctor = staff.find(s => s.id === selectedDoctorId);
-                const treatmentLabels = selectedTreatments
-                    .map(id => treatments.find(t => t.id === id)?.name)
-                    .filter(Boolean);
+            onAccept: async () => {
+                setIsSubmitting(true);
+                
+                try {
+                    const formData = new FormData();
+                    formData.append('data_pasien_id', patientId || selectedPatientId);
+                    formData.append('dokter_id', selectedDoctorId);
+                    formData.append('tanggal_kunjungan', date);
+                    formData.append('tekanan_darah', tensi);
+                    
+                    const riwayatStr = riwayatKesehatan.includes('Lainnya') 
+                        ? [...riwayatKesehatan.filter(r => r !== 'Lainnya'), riwayatKesehatanLainnya].filter(Boolean).join(', ')
+                        : riwayatKesehatan.join(', ');
+                    formData.append('riwayat_penyakit', riwayatStr);
+                    
+                    formData.append('keluhan_pasien', keluhanPasien);
+                    formData.append('perawatan_diklinik_sebelumnya', perawatanSebelumnya);
+                    formData.append('diagnosa', diagnosis);
+                    formData.append('catatan_tindakan', notes);
 
-                const prescriptions = [
-                    ...selectedProducts.map(id => {
-                        const p = products.find(x => x.id === id);
-                        return p ? { name: p.name, dosage: 'Sesuai anjuran' } : null;
-                    }).filter(Boolean),
-                    ...selectedRacikans.map(id => {
-                        const r = racikans.find(x => x.id === id);
-                        return r ? { name: r.name, dosage: 'Racikan — sesuai anjuran' } : null;
-                    }).filter(Boolean),
-                ];
+                    if (racikanText) {
+                        formData.append('racikan', racikanText);
+                    }
 
-                const newRecord = {
-                    id: Date.now(),
-                    date,
-                    treatment: treatmentLabels.join(', '),
-                    specialist: doctor?.name || 'Unknown',
-                    diagnosis,
-                    notes,
-                    prescriptions,
-                    assessment: {
-                        perawatanSebelumnya,
-                        diinginkan,
-                        diinginkanLainnya: diinginkan.includes('Lainnya') ? diinginkanLainnya : null,
-                        tensi,
-                        keluhanPasien,
-                        riwayatKesehatan,
-                        riwayatKesehatanLainnya: riwayatKesehatan.includes('Lainnya') ? riwayatKesehatanLainnya : null,
-                    },
-                    beforeImage: beforeImage ? URL.createObjectURL(beforeImage) : null,
-                    afterImage: afterImage ? URL.createObjectURL(afterImage) : null,
-                };
+                    selectedTreatments.forEach((id, idx) => {
+                        formData.append(`treatments[${idx}]`, id);
+                    });
 
-                addRecord(patientId || selectedPatientId, newRecord);
-                showToast('Rekam medis berhasil ditambahkan!', 'success');
-                onClose();
+                    selectedProducts.forEach((id, idx) => {
+                        formData.append(`reseps[${idx}][stok_produk_id]`, id);
+                        formData.append(`reseps[${idx}][jumlah]`, 1); // Default to 1
+                    });
+
+                    if (beforeImage) formData.append('gambar_sebelum', beforeImage);
+                    if (afterImage) formData.append('gambar_sesudah', afterImage);
+
+                    let result;
+                    if (mode === 'edit' && initialData?.id) {
+                        result = await rekamMedisAPI.update(user.token, initialData.id, formData);
+                    } else {
+                        result = await rekamMedisAPI.create(user.token, formData);
+                    }
+
+                    if (result.success) {
+                        showToast(`Rekam medis berhasil di${mode === 'edit' ? 'update' : 'tambahkan'}!`, 'success');
+                        if (onSuccess) onSuccess(result.data);
+                        onClose();
+                    } else {
+                        showToast(result.message || 'Terjadi kesalahan.', 'error');
+                    }
+                } catch (error) {
+                    showToast('Gagal terhubung ke server.', 'error');
+                } finally {
+                    setIsSubmitting(false);
+                }
             }
         });
     };
@@ -522,15 +601,15 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                 icon={Package}
                                             />
 
-                                            <CustomMultiSelect
-                                                label="Racikan"
-                                                placeholder="Cari & pilih racikan..."
-                                                values={selectedRacikans}
-                                                onChange={setSelectedRacikans}
-                                                options={racikanOptions}
-                                                searchable={true}
-                                                icon={FlaskConical}
-                                            />
+                                            <div>
+                                                <label className={labelClass}>Racikan</label>
+                                                <textarea
+                                                    value={racikanText}
+                                                    onChange={(e) => setRacikanText(e.target.value)}
+                                                    placeholder="Tulis detail racikan obat jika ada..."
+                                                    className="w-full p-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all h-24 resize-none text-sm font-medium text-primary shadow-sm placeholder:text-primary/20"
+                                                />
+                                            </div>
                                         </div>
 
                                         {/* Foto */}
@@ -557,10 +636,11 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="flex-[2] flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                                                disabled={isSubmitting}
+                                                className="flex-[2] flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
                                                 <CheckCircle2 className="w-4 h-4" />
-                                                Simpan Rekam Medis
+                                                {isSubmitting ? 'Menyimpan...' : (mode === 'edit' ? 'Update Rekam Medis' : 'Simpan Rekam Medis')}
                                             </button>
                                         </div>
                                     </div>
