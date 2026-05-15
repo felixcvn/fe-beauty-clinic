@@ -244,7 +244,7 @@ const PatientDetail = () => {
                                             {(beforeImg || afterImg) && (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                                                     {beforeImg && (
-                                                    <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/5 aspect-video">
+                                                    <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/5 aspect-square">
                                                         <img 
                                                             src={beforeImg.startsWith('http') || beforeImg.startsWith('/') ? beforeImg : `${STORAGE_URL}/${beforeImg}?ngrok-skip-browser-warning=1`} 
                                                             alt="Before" 
@@ -256,7 +256,7 @@ const PatientDetail = () => {
                                                     </div>
                                                     )}
                                                     {afterImg && (
-                                                    <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/10 aspect-video">
+                                                    <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/10 aspect-square">
                                                         <img 
                                                             src={afterImg.startsWith('http') || afterImg.startsWith('/') ? afterImg : `${STORAGE_URL}/${afterImg}?ngrok-skip-browser-warning=1`} 
                                                             alt="After" 
