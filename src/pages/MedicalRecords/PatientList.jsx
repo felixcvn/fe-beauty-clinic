@@ -26,7 +26,9 @@ const PatientList = () => {
                     if (result.success) {
                         const data = result.data.data || result.data;
                         const recordsArray = Array.isArray(data) ? data : [];
-                        setRecords(recordsArray);
+                        // Sort by ID descending to ensure latest records come first
+                        const sortedRecords = [...recordsArray].sort((a, b) => b.id - a.id);
+                        setRecords(sortedRecords);
                     }
                 }
             } catch (error) {
@@ -38,16 +40,22 @@ const PatientList = () => {
         fetchRecords();
     }, []);
 
-    const filteredRecords = records.filter(record => {
-        const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || '';
-        const patientId = String(record.data_pasien_id || record.pasien_id || '');
-        
-        const matchesSearch = 
-            patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            patientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            String(record.no_RM || '').toLowerCase().includes(searchTerm.toLowerCase());
-        return matchesSearch;
-    });
+    const filteredRecords = records
+        .filter(record => {
+            const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || '';
+            const patientId = String(record.data_pasien_id || record.pasien_id || '');
+            
+            const matchesSearch = 
+                patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                patientId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                String(record.no_RM || '').toLowerCase().includes(searchTerm.toLowerCase());
+            return matchesSearch;
+        })
+        .filter((record, index, self) => {
+            // Deduplicate by patient ID, keep only the first (latest) one
+            const pId = record.data_pasien_id || record.pasien_id;
+            return index === self.findIndex((r) => (r.data_pasien_id || r.pasien_id) === pId);
+        });
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">

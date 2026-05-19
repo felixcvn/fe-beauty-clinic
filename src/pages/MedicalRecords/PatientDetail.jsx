@@ -69,7 +69,13 @@ const PatientDetail = () => {
                 if (result.success) {
                     const data = result.data.data || result.data;
                     const recordsArray = Array.isArray(data) ? data : [];
-                    const patientRecords = recordsArray.filter(r => String(r.data_pasien_id || r.pasien_id) === String(id));
+                    const patientRecords = recordsArray
+                        .filter(r => String(r.data_pasien_id || r.pasien_id) === String(id))
+                        .sort((a, b) => {
+                            const dateA = new Date(a.tanggal_kunjungan || a.tanggal || a.created_at || 0);
+                            const dateB = new Date(b.tanggal_kunjungan || b.tanggal || b.created_at || 0);
+                            return dateB - dateA;
+                        });
                     setMedicalRecords(patientRecords);
                 }
             } catch (error) {
@@ -137,9 +143,9 @@ const PatientDetail = () => {
             </div>
 
             {/* Patient Header Profile */}
-            <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
+            <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-6 text-center sm:text-left">
-                    <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-secondary shadow-xl flex items-center justify-center text-primary font-black text-3xl border border-primary/5 relative shrink-0">
+                    <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-secondary flex items-center justify-center text-primary font-black text-3xl border border-primary/5 relative shrink-0">
                         {patient.name.split(' ').map(n => n[0]).join('')}
                         <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-accent-gold rounded-full border-4 border-white shadow-lg" title="Active Patient" />
                     </div>

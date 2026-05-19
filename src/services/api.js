@@ -357,9 +357,9 @@ export const karyawanAPI = {
    Pasien API
 ───────────────────────────────────────────────────────────── */
 export const pasienAPI = {
-    getAll: async (token, page = 1) => {
+    getAll: async (token, page = 1, query = '') => {
         try {
-            const response = await fetch(`${BASE_URL}/pasien?page=${page}`, {
+            const response = await fetch(`${BASE_URL}/pasien?page=${page}${query ? `&${query}` : ''}`, {
                 method: 'GET',
                 headers: getHeaders(token),
             });
@@ -1069,6 +1069,91 @@ export const rekamMedisAPI = {
 };
 
 /* ─────────────────────────────────────────────────────────────
+   Reservasi API
+───────────────────────────────────────────────────────────── */
+export const reservasiAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/reservasi`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            return { success: false, message: json.message || 'Gagal mengambil data reservasi' };
+        } catch (error) {
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+
+    getById: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/reservasi/${id}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            return { success: false, message: json.message || 'Gagal mengambil detail reservasi' };
+        } catch (error) {
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+
+    create: async (token, data) => {
+        try {
+            const response = await fetch(`${BASE_URL}/reservasi`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(data),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal membuat reservasi' };
+        } catch (error) {
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+
+    update: async (token, id, data) => {
+        try {
+            const response = await fetch(`${BASE_URL}/reservasi/${id}`, {
+                method: 'PUT',
+                headers: getHeaders(token),
+                body: JSON.stringify(data),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mengupdate reservasi' };
+        } catch (error) {
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/reservasi/${id}`, {
+                method: 'DELETE',
+                headers: getHeaders(token),
+            });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus reservasi' };
+        } catch (error) {
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
    Treatment API
 ───────────────────────────────────────────────────────────── */
 export const treatmentAPI = {
@@ -1174,4 +1259,4 @@ export const treatmentAPI = {
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI };
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI };
