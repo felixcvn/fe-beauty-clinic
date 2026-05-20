@@ -27,9 +27,9 @@ const ALL_NAV_ITEMS = [
     { icon: DocumentTextIcon, label: 'Rekam Medis', path: '/medical-records' },
     { icon: UserIcon, label: 'Pasien', path: '/patients' },
     { icon: UsersIcon, label: 'Manajemen Karyawan', path: '/staff' },
-    { 
-        icon: ArchiveBoxIcon, 
-        label: 'Stok', 
+    {
+        icon: ArchiveBoxIcon,
+        label: 'Stok',
         path: '/management'
     },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
@@ -84,19 +84,19 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
     return (
         <>
             {isOpen && (
-                <div 
-                    className="fixed inset-0 bg-black/40 backdrop-blur-md z-[45] md:hidden transition-opacity duration-500 ease-in-out" 
-                    onClick={toggle} 
+                <div
+                    className="fixed inset-0 bg-black/40 backdrop-blur-md z-[45] md:hidden transition-opacity duration-500 ease-in-out"
+                    onClick={toggle}
                 />
             )}
 
             {/* UBAH STRUKTUR KELAS ASIDE DI SINI */}
-            <aside 
+            <aside
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 className={`fixed left-0 top-0 h-screen bg-white flex flex-col z-50 border-r border-gray-200 transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1) ${effectivelyCollapsed ? 'w-64 md:w-[88px]' : 'w-64'} ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
             >
-                
+
                 {/* 1. HEADER (Fixed/Tetap di atas) */}
                 <div className={`bg-primary px-4 h-16 flex items-center shrink-0 shadow-lg relative z-10 ${effectivelyCollapsed ? 'justify-center md:px-0' : 'justify-between'}`}>
                     <div className="flex items-center gap-2 shrink-0 overflow-hidden">
@@ -141,7 +141,7 @@ const Sidebar = ({ isOpen, toggle, isCollapsed, setIsCollapsed, isHovered, setIs
                                         </div>
                                         {effectivelyCollapsed ? null : (isExpanded ? <ChevronUpIcon className="w-4 h-4 shrink-0" /> : <ChevronDownIcon className="w-4 h-4 shrink-0" />)}
                                     </button>
-                                    
+
                                     {isExpanded && !effectivelyCollapsed && (
                                         <div className="ml-9 space-y-1 border-l border-gray-100 pl-2">
                                             {allowedSubs.map((sub) => (

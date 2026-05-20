@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck, Wifi, WifiOff, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -147,12 +147,14 @@ const StaffPage = () => {
     // ── Pilih source data: API atau Mock ──────────────────────────────────────
     const staffList = isApiMode ? apiStaff : mockStaffList;
 
-    const filteredStaff = staffList.filter(s =>
-        s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.jabatan && s.jabatan.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (s.divisi && s.divisi.toLowerCase().includes(searchTerm.toLowerCase())) ||
-        (s.posisi && s.posisi.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredStaff = useMemo(() =>
+        staffList.filter(s =>
+            s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (s.jabatan && s.jabatan.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (s.divisi && s.divisi.toLowerCase().includes(searchTerm.toLowerCase())) ||
+            (s.posisi && s.posisi.toLowerCase().includes(searchTerm.toLowerCase()))
+        ),
+    [staffList, searchTerm]);
 
     useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 

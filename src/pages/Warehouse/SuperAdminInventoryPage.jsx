@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox, ChevronDown, Beaker, Download } from 'lucide-react';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
@@ -116,21 +116,26 @@ const SuperAdminInventoryPage = () => {
         fetchProducts();
     }, []);
 
-    // Combine data (excluding treatments and racikans as requested)
-    const allItems = [
+    // Combine data
+    const allItems = useMemo(() => [
         ...productsFromAPI.map(p => ({ ...p, _type: 'product' })),
         ...materials.map(m => ({ ...m, _type: 'material' })),
         ...medicals.map(m => ({ ...m, _type: 'medical' })),
         ...infusions.map(i => ({ ...i, _type: 'infusion' })),
         ...apotekItems.map(a => ({ ...a, _type: 'apotekItem' }))
-    ];
+    ], [productsFromAPI, materials, medicals, infusions, apotekItems]);
 
     // Apply filters
-    const currentData = activeFilter === 'all' ? allItems : allItems.filter(item => item._type === activeFilter);
-    const filteredData = currentData.filter(item =>
-        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const currentData = useMemo(() =>
+        activeFilter === 'all' ? allItems : allItems.filter(item => item._type === activeFilter),
+    [allItems, activeFilter]);
+
+    const filteredData = useMemo(() =>
+        currentData.filter(item =>
+            item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            item.id?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+    [currentData, searchTerm]);
 
     const handleExport = async (exportType) => {
         const dataToExport = exportType === 'all' ? allItems : filteredData;

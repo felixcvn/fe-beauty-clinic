@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
-/* Import General Sans from Fontshare */
-@import url('https://api.fontshare.com/v2/css?f[]=general-sans@200,300,400,500,600,700&display=swap');
+/* Font General Sans dimuat via index.html (non-blocking preload) */
 
 @theme {
   --color-primary: #154734;
