@@ -5,12 +5,48 @@ import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { pasienAPI, karyawanAPI, treatmentAPI, paketBundlingsAPI, reservasiAPI } from '../../services/api';
 import CustomSelect from './CustomSelect';
+import CustomMultiSelect from './CustomMultiSelect';
 import ConfirmModal from './ConfirmModal';
 
-const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
+const DEFAULT_SLOTS = [
+    { time: '08:00', active: true },
+    { time: '09:00', active: true },
+    { time: '10:00', active: true },
+    { time: '11:00', active: true },
+    { time: '12:00', active: true },
+    { time: '13:00', active: true },
+    { time: '14:00', active: true },
+    { time: '15:00', active: true },
+    { time: '16:00', active: true },
+    { time: '17:00', active: true }
+];
+
+const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onSuccess }) => {
     const { user } = useAuth();
     const { showToast } = useToast();
     const isEditMode = !!initialData;
+
+    const [availableSlots, setAvailableSlots] = useState([]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        const saved = localStorage.getItem('clinic_available_slots');
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                if (Array.isArray(parsed)) {
+                    setAvailableSlots(parsed.filter(slot => slot.time <= '17:00'));
+                } else {
+                    setAvailableSlots(DEFAULT_SLOTS);
+                }
+            } catch (e) {
+                console.error("Failed to parse saved slots", e);
+                setAvailableSlots(DEFAULT_SLOTS);
+            }
+        } else {
+            setAvailableSlots(DEFAULT_SLOTS);
+        }
+    }, [isOpen]);
 
     const [formData, setFormData] = useState({
         Tanggal_reservasi: new Date().toISOString().split('T')[0],
@@ -19,10 +55,18 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
         Nama_pasien: '',
         No_Telp: '',
         karyawan_id: '',
-        treatment_id: '',
-        paket_treatment_id: '',
+        treatment_ids: [],
+        paket_treatment_ids: [],
         Keterangan: ''
     });
+
+    // Compute booked timeslots for the selected Tanggal_reservasi
+    const bookedTimesForSelectedDate = React.useMemo(() => {
+        if (!bookings || !formData.Tanggal_reservasi) return [];
+        return bookings
+            .filter(b => b && b.Tanggal_reservasi === formData.Tanggal_reservasi && String(b.id) !== String(initialData?.id))
+            .map(b => b.Jam_reservasi ? String(b.Jam_reservasi).substring(0, 5) : '');
+    }, [bookings, formData.Tanggal_reservasi, initialData]);
 
     const [loading, setLoading] = useState({
         patients: false,
@@ -66,6 +110,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                         patients: pData.filter(p => p).map(p => ({ 
                             value: String(p.id), 
                             label: String(p.Nama_pasien || p.nama_pasien || p.namaLengkap || `Pasien ${p.id}`) + ` (${p.no_RM || 'No RM -'})`,
+                            name: p.Nama_pasien || p.nama_pasien || p.namaLengkap || '',
                             phone: p.no_Telp || p.no_telp || ''
                         })) 
                     }));
@@ -80,11 +125,19 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                     setOptions(prev => ({ 
                         ...prev, 
                         staff: sData
-                            .filter(s => s && (s.status === 'Aktif' || s.Status_karyawan === 'Aktif' || s.Status === 'Aktif'))
-                            .map(s => ({ 
-                                value: String(s.id), 
-                                label: String(s.NamaLengkap_karyawan || s.nama_lengkap || s.NamaLengkap || `Karyawan ${s.id}`) 
-                            })) 
+                            .filter(s => {
+                                if (!s) return false;
+                                const status = String(s.status || s.Status_karyawan || s.Status || '').toLowerCase();
+                                return !status || status === 'aktif';
+                            })
+                            .map(s => {
+                                const idVal = s.id || s.id_karyawan || s.id_user || s.ID;
+                                return { 
+                                    value: idVal ? String(idVal) : '', 
+                                    label: String(s.NamaLengkap_karyawan || s.nama_lengkap || s.NamaLengkap || s.name || `Karyawan ${idVal || ''}`) 
+                                };
+                            })
+                            .filter(opt => opt.value !== '' && opt.value !== 'undefined')
                     }));
                 }
 
@@ -94,8 +147,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                     setOptions(prev => ({ 
                         ...prev, 
                         treatments: tData.filter(t => t).map(t => ({ 
-                            value: String(t.id), 
-                            label: String(t.Nama_treatment || t.nama_treatment || `Treatment ${t.id}`) 
+                            value: `T-${t.id}`, 
+                            label: `[Satuan] ${t.Nama_treatment || t.nama_treatment || `Treatment ${t.id}`}` 
                         })) 
                     }));
                 }
@@ -106,8 +159,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                     setOptions(prev => ({ 
                         ...prev, 
                         paketTreatments: ptData.filter(pt => pt).map(pt => ({ 
-                            value: String(pt.id), 
-                            label: String(pt.Nama_paket || pt.nama_paket || `Paket ${pt.id}`) 
+                            value: `PT-${pt.id}`, 
+                            label: `[Paket] ${pt.Nama_paket || pt.nama_paket || `Paket ${pt.id}`}` 
                         })) 
                     }));
                 }
@@ -122,18 +175,60 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
         fetchData();
 
         if (isEditMode && initialData) {
+            // Extract treatment_ids robustly
+            let initialTreatmentIds = [];
+            if (Array.isArray(initialData.treatment_ids)) {
+                initialTreatmentIds = initialData.treatment_ids.map(String);
+            } else if (Array.isArray(initialData.treatments)) {
+                initialTreatmentIds = initialData.treatments.map(t => String(t.id || t.treatment_id));
+            } else if (initialData.treatment_id) {
+                initialTreatmentIds = [String(initialData.treatment_id)];
+            }
+
+            // Extract paket_treatment_ids robustly
+            let initialPaketTreatmentIds = [];
+            if (Array.isArray(initialData.paket_treatment_ids)) {
+                initialPaketTreatmentIds = initialData.paket_treatment_ids.map(String);
+            } else if (Array.isArray(initialData.paket_treatments)) {
+                initialPaketTreatmentIds = initialData.paket_treatments.map(p => String(p.id || p.paket_treatment_id));
+            } else if (initialData.paket_treatment_id) {
+                initialPaketTreatmentIds = [String(initialData.paket_treatment_id)];
+            }
+
+            // Extract pasien_id robustly
+            let initialPasienId = '';
+            if (initialData.pasien_id) {
+                initialPasienId = String(initialData.pasien_id);
+            } else if (initialData.pasien && (initialData.pasien.id || initialData.pasien.id_pasien)) {
+                initialPasienId = String(initialData.pasien.id || initialData.pasien.id_pasien);
+            } else if (initialData.id_pasien) {
+                initialPasienId = String(initialData.id_pasien);
+            }
+
+            // Extract karyawan_id robustly
+            let initialKaryawanId = '';
+            if (initialData.karyawan_id) {
+                initialKaryawanId = String(initialData.karyawan_id);
+            } else if (initialData.karyawan && (initialData.karyawan.id || initialData.karyawan.id_karyawan)) {
+                initialKaryawanId = String(initialData.karyawan.id || initialData.karyawan.id_karyawan);
+            } else if (initialData.id_karyawan) {
+                initialKaryawanId = String(initialData.id_karyawan);
+            } else if (initialData.dokter_id) {
+                initialKaryawanId = String(initialData.dokter_id);
+            }
+
             setFormData({
                 Tanggal_reservasi: initialData.Tanggal_reservasi || '',
                 Jam_reservasi: initialData.Jam_reservasi ? String(initialData.Jam_reservasi).substring(0, 5) : '',
-                pasien_id: initialData.pasien_id ? String(initialData.pasien_id) : '',
+                pasien_id: initialPasienId,
                 Nama_pasien: initialData.Nama_pasien || '',
                 No_Telp: initialData.No_Telp || '',
-                karyawan_id: initialData.karyawan_id ? String(initialData.karyawan_id) : '',
-                treatment_id: initialData.treatment_id ? String(initialData.treatment_id) : '',
-                paket_treatment_id: initialData.paket_treatment_id ? String(initialData.paket_treatment_id) : '',
+                karyawan_id: initialKaryawanId,
+                treatment_ids: initialTreatmentIds,
+                paket_treatment_ids: initialPaketTreatmentIds,
                 Keterangan: initialData.Keterangan || ''
             });
-            setIsNewPatient(!initialData.pasien_id);
+            setIsNewPatient(!initialPasienId);
         } else {
             setFormData({
                 Tanggal_reservasi: new Date().toISOString().split('T')[0],
@@ -142,8 +237,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                 Nama_pasien: '',
                 No_Telp: '',
                 karyawan_id: '',
-                treatment_id: '',
-                paket_treatment_id: '',
+                treatment_ids: [],
+                paket_treatment_ids: [],
                 Keterangan: ''
             });
             setIsNewPatient(false);
@@ -151,20 +246,35 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
         setErrors({});
     }, [isOpen, user, isEditMode, initialData]);
 
+    const isInvalidId = (val) => {
+        if (val === undefined || val === null) return true;
+        const sVal = String(val).trim().toLowerCase();
+        return sVal === '' || sVal === 'undefined' || sVal === 'null' || sVal === 'nan';
+    };
+
     const validateForm = () => {
         const newErrors = {};
         if (!formData.Tanggal_reservasi) newErrors.Tanggal_reservasi = 'Tanggal wajib diisi';
         if (!formData.Jam_reservasi) newErrors.Jam_reservasi = 'Jam wajib diisi';
         
+        if (formData.Jam_reservasi && bookedTimesForSelectedDate.includes(formData.Jam_reservasi.substring(0, 5))) {
+            newErrors.Jam_reservasi = 'Jam tersebut sudah penuh terisi untuk tanggal terpilih';
+        }
+        
         if (isNewPatient) {
             if (!formData.Nama_pasien?.trim()) newErrors.Nama_pasien = 'Nama pasien wajib diisi';
         } else {
-            if (!formData.pasien_id) newErrors.pasien_id = 'Pilih pasien terlebih dahulu';
+            if (isInvalidId(formData.pasien_id)) {
+                newErrors.pasien_id = 'Pilih pasien terlebih dahulu';
+            }
         }
 
         if (!formData.No_Telp?.trim()) newErrors.No_Telp = 'Nomor telepon wajib diisi';
-        if (!formData.karyawan_id) newErrors.karyawan_id = 'Pilih karyawan pengampu';
-        if (!formData.treatment_id && !formData.paket_treatment_id) {
+        
+        if (isInvalidId(formData.karyawan_id)) {
+            newErrors.karyawan_id = 'Pilih pegawai terlebih dahulu';
+        }
+        if ((!formData.treatment_ids || formData.treatment_ids.length === 0) && (!formData.paket_treatment_ids || formData.paket_treatment_ids.length === 0)) {
             newErrors.treatment = 'Pilih salah satu antara Treatment atau Paket';
         }
 
@@ -177,7 +287,31 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
         setFormData({ 
             ...formData, 
             pasien_id: val, 
+            Nama_pasien: selected ? selected.name : '',
             No_Telp: selected ? selected.phone : formData.No_Telp 
+        });
+    };
+
+    const handleFormSubmitAttempt = (e) => {
+        e.preventDefault();
+        if (!validateForm()) {
+            showToast("Harap lengkapi semua field yang wajib diisi", "error");
+            
+            // Auto scroll container smoothly to the first error element
+            setTimeout(() => {
+                const errorEl = document.querySelector('.text-red-500');
+                if (errorEl) {
+                    errorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+            return;
+        }
+        setConfirmConfig({
+            icon: 'save',
+            header: isEditMode ? 'Simpan Perubahan' : 'Konfirmasi Reservasi',
+            message: `Yakin ingin menyimpan reservasi ini?`,
+            acceptLabel: 'SIMPAN',
+            onAccept: handleSubmit
         });
     };
 
@@ -186,16 +320,73 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
 
         setLoading(prev => ({ ...prev, submit: true }));
         try {
-            const payload = { ...formData };
-            payload.pasien_id = isNewPatient ? null : (payload.pasien_id || null);
-            payload.treatment_id = payload.treatment_id || null;
-            payload.paket_treatment_id = payload.paket_treatment_id || null;
+            // Build integers and strings formats for both treatment and paket
+            const treatmentIdsInt = (formData.treatment_ids || []).map(Number).filter(n => !isNaN(n) && n > 0);
+            const treatmentIdsStr = (formData.treatment_ids || []).map(String);
             
-            if (isNewPatient) {
-                delete payload.pasien_id;
-            } else {
-                delete payload.Nama_pasien;
-            }
+            const paketTreatmentIdsInt = (formData.paket_treatment_ids || []).map(Number).filter(n => !isNaN(n) && n > 0);
+            const paketTreatmentIdsStr = (formData.paket_treatment_ids || []).map(String);
+
+            // Single ID fallback (first element)
+            const singleTreatmentId = treatmentIdsInt[0] || null;
+            const singlePaketTreatmentId = paketTreatmentIdsInt[0] || null;
+
+            // Extract employee and patient IDs (support both numeric IDs and UUID strings)
+            const parseId = (val) => {
+                if (isInvalidId(val)) return null;
+                const num = Number(val);
+                return isNaN(num) ? String(val) : num;
+            };
+
+            const selectedKaryawanId = parseId(formData.karyawan_id);
+            const selectedPasienId = isNewPatient ? null : parseId(formData.pasien_id);
+
+            // Find selected staff details for Pendaftar_pasien string field fallback
+            const staffObj = options.staff.find(s => String(s.value) === String(formData.karyawan_id));
+            const staffName = staffObj ? staffObj.label : (formData.NamaLengkap_karyawan || '');
+
+            const payload = { 
+                ...formData,
+                pasien_id: selectedPasienId,
+                karyawan_id: selectedKaryawanId,
+                
+                // Naming conventions fallbacks for Employee
+                id_karyawan: selectedKaryawanId,
+                dokter_id: selectedKaryawanId,
+                Pendaftar_pasien: staffName,
+                pendaftar_pasien: staffName,
+
+                // Naming conventions fallbacks for Patient
+                id_pasien: selectedPasienId,
+                
+                // Fallbacks (Legacy / Singular DB columns)
+                treatment_id: singleTreatmentId,
+                paket_treatment_id: singlePaketTreatmentId,
+                
+                // Array format with integers (Laravel standard many-to-many sync)
+                treatment_ids: treatmentIdsInt,
+                paket_treatment_ids: paketTreatmentIdsInt,
+                
+                // Array format with strings (Fallback)
+                treatment_ids_string: treatmentIdsStr,
+                paket_treatment_ids_string: paketTreatmentIdsStr,
+                
+                // Direct array of IDs under relationship keys (standard sync expects this if the relation is used directly)
+                treatments: treatmentIdsInt, 
+                paket_treatments: paketTreatmentIdsInt,
+                
+                // Relationship pivot structures (objects array)
+                treatment: treatmentIdsInt.map(id => ({ treatment_id: id })),
+                paket_treatment: paketTreatmentIdsInt.map(id => ({ paket_treatment_id: id })),
+                
+                // Double pivot structure with both types
+                treatments_pivot: treatmentIdsInt.map(id => ({ treatment_id: id })),
+                paket_treatments_pivot: paketTreatmentIdsInt.map(id => ({ paket_treatment_id: id })),
+
+                // Comma-separated strings (Laravel casting / JSON fallback)
+                treatment_ids_csv: treatmentIdsStr.join(','),
+                paket_treatment_ids_csv: paketTreatmentIdsStr.join(','),
+            };
 
             let result;
             if (isEditMode) {
@@ -221,17 +412,28 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
     const labelClass = "text-[10px] font-black uppercase tracking-widest text-primary/40 block mb-2 px-1";
     const inputClass = "w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary shadow-sm placeholder:text-primary/20 placeholder:font-medium";
 
+    const handleCloseAttempt = () => {
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
+    };
+
     if (!isOpen) return null;
 
     return createPortal(
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/30 transition-opacity" onClick={onClose}>
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/30 transition-opacity" onClick={handleCloseAttempt}>
             <div
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Close Button */}
                 <button
-                    onClick={onClose}
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseAttempt(); }}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
                 >
                     <X className="w-5 h-5" />
@@ -258,14 +460,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-8 overflow-y-auto scrollbar-hide flex-1 bg-gray-50/30">
-                    <form onSubmit={(e) => { e.preventDefault(); setConfirmConfig({
-                        icon: 'save',
-                        header: isEditMode ? 'Simpan Perubahan' : 'Konfirmasi Reservasi',
-                        message: `Yakin ingin menyimpan reservasi ini?`,
-                        acceptLabel: 'SIMPAN',
-                        onAccept: handleSubmit
-                    })}} className="space-y-8">
+                <div className="p-8 overflow-y-auto custom-scrollbar flex-1 bg-gray-50/30">
+                    <form onSubmit={handleFormSubmitAttempt} className="space-y-8">
                         
                         {/* Jadwal Reservasi */}
                         <div className="space-y-6">
@@ -273,7 +469,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                                 <Clock className="w-4 h-4 text-primary/30" />
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Waktu Kunjungan</h4>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-6">
                                 <div className="space-y-1">
                                     <label className={labelClass}>Tanggal Reservasi</label>
                                     <input
@@ -285,13 +481,45 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                                     {errors.Tanggal_reservasi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.Tanggal_reservasi}</p>}
                                 </div>
                                 <div className="space-y-1">
-                                    <label className={labelClass}>Jam Reservasi</label>
-                                    <input
-                                        type="time"
-                                        className={`${inputClass} ${errors.Jam_reservasi ? 'border-red-400' : ''}`}
-                                        value={formData.Jam_reservasi}
-                                        onChange={(e) => setFormData({ ...formData, Jam_reservasi: e.target.value })}
-                                    />
+                                    <label className={labelClass}>Pilih Jam Reservasi</label>
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 bg-white p-5 rounded-[2rem] border border-primary/5 shadow-sm">
+                                        {availableSlots.map((slot) => {
+                                            const isSelected = formData.Jam_reservasi && formData.Jam_reservasi.substring(0, 5) === slot.time;
+                                            const isBooked = bookedTimesForSelectedDate.includes(slot.time);
+                                            const isActive = (slot.active && !isBooked) || isSelected;
+                                            
+                                            return (
+                                                <button
+                                                    key={slot.time}
+                                                    type="button"
+                                                    disabled={!isActive}
+                                                    onClick={() => setFormData({ ...formData, Jam_reservasi: slot.time })}
+                                                    className={`py-3 px-2 rounded-xl font-black text-xs tracking-tight transition-all duration-200 text-center border active:scale-95 flex flex-col items-center justify-center gap-1 ${
+                                                        isSelected
+                                                            ? 'bg-primary text-secondary border-primary shadow-lg shadow-primary/20 hover:scale-[1.02]'
+                                                            : isBooked
+                                                                ? 'bg-rose-50/30 text-rose-500/80 border-rose-100/30 cursor-not-allowed opacity-70'
+                                                                : isActive
+                                                                    ? 'bg-white text-primary border-primary/5 hover:bg-primary/[0.02] hover:border-primary/20 hover:scale-[1.02]'
+                                                                    : 'bg-gray-50 text-gray-300 border-gray-100/50 cursor-not-allowed opacity-40'
+                                                    }`}
+                                                >
+                                                    <span className="text-xs font-black tracking-tight">{slot.time}</span>
+                                                    <span className={`text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${
+                                                        isSelected
+                                                            ? 'bg-secondary text-primary'
+                                                            : isBooked
+                                                                ? 'bg-rose-50 text-rose-600'
+                                                                : isActive
+                                                                    ? 'bg-emerald-50 text-emerald-700'
+                                                                    : 'bg-gray-100 text-gray-400'
+                                                    }`}>
+                                                        {isSelected ? 'Pilih' : isBooked ? 'Penuh' : isActive ? 'Buka' : 'Tutup'}
+                                                    </span>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                     {errors.Jam_reservasi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.Jam_reservasi}</p>}
                                 </div>
                             </div>
@@ -366,41 +594,48 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                             </div>
 
                             <div className="space-y-1">
-                                <label className={labelClass}>Karyawan Pengampu</label>
+                                <label className={labelClass}>Pegawai</label>
                                 <CustomSelect
                                     options={options.staff}
                                     value={formData.karyawan_id}
                                     onChange={(val) => setFormData({ ...formData, karyawan_id: val })}
-                                    placeholder="Pilih Karyawan..."
+                                    placeholder="Pilih Pegawai..."
                                     searchable={true}
                                 />
                                 {errors.karyawan_id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.karyawan_id}</p>}
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-1">
-                                    <label className={labelClass}><Sparkles className="w-3 h-3 inline mr-1 opacity-50" /> Treatment</label>
-                                    <CustomSelect
-                                        options={options.treatments}
-                                        value={formData.treatment_id}
-                                        onChange={(val) => setFormData({ ...formData, treatment_id: val, paket_treatment_id: val ? '' : formData.paket_treatment_id })}
-                                        placeholder="Pilih Satuan..."
-                                        searchable={true}
-                                    />
-                                </div>
-
-                                <div className="space-y-1">
-                                    <label className={labelClass}><Package className="w-3 h-3 inline mr-1 opacity-50" /> Paket Treatment</label>
-                                    <CustomSelect
-                                        options={options.paketTreatments}
-                                        value={formData.paket_treatment_id}
-                                        onChange={(val) => setFormData({ ...formData, paket_treatment_id: val, treatment_id: val ? '' : formData.treatment_id })}
-                                        placeholder="Pilih Paket..."
-                                        searchable={true}
-                                    />
-                                </div>
+                            <div className="space-y-1">
+                                <label className={labelClass}><Sparkles className="w-3 h-3 inline mr-1 opacity-50" /> Pilihan Layanan (Satuan / Paket)</label>
+                                <CustomMultiSelect
+                                    options={[...options.treatments, ...options.paketTreatments]}
+                                    values={[
+                                        ...(formData.treatment_ids || []).map(id => `T-${id}`),
+                                        ...(formData.paket_treatment_ids || []).map(id => `PT-${id}`)
+                                    ]}
+                                    onChange={(vals) => {
+                                        const treatmentIds = [];
+                                        const paketTreatmentIds = [];
+                                        
+                                        (vals || []).forEach(val => {
+                                            if (val.startsWith('T-')) {
+                                                treatmentIds.push(val.replace('T-', ''));
+                                            } else if (val.startsWith('PT-')) {
+                                                paketTreatmentIds.push(val.replace('PT-', ''));
+                                            }
+                                        });
+                                        
+                                        setFormData({
+                                            ...formData,
+                                            treatment_ids: treatmentIds,
+                                            paket_treatment_ids: paketTreatmentIds
+                                        });
+                                    }}
+                                    placeholder="Cari Layanan Satuan atau Paket..."
+                                    searchable={true}
+                                />
+                                {errors.treatment && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.treatment}</p>}
                             </div>
-                            {errors.treatment && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.treatment}</p>}
                         </div>
 
                         {/* Catatan */}
@@ -423,7 +658,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                         <div className="pt-8 border-t border-primary/5 mt-auto flex gap-4">
                             <button
                                 type="button"
-                                onClick={onClose}
+                                onClick={handleCloseAttempt}
                                 className="flex-1 bg-secondary/40 text-primary py-4 rounded-2xl hover:bg-secondary active:scale-[0.98] transition-all duration-300 font-black text-xs uppercase tracking-widest"
                             >
                                 Batal
@@ -450,6 +685,22 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, onSuccess }) => {
                 config={confirmConfig}
                 onClose={() => setConfirmConfig(null)}
             />
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 6px;
+                    height: 6px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: rgba(21, 71, 52, 0.15);
+                    border-radius: 9999px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: rgba(21, 71, 52, 0.3);
+                }
+            `}</style>
         </div>,
         document.body
     );

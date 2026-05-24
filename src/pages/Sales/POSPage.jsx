@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User } from 'lucide-react';
+import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User, X, FileText, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -13,6 +13,10 @@ const POSPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [paymentMethod, setPaymentMethod] = useState('Tunai');
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Fitur Tarik Rekam Medis
+    const [hasFetchedRecord, setHasFetchedRecord] = useState(false);
+    const [isFetchingRecord, setIsFetchingRecord] = useState(false);
 
     // Simulate loading
     React.useEffect(() => {
@@ -154,9 +158,36 @@ const POSPage = () => {
             showToast('Transaksi Berhasil Disimpan!', 'success');
             setCart([]);
             setSelectedCustomer(null);
+            setHasFetchedRecord(false);
             setIsProcessing(false);
             navigate('/sales');
         }, 1500);
+    };
+
+    const handleFetchMedicalRecord = () => {
+        setIsFetchingRecord(true);
+        // Simulasi panggil API rekam medis terakhir
+        setTimeout(() => {
+            // Contoh resep dokter & perawatan terakhir pasien (Acne Pack & Chemical Peel)
+            const recordItems = products.filter(p => p.id === 'PRD-001' || p.id === 'PRD-003');
+            
+            setCart(prev => {
+                const newCart = [...prev];
+                recordItems.forEach(product => {
+                    const existing = newCart.find(item => item.id === product.id);
+                    if (existing) {
+                        existing.quantity += 1;
+                    } else {
+                        newCart.push({ ...product, quantity: 1 });
+                    }
+                });
+                return newCart;
+            });
+
+            setIsFetchingRecord(false);
+            setHasFetchedRecord(true);
+            showToast('Data Rekam Medis & Resep berhasil ditarik', 'success');
+        }, 1000);
     };
 
     return (
@@ -253,22 +284,41 @@ const POSPage = () => {
                     {/* Customer Selection */}
                     <div className="relative">
                         {selectedCustomer ? (
-                            <div className="p-3.5 rounded-2xl bg-white border border-primary/10 flex items-center justify-between animate-fade-in shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-xl bg-primary text-secondary flex items-center justify-center font-black text-[10px]">
-                                        {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
+                            <div className="flex flex-col gap-2 animate-fade-in">
+                                <div className="p-3.5 rounded-2xl bg-white border border-primary/10 flex items-center justify-between shadow-sm">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-9 h-9 rounded-xl bg-primary text-secondary flex items-center justify-center font-black text-[10px]">
+                                            {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black text-primary tracking-tight">{selectedCustomer.name}</p>
+                                            <p className="text-[8px] font-bold text-primary/30 uppercase tracking-widest">{selectedCustomer.id}</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <p className="text-[11px] font-black text-primary tracking-tight">{selectedCustomer.name}</p>
-                                        <p className="text-[8px] font-bold text-primary/30 uppercase tracking-widest">{selectedCustomer.id}</p>
-                                    </div>
+                                    <button
+                                        onClick={() => { setSelectedCustomer(null); setIsMember(false); setHasFetchedRecord(false); setCart([]); }}
+                                        className="p-2 text-primary/20 hover:text-red-500 transition-all"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={() => { setSelectedCustomer(null); setIsMember(false); }}
-                                    className="p-2 text-primary/20 hover:text-red-500 transition-all"
-                                >
-                                    <X className="w-4 h-4" />
-                                </button>
+
+                                {!hasFetchedRecord && (
+                                    <button 
+                                        onClick={handleFetchMedicalRecord}
+                                        disabled={isFetchingRecord}
+                                        className="w-full p-3 flex items-center justify-center gap-2 bg-secondary/10 text-primary border border-primary/10 border-dashed rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        {isFetchingRecord ? (
+                                            <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                                        ) : (
+                                            <FileText className="w-4 h-4 text-primary/40 group-hover:text-primary transition-colors" />
+                                        )}
+                                        <span className="text-[9px] font-black uppercase tracking-widest">
+                                            {isFetchingRecord ? 'Menarik Data...' : 'Tarik Data Rekam Medis (Opsional)'}
+                                        </span>
+                                    </button>
+                                )}
                             </div>
                         ) : (
                             <div className="relative group">
@@ -287,7 +337,7 @@ const POSPage = () => {
                                             filteredCustomers.map(customer => (
                                                 <button
                                                     key={customer.id}
-                                                    onClick={() => { setSelectedCustomer(customer); setIsCustomerDropdownOpen(false); setCustomerSearch(''); }}
+                                                    onClick={() => { setSelectedCustomer(customer); setIsCustomerDropdownOpen(false); setCustomerSearch(''); setHasFetchedRecord(false); }}
                                                     className="w-full p-3 text-left hover:bg-secondary/20 transition-all border-b border-primary/5 last:border-0 group"
                                                 >
                                                     <p className="text-[10px] font-black text-primary group-hover:translate-x-1 transition-transform">{customer.name}</p>

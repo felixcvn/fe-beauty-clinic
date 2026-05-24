@@ -8,6 +8,7 @@ export default defineConfig(({ command }) => ({
 
   build: {
     rollupOptions: {
+      external: ['chart.js/auto', 'quill'],
       output: {
         manualChunks: {
           // Core React — sangat jarang berubah, cache lebih lama
@@ -24,6 +25,11 @@ export default defineConfig(({ command }) => ({
   },
 
   server: {
+    port: 5173,
+    strictPort: true,
+    watch: {
+      usePolling: true,
+    },
     proxy: {
       '/api': {
         target: 'https://composite-footprint-overarch.ngrok-free.dev',

@@ -14,6 +14,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
     const [scanStatus, setScanStatus] = useState('initializing'); // initializing, scanning, success, error
     const [progress, setProgress] = useState(0); // Progress simulasi scanning
     const [locationStatus, setLocationStatus] = useState('unknown'); // Mendeteksi apakah di dalam radius: unknown, inside, outside
+    const [locationAddress, setLocationAddress] = useState(null); // Menyimpan alamat lengkap jika di luar kantor
 
 
     useEffect(() => {
@@ -45,7 +46,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
             // Validasi Geolocation untuk memastikan user di lokasi yang benar
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
-                    (pos) => {
+                    async (pos) => {
                         // Koordinat kantor (Contoh: Jember)
                         const OFFICE_LAT = -8.1702;
                         const OFFICE_LNG = 113.7120;
@@ -61,13 +62,27 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
                             Math.sin(dLng/2) ** 2;
                         const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 
-                        setLocationStatus(distance <= RADIUS_METERS ? 'inside' : 'outside');
+                        const isOutside = distance > RADIUS_METERS;
+                        setLocationStatus(isOutside ? 'outside' : 'inside');
+
+                        if (isOutside) {
+                            try {
+                                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${pos.coords.latitude}&lon=${pos.coords.longitude}`);
+                                const data = await response.json();
+                                setLocationAddress(data.display_name);
+                            } catch (error) {
+                                console.error("Gagal mendapatkan alamat:", error);
+                                setLocationAddress("Alamat tidak ditemukan");
+                            }
+                        }
+
                         setScanStatus('ready');
                     },
                     () => {
                         setLocationStatus('unknown');
                         setScanStatus('ready');
-                    }
+                    },
+                    { enableHighAccuracy: true, maximumAge: 0, timeout: 10000 }
                 );
             } else {
                 setLocationStatus('unknown');
@@ -87,18 +102,10 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         }
     };
 
-    const startScanningSimulation = () => {
-        setScanStatus('scanning');
-        let currentProgress = 0;
-        const interval = setInterval(() => {
-            currentProgress += Math.random() * 15;
-            if (currentProgress >= 100) {
-                currentProgress = 100;
-                clearInterval(interval);
-                handleScanSuccess();
-            }
-            setProgress(currentProgress);
-        }, 300);
+    const takePicture = () => {
+        // In a real app, you would draw the video frame to a canvas here.
+        // For now, we simulate an instant capture.
+        handleScanSuccess();
     };
 
     /**
@@ -131,7 +138,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         }
         const isOutside = locationStatus === 'outside';
 
-        const anomalyInfo = { isLate, isOvertime, isOutside, detectedTime, shift, diffMinutes, scheduledTime: type === 'in' ? shift?.checkIn : shift?.checkOut };
+        const anomalyInfo = { isLate, isOvertime, isOutside, detectedTime, shift, diffMinutes, scheduledTime: type === 'in' ? shift?.checkIn : shift?.checkOut, locationAddress };
 
         // ────────────────────────────────────────────────────────────────
 
@@ -211,8 +218,8 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
                                 <div className="w-16 h-16 md:w-20 md:h-20 bg-secondary rounded-full flex items-center justify-center shadow-xl mb-4">
                                     <CheckCircle2 className="w-8 h-8 md:w-10 md:h-10 text-primary" />
                                 </div>
-                                <h4 className="text-lg md:text-xl font-black tracking-tight">Access Granted</h4>
-                                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-2">{type === 'in' ? 'Logged In Successfully' : 'Logged Out Successfully'}</p>
+                                <h4 className="text-lg md:text-xl font-black tracking-tight">Foto Berhasil Disimpan</h4>
+                                <p className="text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-2">{type === 'in' ? 'Check-in Berhasil' : 'Check-out Berhasil'}</p>
                             </div>
                         )}
 
@@ -240,29 +247,16 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
                         )}
                     </div>
 
-                    {/* Progress Bar & Actions */}
-                    <div className="mt-6 md:mt-8 space-y-3">
-                        {scanStatus === 'ready' ? (
+                    {/* Actions */}
+                    <div className="mt-6 md:mt-8">
+                        {scanStatus === 'ready' && (
                             <button
-                                onClick={startScanningSimulation}
+                                onClick={takePicture}
                                 className="w-full flex justify-center items-center py-4 bg-primary text-secondary rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl shadow-primary/20"
                             >
                                 <Camera className="w-4 h-4 mr-2" />
                                 Ambil Gambar & Lokasi
                             </button>
-                        ) : (
-                            <>
-                                <div className="flex justify-between items-center text-[9px] md:text-[10px] font-black uppercase tracking-widest text-primary/40 px-1">
-                                    <span>Recognition Progress</span>
-                                    <span>{Math.round(progress)}%</span>
-                                </div>
-                                <div className="h-1.5 md:h-2 w-full bg-secondary/40 rounded-full overflow-hidden p-0.5 border border-primary/5">
-                                    <div
-                                        className="h-full bg-primary rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(27,77,62,0.3)]"
-                                        style={{ width: `${progress}%` }}
-                                    />
-                                </div>
-                            </>
                         )}
                     </div>
                 </div>

@@ -438,7 +438,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                                     <Plus className="w-4 h-4" />
                                     <span>Tambah Stok</span>
                                 </button>
-                            ) : user?.role === ROLES.SUPERVISOR_TREATMENT && fixedFilter === 'treatment' ? (
+                            ) : (user?.role === ROLES.SUPERVISOR_TREATMENT || user?.role === ROLES.SUPER_ADMIN) && fixedFilter === 'treatment' ? (
                                 <button
                                     onClick={() => openAddModal('treatment')}
                                     className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"

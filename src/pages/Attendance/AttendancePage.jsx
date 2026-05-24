@@ -61,7 +61,7 @@ const AttendancePage = () => {
     const [selectedOvertimeReq, setSelectedOvertimeReq] = useState(null);
 
     // ─── Role Checks ────────────────────────────────────────────────────────────
-    const canAccessReports = user?.role === 'Owner' || user?.role === 'Komisaris' || user?.role === 'HRD';
+    const canAccessReports = ['Owner', 'Komisaris', 'HRD', 'Super Admin'].includes(user?.role);
     const canApproveLeave = user?.role === 'HRD';
 
     // ─── Mock Data: Attendance Stats ────────────────────────────────────────────
@@ -76,12 +76,12 @@ const AttendancePage = () => {
     const [staffAttendance, setStaffAttendance] = useState([
         { name: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Linda Rahayu', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:05', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null, isOutside: true, locationAddress: 'Jl. Letjen Suprapto No.14, Kebonsari, Jember, Jawa Timur 68122' },
         { name: 'Maya Sari', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '--:--', checkOut: '--:--', status: 'Izin', date: '2026-04-18', photoIn: null, photoOut: null },
         { name: 'Bambang Heru', role: 'OB', shift: 'ob_normal', checkIn: '07:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Ayu Lestari', role: 'Customer Service', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Dewi Rahmawati', role: 'HRD', shift: 'umum_normal', checkIn: '08:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
+        { name: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null, isOutside: true, locationAddress: 'Perumahan Tegal Besar Permai I, Tegal Besar, Jember, Jawa Timur 68132' },
         { name: 'Rina Kartika', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
         { name: 'Agus Setiawan', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '--:--', checkOut: '--:--', status: 'Sakit', date: '2026-04-18', photoIn: null, photoOut: null },
         { name: 'Reza Pahlevi', role: 'Kasir', shift: 'umum_normal', checkIn: '08:00', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
@@ -133,7 +133,7 @@ const AttendancePage = () => {
             setStaffAttendance(prev => {
                 const existingIndex = prev.findIndex(s => s.name === user?.name);
                 if (existingIndex !== -1) {
-                    return prev.map((s, i) => i === existingIndex ? { ...s, checkIn: currentTime, photoIn: photoUrl, status: newStatus } : s);
+                    return prev.map((s, i) => i === existingIndex ? { ...s, checkIn: currentTime, photoIn: photoUrl, status: newStatus, isOutside: anomalyInfo?.isOutside, locationAddress: anomalyInfo?.locationAddress } : s);
                 } else {
                     return [
                         ...prev,
@@ -141,7 +141,8 @@ const AttendancePage = () => {
                             id: `STF-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
                             name: user?.name, role: user?.role, shift: myShift,
                             checkIn: currentTime, checkOut: '--:--', status: newStatus,
-                            date: new Date().toISOString().split('T')[0], photoIn: photoUrl, photoOut: null
+                            date: new Date().toISOString().split('T')[0], photoIn: photoUrl, photoOut: null,
+                            isOutside: anomalyInfo?.isOutside, locationAddress: anomalyInfo?.locationAddress
                         }
                     ];
                 }
@@ -150,7 +151,7 @@ const AttendancePage = () => {
             const targetId = selectedStaffId || staffAttendance.find(s => s.name === user?.name)?.id;
             if (targetId) {
                 setStaffAttendance(prev => prev.map(staff =>
-                    staff.id === targetId ? { ...staff, checkOut: currentTime, photoOut: photoUrl } : staff
+                    staff.id === targetId ? { ...staff, checkOut: currentTime, photoOut: photoUrl, isOutside: anomalyInfo?.isOutside, locationAddress: anomalyInfo?.locationAddress } : staff
                 ));
             }
         }
@@ -207,20 +208,27 @@ const AttendancePage = () => {
         return matchesSearch && matchesStatus && matchesDate;
     });
 
-    const finalAttendance = canAccessReports ? filteredManagerAttendance : staffAttendance.filter(record =>
-        record.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        record.role.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const finalAttendance = canAccessReports ? filteredManagerAttendance : staffAttendance.filter(record => {
+        const isMe = record.name === user?.name;
+        const matchesStatus = statusFilter === 'Semua Status' || record.status === statusFilter;
+        let matchesDate = true;
+        if (startDate && endDate) matchesDate = record.date >= startDate && record.date <= endDate;
+        else if (startDate) matchesDate = record.date >= startDate;
+        else if (endDate) matchesDate = record.date <= endDate;
+        return isMe && matchesStatus && matchesDate;
+    });
 
     const filteredLeave = leaveRequests.filter(req =>
-        req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.type.toLowerCase().includes(searchTerm.toLowerCase())
+        (canAccessReports || req.staffName === user?.name) &&
+        (req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        req.type.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     const filteredOvertime = overtimeRequests.filter(req =>
-        req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (canAccessReports || req.staffName === user?.name) &&
+        (req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         req.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.primaryType.toLowerCase().includes(searchTerm.toLowerCase())
+        req.primaryType.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
     const pendingOvertimeCount = overtimeRequests.filter(r => r.status === 'Menunggu').length;
@@ -473,44 +481,66 @@ const AttendancePage = () => {
                                 ))}
                             </div>
                         </div>
-                    ) : null}
+                    ) : (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2.5 text-primary/60">
+                                <FileText className="w-5 h-5" />
+                                <span className="text-sm md:text-base font-black uppercase tracking-widest mt-0.5">
+                                    Rekap Kehadiran Anda
+                                </span>
+                            </div>
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                                {[
+                                    { label: 'Total Hadir', value: finalAttendance.filter(r => r.status === 'Hadir').length, icon: CheckCircle2, trend: 'none' },
+                                    { label: 'Terlambat', value: finalAttendance.filter(r => r.status === 'Terlambat').length, icon: Clock, trend: 'none' },
+                                    { label: 'Sakit / Izin / Cuti', value: finalAttendance.filter(r => ['Sakit', 'Izin', 'Cuti'].includes(r.status)).length, icon: FileText, trend: 'none' },
+                                    { label: 'Tanpa Keterangan', value: finalAttendance.filter(r => r.status === 'Alpa').length, icon: XCircle, trend: 'none' }
+                                ].map((stat, idx) => (
+                                    <StatsCard 
+                                        key={idx} 
+                                        title={stat.label} 
+                                        value={stat.value} 
+                                        icon={stat.icon} 
+                                        trend={stat.trend} 
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Table Area */}
                     <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                         {/* Filters */}
-                        {canAccessReports ? (
-                            <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
+                        <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
+                            {canAccessReports ? (
                                 <div className="relative flex-1 group">
                                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
                                     <input type="text" placeholder="Cari nama karyawan atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all" />
                                 </div>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <div className="flex items-center gap-2 relative z-50 bg-white border border-primary/5 rounded-2xl px-4 py-2 shadow-sm focus-within:ring-4 focus-within:ring-primary/5 transition-all">
-                                        <Calendar className="w-4 h-4 text-primary/30" />
-                                        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
-                                        <span className="text-primary/30 text-xs font-bold">-</span>
-                                        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
-                                    </div>
-                                    <div className="w-full sm:w-48 relative z-40">
-                                        <CustomSelect value={statusFilter} onChange={setStatusFilter} options={[
-                                            { value: 'Semua Status', label: 'Semua Status' },
-                                            { value: 'Hadir', label: 'Hadir' },
-                                            { value: 'Terlambat', label: 'Terlambat' },
-                                            { value: 'Sakit', label: 'Sakit' },
-                                            { value: 'Cuti', label: 'Cuti' },
-                                            { value: 'Alpa', label: 'Alpa' }
-                                        ]} />
-                                    </div>
+                            ) : (
+                                <div className="flex-1 flex items-center">
+                                    <h3 className="text-lg md:text-xl font-black text-primary tracking-tighter">Riwayat Absensi</h3>
+                                </div>
+                            )}
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                <div className="flex items-center gap-2 relative z-50 bg-white border border-primary/5 rounded-2xl px-4 py-2 shadow-sm focus-within:ring-4 focus-within:ring-primary/5 transition-all">
+                                    <Calendar className="w-4 h-4 text-primary/30" />
+                                    <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
+                                    <span className="text-primary/30 text-xs font-bold">-</span>
+                                    <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="bg-transparent border-none outline-none text-primary font-bold text-[10px] md:text-xs" />
+                                </div>
+                                <div className="w-full sm:w-48 relative z-40">
+                                    <CustomSelect value={statusFilter} onChange={setStatusFilter} options={[
+                                        { value: 'Semua Status', label: 'Semua Status' },
+                                        { value: 'Hadir', label: 'Hadir' },
+                                        { value: 'Terlambat', label: 'Terlambat' },
+                                        { value: 'Sakit', label: 'Sakit' },
+                                        { value: 'Cuti', label: 'Cuti' },
+                                        { value: 'Alpa', label: 'Alpa' }
+                                    ]} />
                                 </div>
                             </div>
-                        ) : (
-                            <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
-                                <div className="relative flex-1">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                                    <input type="text" placeholder="Cari Nama Karyawan atau divisi..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
-                                </div>
-                            </div>
-                        )}
+                        </div>
 
                         {isLoading ? (
                             <TableSkeleton rows={itemsPerPage} columns={canAccessReports ? 7 : 5} />
@@ -683,12 +713,14 @@ const AttendancePage = () => {
             {/* ————————————————————————————— TAB 2: CUTI / IZIN ————————————————————————————————————————————— */}
             {activeTab === 'leave' && (
                 <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
-                    <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
-                            <input type="text" placeholder="Cari data pengajuan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                    {canAccessReports && (
+                        <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30" />
+                                <input type="text" placeholder="Cari data pengajuan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-white border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" />
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {isLoading ? (
                         <TableSkeleton rows={itemsPerPage} columns={canApproveLeave ? 6 : 5} />

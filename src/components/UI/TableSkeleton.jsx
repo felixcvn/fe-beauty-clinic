@@ -1,5 +1,19 @@
 import React from 'react';
-import { Skeleton } from 'primereact/skeleton';
+
+/**
+ * Custom Skeleton Component (Tailwind based)
+ */
+const Skeleton = ({ width, height, borderRadius, className = '', shape, size }) => {
+    const style = {
+        width: size || width || '100%',
+        height: size || height || '1rem',
+        borderRadius: shape === 'circle' ? '50%' : (borderRadius || '0.25rem')
+    };
+
+    return (
+        <div style={style} className={`animate-pulse bg-gray-200 ${className}`}></div>
+    );
+};
 
 /**
  * TableSkeleton Component

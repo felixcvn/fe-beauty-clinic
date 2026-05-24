@@ -130,11 +130,15 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
 
                 {/* Footer Info */}
                 <div className="p-8 md:p-10 bg-secondary/10 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div className="flex items-center gap-3">
-                        <MapPin className="w-4 h-4 text-accent-gold" />
-                        <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Verified Work Location • HQ Clinic</span>
+                    <div className="flex items-start sm:items-center gap-3">
+                        <MapPin className="w-4 h-4 text-accent-gold shrink-0 mt-0.5 sm:mt-0" />
+                        <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest leading-relaxed">
+                            {staffData.isOutside 
+                                ? (staffData.locationAddress || 'Alamat tidak ditemukan')
+                                : 'Klinik Personal Beauty Jember - Jl. Kalimantan No. 64A, Kelurahan Sumbersari, Kecamatan Sumbersari, Kabupaten Jember, Jawa Timur (68121)'}
+                        </span>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0">
                         <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                         <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Data Aman & Terenkripsi</span>
                     </div>

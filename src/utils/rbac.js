@@ -47,7 +47,7 @@ export const hasPermission = (userRole, path) => {
 
     // Super Admin has full access to everything except individual stock pages
     if (allowedPaths.includes('*')) {
-        if (path === '/cs-products' || path === '/cs-treatments' || path === '/management' || path === '/apotek-inventory') {
+        if (path === '/cs-products' || path === '/management' || path === '/apotek-inventory') {
             return false;
         }
         return true;

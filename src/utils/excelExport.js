@@ -133,8 +133,8 @@ export const exportAttendanceToExcel = async (data, activeTab, title, filename) 
     let columnWidths = [];
 
     if (activeTab === 'attendance') {
-        headers = ['ID Karyawan', 'Nama Karyawan', 'Role', 'Shift', 'Tanggal', 'Jam Masuk', 'Jam Keluar', 'Status'];
-        columnWidths = [18, 30, 25, 20, 15, 15, 15, 15];
+        headers = ['ID Karyawan', 'Nama Karyawan', 'Role', 'Shift', 'Tanggal', 'Jam Masuk', 'Jam Keluar', 'Status', 'Lokasi'];
+        columnWidths = [18, 30, 25, 20, 15, 15, 15, 15, 40];
     } else if (activeTab === 'leave') {
         headers = ['ID Pengajuan', 'Nama Karyawan', 'Role', 'Jenis Pengajuan', 'Tanggal Mulai', 'Tanggal Selesai', 'Alasan', 'Status'];
         columnWidths = [18, 30, 25, 20, 15, 15, 40, 15];
@@ -199,7 +199,8 @@ export const exportAttendanceToExcel = async (data, activeTab, title, filename) 
                 item.date || '-',
                 item.checkIn || '-',
                 item.checkOut || '-',
-                status
+                status,
+                item.isOutside ? (item.locationAddress || 'Luar Kantor (Alamat Tidak Ditemukan)') : 'HQ Clinic'
             ];
         } else if (activeTab === 'leave') {
             rowData = [

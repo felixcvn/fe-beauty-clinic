@@ -30,8 +30,9 @@ const mapPatientFromAPI = (p) => ({
     kabupatenKota: p.KabKota_id,
     kecamatan: p.Kec_id
 });
+
 const PatientsPage = () => {
-    const { patients, updatePatient, addPatient } = useMockData();
+    const { patients, updatePatient, addPatient, addBooking } = useMockData();
     const { showToast } = useToast();
     const navigate = useNavigate();
     const { user } = useAuth();
@@ -41,7 +42,6 @@ const PatientsPage = () => {
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [selectedPatient, setSelectedPatient] = useState(null);
-    const { addBooking } = useMockData();
     const [isLoading, setIsLoading] = useState(true);
     const [confirmConfig, setConfirmConfig] = useState(null);
 
@@ -195,7 +195,7 @@ const PatientsPage = () => {
     const filteredPatients = activeData.filter(patient => {
         // SABUK PENGAMAN 2: Antisipasi perbedaan nama key (name vs namaLengkap)
         const patientName = patient.namaLengkap || patient.name || '';
-        const patientId = patient.id || patient.noIdentitas || patient.noMember || '';
+        const patientId = String(patient.id || patient.noIdentitas || patient.noMember || '');
 
         const matchesSearch = patientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             patientId.toLowerCase().includes(searchTerm.toLowerCase());
@@ -233,10 +233,11 @@ const PatientsPage = () => {
                 <div>
                     <div className="flex items-center gap-4">
                         <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Data Pasien</h2>
-                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isApiMode
+                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
+                            isApiMode
                                 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                                 : 'bg-amber-50 text-amber-600 border border-amber-200'
-                            }`}>
+                        }`}>
                             {isApiMode
                                 ? <><Wifi className="w-3 h-3" /> Live API</>
                                 : <><WifiOff className="w-3 h-3" /> Mock Data</>}
@@ -288,150 +289,152 @@ const PatientsPage = () => {
                     <>
                         {/* Desktop View */}
                         <div className="hidden lg:block overflow-x-auto scrollbar-hide">
-                            <table className="w-full text-left min-w-[800px]">
-                                <thead>
-                                    <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
-                                        <th className="px-4 py-3 text-primary/80">ID</th>
-                                        <th className="px-4 py-3 text-primary/80">Nama</th>
-                                        <th className="px-4 py-3 text-primary/80">No. Member</th>
-                                        <th className="px-4 py-3 text-primary/80">No. RM</th>
-                                        <th className="px-4 py-3 text-primary/80">Tipe Member</th>
-                                        {!isOwner && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-primary/5">
-                                    {currentPatients.map((patient, index) => {
-                                        // Ambil data dengan aman
-                                        const pName = patient.namaLengkap || patient.name || '-';
-                                        const pId = patient.id || patient.noIdentitas || `ID-${index}`;
-
-                                        return (
-                                            <tr
-                                                key={pId}
-                                                onClick={() => navigate(`/patients/detail/${pId}`)}
-                                                className="border-b border-primary/5 last:border-0 cursor-pointer hover:bg-primary/[0.02] transition-colors"
-                                            >
-                                                <td className="px-4 py-2">
-                                                    <span className="font-medium text-blue-600 text-sm tracking-tight">{patient.kodeCustomer || '-'}</span>
-                                                </td>
-                                                <td className="px-4 py-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5 shrink-0">
-                                                            {getInitials(pName)}
-                                                        </div>
-                                                        <div className="font-medium text-primary text-sm tracking-tight">{pName}</div>
-                                                    </div>
-                                                </td>
-                                                <td className="px-4 py-2 text-primary/80 font-medium text-sm">
-                                                    {patient.noMember || '-'}
-                                                </td>
-                                                <td className="px-4 py-2 text-primary/80 font-medium text-sm">
-                                                    {patient.noRM || '-'}
-                                                </td>
-                                                <td className="px-4 py-2">
-                                                    <span className={`font-bold text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-full shadow-sm border border-white/50 ${(patient.tipeMember || 'Non Member') === 'Member'
-                                                            ? 'bg-accent-gold/10 text-accent-gold border-accent-gold/20'
-                                                            : 'bg-gray-100 text-gray-500'
-                                                        }`}>
-                                                        {patient.tipeMember || 'Non Member'}
-                                                    </span>
-                                                </td>
-                                                {!isOwner && (
-                                                    <td className="px-4 py-2">
-                                                        <div className="flex items-center justify-end gap-1">
-                                                            <button
-                                                                onClick={(e) => handleOpenEdit(e, patient)}
-                                                                className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
-                                                                title="Edit"
-                                                            >
-                                                                <Pencil className="w-4 h-4" />
-                                                            </button>
-                                                        </div>
-                                                    </td>
-                                                )}
-                                            </tr>
-                                        )
-                                    })}
-                                    {filteredPatients.length === 0 && (
-                                        <tr>
-                                            <td colSpan={6}>
-                                                <EmptyState
-                                                    type="patient"
-                                                    title="Pasien Tidak Ditemukan"
-                                                    description="Belum ada data pasien yang sesuai dengan pencarian Anda. Pastikan nama atau ID yang Anda masukkan sudah benar."
-                                                />
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        {/* Mobile Card View */}
-                        <div className="lg:hidden divide-y divide-primary/5">
+                    <table className="w-full text-left min-w-[800px]">
+                        <thead>
+                            <tr className="text-[10px] font-black text-primary/30 uppercase tracking-[0.2em] border-b border-primary/5 bg-gray-50/30">
+                                <th className="px-4 py-3 text-primary/80">ID</th>
+                                <th className="px-4 py-3 text-primary/80">Nama</th>
+                                <th className="px-4 py-3 text-primary/80">No. Member</th>
+                                <th className="px-4 py-3 text-primary/80">No. RM</th>
+                                <th className="px-4 py-3 text-primary/80">Tipe Member</th>
+                                {!isOwner && <th className="px-4 py-3 text-right text-primary/80">Aksi</th>}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-primary/5">
                             {currentPatients.map((patient, index) => {
+                                // Ambil data dengan aman
                                 const pName = patient.namaLengkap || patient.name || '-';
                                 const pId = patient.id || patient.noIdentitas || `ID-${index}`;
 
                                 return (
-                                    <div
+                                    <tr
                                         key={pId}
                                         onClick={() => navigate(`/patients/detail/${pId}`)}
-                                        className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-3 cursor-pointer hover:bg-primary/[0.02]"
+                                        className="border-b border-primary/5 last:border-0 cursor-pointer hover:bg-primary/[0.02] transition-colors"
                                     >
-                                        <div className="flex justify-between items-start">
-                                            <div className="flex gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
+                                        <td className="px-4 py-2">
+                                            <span className="font-medium text-blue-600 text-sm tracking-tight">{patient.kodeCustomer || '-'}</span>
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5 shrink-0">
                                                     {getInitials(pName)}
                                                 </div>
-                                                <div>
-                                                    <span className="font-bold text-blue-500 text-xs tracking-tight">{patient.kodeCustomer || '-'}</span>
-                                                    <h4 className="font-black text-primary text-sm tracking-tight mt-0.5">{pName}</h4>
-                                                </div>
+                                                <div className="font-medium text-primary text-sm tracking-tight">{pName}</div>
                                             </div>
-                                            <span className={`font-black text-[10px] tracking-widest uppercase px-2 py-1 rounded-md mt-1 ${(patient.tipeMember || 'Non Member') === 'Member'
-                                                    ? 'bg-accent-gold/10 text-accent-gold'
+                                        </td>
+                                        <td className="px-4 py-2 text-primary/80 font-medium text-sm">
+                                            {patient.noMember || '-'}
+                                        </td>
+                                        <td className="px-4 py-2 text-primary/80 font-medium text-sm">
+                                            {patient.noRM || '-'}
+                                        </td>
+                                        <td className="px-4 py-2">
+                                            <span className={`font-bold text-[10px] tracking-widest uppercase px-2 py-0.5 rounded-full shadow-sm border border-white/50 ${
+                                                (patient.tipeMember || 'Non Member') === 'Member'
+                                                    ? 'bg-accent-gold/10 text-accent-gold border-accent-gold/20'
                                                     : 'bg-gray-100 text-gray-500'
-                                                }`}>
+                                            }`}>
                                                 {patient.tipeMember || 'Non Member'}
                                             </span>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-2 text-[11px] font-bold text-primary/60 mt-2 bg-gray-50 p-3 rounded-xl border border-primary/5">
-                                            <div>
-                                                <span className="text-[9px] text-primary/40 uppercase tracking-widest block mb-0.5">No Member</span>
-                                                {patient.noMember || '-'}
-                                            </div>
-                                            <div>
-                                                <span className="text-[9px] text-primary/40 uppercase tracking-widest block mb-0.5">No RM</span>
-                                                {patient.noRM || '-'}
-                                            </div>
-                                        </div>
-
-                                        <div className="flex justify-end gap-2 mt-2">
-                                            {!isOwner && (
-                                                <button
-                                                    onClick={(e) => handleOpenEdit(e, patient)}
-                                                    className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
-                                                >
-                                                    <Pencil className="w-3 h-3" /> Edit
-                                                </button>
-                                            )}
-                                            <button className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95">
-                                                Detail <ChevronRight className="w-3 h-3" />
-                                            </button>
-                                        </div>
-                                    </div>
+                                        </td>
+                                        {!isOwner && (
+                                            <td className="px-4 py-2">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    <button
+                                                        onClick={(e) => handleOpenEdit(e, patient)}
+                                                        className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
+                                                        title="Edit"
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        )}
+                                    </tr>
                                 )
                             })}
                             {filteredPatients.length === 0 && (
-                                <EmptyState
-                                    type="patient"
-                                    title="Pasien Tidak Ditemukan"
-                                    description="Belum ada data pasien yang sesuai dengan pencarian Anda."
-                                />
+                                <tr>
+                                    <td colSpan={6}>
+                                        <EmptyState
+                                            type="patient"
+                                            title="Pasien Tidak Ditemukan"
+                                            description="Belum ada data pasien yang sesuai dengan pencarian Anda. Pastikan nama atau ID yang Anda masukkan sudah benar."
+                                        />
+                                    </td>
+                                </tr>
                             )}
-                        </div>
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden divide-y divide-primary/5">
+                    {currentPatients.map((patient, index) => {
+                        const pName = patient.namaLengkap || patient.name || '-';
+                        const pId = patient.id || patient.noIdentitas || `ID-${index}`;
+
+                        return (
+                            <div
+                                key={pId}
+                                onClick={() => navigate(`/patients/detail/${pId}`)}
+                                className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-3 cursor-pointer hover:bg-primary/[0.02]"
+                            >
+                                <div className="flex justify-between items-start">
+                                    <div className="flex gap-3">
+                                        <div className="w-10 h-10 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 shrink-0">
+                                            {getInitials(pName)}
+                                        </div>
+                                        <div>
+                                            <span className="font-bold text-blue-500 text-xs tracking-tight">{patient.kodeCustomer || '-'}</span>
+                                            <h4 className="font-black text-primary text-sm tracking-tight mt-0.5">{pName}</h4>
+                                        </div>
+                                    </div>
+                                    <span className={`font-black text-[10px] tracking-widest uppercase px-2 py-1 rounded-md mt-1 ${
+                                        (patient.tipeMember || 'Non Member') === 'Member'
+                                            ? 'bg-accent-gold/10 text-accent-gold'
+                                            : 'bg-gray-100 text-gray-500'
+                                    }`}>
+                                        {patient.tipeMember || 'Non Member'}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-2 text-[11px] font-bold text-primary/60 mt-2 bg-gray-50 p-3 rounded-xl border border-primary/5">
+                                    <div>
+                                        <span className="text-[9px] text-primary/40 uppercase tracking-widest block mb-0.5">No Member</span>
+                                        {patient.noMember || '-'}
+                                    </div>
+                                    <div>
+                                        <span className="text-[9px] text-primary/40 uppercase tracking-widest block mb-0.5">No RM</span>
+                                        {patient.noRM || '-'}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end gap-2 mt-2">
+                                    {!isOwner && (
+                                        <button
+                                            onClick={(e) => handleOpenEdit(e, patient)}
+                                            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-accent-gold hover:border-accent-gold/30 transition-all shadow-sm active:scale-95"
+                                        >
+                                            <Pencil className="w-3 h-3" /> Edit
+                                        </button>
+                                    )}
+                                    <button className="flex items-center gap-1.5 px-4 py-2 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary/60 hover:text-primary hover:border-primary/30 transition-all shadow-sm active:scale-95">
+                                        Detail <ChevronRight className="w-3 h-3" />
+                                    </button>
+                                </div>
+                            </div>
+                        )
+                    })}
+                    {filteredPatients.length === 0 && (
+                        <EmptyState
+                            type="patient"
+                            title="Pasien Tidak Ditemukan"
+                            description="Belum ada data pasien yang sesuai dengan pencarian Anda."
+                        />
+                    )}
+                </div>
                     </>
                 )}
 
