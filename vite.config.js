@@ -32,7 +32,7 @@ export default defineConfig(({ command }) => ({
     },
     proxy: {
       '/api': {
-        target: 'https://composite-footprint-overarch.ngrok-free.dev',
+        target: 'https://heidi-overloose-removably.ngrok-free.dev',
         changeOrigin: true,
         secure: false,
         headers: {
@@ -40,7 +40,7 @@ export default defineConfig(({ command }) => ({
         }
       },
       '/storage': {
-        target: 'https://composite-footprint-overarch.ngrok-free.dev',
+        target: 'https://heidi-overloose-removably.ngrok-free.dev',
         changeOrigin: true,
         secure: false,
         headers: {

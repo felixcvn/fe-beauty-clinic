@@ -1,12 +1,21 @@
-import React, { useState, useMemo } from 'react';
-import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User, X, FileText, Loader2 } from 'lucide-react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User, X, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
+import { useMockData } from '../../context/MockDataContext';
+import { useAuth } from '../../context/AuthContext';
+import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI } from '../../services/api';
 
 const POSPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
+    const { user } = useAuth();
+    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, treatments } = useMockData();
+    const [apiPatients, setApiPatients] = useState([]);
+    const [apiProducts, setApiProducts] = useState([]);
+    const [apiTreatments, setApiTreatments] = useState([]);
+    const [isFetchingData, setIsFetchingData] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('Semua');
     const [cart, setCart] = useState([]);
@@ -17,12 +26,70 @@ const POSPage = () => {
     // Fitur Tarik Rekam Medis
     const [hasFetchedRecord, setHasFetchedRecord] = useState(false);
     const [isFetchingRecord, setIsFetchingRecord] = useState(false);
+    const [detectedRacikan, setDetectedRacikan] = useState(null);
+    const [racikanSent, setRacikanSent] = useState(false);
 
-    // Simulate loading
-    React.useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
-    }, []);
+    // Fetch real patients, products, and treatments from API
+    useEffect(() => {
+        const loadRealData = async () => {
+            if (!user?.token) {
+                setIsLoading(false);
+                return;
+            }
+            setIsFetchingData(true);
+            try {
+                const [resProducts, resPatients, resTreatments] = await Promise.all([
+                    stokProdukAPI.getAll(user.token),
+                    pasienAPI.getAll(user.token, 1, 'per_page=100'),
+                    treatmentAPI.getAll(user.token)
+                ]);
+
+                if (resProducts.success && resProducts.data) {
+                    const responseData = resProducts.data.data || resProducts.data;
+                    const productArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    setApiProducts(productArray.map(p => ({
+                        id: p.id ? `PRD-${p.id}` : String(p.Kode_Produk || ''),
+                        name: p.Nama_produk || p.Nama_Produk || p.nama_produk || p.name || 'Tanpa Nama',
+                        category: p.Kategori || p.category || p.kategori || 'Skincare',
+                        price: Number(p.Harga || p.harga || p.price || 0),
+                        stock: Number(p.Stok || p.stok || p.stock || 0),
+                        image: p.image || 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
+                    })));
+                }
+
+                if (resPatients.success && resPatients.data) {
+                    const responseData = resPatients.data.data || resPatients.data;
+                    const patientArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    setApiPatients(patientArray.map(p => ({
+                        id: String(p.id),
+                        name: p.Nama_pasien || p.nama_pasien || p.name || 'Unknown Patient',
+                        phone: p.no_Telp || p.no_telp || p.phone || '-'
+                    })));
+                }
+
+                if (resTreatments.success && resTreatments.data) {
+                    const responseData = resTreatments.data.data || resTreatments.data;
+                    const treatmentArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    setApiTreatments(treatmentArray.map(t => ({
+                        id: t.id ? `TRT-${t.id}` : String(t.kode_treatment || ''),
+                        name: t.Nama_treatment || t.Nama_Treatment || t.nama_treatment || t.name || 'Treatment Tanpa Nama',
+                        category: 'Treatment',
+                        price: Number(t.Harga || t.harga || t.price || 0),
+                        stock: t.Jumlah_sesi || 99, // default virtual sessions
+                        image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop'
+                    })));
+                }
+            } catch (error) {
+                console.error('[POSPage] Error loading real data:', error);
+                showToast('Gagal memuat beberapa data riil dari backend.', 'error');
+            } finally {
+                setIsFetchingData(false);
+                setIsLoading(false);
+            }
+        };
+
+        loadRealData();
+    }, [user]);
 
     // Identitas Pelanggan & Promo
     const [isMember, setIsMember] = useState(false);
@@ -48,7 +115,7 @@ const POSPage = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
-    const categories = ['Semua', 'Obat', 'Treatment', 'Skincare'];
+    const categories = ['Semua', 'Obat', 'Treatment', 'Skincare', 'Racikan'];
 
     const customers = [
         { id: 'PAS-001', name: 'Siti Aminah', phone: '0812-3456-7890' },
@@ -58,15 +125,17 @@ const POSPage = () => {
         { id: 'PAS-005', name: 'Rina Wijaya', phone: '0812-8888-9999' },
     ];
 
-    const filteredCustomers = customers.filter(c =>
+    const activeCustomers = useMemo(() => {
+        return apiPatients.length > 0 ? apiPatients : customers;
+    }, [apiPatients]);
+
+    const filteredCustomers = activeCustomers.filter(c =>
         c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
         c.id.toLowerCase().includes(customerSearch.toLowerCase())
     );
 
     const products = [
-        { id: 'PRD-001', name: 'Acne Treatment Pack', category: 'Skincare', price: 450000, stock: 15, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-002', name: 'Laser Therapy Session', category: 'Treatment', price: 1200000, stock: 5, image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-003', name: 'Chemical Peel', category: 'Treatment', price: 350000, stock: 8, image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop' },
+        { id: 'PRD-001', name: 'Acne Treatment Pack', category: 'Skincare', price: 450000, stock: 15, image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-004', name: 'Skin Glow Kit', category: 'Skincare', price: 850000, stock: 12, image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-005', name: 'Sunscreen SPF 50', category: 'Skincare', price: 150000, stock: 25, image: 'https://images.unsplash.com/photo-1598440499033-547b19615c0a?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'PRD-006', name: 'Paracetamol 500mg', category: 'Obat', price: 15000, stock: 100, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&h=200&auto=format&fit=crop' },
@@ -74,7 +143,19 @@ const POSPage = () => {
         { id: 'PRD-008', name: 'Amoxicillin Syrup', category: 'Obat', price: 45000, stock: 20, image: 'https://images.unsplash.com/photo-1471864190281-ad5f9f30d947?q=80&w=200&h=200&auto=format&fit=crop' },
     ];
 
-    const filteredProducts = products.filter(p =>
+    const activeProductsList = useMemo(() => {
+        return apiProducts.length > 0 ? apiProducts : products;
+    }, [apiProducts]);
+
+    const activeTreatmentsList = useMemo(() => {
+        return apiTreatments.length > 0 ? apiTreatments : treatments;
+    }, [apiTreatments, treatments]);
+
+    const allProducts = useMemo(() => {
+        return [...activeProductsList, ...activeTreatmentsList, ...(racikans || [])];
+    }, [activeProductsList, activeTreatmentsList, racikans]);
+
+    const filteredProducts = allProducts.filter(p =>
         (activeCategory === 'Semua' || p.category === activeCategory) &&
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -159,35 +240,171 @@ const POSPage = () => {
             setCart([]);
             setSelectedCustomer(null);
             setHasFetchedRecord(false);
+            setDetectedRacikan(null);
+            setRacikanSent(false);
             setIsProcessing(false);
             navigate('/sales');
         }, 1500);
     };
 
-    const handleFetchMedicalRecord = () => {
+    const handleFetchMedicalRecord = async () => {
+        if (!selectedCustomer) return;
         setIsFetchingRecord(true);
-        // Simulasi panggil API rekam medis terakhir
-        setTimeout(() => {
-            // Contoh resep dokter & perawatan terakhir pasien (Acne Pack & Chemical Peel)
-            const recordItems = products.filter(p => p.id === 'PRD-001' || p.id === 'PRD-003');
-            
-            setCart(prev => {
-                const newCart = [...prev];
-                recordItems.forEach(product => {
-                    const existing = newCart.find(item => item.id === product.id);
-                    if (existing) {
-                        existing.quantity += 1;
-                    } else {
-                        newCart.push({ ...product, quantity: 1 });
-                    }
-                });
-                return newCart;
-            });
+        
+        try {
+            if (user?.token) {
+                const res = await rekamMedisAPI.getAll(user.token);
+                if (res.success && res.data) {
+                    const responseData = res.data.data || res.data;
+                    const recordsArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    
+                    // Filter records belonging to selected patient
+                    const patientRecords = recordsArray
+                        .filter(r => String(r.data_pasien_id || r.pasien_id) === String(selectedCustomer.id))
+                        .sort((a, b) => {
+                            const dateA = new Date(a.tanggal_kunjungan || a.tanggal || a.created_at || 0);
+                            const dateB = new Date(b.tanggal_kunjungan || b.tanggal || b.created_at || 0);
+                            return dateB - dateA;
+                        });
 
+                    if (patientRecords.length > 0) {
+                        const latestRecord = patientRecords[0];
+                        
+                        // 1. Deteksi resep racikan manual
+                        const racText = latestRecord.racikan || '';
+                        const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.status === 'Pending');
+                        const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.status === 'Selesai');
+                        
+                        if (isProcessed) {
+                            // Jika sudah berstatus 'Selesai' (telah diberi harga oleh apoteker), jangan munculkan banner resep racikan lagi
+                            setDetectedRacikan(null);
+                            setRacikanSent(false);
+                        } else if (racText.trim() !== '') {
+                            setDetectedRacikan(racText);
+                            setRacikanSent(isAlreadySent);
+                        } else {
+                            setDetectedRacikan(null);
+                            setRacikanSent(false);
+                        }
+
+                        // Buat array baru untuk mengisi keranjang belanja agar sama persis dengan rekam medis
+                        let newCartItems = [];
+
+                        // 2. Tarik resep produk riil ke keranjang belanja
+                        const reseps = Array.isArray(latestRecord.reseps) ? latestRecord.reseps : 
+                                      (Array.isArray(latestRecord.produks) ? latestRecord.produks : []);
+                        
+                        if (reseps.length > 0) {
+                            reseps.forEach(resItem => {
+                                const prodId = String(resItem.stok_produk_id || resItem.pivot?.stok_produk_id || resItem.id || resItem.Kode_Produk || resItem);
+                                const matchingProd = activeProductsList.find(p => p.id === `PRD-${prodId}` || String(p.id) === prodId || String(p.Kode_Produk) === prodId);
+                                if (matchingProd) {
+                                    const qty = Number(resItem.jumlah || resItem.quantity || 1);
+                                    const existing = newCartItems.find(item => String(item.id) === String(matchingProd.id));
+                                    if (existing) {
+                                        existing.quantity += qty;
+                                    } else {
+                                        newCartItems.push({ ...matchingProd, quantity: qty });
+                                    }
+                                }
+                            });
+                        }
+
+                        // 3. Tarik data treatment dari rekam medis ke keranjang belanja
+                        const recordTreatments = Array.isArray(latestRecord.treatments) ? latestRecord.treatments : [];
+                        
+                        if (recordTreatments.length > 0) {
+                            recordTreatments.forEach(trtItem => {
+                                const trtId = String(trtItem.treatment_id || trtItem.pivot?.treatment_id || trtItem.id || trtItem.kode_treatment || trtItem);
+                                const matchingTrt = activeTreatmentsList.find(t => t.id === `TRT-${trtId}` || String(t.id) === trtId || String(t.kode_treatment) === trtId);
+                                if (matchingTrt) {
+                                    const qty = Number(trtItem.jumlah || trtItem.quantity || 1);
+                                    const existing = newCartItems.find(item => String(item.id) === String(matchingTrt.id));
+                                    if (existing) {
+                                        existing.quantity += qty;
+                                    } else {
+                                        newCartItems.push({ ...matchingTrt, quantity: qty });
+                                    }
+                                }
+                            });
+                        }
+
+                        setCart(newCartItems);
+
+                        showToast('Data Rekam Medis & Resep berhasil ditarik', 'success');
+                        setHasFetchedRecord(true);
+                    } else {
+                        runSimulatedRecordFetch();
+                    }
+                } else {
+                    runSimulatedRecordFetch();
+                }
+            } else {
+                runSimulatedRecordFetch();
+            }
+        } catch (error) {
+            console.error('[POSPage] Error fetching real medical record:', error);
+            runSimulatedRecordFetch();
+        } finally {
             setIsFetchingRecord(false);
-            setHasFetchedRecord(true);
-            showToast('Data Rekam Medis & Resep berhasil ditarik', 'success');
-        }, 1000);
+        }
+    };
+
+    const runSimulatedRecordFetch = () => {
+        // Mendukung pencocokan ID produk & treatment baik di mode database riil (ID integer 1, 2, 3...) maupun data mock ('PRD-001', 'TRT-001'...)
+        const recordProds = activeProductsList.filter(p => p.id === 'PRD-001' || p.id === 'PRD-007' || p.id === 'PRD-1' || p.id === 'PRD-2' || p.id === 'PRD-3' || p.id === 'PRD-4');
+        const recordTrts = activeTreatmentsList.filter(t => t.id === 'TRT-001' || t.id === 'TRT-002' || t.id === 'TRT-1' || t.id === 'TRT-2' || t.id === 'TRT-3' || t.id === 'TRT-4');
+        const recordItems = [...recordProds, ...recordTrts];
+        
+        const newCartItems = [];
+        recordItems.forEach(item => {
+            const existing = newCartItems.find(c => c.id === item.id);
+            if (existing) {
+                existing.quantity += 1;
+            } else {
+                newCartItems.push({ ...item, quantity: 1 });
+            }
+        });
+        setCart(newCartItems);
+
+        const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.status === 'Pending');
+        const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.status === 'Selesai');
+
+        if (selectedCustomer?.id === 'PAS-002') {
+            if (isProcessed) {
+                // Jika sudah diproses apoteker, banner tidak dimunculkan lagi
+                setDetectedRacikan(null);
+                setRacikanSent(false);
+            } else {
+                setDetectedRacikan("Cream Malam Retinol 0.1% + Moisturizer Oat");
+                setRacikanSent(isAlreadySent);
+            }
+        } else {
+            setDetectedRacikan(null);
+            setRacikanSent(false);
+        }
+
+        setHasFetchedRecord(true);
+        showToast('Data Rekam Medis & Resep berhasil ditarik (Mode Simulasi)', 'success');
+    };
+
+    const handleSendRacikanToApotek = () => {
+        if (!selectedCustomer || !detectedRacikan) return;
+        addAntreanRacikan(
+            selectedCustomer.id,
+            selectedCustomer.name,
+            'Dr. Sarah Smith',
+            detectedRacikan
+        );
+        setRacikanSent(true);
+        showToast('Berhasil mengirim resep racikan ke Apotek!', 'success');
+    };
+
+    const handleResetRacikan = () => {
+        if (!selectedCustomer) return;
+        resetAntreanRacikan(selectedCustomer.id);
+        setRacikanSent(false);
+        showToast('Antrean resep direset! Anda bisa mengirim ulang sekarang.', 'info');
     };
 
     return (
@@ -296,7 +513,7 @@ const POSPage = () => {
                                         </div>
                                     </div>
                                     <button
-                                        onClick={() => { setSelectedCustomer(null); setIsMember(false); setHasFetchedRecord(false); setCart([]); }}
+                                        onClick={() => { setSelectedCustomer(null); setIsMember(false); setHasFetchedRecord(false); setDetectedRacikan(null); setRacikanSent(false); setCart([]); }}
                                         className="p-2 text-primary/20 hover:text-red-500 transition-all"
                                     >
                                         <X className="w-4 h-4" />
@@ -319,6 +536,38 @@ const POSPage = () => {
                                         </span>
                                     </button>
                                 )}
+
+                                {hasFetchedRecord && detectedRacikan && (
+                                    <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col gap-3 animate-fade-in mt-1">
+                                        <div className="flex gap-2.5 items-start">
+                                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                            <div>
+                                                <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest leading-none mb-1.5">Resep Racikan Ditemukan</p>
+                                                <p className="text-xs text-amber-700 font-medium leading-relaxed">"{detectedRacikan}"</p>
+                                            </div>
+                                        </div>
+                                        {racikanSent ? (
+                                            <div className="flex flex-col gap-2">
+                                                <div className="w-full py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 text-center font-extrabold">
+                                                    Terkirim ke Apotek ✔
+                                                </div>
+                                                <button
+                                                    onClick={handleResetRacikan}
+                                                    className="w-full py-2 rounded-xl text-[8px] font-black uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-100 border border-red-100 transition-all active:scale-95 shadow-sm"
+                                                >
+                                                    Reset & Kirim Ulang 🔄
+                                                </button>
+                                            </div>
+                                        ) : (
+                                            <button
+                                                onClick={handleSendRacikanToApotek}
+                                                className="w-full py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-amber-600 text-white border border-amber-600 hover:bg-amber-700 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-300"
+                                            >
+                                                Kirim Permintaan Racik ke Apotek
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="relative group">
@@ -337,7 +586,7 @@ const POSPage = () => {
                                             filteredCustomers.map(customer => (
                                                 <button
                                                     key={customer.id}
-                                                    onClick={() => { setSelectedCustomer(customer); setIsCustomerDropdownOpen(false); setCustomerSearch(''); setHasFetchedRecord(false); }}
+                                                    onClick={() => { setSelectedCustomer(customer); setIsCustomerDropdownOpen(false); setCustomerSearch(''); setHasFetchedRecord(false); setDetectedRacikan(null); setRacikanSent(false); }}
                                                     className="w-full p-3 text-left hover:bg-secondary/20 transition-all border-b border-primary/5 last:border-0 group"
                                                 >
                                                     <p className="text-[10px] font-black text-primary group-hover:translate-x-1 transition-transform">{customer.name}</p>

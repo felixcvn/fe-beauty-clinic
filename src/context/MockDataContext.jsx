@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { stokRacikanAPI, antreanRacikanAPI } from '../services/api';
 
 const MockDataContext = createContext();
 
@@ -30,6 +31,184 @@ export const MockDataProvider = ({ children }) => {
         { id: 'RCK-001', name: 'Racikan Pencerah Malam', category: 'Racikan', price: 125000, stock: 10, minStock: 5, image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop' },
         { id: 'RCK-002', name: 'Cream Jerawat Racik', category: 'Racikan', price: 85000, stock: 15, minStock: 10, image: 'https://images.unsplash.com/photo-1594411133670-1f3fd3612502?q=80&w=200&h=200&auto=format&fit=crop' },
     ]);
+
+    // Efek untuk memuat data racikan riil dari backend Laravel
+    useEffect(() => {
+        const loadRealRacikans = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await stokRacikanAPI.getAll(token);
+                if (res.success && Array.isArray(res.data)) {
+                    setRacikans(res.data.map(r => ({
+                        id: String(r.id),
+                        name: r.nama_obat_racik || 'Racikan Tanpa Nama',
+                        category: 'Racikan',
+                        price: Number(r.harga || 0),
+                        stock: 10, // Kuantitas virtual default di POS
+                        minStock: 5,
+                        image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
+                    })));
+                }
+            } catch (error) {
+                console.error('[MockDataContext] Error fetching real racikans:', error);
+            }
+        };
+        loadRealRacikans();
+    }, []);
+
+    // Efek untuk memuat data antrean racikan riil dari backend Laravel
+    useEffect(() => {
+        const loadRealAntrean = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await antreanRacikanAPI.getAll(token);
+                if (res.success && Array.isArray(res.data)) {
+                    const formatted = res.data.map(item => ({
+                        id: String(item.id),
+                        patientId: String(item.patient_id),
+                        patientName: item.patient_name,
+                        dokterName: item.dokter_name || 'Dokter Umum',
+                        racikanText: item.racikan_text,
+                        date: (item.created_at || new Date().toISOString()).split('T')[0],
+                        status: item.status || 'Pending'
+                    }));
+                    setAntreanRacikan(formatted);
+                    localStorage.setItem('antrean_racikan', JSON.stringify(formatted));
+                }
+            } catch (error) {
+                console.error('[MockDataContext] Error fetching real antrean_racikan:', error);
+            }
+        };
+        loadRealAntrean();
+    }, []);
+
+    // Sinkronisasi otomatis antar tab browser (Multi-Tab Sync)
+    useEffect(() => {
+        const handleStorageChange = (e) => {
+            if (e.key === 'antrean_racikan') {
+                try {
+                    setAntreanRacikan(e.newValue ? JSON.parse(e.newValue) : []);
+                } catch (err) {
+                    console.error('[MockDataContext] Error parsing synced antrean_racikan:', err);
+                }
+            }
+        };
+        window.addEventListener('storage', handleStorageChange);
+        return () => window.removeEventListener('storage', handleStorageChange);
+    }, []);
+
+    // State antrean permintaan racikan (terintegrasi dengan LocalStorage)
+    const [antreanRacikan, setAntreanRacikan] = useState(() => {
+        const saved = localStorage.getItem('antrean_racikan');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    const saveAntrean = (newAntrean) => {
+        setAntreanRacikan(newAntrean);
+        localStorage.setItem('antrean_racikan', JSON.stringify(newAntrean));
+    };
+
+    const addAntreanRacikan = async (patientId, patientName, dokterName, racikanText) => {
+        const token = localStorage.getItem('token');
+        const newRequest = {
+            id: `REQ-${String(antreanRacikan.length + 1).padStart(3, '0')}`,
+            patientId,
+            patientName,
+            dokterName: dokterName || 'Dokter Umum',
+            racikanText,
+            date: new Date().toISOString().split('T')[0],
+            status: 'Pending'
+        };
+
+        if (token) {
+            try {
+                const res = await antreanRacikanAPI.create(token, {
+                    patientId,
+                    patientName,
+                    dokterName,
+                    racikanText
+                });
+                if (res.success && res.data) {
+                    newRequest.id = String(res.data.id || res.data.data?.id || newRequest.id);
+                }
+            } catch (error) {
+                console.error('[MockDataContext] Error creating backend antrean_racikan:', error);
+            }
+        }
+
+        const updated = [newRequest, ...antreanRacikan];
+        saveAntrean(updated);
+    };
+
+    const resetAntreanRacikan = (patientId) => {
+        const updated = antreanRacikan.filter(req => !(String(req.patientId) === String(patientId) && req.status === 'Pending'));
+        saveAntrean(updated);
+    };
+
+    const completeAntreanRacikan = async (reqId, customProduct) => {
+        const token = localStorage.getItem('token');
+        
+        // 1. Simpan ke database backend secara riil
+        if (token) {
+            try {
+                // Update status antrean di backend menjadi 'Selesai'
+                await antreanRacikanAPI.updateStatus(token, reqId, 'Selesai');
+
+                // Buat item stok racik baru di database backend
+                const res = await stokRacikanAPI.create(token, {
+                    name: customProduct.name,
+                    description: customProduct.description || 'Dibuat dari antrean rekam medis',
+                    price: Number(customProduct.price)
+                });
+                if (res.success && res.data) {
+                    const newProduct = {
+                        id: String(res.data.id || `RCK-${String(racikans.length + 1).padStart(3, '0')}`),
+                        name: customProduct.name,
+                        category: 'Racikan',
+                        price: Number(customProduct.price),
+                        stock: Number(customProduct.stock || 1),
+                        minStock: 5,
+                        image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
+                    };
+                    setRacikans(prev => [...prev, newProduct]);
+                } else {
+                    console.error('[MockDataContext] Gagal menyimpan ke backend:', res.message);
+                    const newProduct = {
+                        id: `RCK-${String(racikans.length + 1).padStart(3, '0')}`,
+                        name: customProduct.name,
+                        category: 'Racikan',
+                        price: Number(customProduct.price),
+                        stock: Number(customProduct.stock || 1),
+                        minStock: 5,
+                        image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
+                    };
+                    setRacikans(prev => [...prev, newProduct]);
+                }
+            } catch (error) {
+                console.error('[MockDataContext] Error creating real racikan:', error);
+            }
+        } else {
+            // Local state fallback
+            const newProduct = {
+                id: `RCK-${String(racikans.length + 1).padStart(3, '0')}`,
+                name: customProduct.name,
+                category: 'Racikan',
+                price: Number(customProduct.price),
+                stock: Number(customProduct.stock || 1),
+                minStock: 5,
+                image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
+            };
+            setRacikans(prev => [...prev, newProduct]);
+        }
+
+        // 2. Ubah status antrean menjadi 'Selesai' di local state
+        const updated = antreanRacikan.map(req => 
+            String(req.id) === String(reqId) ? { ...req, status: 'Selesai' } : req
+        );
+        saveAntrean(updated);
+    };
 
     const [materials, setMaterials] = useState([
         { id: 'MAT-001', name: 'Kapas Medis', category: 'Bahan', price: 15000, stock: 50, minStock: 10, image: 'https://images.unsplash.com/photo-1583947581924-860bda6a26df?q=80&w=200&h=200&auto=format&fit=crop' },
@@ -325,7 +504,8 @@ export const MockDataProvider = ({ children }) => {
             promos, addPromo, updatePromo, deletePromo,
             slotAvailability, updateSlotAvailability,
             leaveRequests, updateLeaveStatus, addLeaveRequest,
-            overtimeRequests, updateOvertimeStatus, addOvertimeRequest
+            overtimeRequests, updateOvertimeStatus, addOvertimeRequest,
+            antreanRacikan, addAntreanRacikan, completeAntreanRacikan, resetAntreanRacikan
         }}>
 
 

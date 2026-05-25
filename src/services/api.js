@@ -11,7 +11,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : 'https://composite-footprint-overarch.ngrok-free.dev/api';
+const BASE_URL = isLocalhost ? '/api' : 'https://heidi-overloose-removably.ngrok-free.dev/api';
 export const STORAGE_URL = '/storage';
 // Note: We use a relative path to leverage the Vite proxy (which adds the ngrok-skip header)
 // Note: We use the full URL to ensure consistency, and we'll append the skip header via query param in the component.
@@ -489,7 +489,7 @@ export const pasienAPI = {
                 KabKota_id: data.kabupatenKota || null,
                 Kec_id: data.kecamatan || null,
             };
-            
+
             const response = await fetch(`${BASE_URL}/pasien/${id}`, {
                 method: 'POST',
                 headers: getHeaders(token),
@@ -688,7 +688,7 @@ export const stokProdukAPI = {
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
-    
+
     delete: async (token, id, isPackage = false) => {
         try {
             const endpoint = isPackage ? `/paket-bundling/${id}` : `/stok-produk/${id}`;
@@ -749,7 +749,7 @@ export const paketBundlingsAPI = {
                     stok_produk_id: Number(item.id),
                     Jumlah: Number(item.quantity)
                 })),
-                
+
                 // Lowercase aliases (common for Laravel validation)
                 kode_paket: data.id,
                 nama_paket: data.name,
@@ -1012,6 +1012,85 @@ export const barangApotekAPI = {
     }
 };
 
+
+/* ─────────────────────────────────────────────────────────────
+   Stok Racikan API
+───────────────────────────────────────────────────────────── */
+export const stokRacikanAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-racikan`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data stok racikan' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                nama_obat_racik: data.nama_obat_racik || data.name,
+                deskripsi_racikan: data.deskripsi_racikan || data.description || '',
+                harga: Number(data.harga || data.price || 0)
+            };
+            const response = await fetch(`${BASE_URL}/stok-racikan`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah stok racikan' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+/* ─────────────────────────────────────────────────────────────
+   Antrean Racikan (Prescription Queue) API
+───────────────────────────────────────────────────────────── */
+export const antreanRacikanAPI = {
+    getAll: async (token, status = '') => {
+        try {
+            const query = status ? `?status=${status}` : '';
+            const response = await fetch(`${BASE_URL}/antrean-racikan${query}`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data antrean racikan' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                patient_id: String(data.patientId || data.patient_id),
+                patient_name: data.patientName || data.patient_name,
+                dokter_name: data.dokterName || data.dokter_name || 'Dokter Umum',
+                racikan_text: data.racikanText || data.racikan_text
+            };
+            const response = await fetch(`${BASE_URL}/antrean-racikan`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah antrean racikan' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    updateStatus: async (token, id, status = 'Selesai') => {
+        try {
+            const response = await fetch(`${BASE_URL}/antrean-racikan/${id}`, {
+                method: 'PUT',
+                headers: getHeaders(token),
+                body: JSON.stringify({ status })
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            return { success: false, message: json.message || 'Gagal mengubah status antrean racikan' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
 /* ─────────────────────────────────────────────────────────────
    Rekam Medis API
 ───────────────────────────────────────────────────────────── */
@@ -1036,7 +1115,7 @@ export const rekamMedisAPI = {
         try {
             const headers = getHeaders(token);
             delete headers['Content-Type']; // Let browser set multipart/form-data boundary
-            
+
             const response = await fetch(`${BASE_URL}/rekam-medis`, {
                 method: 'POST',
                 headers: headers,
@@ -1052,7 +1131,7 @@ export const rekamMedisAPI = {
         try {
             const headers = getHeaders(token);
             delete headers['Content-Type'];
-            
+
             formData.append('_method', 'PUT');
 
             const response = await fetch(`${BASE_URL}/rekam-medis/${id}`, {
@@ -1259,4 +1338,4 @@ export const treatmentAPI = {
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI };
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI };

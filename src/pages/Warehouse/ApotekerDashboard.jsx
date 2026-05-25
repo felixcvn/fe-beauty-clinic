@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Beaker, Package, AlertTriangle, Activity, RefreshCw, Calendar, TrendingUp } from 'lucide-react';
+import { Beaker, Package, AlertTriangle, Activity, RefreshCw, Calendar, TrendingUp, ClipboardList, Wand2, Coins, CheckCircle, FileText, FlaskConical, X } from 'lucide-react';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -10,8 +10,15 @@ import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI } from
 const ApotekerDashboard = () => {
     const { user } = useAuth();
     const { showToast } = useToast();
-    const { bookings } = useMockData();
+    const { bookings, antreanRacikan, completeAntreanRacikan } = useMockData();
     const [isLoading, setIsLoading] = useState(true);
+
+    // State untuk Modal Pemrosesan Racikan
+    const [selectedRequest, setSelectedRequest] = useState(null);
+    const [racikanName, setRacikanName] = useState('');
+    const [racikanPrice, setRacikanPrice] = useState('');
+    const [racikanStock, setRacikanStock] = useState('1');
+    const [isSubmittingRacikan, setIsSubmittingRacikan] = useState(false);
     
     const [stats, setStats] = useState({
         totalMaterials: 0,
@@ -87,6 +94,38 @@ const ApotekerDashboard = () => {
         fetchDashboardData();
     }, []);
 
+    const handleProcessRequest = (req) => {
+        setSelectedRequest(req);
+        setRacikanName(`Racikan - ${req.patientName}`);
+        setRacikanPrice('');
+        setRacikanStock('1');
+    };
+
+    const handleSaveRacikan = (e) => {
+        e.preventDefault();
+        if (!racikanName.trim()) {
+            showToast('Nama racikan wajib diisi!', 'error');
+            return;
+        }
+        if (!racikanPrice || Number(racikanPrice) <= 0) {
+            showToast('Harga racikan harus lebih dari 0!', 'error');
+            return;
+        }
+
+        setIsSubmittingRacikan(true);
+        // Simulasi submit/saving
+        setTimeout(() => {
+            completeAntreanRacikan(selectedRequest.id, {
+                name: racikanName,
+                price: Number(racikanPrice),
+                stock: Number(racikanStock)
+            });
+            showToast(`Racikan "${racikanName}" berhasil dibuat dengan harga Rp ${Number(racikanPrice).toLocaleString('id-ID')}!`, 'success');
+            setSelectedRequest(null);
+            setIsSubmittingRacikan(false);
+        }, 800);
+    };
+
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
@@ -122,6 +161,68 @@ const ApotekerDashboard = () => {
                     trend={stats.lowStockCount > 0 ? "down" : "up"} 
                     icon={AlertTriangle} 
                 />
+            </div>
+
+            {/* Antrean Resep Racikan Masuk */}
+            <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-8 rounded-[3rem] border border-amber-200/60 shadow-xl shadow-amber-500/[0.02] mb-10">
+                <div className="flex justify-between items-center mb-6">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
+                            <ClipboardList className="w-5 h-5" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-primary tracking-tight leading-none">Antrean Resep Racikan Masuk</h3>
+                            <p className="text-[9px] font-bold text-amber-700 uppercase tracking-widest mt-1.5 leading-none">Butuh pembuatan & penetapan harga oleh Apoteker</p>
+                            
+                            {/* Visual Debugger helper */}
+                            <div className="mt-2.5 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/10 w-fit">
+                                <span className="text-[8px] font-black text-primary/40 uppercase tracking-wider">
+                                    [DEBUG STORAGE]: Raw Browser LocalStorage = <span className="text-amber-600 font-extrabold">{localStorage.getItem('antrean_racikan') ? JSON.parse(localStorage.getItem('antrean_racikan')).length : 0}</span> items
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <span className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest bg-amber-500 text-white rounded-full shadow-lg shadow-amber-500/25">
+                        {antreanRacikan ? antreanRacikan.filter(req => req.status === 'Pending').length : 0} Antrean
+                    </span>
+                </div>
+
+                {antreanRacikan && antreanRacikan.filter(req => req.status === 'Pending').length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {antreanRacikan.filter(req => req.status === 'Pending').map(req => (
+                            <div key={req.id} className="bg-white p-6 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 flex flex-col justify-between group">
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <h4 className="font-black text-primary text-sm tracking-tight">{req.patientName}</h4>
+                                            <p className="text-[8px] font-bold text-primary/30 uppercase tracking-widest mt-0.5">{req.patientId}</p>
+                                        </div>
+                                        <span className="text-[8px] font-black uppercase tracking-widest text-amber-600 bg-amber-50 border border-amber-100 px-2.5 py-1 rounded-md">
+                                            {req.date}
+                                        </span>
+                                    </div>
+                                    <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                        <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest mb-1.5">Resep Dokter ({req.dokterName})</p>
+                                        <p className="text-xs text-primary/70 font-medium leading-relaxed italic">"{req.racikanText}"</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => handleProcessRequest(req)}
+                                    className="w-full mt-5 py-3 bg-amber-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-amber-700 transition-all duration-300 shadow-md group-hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                                >
+                                    <Wand2 className="w-3.5 h-3.5" />
+                                    Proses & Beri Harga
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <div className="bg-white p-8 rounded-[2rem] border border-dashed border-amber-200/80 flex flex-col items-center justify-center text-center py-10 shadow-inner">
+                        <ClipboardList className="w-12 h-12 text-amber-300 mb-3 animate-[pulse_2s_infinite]" />
+                        <p className="font-black text-xs uppercase tracking-widest text-primary/60 mb-1 leading-none">Tidak Ada Antrean Resep</p>
+                        <p className="text-primary/30 text-[10px] font-bold mt-1.5 leading-none">Semua antrean resep racikan telah selesai diproses oleh Apoteker.</p>
+                    </div>
+                )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
@@ -196,6 +297,93 @@ const ApotekerDashboard = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Modal Pemrosesan & Harga Racikan */}
+            {selectedRequest && (
+                <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/40 animate-fade-in" onClick={() => setSelectedRequest(null)}>
+                    <div 
+                        className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Close button */}
+                        <button
+                            type="button"
+                            onClick={() => setSelectedRequest(null)}
+                            className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-10"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+
+                        <div className="relative p-8 pb-6 bg-amber-600 overflow-hidden text-white">
+                            <div className="absolute inset-0 opacity-10">
+                                <div className="absolute top-0 left-0 w-full h-full animate-[pulse_4s_infinite]" style={{ background: 'radial-gradient(circle, #FFF 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                            </div>
+                            <div className="relative z-10 flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white border border-white/10">
+                                    <FlaskConical className="w-6 h-6" />
+                                </div>
+                                <div>
+                                    <h3 className="text-xl font-black tracking-tight leading-none">Beri Harga & Buat Racikan</h3>
+                                    <p className="text-white/60 text-[9px] font-bold tracking-widest uppercase mt-2">FORMULIR STOK RACIKAN BARU</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form onSubmit={handleSaveRacikan} className="p-8 space-y-6">
+                            <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-800 text-xs leading-relaxed space-y-1">
+                                <p className="font-bold uppercase tracking-wider text-[8px] text-amber-600">RESEP DOKTER ({selectedRequest.dokterName}):</p>
+                                <p className="font-semibold italic">"{selectedRequest.racikanText}"</p>
+                            </div>
+
+                            <div>
+                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2">Nama Obat Racikan</label>
+                                <input
+                                    type="text"
+                                    value={racikanName}
+                                    onChange={(e) => setRacikanName(e.target.value)}
+                                    placeholder="Contoh: Racikan Cream Budi"
+                                    className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2">Harga Jual (Rp)</label>
+                                    <input
+                                        type="number"
+                                        value={racikanPrice}
+                                        onChange={(e) => setRacikanPrice(e.target.value)}
+                                        placeholder="85000"
+                                        className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2">Jumlah Stok</label>
+                                    <input
+                                        type="number"
+                                        value={racikanStock}
+                                        onChange={(e) => setRacikanStock(e.target.value)}
+                                        placeholder="1"
+                                        className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={isSubmittingRacikan}
+                                className="w-full py-4 bg-amber-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-amber-700 active:scale-95 transition-all duration-300 shadow-lg shadow-amber-600/25 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <CheckCircle className="w-4 h-4" />
+                                {isSubmittingRacikan ? 'Memproses...' : 'Selesaikan & Simpan ke Stok'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
