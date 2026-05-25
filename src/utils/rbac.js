@@ -12,7 +12,9 @@ export const ROLES = {
     STAFF_SATPAM: 'Staff Satpam',
     APOTEKER: 'Apoteker',
     ASISTEN_APOTEKER: 'Asisten Apoteker',
-    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment'
+    ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment',
+    ASISTEN_MARKETING_SALES: 'Asisten Marketing of Sales',
+    ASISTEN_FINANCE: 'Asisten Finance'
 };
 
 
@@ -31,6 +33,8 @@ export const ROLE_PERMISSIONS = {
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_SUPERVISOR_TREATMENT]: ['/', '/reservations', '/attendance'],
+    [ROLES.ASISTEN_MARKETING_SALES]: ['/', '/promos', '/attendance', '/products'],
+    [ROLES.ASISTEN_FINANCE]: ['/', '/attendance', '/reports'],
 };
 
 

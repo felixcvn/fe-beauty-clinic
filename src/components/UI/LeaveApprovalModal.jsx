@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { createPortal } from 'react-dom';
 import { X, CalendarDays, CheckCircle2, XCircle, Image as ImageIcon, FileText, Paperclip } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
@@ -100,7 +100,7 @@ const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, show
                         )}
                     </div>
 
-                    {showActions && requestData.status === 'Menunggu' && (
+                    {showActions && requestData.status?.includes('Menunggu') && (
                         <div className="flex gap-4 pt-4 border-t border-primary/5">
                             <button
                                 onClick={handleReject}
@@ -119,9 +119,11 @@ const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, show
                         </div>
                     )}
 
-                    {requestData.status !== 'Menunggu' && (
+                    {(!showActions || !requestData.status?.includes('Menunggu')) && (
                         <div className={`mt-4 p-4 rounded-2xl border text-center ${
-                            requestData.status === 'Disetujui' ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-500'
+                            requestData.status === 'Disetujui' ? 'bg-green-50 border-green-100 text-green-600' : 
+                            requestData.status === 'Ditolak' ? 'bg-red-50 border-red-100 text-red-500' :
+                            'bg-yellow-50 border-yellow-100 text-yellow-700'
                         }`}>
                             <p className="text-[10px] font-black uppercase tracking-widest italic">
                                 Status Pengajuan: {requestData.status}

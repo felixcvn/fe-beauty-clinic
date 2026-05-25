@@ -26,6 +26,13 @@ const USER_SEEDER = [
 const mapToRole = (jabatan = '', divisi = '') => {
     const d = divisi.toLowerCase();
     const j = jabatan.toLowerCase();
+
+    // Mapping untuk Asisten (harus di atas agar tidak tersensor oleh role umum)
+    if (d.includes('asisten supervisor treatment') || j.includes('asisten supervisor treatment')) return 'Asisten Supervisor Treatment';
+    if (d.includes('asisten apoteker') || j.includes('asisten apoteker')) return 'Asisten Apoteker';
+    if (d.includes('asisten') && d.includes('marketing of sales')) return 'Asisten Marketing of Sales';
+    if (d.includes('asisten') && d.includes('finance')) return 'Asisten Finance';
+
     // Mapping berdasarkan divisi (lebih spesifik)
     if (d.includes('manager') || d.includes('super admin')) return 'Super Admin';
     if (d.includes('dokter'))                               return 'Dokter';
@@ -39,7 +46,9 @@ const mapToRole = (jabatan = '', divisi = '') => {
     if (d.includes('owner'))                                return 'Owner';
     if (d.includes('ob'))                                   return 'Staff OB';
     if (d.includes('satpam'))                               return 'Staff Satpam';
+    
     // Fallback ke jabatan jika divisi tidak match
+    if (j.includes('asisten'))                             return 'Asisten';
     if (j.includes('lead') || j.includes('manager'))       return 'Super Admin';
     return 'Customer Service';
 };

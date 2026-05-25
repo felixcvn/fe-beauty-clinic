@@ -177,8 +177,8 @@ const OvertimeApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, s
                     )}
 
                     {/* Status Badge (jika sudah diproses) */}
-                    {status !== 'Menunggu' && (
-                        <div className={`p-4 rounded-2xl border text-center ${status === 'Disetujui' ? 'bg-green-50 border-green-100 text-green-600' : 'bg-red-50 border-red-100 text-red-500'}`}>
+                    {(!showActions || !status?.includes('Menunggu')) && (
+                        <div className={`p-4 rounded-2xl border text-center ${status === 'Disetujui' ? 'bg-green-50 border-green-100 text-green-600' : status === 'Ditolak' ? 'bg-red-50 border-red-100 text-red-500' : 'bg-yellow-50 border-yellow-100 text-yellow-700'}`}>
                             <p className="text-[10px] font-black uppercase tracking-widest">Status: {status}</p>
                             {requestData.hrdNote && (
                                 <p className="text-xs font-medium mt-1 opacity-80">Catatan HRD: {requestData.hrdNote}</p>
@@ -188,7 +188,7 @@ const OvertimeApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, s
                 </div>
 
                 {/* Footer Actions */}
-                {showActions && status === 'Menunggu' && (
+                {showActions && status?.includes('Menunggu') && (
                     <div className="p-5 border-t border-primary/5 flex gap-3 shrink-0 bg-gray-50/30">
                         <button
                             onClick={handleReject}

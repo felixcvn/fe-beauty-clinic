@@ -51,11 +51,12 @@ export const MockDataProvider = ({ children }) => {
     const [staff, setStaff] = useState([]);
     
     const [leaveRequests, setLeaveRequests] = useState([
-        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu' },
+        { id: 'LR-001', staffName: 'Dr. Sarah Smith', role: 'Dokter', type: 'Cuti Tahunan', startDate: '2026-03-25', endDate: '2026-03-27', reason: 'Liburan keluarga', status: 'Menunggu HRD' },
         { id: 'LR-002', staffName: 'Budi Santoso', role: 'Customer Service', type: 'Sakit', startDate: '2026-03-20', endDate: '2026-03-21', reason: 'Demam tinggi', status: 'Disetujui', attachment: 'surat_sakit_budi.jpg' },
         { id: 'LR-003', staffName: 'Maya Sari', role: 'Perawat', type: 'Izin Lainnya', startDate: '2026-03-22', endDate: '2026-03-22', reason: 'Urusan keluarga mendadak', status: 'Ditolak' },
-        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Menunggu' },
-        { id: 'LR-005', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
+        { id: 'LR-004', staffName: 'Dewi Rahmawati', role: 'HRD', type: 'Cuti Tahunan', startDate: '2026-04-10', endDate: '2026-04-15', reason: 'Libur lebaran', status: 'Menunggu HRD' },
+        { id: 'LR-005', staffName: 'Nina Lestari', role: 'ASS SPV TREATMENT', type: 'Cuti Tahunan', startDate: '2026-04-05', endDate: '2026-04-08', reason: 'Acara keluarga di luar kota', status: 'Menunggu Lead' },
+        { id: 'LR-006', staffName: 'Agus Setiawan', role: 'Perawat', type: 'Sakit', startDate: '2026-03-24', endDate: '2026-03-26', reason: 'Gejala tifus', status: 'Disetujui', attachment: 'surat_keterangan_dokter_agus.png' },
     ]);
 
     const [overtimeRequests, setOvertimeRequests] = useState([
@@ -64,7 +65,7 @@ export const MockDataProvider = ({ children }) => {
             primaryType: 'Terlambat', anomalyTypes: ['Terlambat'],
             scheduledTime: '08:45', detectedTime: '09:15', diffMinutes: 30,
             notes: 'Motor mogok di tengah jalan, terpaksa menunggu tukang tambal ban hampir 30 menit.',
-            date: '2026-04-18', status: 'Menunggu', hrdNote: ''
+            date: '2026-04-18', status: 'Menunggu HRD', hrdNote: ''
         },
         {
             id: 'OT-002', staffName: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi',
@@ -78,7 +79,14 @@ export const MockDataProvider = ({ children }) => {
             primaryType: 'Terlambat', anomalyTypes: ['Terlambat', 'Luar Kantor'],
             scheduledTime: '08:00', detectedTime: '09:30', diffMinutes: 90,
             notes: 'Menghadiri rapat dengan mitra bisnis di luar kantor yang dijadwalkan mendadak oleh atasan.',
-            date: '2026-04-18', status: 'Menunggu', hrdNote: ''
+            date: '2026-04-18', status: 'Menunggu HRD', hrdNote: ''
+        },
+        {
+            id: 'OT-003B', staffName: 'Dedi Supriadi', role: 'ASS FINANCE', shift: 'umum_normal',
+            primaryType: 'Lembur', anomalyTypes: ['Lembur'],
+            scheduledTime: '17:00', detectedTime: '18:10', diffMinutes: 70,
+            notes: 'Menyelesaikan laporan keuangan akhir bulan yang diminta dadakan oleh Pak Lead Finance.',
+            date: '2026-04-18', status: 'Menunggu HRD', hrdNote: ''
         },
         {
             id: 'OT-004', staffName: 'Bambang Heru', role: 'OB', shift: 'ob_normal',

@@ -60,9 +60,53 @@ const AttendancePage = () => {
     const [isOvertimeApprovalOpen, setIsOvertimeApprovalOpen] = useState(false);
     const [selectedOvertimeReq, setSelectedOvertimeReq] = useState(null);
 
-    // ─── Role Checks ────────────────────────────────────────────────────────────
-    const canAccessReports = ['Owner', 'Komisaris', 'HRD', 'Super Admin'].includes(user?.role);
-    const canApproveLeave = user?.role === 'HRD';
+    // ─── Hierarchy & Roles Config ────────────────────────────────────────────────
+    const SUPER_ROLES = ['Owner', 'Komisaris', 'Super Admin', 'HRD'];
+    const LEAD_SUBORDINATES = {
+        'SPV TREATMENT & PROMO': ['ASS SPV TREATMENT', 'Asisten Supervisor Treatment'],
+        'Supervisor Treatment': ['ASS SPV TREATMENT', 'Asisten Supervisor Treatment'],
+        'LEAD FINANCE': ['ASS FINANCE', 'Asisten Finance'],
+        'MANAGER MOS': ['ASS MOS', 'Asisten Marketing of Sales'],
+        'Manajer Marketing of Sales': ['ASS MOS', 'Asisten Marketing of Sales'],
+        'APOTEKER': ['ASS APOTEK', 'Asisten Apoteker'],
+        'Apoteker': ['ASS APOTEK', 'Asisten Apoteker']
+    };
+    const HRD_DIRECT_ROLES = ['CS', 'GUDANG', 'SATPAM', 'OB', 'BUK KANTIN', 'TERAPIS', 'TERAPIS MEDIS', 'DOKTER'];
+
+    const isSuperRole = SUPER_ROLES.includes(user?.role);
+    const isLeadRole = Object.keys(LEAD_SUBORDINATES).includes(user?.role);
+    
+    const canAccessReports = isSuperRole || isLeadRole;
+    const canApproveLeave = isSuperRole || isLeadRole;
+
+    const canApproveRequest = (requestRole, currentStatus) => {
+        if (['Owner', 'Komisaris', 'Super Admin'].includes(user?.role)) return true;
+        if (user?.role === 'HRD') {
+            return currentStatus === 'Menunggu HRD' || currentStatus === 'Menunggu';
+        }
+        if (isLeadRole) {
+            return LEAD_SUBORDINATES[user?.role]?.includes(requestRole) && (currentStatus === 'Menunggu Lead' || currentStatus === 'Menunggu');
+        }
+        return false;
+    };
+
+    const handleUpdateLeaveStatus = (id, actionStatus) => {
+        let finalStatus = actionStatus;
+        const req = leaveRequests.find(r => r.id === id);
+        if (actionStatus === 'Disetujui' && req?.status === 'Menunggu Lead') {
+            finalStatus = 'Menunggu HRD';
+        }
+        updateLeaveStatus(id, finalStatus);
+    };
+
+    const handleUpdateOvertimeStatus = (id, actionStatus, note) => {
+        let finalStatus = actionStatus;
+        const req = overtimeRequests.find(r => r.id === id);
+        if (actionStatus === 'Disetujui' && req?.status === 'Menunggu Lead') {
+            finalStatus = 'Menunggu HRD';
+        }
+        updateOvertimeStatus(id, finalStatus, note);
+    };
 
     // ─── Mock Data: Attendance Stats ────────────────────────────────────────────
     const [attendanceStats] = useState([
@@ -174,6 +218,8 @@ const AttendancePage = () => {
     };
 
     const handleOvertimeNoteSubmit = (data) => {
+        const initialStatus = 'Menunggu HRD';
+
         const newRequest = {
             id: `OT-${Math.floor(Math.random() * 9000 + 1000)}`,
             staffName: user?.name,
@@ -186,13 +232,13 @@ const AttendancePage = () => {
             diffMinutes: data.diffMinutes,
             notes: data.notes,
             date: new Date().toISOString().split('T')[0],
-            status: 'Menunggu',
+            status: initialStatus,
             hrdNote: ''
         };
         addOvertimeRequest(newRequest);
         setIsOvertimeNoteOpen(false);
         setPendingAnomalyData(null);
-        showToast('Pengajuan berhasil dikirim ke HRD untuk review.', 'success');
+        showToast('Pengajuan berhasil dikirim untuk review.', 'success');
     };
 
 
@@ -205,7 +251,14 @@ const AttendancePage = () => {
         if (startDate && endDate) matchesDate = record.date >= startDate && record.date <= endDate;
         else if (startDate) matchesDate = record.date >= startDate;
         else if (endDate) matchesDate = record.date <= endDate;
-        return matchesSearch && matchesStatus && matchesDate;
+
+        // Role-based filtering for Leads vs Super Roles
+        let matchesHierarchy = true;
+        if (!isSuperRole && isLeadRole) {
+            matchesHierarchy = record.name === user?.name || LEAD_SUBORDINATES[user?.role]?.includes(record.role);
+        }
+
+        return matchesSearch && matchesStatus && matchesDate && matchesHierarchy;
     });
 
     const finalAttendance = canAccessReports ? filteredManagerAttendance : staffAttendance.filter(record => {
@@ -218,20 +271,34 @@ const AttendancePage = () => {
         return isMe && matchesStatus && matchesDate;
     });
 
-    const filteredLeave = leaveRequests.filter(req =>
-        (canAccessReports || req.staffName === user?.name) &&
-        (req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.type.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredLeave = leaveRequests.filter(req => {
+        let matchesHierarchy = true;
+        if (!isSuperRole) {
+            if (isLeadRole) {
+                matchesHierarchy = req.staffName === user?.name || LEAD_SUBORDINATES[user?.role]?.includes(req.role);
+            } else {
+                matchesHierarchy = req.staffName === user?.name;
+            }
+        }
+        return matchesHierarchy && ((req.staffName || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+            (req.type || '').toLowerCase().includes((searchTerm || '').toLowerCase()));
+    });
 
-    const filteredOvertime = overtimeRequests.filter(req =>
-        (canAccessReports || req.staffName === user?.name) &&
-        (req.staffName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        req.primaryType.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredOvertime = overtimeRequests.filter(req => {
+        let matchesHierarchy = true;
+        if (!isSuperRole) {
+            if (isLeadRole) {
+                matchesHierarchy = req.staffName === user?.name || LEAD_SUBORDINATES[user?.role]?.includes(req.role);
+            } else {
+                matchesHierarchy = req.staffName === user?.name;
+            }
+        }
+        return matchesHierarchy && ((req.staffName || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+            (req.role || '').toLowerCase().includes((searchTerm || '').toLowerCase()) ||
+            (req.primaryType || '').toLowerCase().includes((searchTerm || '').toLowerCase()));
+    });
 
-    const pendingOvertimeCount = overtimeRequests.filter(r => r.status === 'Menunggu').length;
+    const pendingOvertimeCount = filteredOvertime.filter(r => r.status?.includes('Menunggu') && canApproveRequest(r.role, r.status)).length;
 
     // ─── Styling Helpers ─────────────────────────────────────────────────────────
     const getStatusStyle = (status) => {
@@ -338,11 +405,13 @@ const AttendancePage = () => {
                 isOpen={isApprovalModalOpen}
                 onClose={() => setIsApprovalModalOpen(false)}
                 requestData={selectedLeaveRequest}
-                showActions={canApproveLeave}
-                onUpdateStatus={updateLeaveStatus}
+                showActions={selectedLeaveRequest ? canApproveRequest(selectedLeaveRequest.role, selectedLeaveRequest.status) : false}
+                onUpdateStatus={handleUpdateLeaveStatus}
             />
             <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={(data) => {
-                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, attachment: data.attachment, status: 'Menunggu' };
+                const isSubordinate = ['ASS SPV TREATMENT', 'Asisten Supervisor Treatment', 'ASS FINANCE', 'Asisten Finance', 'ASS MOS', 'Asisten Marketing of Sales', 'ASS APOTEK', 'Asisten Apoteker'].includes(user?.role);
+                const initialStatus = isSubordinate ? 'Menunggu Lead' : 'Menunggu HRD';
+                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, attachment: data.attachment, status: initialStatus };
                 addLeaveRequest(newRequest);
             }} />
 
@@ -357,8 +426,8 @@ const AttendancePage = () => {
                 isOpen={isOvertimeApprovalOpen}
                 onClose={() => setIsOvertimeApprovalOpen(false)}
                 requestData={selectedOvertimeReq}
-                showActions={canApproveLeave}
-                onUpdateStatus={updateOvertimeStatus}
+                showActions={selectedOvertimeReq ? canApproveRequest(selectedOvertimeReq.role, selectedOvertimeReq.status) : false}
+                onUpdateStatus={handleUpdateOvertimeStatus}
             />
 
 
@@ -437,7 +506,7 @@ const AttendancePage = () => {
                 <button onClick={() => setActiveTab('leave')} className={`pb-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition-all ${activeTab === 'leave' ? 'text-primary border-b-2 border-primary' : 'text-primary/30 hover:text-primary/60'}`}>
                     Pengajuan Cuti / Izin
                 </button>
-                {canAccessReports && (
+                {isSuperRole && (
                     <button onClick={() => setActiveTab('overtime')} className={`pb-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition-all relative ${activeTab === 'overtime' ? 'text-primary border-b-2 border-primary' : 'text-primary/30 hover:text-primary/60'}`}>
                         Pengajuan Lembur
                         {pendingOvertimeCount > 0 && (
@@ -745,7 +814,7 @@ const AttendancePage = () => {
                                         <td className="px-4 py-2">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-xs font-medium text-primary shadow-sm border border-primary/5">
-                                                    {req.staffName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                                    {(req.staffName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-medium text-primary tracking-tight">{req.staffName}</p>
@@ -795,7 +864,7 @@ const AttendancePage = () => {
                             <div key={req.id} onClick={() => { setSelectedLeaveRequest(req); setIsApprovalModalOpen(true); }} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary border border-primary/5">{req.staffName.split(' ').map(n => n[0]).join('')}</div>
+                                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary border border-primary/5">{(req.staffName || 'U').split(' ').map(n => n[0]).join('')}</div>
                                         <div>
                                             <p className="text-sm font-black text-primary tracking-tight">{req.staffName}</p>
                                             <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{req.role}</p>
@@ -892,7 +961,7 @@ const AttendancePage = () => {
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-xs font-medium text-primary shadow-sm border border-primary/5 shrink-0">
-                                                            {req.staffName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                                            {(req.staffName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                         </div>
                                                         <div>
                                                             <p className="text-sm font-medium text-primary tracking-tight">{req.staffName}</p>
@@ -959,7 +1028,7 @@ const AttendancePage = () => {
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary border border-primary/5">
-                                                    {req.staffName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                                                    {(req.staffName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
                                                     <p className="text-sm font-black text-primary tracking-tight">{req.staffName}</p>
