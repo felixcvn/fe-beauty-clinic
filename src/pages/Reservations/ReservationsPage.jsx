@@ -24,6 +24,7 @@ import ReservationFormModal from '../../components/UI/ReservationFormModal';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
+import { useMockData } from '../../context/MockDataContext';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '-';
@@ -223,6 +224,7 @@ const ReservationsPage = () => {
 
     const handleDelete = async (id) => {
         try {
+            const bookingToDelete = bookings.find(b => b.id === id);
             const result = await reservasiAPI.delete(user.token, id);
             if (result.success) {
                 showToast('Reservasi berhasil dihapus', 'success');

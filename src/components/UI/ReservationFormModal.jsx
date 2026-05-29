@@ -8,6 +8,7 @@ import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import ConfirmModal from './ConfirmModal';
 
+
 const DEFAULT_SLOTS = [
     { time: '08:00', active: true },
     { time: '09:00', active: true },
@@ -24,6 +25,7 @@ const DEFAULT_SLOTS = [
 const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onSuccess }) => {
     const { user } = useAuth();
     const { showToast } = useToast();
+
     const isEditMode = !!initialData;
 
     const [availableSlots, setAvailableSlots] = useState([]);

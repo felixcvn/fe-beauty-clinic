@@ -187,11 +187,11 @@ const POSPage = () => {
 
     const cartTotal = useMemo(() =>
         cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-    , [cart]);
+        , [cart]);
 
     // Kalkulasi Harga Akhir
     const memberDiscount = isMember ? (cartTotal * 0.05) : 0;
-    
+
     const calculatePromoDiscount = () => {
         if (!appliedPromo) return 0;
         if (appliedPromo.type === 'Persen') {
@@ -209,10 +209,10 @@ const POSPage = () => {
             setAppliedPromo(null);
             return;
         }
-        
+
         const validPromos = getActivePromos();
         const found = validPromos.find(p => p.code.toUpperCase() === codeToApply.toUpperCase());
-        
+
         if (found) {
             setAppliedPromo(found);
             setPromoInput(found.code);
@@ -250,14 +250,14 @@ const POSPage = () => {
     const handleFetchMedicalRecord = async () => {
         if (!selectedCustomer) return;
         setIsFetchingRecord(true);
-        
+
         try {
             if (user?.token) {
                 const res = await rekamMedisAPI.getAll(user.token);
                 if (res.success && res.data) {
                     const responseData = res.data.data || res.data;
                     const recordsArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                    
+
                     // Filter records belonging to selected patient
                     const patientRecords = recordsArray
                         .filter(r => String(r.data_pasien_id || r.pasien_id) === String(selectedCustomer.id))
@@ -269,12 +269,12 @@ const POSPage = () => {
 
                     if (patientRecords.length > 0) {
                         const latestRecord = patientRecords[0];
-                        
+
                         // 1. Deteksi resep racikan manual
                         const racText = latestRecord.racikan || '';
                         const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.status === 'Pending');
                         const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.status === 'Selesai');
-                        
+
                         if (isProcessed) {
                             // Jika sudah berstatus 'Selesai' (telah diberi harga oleh apoteker), jangan munculkan banner resep racikan lagi
                             setDetectedRacikan(null);
@@ -291,9 +291,9 @@ const POSPage = () => {
                         let newCartItems = [];
 
                         // 2. Tarik resep produk riil ke keranjang belanja
-                        const reseps = Array.isArray(latestRecord.reseps) ? latestRecord.reseps : 
-                                      (Array.isArray(latestRecord.produks) ? latestRecord.produks : []);
-                        
+                        const reseps = Array.isArray(latestRecord.reseps) ? latestRecord.reseps :
+                            (Array.isArray(latestRecord.produks) ? latestRecord.produks : []);
+
                         if (reseps.length > 0) {
                             reseps.forEach(resItem => {
                                 const prodId = String(resItem.stok_produk_id || resItem.pivot?.stok_produk_id || resItem.id || resItem.Kode_Produk || resItem);
@@ -312,7 +312,7 @@ const POSPage = () => {
 
                         // 3. Tarik data treatment dari rekam medis ke keranjang belanja
                         const recordTreatments = Array.isArray(latestRecord.treatments) ? latestRecord.treatments : [];
-                        
+
                         if (recordTreatments.length > 0) {
                             recordTreatments.forEach(trtItem => {
                                 const trtId = String(trtItem.treatment_id || trtItem.pivot?.treatment_id || trtItem.id || trtItem.kode_treatment || trtItem);
@@ -355,7 +355,7 @@ const POSPage = () => {
         const recordProds = activeProductsList.filter(p => p.id === 'PRD-001' || p.id === 'PRD-007' || p.id === 'PRD-1' || p.id === 'PRD-2' || p.id === 'PRD-3' || p.id === 'PRD-4');
         const recordTrts = activeTreatmentsList.filter(t => t.id === 'TRT-001' || t.id === 'TRT-002' || t.id === 'TRT-1' || t.id === 'TRT-2' || t.id === 'TRT-3' || t.id === 'TRT-4');
         const recordItems = [...recordProds, ...recordTrts];
-        
+
         const newCartItems = [];
         recordItems.forEach(item => {
             const existing = newCartItems.find(c => c.id === item.id);
@@ -426,7 +426,7 @@ const POSPage = () => {
                     </div>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8 scrollbar-hide">
+                <div className="flex-1 overflow-y-auto p-5 md:p-8 space-y-6 md:space-y-8 scrollbar-hide bg-slate-50/50">
                     {/* Search & Categories */}
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="relative flex-1 group">
@@ -457,31 +457,33 @@ const POSPage = () => {
                     ) : (
                         /* Product Grid */
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-                        {filteredProducts.map(product => (
-                            <button
-                                key={product.id}
-                                onClick={() => addToCart(product)}
-                                className="p-4 rounded-[2rem] bg-white border border-primary/5 hover:bg-secondary/10 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-500 text-left group flex flex-col justify-between h-full"
-                            >
-                                <div>
-                                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-secondary/20 overflow-hidden mb-4 shadow-sm relative mx-auto">
-                                        <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
-                                        <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded-md bg-white/90 backdrop-blur-sm border border-primary/5 text-[6px] md:text-[7px] font-black text-primary uppercase tracking-tighter">
-                                            {product.stock}
+                            {filteredProducts.map(product => (
+                                <button
+                                    key={product.id}
+                                    onClick={() => addToCart(product)}
+                                    className="p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 hover:bg-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full"
+                                >
+                                    <div>
+                                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-secondary/20 flex items-center justify-center mb-4 shadow-sm relative mx-auto overflow-hidden">
+                                            <span className="text-2xl md:text-3xl font-semibold text-primary tracking-tighter group-hover:scale-110 transition-transform duration-500">
+                                                {product.name.split(' ').filter(n => n).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                                            </span>
+                                            <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm border border-primary/5 text-[9px] md:text-[10px] font-semibold text-primary uppercase tracking-tighter shadow-sm">
+                                                {product.stock}
+                                            </div>
+                                        </div>
+                                        <h4 className="text-sm md:text-[15px] font-semibold text-primary leading-tight mb-1 line-clamp-2 text-center">{product.name}</h4>
+                                        <p className="text-[9px] md:text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-3 text-center">{product.category}</p>
+                                    </div>
+                                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5">
+                                        <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
+                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+                                            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                         </div>
                                     </div>
-                                    <h4 className="text-[10px] md:text-[11px] font-black text-primary leading-tight mb-1 line-clamp-2 text-center">{product.name}</h4>
-                                    <p className="text-[8px] md:text-[9px] font-bold text-primary/30 uppercase tracking-widest mb-3 text-center">{product.category}</p>
-                                </div>
-                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5">
-                                    <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
-                                    <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
-                                        <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
-                                    </div>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
+                                </button>
+                            ))}
+                        </div>
                     )}
                 </div>
             </div>
@@ -508,8 +510,7 @@ const POSPage = () => {
                                             {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-black text-primary tracking-tight">{selectedCustomer.name}</p>
-                                            <p className="text-[8px] font-bold text-primary/30 uppercase tracking-widest">{selectedCustomer.id}</p>
+                                            <p className="text-sm font-semibold text-primary tracking-tight">{selectedCustomer.name}</p>
                                         </div>
                                     </div>
                                     <button
@@ -521,7 +522,7 @@ const POSPage = () => {
                                 </div>
 
                                 {!hasFetchedRecord && (
-                                    <button 
+                                    <button
                                         onClick={handleFetchMedicalRecord}
                                         disabled={isFetchingRecord}
                                         className="w-full p-3 flex items-center justify-center gap-2 bg-secondary/10 text-primary border border-primary/10 border-dashed rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
@@ -589,8 +590,7 @@ const POSPage = () => {
                                                     onClick={() => { setSelectedCustomer(customer); setIsCustomerDropdownOpen(false); setCustomerSearch(''); setHasFetchedRecord(false); setDetectedRacikan(null); setRacikanSent(false); }}
                                                     className="w-full p-3 text-left hover:bg-secondary/20 transition-all border-b border-primary/5 last:border-0 group"
                                                 >
-                                                    <p className="text-[10px] font-black text-primary group-hover:translate-x-1 transition-transform">{customer.name}</p>
-                                                    <p className="text-[8px] font-bold text-primary/30 mt-0.5 uppercase tracking-tighter">{customer.id}</p>
+                                                    <p className="text-sm font-semibold text-primary group-hover:translate-x-1 transition-transform py-1">{customer.name}</p>
                                                 </button>
                                             ))
                                         ) : (
@@ -641,7 +641,7 @@ const POSPage = () => {
                 </div>
 
                 {/* 2. Cart Items (Middle - Scrollable) */}
-                <div className="flex-1 overflow-y-auto min-h-[200px] p-5 space-y-4 scrollbar-hide bg-secondary/5 shadow-inner">
+                <div className="flex-1 overflow-y-auto min-h-0 p-5 space-y-4 scrollbar-hide bg-secondary/5 shadow-inner">
                     <div className="flex justify-between items-center mb-1">
                         <p className="text-[9px] font-black text-primary/30 uppercase tracking-[0.2em]">Item Terpilih ({cart.length})</p>
                         {cart.length > 0 && (
@@ -657,7 +657,7 @@ const POSPage = () => {
                         cart.map(item => (
                             <div key={item.id} className="p-3.5 rounded-3xl bg-white border border-primary/5 shadow-sm animate-fade-in flex flex-col gap-2 group hover:border-primary/20 transition-all">
                                 <div className="flex justify-between items-start">
-                                    <h4 className="text-[10px] font-black text-primary tracking-tight leading-tight uppercase flex-1 line-clamp-1">{item.name}</h4>
+                                    <h4 className="text-[10px] font-semibold text-primary tracking-tight leading-tight uppercase flex-1 line-clamp-1">{item.name}</h4>
                                     <button onClick={() => removeFromCart(item.id)} className="p-1 text-primary/20 hover:text-red-500 transition-all">
                                         <Trash2 className="w-3.5 h-3.5" />
                                     </button>

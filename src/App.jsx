@@ -54,6 +54,7 @@ const AttendancePage      = lazy(() => import('./pages/Attendance/AttendancePage
 const ReportsPage         = lazy(() => import('./pages/Reports/ReportsPage'));
 const NotificationsPage   = lazy(() => import('./pages/Notifications/NotificationsPage'));
 const ProfilePage         = lazy(() => import('./pages/Profile/ProfilePage'));
+const ActivityLogPage     = lazy(() => import('./pages/Logs/ActivityLogPage'));
 
 // ── Page loader (fallback Suspense) ──────────────────────────────────────────
 const PageLoader = () => (
@@ -164,6 +165,7 @@ function App() {
                                                     <Route path="/attendance" element={<RoleProtectedRoute><AttendancePage /></RoleProtectedRoute>} />
                                                     <Route path="/reservations" element={<RoleProtectedRoute><ReservationsPage /></RoleProtectedRoute>} />
                                                     <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
+                                                    <Route path="/activity-logs" element={<RoleProtectedRoute><ActivityLogPage /></RoleProtectedRoute>} />
                                                     <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
                                                     <Route path="/management" element={<RoleProtectedRoute><ItemManagementPage /></RoleProtectedRoute>} />
                                                     <Route path="/cs-products" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="product" fixedTitle="Stok" /></RoleProtectedRoute>} />

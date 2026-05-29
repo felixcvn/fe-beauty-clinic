@@ -4,6 +4,12 @@ import { stokRacikanAPI, antreanRacikanAPI } from '../services/api';
 const MockDataContext = createContext();
 
 export const MockDataProvider = ({ children }) => {
+    // Activity Logs State
+    const [activityLogs, setActivityLogs] = useState(() => {
+        const saved = localStorage.getItem('clinic_activity_logs');
+        return saved ? JSON.parse(saved) : [];
+    });
+
     const [patients, setPatients] = useState([]);
 
     const [promos, setPromos] = useState([
@@ -505,7 +511,8 @@ export const MockDataProvider = ({ children }) => {
             slotAvailability, updateSlotAvailability,
             leaveRequests, updateLeaveStatus, addLeaveRequest,
             overtimeRequests, updateOvertimeStatus, addOvertimeRequest,
-            antreanRacikan, addAntreanRacikan, completeAntreanRacikan, resetAntreanRacikan
+            antreanRacikan, addAntreanRacikan, completeAntreanRacikan, resetAntreanRacikan,
+            activityLogs
         }}>
 
 

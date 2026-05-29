@@ -16,18 +16,18 @@ const formatTitleCase = (str) => {
     if (!str) return '';
     // Clean redundant dashes and spaces
     let cleaned = str.replace(/\s*-\s*/g, ' - ').replace(/(\s*-\s*)+$/, '').trim();
-    
+
     return cleaned.split(' ').map((word, index) => {
         if (word === '-') return '-';
         const lower = word.toLowerCase();
         const upper = word.toUpperCase();
-        
+
         // Keep acronyms uppercase
         if (['HRD', 'OB', 'CS', 'IT'].includes(upper)) return upper;
-        
+
         // Keep conjunctions lowercase (except if it's the first word)
         if (['of', 'and'].includes(lower) && index !== 0) return lower;
-        
+
         // Default: Capitalize first letter
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     }).join(' ');
@@ -36,7 +36,7 @@ const formatTitleCase = (str) => {
 const mapKaryawanFromAPI = (k) => {
     let rawPosisi = (k.Jabatan || k.jabatan || '').trim();
     let rawDivisi = (k.Divisi || k.divisi || '').trim();
-    
+
     rawPosisi = rawPosisi.replace(/(\s*-\s*)+$/, '');
     rawDivisi = rawDivisi.replace(/(\s*-\s*)+$/, '');
 
@@ -59,23 +59,23 @@ const mapKaryawanFromAPI = (k) => {
     }
 
     return {
-        id:       k.id,
-        name:     k.nama_lengkap || k.NamaLengkap_karyawan,
-        email:    k.email || k.Email,
-        phone:    k.no_telp || k.No_Telp,
-        jabatan:  displayJabatan,
-        posisi:   posisi,
-        divisi:   divisi,
-        cabang:   k.cabang || k.Cabang,
-        inisial:  k.inisial,
-        nik:      k.Nomor_Identitas || k.nomor_identitas || k.nik,
+        id: k.id,
+        name: k.nama_lengkap || k.NamaLengkap_karyawan,
+        email: k.email || k.Email,
+        phone: k.no_telp || k.No_Telp,
+        jabatan: displayJabatan,
+        posisi: posisi,
+        divisi: divisi,
+        cabang: k.cabang || k.Cabang,
+        inisial: k.inisial,
+        nik: k.Nomor_Identitas || k.nomor_identitas || k.nik,
         tanggal_lahir: k.Tanggal_Lahir || k.tanggal_lahir,
         tempat_lahir: k.Tempat_Lahir || k.tempat_lahir,
-        alamat:   k.Alamat || k.alamat,
+        alamat: k.Alamat || k.alamat,
         tanggal_bergabung: k.Tanggal_bergabung || k.tanggal_bergabung,
         kode_karyawan: k.kode_karyawan || k.Kode_Karyawan,
         username: k.username || k.Username || '',
-        _source:  'api',
+        _source: 'api',
     };
 };
 
@@ -104,14 +104,14 @@ const StaffPage = () => {
         try {
             const token = user?.token || localStorage.getItem('token');
             const result = await karyawanAPI.getAll(token, page);
-            
+
             if (result.success && result.data) {
                 console.log('[StaffPage] API Result:', result.data);
-                
+
                 // Response structure: result.data.data.data
                 const paginatedData = result.data.data;
                 const employeeArray = paginatedData?.data || [];
-                
+
                 const mapped = employeeArray.map(mapKaryawanFromAPI);
                 setApiStaff(mapped);
                 setApiPagination(paginatedData);
@@ -154,28 +154,28 @@ const StaffPage = () => {
             (s.divisi && s.divisi.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (s.posisi && s.posisi.toLowerCase().includes(searchTerm.toLowerCase()))
         ),
-    [staffList, searchTerm]);
+        [staffList, searchTerm]);
 
     useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 
     // Pagination - jika API mode, gunakan server pagination
-    const indexOfLastItem  = currentPage * itemsPerPage;
+    const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentStaff     = isApiMode ? filteredStaff : filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages       = isApiMode
+    const currentStaff = isApiMode ? filteredStaff : filteredStaff.slice(indexOfFirstItem, indexOfLastItem);
+    const totalPages = isApiMode
         ? (apiPagination?.last_page || 1)
         : Math.ceil(filteredStaff.length / itemsPerPage);
-    const totalCount       = isApiMode
+    const totalCount = isApiMode
         ? (apiPagination?.total || filteredStaff.length)
         : filteredStaff.length;
 
     /* ── Handlers ── */
-    const handleOpenAdd  = () => { 
-        setEditingStaff(null);  
+    const handleOpenAdd = () => {
+        setEditingStaff(null);
         setModalMode('full');
-        setIsStaffModalOpen(true); 
+        setIsStaffModalOpen(true);
     };
-    
+
     const handleOpenEdit = async (staff) => {
         if (!isApiMode) {
             setEditingStaff(staff);
@@ -188,7 +188,7 @@ const StaffPage = () => {
             setIsLoading(true);
             const token = user?.token || localStorage.getItem('token');
             const result = await karyawanAPI.getById(token, staff.id);
-            
+
             if (result.success && result.data) {
                 setEditingStaff(mapKaryawanFromAPI(result.data));
             } else {
@@ -217,7 +217,7 @@ const StaffPage = () => {
             setIsLoading(true);
             const token = user?.token || localStorage.getItem('token');
             const result = await karyawanAPI.getById(token, staff.id);
-            
+
             if (result.success && result.data) {
                 setEditingStaff(mapKaryawanFromAPI(result.data));
             } else {
@@ -238,13 +238,13 @@ const StaffPage = () => {
         const isEdit = !!editingStaff;
 
         setConfirmConfig({
-            icon:        'save',
-            header:      isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
-            message:     isEdit ? 'Simpan perubahan data karyawan ini?' : 'Tambahkan data karyawan baru ini?',
+            icon: 'save',
+            header: isEdit ? 'Konfirmasi Simpan' : 'Konfirmasi Tambah',
+            message: isEdit ? 'Simpan perubahan data karyawan ini?' : 'Tambahkan data karyawan baru ini?',
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
             onAccept: async () => {
                 const token = user?.token || localStorage.getItem('token');
-                
+
                 if (isApiMode) {
                     // Pakai API Asli
                     setIsLoading(true);
@@ -259,9 +259,9 @@ const StaffPage = () => {
 
                             if (result.success) {
                                 showToast(
-                                    modalMode === 'credentials' 
-                                        ? 'Password berhasil direset' 
-                                        : 'Data karyawan berhasil diperbarui', 
+                                    modalMode === 'credentials'
+                                        ? 'Password berhasil direset'
+                                        : 'Data karyawan berhasil diperbarui',
                                     'success'
                                 );
                                 fetchKaryawan(currentPage);
@@ -291,7 +291,7 @@ const StaffPage = () => {
                         showToast('Karyawan baru berhasil ditambahkan (Mock)', 'success');
                     }
                 }
-                
+
                 setIsStaffModalOpen(false);
                 pendingSaveRef.current = null;
             },
@@ -305,13 +305,13 @@ const StaffPage = () => {
             setDetailStaff(staff);
             return;
         }
-        
+
         try {
             // Tampilkan loading dengan menggunakan global isLoading (bisa juga state terpisah)
             setIsLoading(true);
             const token = user?.token || localStorage.getItem('token');
             const result = await karyawanAPI.getById(token, staff.id);
-            
+
             if (result.success && result.data) {
                 setDetailStaff(mapKaryawanFromAPI(result.data));
             } else {
@@ -357,11 +357,10 @@ const StaffPage = () => {
                             {isReadOnly ? 'Data Karyawan' : 'Manajemen Karyawan'}
                         </h2>
                         {/* Badge sumber data */}
-                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                            isApiMode
+                        <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${isApiMode
                                 ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
                                 : 'bg-amber-50 text-amber-600 border border-amber-200'
-                        }`}>
+                            }`}>
                             {isApiMode
                                 ? <><Wifi className="w-3 h-3" /> Live API</>
                                 : <><WifiOff className="w-3 h-3" /> Mock Data</>}
@@ -411,149 +410,149 @@ const StaffPage = () => {
                         {/* Desktop */}
                         <div className="hidden lg:block overflow-x-auto scrollbar-hide">
                             <table className="w-full text-left border-collapse" style={{ minWidth: '860px' }}>
-                        <thead>
-                            <tr className="border-b border-primary/5 bg-gray-50/30">
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Nama Karyawan</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">No. Telpon</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Email</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Jabatan</th>
-                                <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Cabang</th>
-                                {!isReadOnly && (
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50 text-right">Aksi</th>
-                                )}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-primary/5">
+                                <thead>
+                                    <tr className="border-b border-primary/5 bg-gray-50/30">
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Nama Karyawan</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">No. Telpon</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Email</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Jabatan</th>
+                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Cabang</th>
+                                        {!isReadOnly && (
+                                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50 text-right">Aksi</th>
+                                        )}
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-primary/5">
+                                    {currentStaff.map((staff) => (
+                                        <tr
+                                            key={staff.id}
+                                            className="hover:bg-primary/[0.02] transition-colors cursor-pointer"
+                                            onClick={() => handleOpenDetail(staff)}
+                                        >
+                                            <td className="px-6 py-3.5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-md shadow-primary/20 flex-shrink-0">
+                                                        {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                                                    </div>
+                                                    <span className="text-sm font-semibold text-primary tracking-tight">{staff.name}</span>
+                                                </div>
+                                            </td>
+                                            <td className="px-6 py-3.5">
+                                                <span className="text-sm font-medium text-primary/70">{staff.phone}</span>
+                                            </td>
+                                            <td className="px-6 py-3.5">
+                                                <span className="text-sm font-medium text-primary/70">{staff.email}</span>
+                                            </td>
+                                            <td className="px-6 py-3.5">
+                                                <span className="text-sm font-medium text-primary/80">
+                                                    {staff.jabatan}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-3.5">
+                                                <span className="text-sm font-medium text-primary/70">{staff.cabang}</span>
+                                            </td>
+                                            {!isReadOnly && (
+                                                <td className="px-6 py-3.5 text-right">
+                                                    <div className="flex justify-end gap-1.5">
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
+                                                            className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
+                                                            title="Edit Profil & Username"
+                                                        >
+                                                            <Edit3 className="w-4 h-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => { e.stopPropagation(); handleOpenCredentials(staff); }}
+                                                            className="p-2.5 rounded-xl bg-amber-50 border border-amber-100 text-amber-500 hover:text-amber-600 hover:bg-amber-100 hover:shadow-md transition-all active:scale-95"
+                                                            title="Reset Password"
+                                                        >
+                                                            <Lock className="w-4 h-4" />
+                                                        </button>
+
+                                                    </div>
+                                                </td>
+                                            )}
+                                        </tr>
+                                    ))}
+                                    {currentStaff.length === 0 && (
+                                        <tr>
+                                            <td colSpan={isReadOnly ? 5 : 6}>
+                                                <EmptyState
+                                                    type="staff"
+                                                    title="Karyawan Tidak Ditemukan"
+                                                    description="Sistem tidak menemukan data karyawan yang sesuai dengan kriteria pencarian Anda. Pastikan nama atau jabatan yang Anda masukkan sudah benar."
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {/* Mobile Cards */}
+                        <div className="lg:hidden divide-y divide-primary/5">
                             {currentStaff.map((staff) => (
-                                <tr
-                                    key={staff.id}
-                                    className="hover:bg-primary/[0.02] transition-colors cursor-pointer"
-                                    onClick={() => handleOpenDetail(staff)}
-                                >
-                                    <td className="px-6 py-3.5">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-md shadow-primary/20 flex-shrink-0">
+                                <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => handleOpenDetail(staff)}>
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-secondary shadow-lg shadow-primary/20">
                                                 {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                                             </div>
-                                            <span className="text-sm font-semibold text-primary tracking-tight">{staff.name}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-3.5">
-                                        <span className="text-sm font-medium text-primary/70">{staff.phone}</span>
-                                    </td>
-                                    <td className="px-6 py-3.5">
-                                        <span className="text-sm font-medium text-primary/70">{staff.email}</span>
-                                    </td>
-                                    <td className="px-6 py-3.5">
-                                        <span className="text-sm font-medium text-primary/80">
-                                            {staff.jabatan}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-3.5">
-                                        <span className="text-sm font-medium text-primary/70">{staff.cabang}</span>
-                                    </td>
-                                    {!isReadOnly && (
-                                        <td className="px-6 py-3.5 text-right">
-                                            <div className="flex justify-end gap-1.5">
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
-                                                    className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95"
-                                                    title="Edit Profil & Username"
-                                                >
-                                                    <Edit3 className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={(e) => { e.stopPropagation(); handleOpenCredentials(staff); }}
-                                                    className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95"
-                                                    title="Reset Password"
-                                                >
-                                                    <Lock className="w-4 h-4" />
-                                                </button>
-
+                                            <div>
+                                                <h4 className="text-sm font-black text-primary tracking-tight">{staff.name}</h4>
+                                                <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{staff.kode_karyawan || staff.id}</p>
                                             </div>
-                                        </td>
+                                        </div>
+                                        <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[8px] font-black uppercase tracking-widest">
+                                            <Building2 className="w-3 h-3" />
+                                            {staff.cabang}
+                                        </span>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 gap-2 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
+                                        <div className="flex items-center gap-3 text-primary/60">
+                                            <ShieldCheck className="w-4 h-4 text-accent-gold" />
+                                            <span className="text-[11px] font-bold tracking-wide">
+                                                {staff.jabatan}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-primary/60">
+                                            <Mail className="w-4 h-4" />
+                                            <span className="text-[11px] font-bold">{staff.email}</span>
+                                        </div>
+                                        <div className="flex items-center gap-3 text-primary/60">
+                                            <Phone className="w-4 h-4" />
+                                            <span className="text-[11px] font-bold">{staff.phone}</span>
+                                        </div>
+                                    </div>
+
+                                    {!isReadOnly && (
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
+                                            >
+                                                <Edit3 className="w-3.5 h-3.5" /> Data Diri
+                                            </button>
+                                            <button
+                                                onClick={(e) => { e.stopPropagation(); handleOpenCredentials(staff); }}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-amber-50 border border-amber-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-amber-600 hover:bg-amber-500 hover:text-white transition-all active:scale-95 shadow-sm"
+                                            >
+                                                <Lock className="w-3.5 h-3.5" /> Akun
+                                            </button>
+
+                                        </div>
                                     )}
-                                </tr>
+                                </div>
                             ))}
                             {currentStaff.length === 0 && (
-                                <tr>
-                                    <td colSpan={isReadOnly ? 5 : 6}>
-                                        <EmptyState 
-                                            type="staff"
-                                            title="Karyawan Tidak Ditemukan"
-                                            description="Sistem tidak menemukan data karyawan yang sesuai dengan kriteria pencarian Anda. Pastikan nama atau jabatan yang Anda masukkan sudah benar."
-                                        />
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Mobile Cards */}
-                <div className="lg:hidden divide-y divide-primary/5">
-                    {currentStaff.map((staff) => (
-                        <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => handleOpenDetail(staff)}>
-                            <div className="flex justify-between items-start">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-secondary shadow-lg shadow-primary/20">
-                                        {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                                    </div>
-                                    <div>
-                                        <h4 className="text-sm font-black text-primary tracking-tight">{staff.name}</h4>
-                                        <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{staff.kode_karyawan || staff.id}</p>
-                                    </div>
-                                </div>
-                                <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[8px] font-black uppercase tracking-widest">
-                                    <Building2 className="w-3 h-3" />
-                                    {staff.cabang}
-                                </span>
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-2 bg-gray-50/50 p-4 rounded-2xl border border-primary/5">
-                                <div className="flex items-center gap-3 text-primary/60">
-                                    <ShieldCheck className="w-4 h-4 text-accent-gold" />
-                                    <span className="text-[11px] font-bold tracking-wide">
-                                        {staff.jabatan}
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-3 text-primary/60">
-                                    <Mail className="w-4 h-4" />
-                                    <span className="text-[11px] font-bold">{staff.email}</span>
-                                </div>
-                                <div className="flex items-center gap-3 text-primary/60">
-                                    <Phone className="w-4 h-4" />
-                                    <span className="text-[11px] font-bold">{staff.phone}</span>
-                                </div>
-                            </div>
-
-                            {!isReadOnly && (
-                                <div className="flex gap-3">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); handleOpenEdit(staff); }}
-                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
-                                    >
-                                        <Edit3 className="w-3.5 h-3.5" /> Data Diri
-                                    </button>
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); handleOpenCredentials(staff); }}
-                                        className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
-                                    >
-                                        <Lock className="w-3.5 h-3.5" /> Akun
-                                    </button>
-
-                                </div>
+                                <EmptyState
+                                    type="staff"
+                                    title="Karyawan Tidak Ditemukan"
+                                    description="Sistem tidak menemukan data karyawan yang sesuai dengan kriteria pencarian Anda."
+                                />
                             )}
                         </div>
-                    ))}
-                    {currentStaff.length === 0 && (
-                        <EmptyState 
-                            type="staff"
-                            title="Karyawan Tidak Ditemukan"
-                            description="Sistem tidak menemukan data karyawan yang sesuai dengan kriteria pencarian Anda."
-                        />
-                    )}
-                </div>
                     </>
                 )}
 

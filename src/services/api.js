@@ -11,7 +11,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : 'https://heidi-overloose-removably.ngrok-free.dev/api';
+const BASE_URL = isLocalhost ? '/api' : 'https://composite-footprint-overarch.ngrok-free.dev/api';
 export const STORAGE_URL = '/storage';
 // Note: We use a relative path to leverage the Vite proxy (which adds the ngrok-skip header)
 // Note: We use the full URL to ensure consistency, and we'll append the skip header via query param in the component.
@@ -1338,4 +1338,22 @@ export const treatmentAPI = {
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI };
+/* ─────────────────────────────────────────────────────────────
+   Activity Logs API
+───────────────────────────────────────────────────────────── */
+export const activityLogsAPI = {
+    getAll: async (token, page = 1, search = '') => {
+        try {
+            const queryParams = search ? `&search=${encodeURIComponent(search)}` : '';
+            const response = await fetch(`${BASE_URL}/activity-logs?page=${page}${queryParams}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            return { success: false, message: json.message || 'Gagal mengambil data log aktivitas' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI };
