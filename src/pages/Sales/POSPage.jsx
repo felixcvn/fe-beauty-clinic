@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User, X, FileText, Loader2, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
@@ -115,7 +116,7 @@ const POSPage = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
-    const categories = ['Semua', 'Obat', 'Treatment', 'Skincare', 'Racikan'];
+    const categories = ['Semua', 'Obat', 'Treatment', 'Skincare'];
 
     const customers = [
         { id: 'PAS-001', name: 'Siti Aminah', phone: '0812-3456-7890' },
@@ -152,8 +153,8 @@ const POSPage = () => {
     }, [apiTreatments, treatments]);
 
     const allProducts = useMemo(() => {
-        return [...activeProductsList, ...activeTreatmentsList, ...(racikans || [])];
-    }, [activeProductsList, activeTreatmentsList, racikans]);
+        return [...activeProductsList, ...activeTreatmentsList];
+    }, [activeProductsList, activeTreatmentsList]);
 
     const filteredProducts = allProducts.filter(p =>
         (activeCategory === 'Semua' || p.category === activeCategory) &&
@@ -408,7 +409,7 @@ const POSPage = () => {
     };
 
     return (
-        <div className="flex flex-col xl:flex-row min-h-[calc(100vh-90px)] xl:h-[calc(100vh-90px)] gap-6 animate-fade-in relative z-10 pb-24 xl:pb-0">
+        <div className="flex flex-col xl:flex-row min-h-[calc(100vh-150px)] xl:h-[calc(100vh-150px)] gap-6 animate-fade-in relative z-10 pb-24 xl:pb-0">
             {/* Left Side: Stok Selection */}
             <div className="flex-1 flex flex-col bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden min-h-0">
                 <div className="p-5 md:p-8 bg-secondary/10 border-b border-primary/5 flex items-center justify-between">
@@ -538,37 +539,7 @@ const POSPage = () => {
                                     </button>
                                 )}
 
-                                {hasFetchedRecord && detectedRacikan && (
-                                    <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col gap-3 animate-fade-in mt-1">
-                                        <div className="flex gap-2.5 items-start">
-                                            <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-                                            <div>
-                                                <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest leading-none mb-1.5">Resep Racikan Ditemukan</p>
-                                                <p className="text-xs text-amber-700 font-medium leading-relaxed">"{detectedRacikan}"</p>
-                                            </div>
-                                        </div>
-                                        {racikanSent ? (
-                                            <div className="flex flex-col gap-2">
-                                                <div className="w-full py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-emerald-600 bg-emerald-50 border border-emerald-200 text-center font-extrabold">
-                                                    Terkirim ke Apotek ✔
-                                                </div>
-                                                <button
-                                                    onClick={handleResetRacikan}
-                                                    className="w-full py-2 rounded-xl text-[8px] font-black uppercase tracking-widest text-red-500 bg-red-50 hover:bg-red-100 border border-red-100 transition-all active:scale-95 shadow-sm"
-                                                >
-                                                    Reset & Kirim Ulang 🔄
-                                                </button>
-                                            </div>
-                                        ) : (
-                                            <button
-                                                onClick={handleSendRacikanToApotek}
-                                                className="w-full py-2.5 rounded-xl text-[9px] font-black uppercase tracking-widest bg-amber-600 text-white border border-amber-600 hover:bg-amber-700 shadow-md hover:scale-[1.02] active:scale-95 transition-all duration-300"
-                                            >
-                                                Kirim Permintaan Racik ke Apotek
-                                            </button>
-                                        )}
-                                    </div>
-                                )}
+
                             </div>
                         ) : (
                             <div className="relative group">
@@ -717,6 +688,73 @@ const POSPage = () => {
                     </button>
                 </div>
             </div>
+
+            {/* Modal Popup: Notifikasi Resep Racikan (Fullscreen Portal) */}
+            {hasFetchedRecord && detectedRacikan && createPortal(
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-fade-in">
+                    {/* Exact Backdrop Match with ConfirmModal */}
+                    <div 
+                        className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+                        onClick={() => setDetectedRacikan(null)}
+                    />
+                    
+                    <div className="bg-white rounded-[2rem] w-full max-w-sm flex flex-col overflow-hidden shadow-2xl animate-scale-up relative z-10">
+                        {/* Header: Dark Green */}
+                        <div className="bg-[#0A2E1F] pt-12 pb-10 flex justify-center items-center relative">
+                            {/* Circle with Icon */}
+                            <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center border-4 border-[#0A2E1F] relative z-10">
+                                <div className="w-14 h-14 bg-white/20 rounded-full flex items-center justify-center">
+                                    <AlertCircle className="w-7 h-7 text-white" />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Content: White */}
+                        <div className="px-6 py-8 flex flex-col items-center text-center">
+                            <h3 className="text-xl font-bold text-[#0A2E1F] tracking-tight mb-2">Resep Racikan Ditemukan</h3>
+                            <p className="text-[13px] text-gray-500 font-medium mb-8">"{detectedRacikan}"</p>
+                            
+                            {racikanSent ? (
+                                <div className="flex flex-col w-full gap-3">
+                                    <div className="w-full py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider text-[#27AE60] bg-[#E8F8F5] border border-[#A9DFBF] text-center">
+                                        Terkirim ke Apotek ✔
+                                    </div>
+                                    <div className="flex w-full gap-3 mt-1">
+                                        <button 
+                                            onClick={() => setDetectedRacikan(null)}
+                                            className="flex-1 py-3.5 bg-gray-50 text-[#0A2E1F] font-bold rounded-2xl hover:bg-gray-100 transition-colors text-xs"
+                                        >
+                                            TUTUP
+                                        </button>
+                                        <button 
+                                            onClick={handleResetRacikan}
+                                            className="flex-1 py-3.5 border border-red-100 text-red-500 font-bold rounded-2xl hover:bg-red-50 transition-colors text-xs"
+                                        >
+                                            RESET
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex w-full gap-3">
+                                    <button 
+                                        onClick={() => setDetectedRacikan(null)}
+                                        className="flex-1 py-3.5 bg-gray-50 text-[#0A2E1F] font-bold rounded-2xl hover:bg-gray-100 transition-colors text-xs"
+                                    >
+                                        BATAL
+                                    </button>
+                                    <button 
+                                        onClick={handleSendRacikanToApotek}
+                                        className="flex-1 py-3.5 bg-[#0A2E1F] text-white font-bold rounded-2xl hover:bg-[#061c13] transition-colors text-xs shadow-lg shadow-[#0A2E1F]/20"
+                                    >
+                                        KIRIM APOTEK
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };
