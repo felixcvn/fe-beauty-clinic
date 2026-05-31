@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal, CheckCircle2, Clock, XCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
@@ -81,12 +81,19 @@ const SalesPage = () => {
         }
     };
 
-    const salesStats = [
-        { title: 'Total Sales', value: 'Rp 145.280.000', change: '+12.5%', trend: 'up', icon: ShoppingCart },
-        { title: 'Transactions', value: '1,240', change: '+8.2%', trend: 'up', icon: TrendingUp },
-        { title: 'Customers', value: '850', change: '+5.4%', trend: 'up', icon: Users },
-        { title: 'Stok Terjual', value: '3,120', change: '-2.1%', trend: 'down', icon: Package },
-    ];
+    const salesStats = useMemo(() => {
+        const totalSales = recentSales.reduce((sum, sale) => sum + (sale.raw?.total_keseluruhan ? Number(sale.raw.total_keseluruhan) : 0), 0);
+        const transactions = recentSales.length;
+        const uniqueCustomers = new Set(recentSales.map(sale => sale.raw?.data_pasien_id || sale.customer)).size;
+        const stokTerjual = recentSales.reduce((sum, sale) => sum + (sale.raw?.details?.reduce((qtySum, d) => qtySum + (d.qty || 0), 0) || 0), 0);
+
+        return [
+            { title: 'Total Penjualan', value: `Rp ${totalSales.toLocaleString('id-ID')}`, icon: ShoppingCart },
+            { title: 'Transaksi', value: transactions.toLocaleString('id-ID'), icon: TrendingUp },
+            { title: 'Pelanggan', value: uniqueCustomers.toLocaleString('id-ID'), icon: Users },
+            { title: 'Stok Terjual', value: stokTerjual.toLocaleString('id-ID'), icon: Package },
+        ];
+    }, [recentSales]);
 
     const filteredSales = recentSales.filter(sale => sale.customer.toLowerCase().includes(searchTerm.toLowerCase()) || sale.id.toLowerCase().includes(searchTerm.toLowerCase()));
 
