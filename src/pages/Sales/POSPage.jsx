@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
-import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI } from '../../services/api';
+import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI, stokRacikanAPI } from '../../services/api';
 
 const POSPage = () => {
     const navigate = useNavigate();
@@ -16,6 +16,7 @@ const POSPage = () => {
     const [apiPatients, setApiPatients] = useState([]);
     const [apiProducts, setApiProducts] = useState([]);
     const [apiTreatments, setApiTreatments] = useState([]);
+    const [apiRacikans, setApiRacikans] = useState([]);
     const [isFetchingData, setIsFetchingData] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('Semua');
@@ -39,10 +40,11 @@ const POSPage = () => {
             }
             setIsFetchingData(true);
             try {
-                const [resProducts, resPatients, resTreatments] = await Promise.all([
+                const [resProducts, resPatients, resTreatments, resRacikans] = await Promise.all([
                     stokProdukAPI.getAll(user.token),
                     pasienAPI.getAll(user.token, 1, 'per_page=100'),
-                    treatmentAPI.getAll(user.token)
+                    treatmentAPI.getAll(user.token),
+                    stokRacikanAPI.getAll(user.token)
                 ]);
 
                 if (resProducts.success && resProducts.data) {
@@ -78,6 +80,19 @@ const POSPage = () => {
                         price: Number(t.Harga || t.harga || t.price || 0),
                         stock: t.Jumlah_sesi || 99, // default virtual sessions
                         image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop'
+                    })));
+                }
+
+                if (resRacikans && resRacikans.success && resRacikans.data) {
+                    const responseData = resRacikans.data.data || resRacikans.data;
+                    const racikanArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    setApiRacikans(racikanArray.map(r => ({
+                        id: r.id ? `RCK-${r.id}` : String(r.id || ''),
+                        name: r.nama_obat_racik || r.name || 'Racikan Tanpa Nama',
+                        category: 'Racikan',
+                        price: Number(r.harga || r.price || 0),
+                        stock: 99, // Racikan stock is virtual/calculated
+                        image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=200&h=200&auto=format&fit=crop'
                     })));
                 }
             } catch (error) {
@@ -116,7 +131,7 @@ const POSPage = () => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
-    const categories = ['Semua', 'Obat', 'Treatment', 'Skincare'];
+    const categories = ['Semua', 'Obat', 'Treatment', 'Skincare', 'Racikan'];
 
     const customers = [
         { id: 'PAS-001', name: 'Siti Aminah', phone: '0812-3456-7890' },
@@ -153,8 +168,8 @@ const POSPage = () => {
     }, [apiTreatments, treatments]);
 
     const allProducts = useMemo(() => {
-        return [...activeProductsList, ...activeTreatmentsList];
-    }, [activeProductsList, activeTreatmentsList]);
+        return [...activeProductsList, ...activeTreatmentsList, ...apiRacikans];
+    }, [activeProductsList, activeTreatmentsList, apiRacikans]);
 
     const filteredProducts = allProducts.filter(p =>
         (activeCategory === 'Semua' || p.category === activeCategory) &&

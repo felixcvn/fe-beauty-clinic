@@ -23,13 +23,14 @@ const SalesPage = () => {
         if (res.success) {
             const formatted = res.data.map(t => {
                 const totalKeseluruhan = Number(t.total_keseluruhan || 0);
+                const totalWithPpn = totalKeseluruhan + (totalKeseluruhan * 0.11);
                 // Hitung PPN jika dari backend belum ada kolom pajak (misalnya kita anggap total sudah include PPN atau belum, tapi kita ikuti format lama)
                 // Disini kita format tampilan amount
                 return {
                     id: t.order_id || `INV-${t.id}`,
                     customer: t.pasien ? t.pasien.Nama_pasien : (t.nama_pasien_distributor || 'Umum'),
                     product: t.details && t.details.length > 0 ? t.details.map(d => d.nama_item).join(', ') : 'Layanan Kesehatan',
-                    amount: `Rp ${totalKeseluruhan.toLocaleString('id-ID')}`,
+                    amount: `Rp ${totalWithPpn.toLocaleString('id-ID')}`,
                     status: t.status || 'Selesai',
                     date: t.tanggal_transaksi || t.created_at.split('T')[0],
                     raw: t // simpan raw data untuk detail
@@ -82,7 +83,11 @@ const SalesPage = () => {
     };
 
     const salesStats = useMemo(() => {
-        const totalSales = recentSales.reduce((sum, sale) => sum + (sale.raw?.total_keseluruhan ? Number(sale.raw.total_keseluruhan) : 0), 0);
+        const totalSales = recentSales.reduce((sum, sale) => {
+            const rawTotal = sale.raw?.total_keseluruhan ? Number(sale.raw.total_keseluruhan) : 0;
+            const rawTotalWithPpn = rawTotal + (rawTotal * 0.11);
+            return sum + rawTotalWithPpn;
+        }, 0);
         const transactions = recentSales.length;
         const uniqueCustomers = new Set(recentSales.map(sale => sale.raw?.data_pasien_id || sale.customer)).size;
         const stokTerjual = recentSales.reduce((sum, sale) => sum + (sale.raw?.details?.reduce((qtySum, d) => qtySum + (d.qty || 0), 0) || 0), 0);

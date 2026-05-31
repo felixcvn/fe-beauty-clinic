@@ -15,7 +15,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
     ];
 
     const subtotal = items.reduce((sum, item) => sum + (item.rawPrice * item.qty), 0);
-    const tax = 0; // Jika ada pajak dari backend, tambahkan disini
+    const tax = subtotal * 0.11; 
     const finalTotal = subtotal + tax;
 
     const getStatusStyle = (status) => {
@@ -64,7 +64,8 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
         // Nama pasien
         const customer = transaction.customer ? transaction.customer.substring(0, 20) : 'Umum';
         receiptText += `CUST  : ${customer}\n`;
-        receiptText += `KASIR: FITRI - CS CAB. JEMBER\n`;
+        const cashierName = transaction.raw?.karyawan?.NamaLengkap_karyawan || transaction.raw?.karyawan?.nama_lengkap || transaction.raw?.karyawan?.name || 'ADMIN';
+        receiptText += `KASIR: ${cashierName.toUpperCase()}\n`;
         receiptText += line + '\n';
 
         // Items
@@ -75,7 +76,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
         receiptText += line + '\n';
         receiptText += leftRightText('Subtotal', `Rp ${subtotal.toLocaleString('id-ID')}`) + '\n';
-        receiptText += leftRightText('PPN (0%)', 'Rp 0') + '\n';
+        receiptText += leftRightText('PPN (11%)', `Rp ${tax.toLocaleString('id-ID')}`) + '\n';
         receiptText += line + '\n';
         receiptText += leftRightText('TOTAL', `Rp ${finalTotal.toLocaleString('id-ID')}`) + '\n';
         receiptText += line + '\n';
@@ -156,11 +157,13 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                             <div className="space-y-3">
                                 <div className="flex justify-between items-center text-[10px] font-bold">
                                     <span className="text-primary/30 uppercase tracking-widest">Tanggal</span>
-                                    <span className="text-primary font-black tracking-tight bg-secondary/30 px-3 py-1 rounded-lg">{transaction.date}</span>
+                                    <span className="text-primary font-black tracking-tight bg-secondary/30 px-3 py-1 rounded-lg text-sm">{transaction.date}</span>
                                 </div>
                                 <div className="flex justify-between items-center text-[10px] font-bold">
                                     <span className="text-primary/30 uppercase tracking-widest">Jam Transaksi</span>
-                                    <span className="text-primary font-black tracking-tight bg-secondary/30 px-3 py-1 rounded-lg">14:30 WIB</span>
+                                    <span className="text-primary font-black tracking-tight bg-secondary/30 px-3 py-1 rounded-lg text-sm">
+                                        {transaction.raw?.created_at ? new Date(transaction.raw.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : '14:30 WIB'}
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -185,9 +188,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                                         <tr key={idx} className="text-xs text-primary group hover:bg-secondary/10 transition-colors">
                                             <td className="px-8 py-5 font-black uppercase tracking-tight">{item.name}</td>
                                             <td className="px-8 py-5 text-center">
-                                                <span className="inline-block px-2 py-0.5 rounded-lg bg-primary/5 text-primary/60 text-[10px]">{item.qty}x</span>
+                                                <span className="inline-block px-3 py-1 rounded-lg bg-primary/5 text-primary/80 font-black text-sm">{item.qty}x</span>
                                             </td>
-                                            <td className="px-8 py-5 text-right font-black italic">{item.price}</td>
+                                            <td className="px-8 py-5 text-right font-black italic text-sm">{item.price}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -201,13 +204,13 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                             <Hash className="w-24 h-24" />
                         </div>
                         <div className="relative z-10 space-y-5">
-                             <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] opacity-50">
-                                <span>Subtotal</span>
-                                <span>Rp {subtotal.toLocaleString('id-ID')}</span>
+                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
+                                <span className="opacity-50">Subtotal</span>
+                                <span className="text-sm italic">Rp {subtotal.toLocaleString('id-ID')}</span>
                              </div>
-                             <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] opacity-50">
-                                <span>Pajak PPN (0%)</span>
-                                <span>Rp 0</span>
+                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
+                                <span className="opacity-50">Pajak PPN (11%)</span>
+                                <span className="text-sm italic">Rp {tax.toLocaleString('id-ID')}</span>
                              </div>
                              <div className="h-px bg-white/10 my-6" />
                              <div className="flex justify-between items-center">
@@ -223,7 +226,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30 px-2">
                         <div className="flex items-center gap-6">
                             <div className="flex items-center gap-2"><CreditCard className="w-3 h-3 text-primary/20" /> Metode: <span className="text-primary font-black opacity-80">Tunai</span></div>
-                            <div className="flex items-center gap-2"><Clock className="w-3 h-3 text-primary/20" /> Kasir: <span className="text-primary font-black opacity-80 uppercase">{transaction.raw?.karyawan?.nama_lengkap || 'Admin'}</span></div>
+                            <div className="flex items-center gap-2"><Clock className="w-3 h-3 text-primary/20" /> Kasir: <span className="text-primary font-black opacity-80 uppercase">{transaction.raw?.karyawan?.NamaLengkap_karyawan || transaction.raw?.karyawan?.nama_lengkap || transaction.raw?.karyawan?.name || 'Admin'}</span></div>
                         </div>
                     </div>
                 </div>
