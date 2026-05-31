@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
-import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI } from '../../services/api';
+import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI } from '../../services/api';
 
 const POSPage = () => {
     const navigate = useNavigate();
@@ -225,7 +225,7 @@ const POSPage = () => {
         setIsPromoDropdownOpen(false);
     };
 
-    const handleCheckout = () => {
+    const handleCheckout = async () => {
         if (cart.length === 0) {
             showToast('Keranjang masih kosong!', 'error');
             return;
@@ -236,16 +236,32 @@ const POSPage = () => {
         }
         setIsProcessing(true);
 
-        setTimeout(() => {
+        const payload = {
+            data_pasien_id: String(selectedCustomer.id).startsWith('PAS-') ? null : selectedCustomer.id, // Jika mock ID, kirim null
+            nama_pasien_distributor: selectedCustomer.name,
+            tanggal_transaksi: new Date().toISOString().split('T')[0],
+            catatan_pesanan: '',
+            details: cart.map(item => ({
+                item_type: item.type === 'treatment' ? 'Treatment' : (item.type === 'racikan' ? 'StokRacikan' : 'StokProduk'),
+                item_id: String(item.id).replace(/[^0-9]/g, '') || 1, // Jika ID mock seperti PRD-001, ambil angkanya saja
+                qty: item.quantity
+            }))
+        };
+
+        const res = await transaksiAPI.create(user?.token, payload);
+        
+        if (res.success) {
             showToast('Transaksi Berhasil Disimpan!', 'success');
             setCart([]);
             setSelectedCustomer(null);
             setHasFetchedRecord(false);
             setDetectedRacikan(null);
             setRacikanSent(false);
-            setIsProcessing(false);
             navigate('/sales');
-        }, 1500);
+        } else {
+            showToast(res.message || 'Gagal menyimpan transaksi', 'error');
+        }
+        setIsProcessing(false);
     };
 
     const handleFetchMedicalRecord = async () => {
@@ -371,18 +387,13 @@ const POSPage = () => {
         const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.status === 'Pending');
         const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.status === 'Selesai');
 
-        if (selectedCustomer?.id === 'PAS-002') {
-            if (isProcessed) {
-                // Jika sudah diproses apoteker, banner tidak dimunculkan lagi
-                setDetectedRacikan(null);
-                setRacikanSent(false);
-            } else {
-                setDetectedRacikan("Cream Malam Retinol 0.1% + Moisturizer Oat");
-                setRacikanSent(isAlreadySent);
-            }
-        } else {
+        if (isProcessed) {
+            // Jika sudah diproses apoteker, banner tidak dimunculkan lagi
             setDetectedRacikan(null);
             setRacikanSent(false);
+        } else {
+            setDetectedRacikan("Cream Malam Retinol 0.1% + Moisturizer Oat");
+            setRacikanSent(isAlreadySent);
         }
 
         setHasFetchedRecord(true);
@@ -538,6 +549,8 @@ const POSPage = () => {
                                         </span>
                                     </button>
                                 )}
+
+
 
 
                             </div>

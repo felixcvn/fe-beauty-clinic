@@ -11,14 +11,23 @@ import ConfirmModal from './ConfirmModal';
 
 const DEFAULT_SLOTS = [
     { time: '08:00', active: true },
+    { time: '08:30', active: true },
     { time: '09:00', active: true },
+    { time: '09:30', active: true },
     { time: '10:00', active: true },
+    { time: '10:30', active: true },
     { time: '11:00', active: true },
+    { time: '11:30', active: true },
     { time: '12:00', active: true },
+    { time: '12:30', active: true },
     { time: '13:00', active: true },
+    { time: '13:30', active: true },
     { time: '14:00', active: true },
+    { time: '14:30', active: true },
     { time: '15:00', active: true },
+    { time: '15:30', active: true },
     { time: '16:00', active: true },
+    { time: '16:30', active: true },
     { time: '17:00', active: true }
 ];
 
@@ -37,7 +46,16 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
             try {
                 const parsed = JSON.parse(saved);
                 if (Array.isArray(parsed)) {
-                    setAvailableSlots(parsed.filter(slot => slot.time <= '17:00'));
+                    const filtered = parsed.filter(slot => slot.time <= '17:00');
+                    if (filtered.length !== DEFAULT_SLOTS.length) {
+                        const merged = DEFAULT_SLOTS.map(defSlot => {
+                            const found = filtered.find(s => s.time === defSlot.time);
+                            return found ? { ...defSlot, active: found.active } : defSlot;
+                        });
+                        setAvailableSlots(merged);
+                    } else {
+                        setAvailableSlots(filtered);
+                    }
                 } else {
                     setAvailableSlots(DEFAULT_SLOTS);
                 }
@@ -111,7 +129,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                         ...prev, 
                         patients: pData.filter(p => p).map(p => ({ 
                             value: String(p.id), 
-                            label: String(p.Nama_pasien || p.nama_pasien || p.namaLengkap || `Pasien ${p.id}`) + ` (${p.no_RM || 'No RM -'})`,
+                            label: String(p.Nama_pasien || p.nama_pasien || p.namaLengkap || `Pasien ${p.id}`) + (p.kec && p.kec.name ? ` - ${p.kec.name}` : ''),
                             name: p.Nama_pasien || p.nama_pasien || p.namaLengkap || '',
                             phone: p.no_Telp || p.no_telp || ''
                         })) 

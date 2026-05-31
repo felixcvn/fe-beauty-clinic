@@ -1356,4 +1356,55 @@ export const activityLogsAPI = {
     }
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI };
+export const transaksiAPI = {
+    getAll: async (token, status = '') => {
+        try {
+            const queryParams = status ? `?status=${encodeURIComponent(status)}` : '';
+            const response = await fetch(`${BASE_URL}/transaksi${queryParams}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data };
+            return { success: false, message: json.message || 'Gagal mengambil data transaksi' };
+        } catch (error) {
+            console.error('[API] Get all transaksi error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+    getById: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/transaksi/${id}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data };
+            return { success: false, message: json.message || 'Gagal mengambil detail transaksi' };
+        } catch (error) {
+            console.error('[API] Get transaksi by id error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+    create: async (token, data) => {
+        try {
+            const response = await fetch(`${BASE_URL}/transaksi`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(data),
+            });
+            const json = await response.json();
+            if (response.ok || response.status === 201) return { success: true, data: json.data, message: json.message };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal membuat transaksi' };
+        } catch (error) {
+            console.error('[API] Create transaksi error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI };

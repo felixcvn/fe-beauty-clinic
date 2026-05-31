@@ -5,11 +5,18 @@ import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, 
 const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
     if (!isOpen || !transaction) return null;
 
-    // Detailed mock items for the receipt view
-    const items = [
-        { name: transaction.product || 'Layanan Kesehatan', qty: 1, price: transaction.amount || '0' },
-        { name: 'Biaya Administrasi', qty: 1, price: 'Rp 10.000' },
+    const items = transaction.raw?.details ? transaction.raw.details.map(d => ({
+        name: d.nama_item,
+        qty: d.qty,
+        price: `Rp ${Number(d.harga).toLocaleString('id-ID')}`,
+        rawPrice: Number(d.harga)
+    })) : [
+        { name: transaction.product || 'Layanan Kesehatan', qty: 1, price: transaction.amount || '0', rawPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')) }
     ];
+
+    const subtotal = items.reduce((sum, item) => sum + (item.rawPrice * item.qty), 0);
+    const tax = 0; // Jika ada pajak dari backend, tambahkan disini
+    const finalTotal = subtotal + tax;
 
     const getStatusStyle = (status) => {
         switch (status) {
@@ -67,10 +74,10 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
         });
 
         receiptText += line + '\n';
-        receiptText += leftRightText('Subtotal', transaction.amount || 'Rp 450.000') + '\n';
-        receiptText += leftRightText('PPN (11%)', 'Rp 49.500') + '\n';
+        receiptText += leftRightText('Subtotal', `Rp ${subtotal.toLocaleString('id-ID')}`) + '\n';
+        receiptText += leftRightText('PPN (0%)', 'Rp 0') + '\n';
         receiptText += line + '\n';
-        receiptText += leftRightText('TOTAL', 'Rp 550.000') + '\n';
+        receiptText += leftRightText('TOTAL', `Rp ${finalTotal.toLocaleString('id-ID')}`) + '\n';
         receiptText += line + '\n';
         
         // Footer
@@ -196,17 +203,17 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                         <div className="relative z-10 space-y-5">
                              <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] opacity-50">
                                 <span>Subtotal</span>
-                                <span>{transaction.amount}</span>
+                                <span>Rp {subtotal.toLocaleString('id-ID')}</span>
                              </div>
                              <div className="flex justify-between text-[10px] font-black uppercase tracking-[0.2em] opacity-50">
-                                <span>Pajak PPN (11%)</span>
-                                <span>Rp 49.500</span>
+                                <span>Pajak PPN (0%)</span>
+                                <span>Rp 0</span>
                              </div>
                              <div className="h-px bg-white/10 my-6" />
                              <div className="flex justify-between items-center">
                                 <div className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Total Tagihan</div>
                                 <div className="text-3xl font-black tracking-tighter italic text-secondary-light">
-                                    Rp 550.000
+                                    Rp {finalTotal.toLocaleString('id-ID')}
                                 </div>
                              </div>
                         </div>
@@ -215,8 +222,8 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                     {/* Footer Info Metadata */}
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30 px-2">
                         <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2"><CreditCard className="w-3 h-3 text-primary/20" /> Metode: <span className="text-primary font-black opacity-80">E-Wallet (OVO)</span></div>
-                            <div className="flex items-center gap-2"><Clock className="w-3 h-3 text-primary/20" /> Kasir: <span className="text-primary font-black opacity-80 uppercase">Fitri - CS Cab. Jember</span></div>
+                            <div className="flex items-center gap-2"><CreditCard className="w-3 h-3 text-primary/20" /> Metode: <span className="text-primary font-black opacity-80">Tunai</span></div>
+                            <div className="flex items-center gap-2"><Clock className="w-3 h-3 text-primary/20" /> Kasir: <span className="text-primary font-black opacity-80 uppercase">{transaction.raw?.karyawan?.nama_lengkap || 'Admin'}</span></div>
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
+import { useAuth } from '../../context/AuthContext';
+import { transaksiAPI } from '../../services/api';
 
 const SalesPage = () => {
     const navigate = useNavigate();
@@ -12,11 +14,37 @@ const SalesPage = () => {
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-    // Simulate loading
+    const { user } = useAuth();
+    const [recentSales, setRecentSales] = useState([]);
+
+    const fetchTransactions = async () => {
+        setIsLoading(true);
+        const res = await transaksiAPI.getAll(user?.token);
+        if (res.success) {
+            const formatted = res.data.map(t => {
+                const totalKeseluruhan = Number(t.total_keseluruhan || 0);
+                // Hitung PPN jika dari backend belum ada kolom pajak (misalnya kita anggap total sudah include PPN atau belum, tapi kita ikuti format lama)
+                // Disini kita format tampilan amount
+                return {
+                    id: t.order_id || `INV-${t.id}`,
+                    customer: t.pasien ? t.pasien.Nama_pasien : (t.nama_pasien_distributor || 'Umum'),
+                    product: t.details && t.details.length > 0 ? t.details.map(d => d.nama_item).join(', ') : 'Layanan Kesehatan',
+                    amount: `Rp ${totalKeseluruhan.toLocaleString('id-ID')}`,
+                    status: t.status || 'Selesai',
+                    date: t.tanggal_transaksi || t.created_at.split('T')[0],
+                    raw: t // simpan raw data untuk detail
+                };
+            });
+            setRecentSales(formatted);
+        }
+        setIsLoading(false);
+    };
+
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
-    }, []);
+        if (user?.token) {
+            fetchTransactions();
+        }
+    }, [user?.token]);
 
     const handleOpenDetail = (transaction) => {
         setSelectedTransaction(transaction);
@@ -28,6 +56,7 @@ const SalesPage = () => {
             case 'selesai':
                 return 'bg-green-100 text-green-700 border-green-200';
             case 'menunggu':
+            case 'pending':
                 return 'bg-amber-100 text-amber-700 border-amber-200';
             case 'cancelled':
             case 'dibatalkan':
@@ -42,6 +71,7 @@ const SalesPage = () => {
             case 'selesai':
                 return <CheckCircle2 className="w-3 h-3" />;
             case 'menunggu':
+            case 'pending':
                 return <Clock className="w-3 h-3" />;
             case 'cancelled':
             case 'dibatalkan':
@@ -50,24 +80,6 @@ const SalesPage = () => {
                 return null;
         }
     };
-
-    const [recentSales, setRecentSales] = useState([
-        { id: 'INV-1001', customer: 'Siti Aminah', product: 'Acne Treatment Pack', amount: 'Rp 450.000', status: 'Selesai', date: '2024-02-08' },
-        { id: 'INV-1002', customer: 'Budi Santoso', product: 'Laser Therapy Session', amount: 'Rp 1.200.000', status: 'Menunggu', date: '2024-02-08' },
-        { id: 'INV-1003', customer: 'Dewi Lestari', product: 'Chemical Peel', amount: 'Rp 350.000', status: 'Selesai', date: '2024-02-07' },
-        { id: 'INV-1004', customer: 'Ahmad Fauzi', product: 'Skin Glow Kit', amount: 'Rp 850.000', status: 'Selesai', date: '2024-02-07' },
-        { id: 'INV-1005', customer: 'Rina Wijaya', product: 'Microdermabrasion', amount: 'Rp 600.000', status: 'Cancelled', date: '2024-02-06' },
-        { id: 'INV-1006', customer: 'Dian Permata', product: 'Sunscreen Gel SPF 50', amount: 'Rp 150.000', status: 'Selesai', date: '2024-02-06' },
-        { id: 'INV-1007', customer: 'Kiki Amalia', product: 'Night Cream Retinol', amount: 'Rp 250.000', status: 'Selesai', date: '2024-02-05' },
-        { id: 'INV-1008', customer: 'Farhan Rizki', product: 'Acne Extraction', amount: 'Rp 250.000', status: 'Menunggu', date: '2024-02-05' },
-        { id: 'INV-1009', customer: 'Gita Savitri', product: 'Botox Injection', amount: 'Rp 2.500.000', status: 'Selesai', date: '2024-02-04' },
-        { id: 'INV-1010', customer: 'Hasan Basri', product: 'Vitamin C Serum', amount: 'Rp 320.000', status: 'Selesai', date: '2024-02-04' },
-        { id: 'INV-1011', customer: 'Indah Kusuma', product: 'Facial Whitening', amount: 'Rp 400.000', status: 'Selesai', date: '2024-02-03' },
-        { id: 'INV-1012', customer: 'Joko Anwar', product: 'Moisturizer Ceramide', amount: 'Rp 180.000', status: 'Cancelled', date: '2024-02-03' },
-        { id: 'INV-1013', customer: 'Kartika Putri', product: 'Skin Rejuvenation Therapy', amount: 'Rp 800.000', status: 'Selesai', date: '2024-02-02' },
-        { id: 'INV-1014', customer: 'Lestari Ayu', product: 'Antibacterial Soap', amount: 'Rp 35.000', status: 'Selesai', date: '2024-02-02' },
-        { id: 'INV-1015', customer: 'Mirza Ghulam', product: 'Toner BHA/AHA', amount: 'Rp 195.000', status: 'Menunggu', date: '2024-02-01' },
-    ]);
 
     const salesStats = [
         { title: 'Total Sales', value: 'Rp 145.280.000', change: '+12.5%', trend: 'up', icon: ShoppingCart },
