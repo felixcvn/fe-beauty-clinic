@@ -187,7 +187,7 @@ const SalesPage = () => {
                                 <th className="px-4 py-3 text-primary/80">ID Invoice</th>
                                 <th className="px-4 py-3 text-primary/80">Konsumen</th>
                                 <th className="px-4 py-3 text-primary/80">Stok/Layanan</th>
-                                <th className="px-4 py-3 text-primary/80">Total</th>
+                                <th className="px-4 py-3 text-primary/80 whitespace-nowrap">Total</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
                                 <th className="px-4 py-3 text-primary/80">Tanggal</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Aksi</th>
@@ -205,16 +205,13 @@ const SalesPage = () => {
                                     </td>
                                     <td className="px-4 py-2">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-9 h-9 rounded-xl bg-primary/5 border border-primary/5 flex items-center justify-center text-[10px] font-bold text-primary shadow-sm">
-                                                {sale.customer.split(' ').map(n => n[0]).join('')}
-                                            </div>
                                             <span className="text-sm font-medium text-primary">{sale.customer}</span>
                                         </div>
                                     </td>
                                     <td className="px-4 py-2">
                                         <span className="text-sm font-medium text-primary/80">{sale.product}</span>
                                     </td>
-                                    <td className="px-4 py-2">
+                                    <td className="px-4 py-2 whitespace-nowrap">
                                         <span className="text-sm font-medium text-primary">{sale.amount}</span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
@@ -249,9 +246,6 @@ const SalesPage = () => {
                         <div key={sale.id} className="p-6 border-b border-primary/5 last:border-0 flex flex-col gap-5">
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-[10px] font-black text-primary border border-primary/5">
-                                        {sale.customer.split(' ').map(n => n[0]).join('')}
-                                    </div>
                                     <div>
                                         <p className="text-xs font-black text-primary tracking-tight">{sale.customer}</p>
                                         <p className="text-[9px] font-bold text-primary/30 uppercase tracking-widest">{sale.id}</p>
