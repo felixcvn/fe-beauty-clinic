@@ -46,6 +46,7 @@ const ApotekerDashboard       = lazy(() => import('./pages/Warehouse/ApotekerDas
 const ItemManagementPage      = lazy(() => import('./pages/Warehouse/ItemManagementPage'));
 const ApotekerInventoryPage   = lazy(() => import('./pages/Warehouse/ApotekerInventoryPage'));
 const SuperAdminInventoryPage = lazy(() => import('./pages/Warehouse/SuperAdminInventoryPage'));
+const WarehouseTransactionsPage = lazy(() => import('./pages/Warehouse/WarehouseTransactionsPage'));
 
 // Others
 const PromoManagementPage = lazy(() => import('./pages/Promos/PromoManagementPage'));
@@ -167,6 +168,7 @@ function App() {
                                                     <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
                                                     <Route path="/activity-logs" element={<RoleProtectedRoute><ActivityLogPage /></RoleProtectedRoute>} />
                                                     <Route path="/notifications" element={<RoleProtectedRoute><NotificationsPage /></RoleProtectedRoute>} />
+                                                    <Route path="/warehouse-transactions" element={<RoleProtectedRoute><WarehouseTransactionsPage /></RoleProtectedRoute>} />
                                                     <Route path="/management" element={<RoleProtectedRoute><ItemManagementPage /></RoleProtectedRoute>} />
                                                     <Route path="/cs-products" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="product" fixedTitle="Stok" /></RoleProtectedRoute>} />
                                                     <Route path="/apotek-inventory" element={<RoleProtectedRoute><ApotekerInventoryPage /></RoleProtectedRoute>} />

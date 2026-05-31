@@ -1,22 +1,83 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, ArrowRight } from 'lucide-react';
+import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, ArrowRight, CheckCircle2, Minus, Plus, Trash2 } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { transaksiAPI, stokProdukAPI } from '../../services/api';
+import { useToast } from '../../context/ToastContext';
 
-const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
+const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess }) => {
+    const { user } = useAuth();
+    const { showToast } = useToast();
+
     if (!isOpen || !transaction) return null;
 
-    const items = transaction.raw?.details ? transaction.raw.details.map(d => ({
-        name: d.nama_item,
-        qty: d.qty,
-        price: `Rp ${Number(d.harga).toLocaleString('id-ID')}`,
-        rawPrice: Number(d.harga)
-    })) : [
-        { name: transaction.product || 'Layanan Kesehatan', qty: 1, price: transaction.amount || '0', rawPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')) }
-    ];
+    const isGudang = user?.role?.toLowerCase() === 'gudang umum' && transaction.status === 'Pending';
+    
+    const [editableItems, setEditableItems] = React.useState([]);
+    const [products, setProducts] = React.useState([]);
 
-    const subtotal = items.reduce((sum, item) => sum + (item.rawPrice * item.qty), 0);
-    const tax = subtotal * 0.11; 
+    React.useEffect(() => {
+        if (isGudang && user?.token) {
+            stokProdukAPI.getAll(user.token).then(res => {
+                if (res.success) {
+                    setProducts(res.data);
+                }
+            });
+        }
+    }, [isGudang, user?.token]);
+
+    React.useEffect(() => {
+        if (isOpen && transaction) {
+            const initialItems = transaction.raw?.details ? transaction.raw.details.map(d => ({
+                id: d.id,
+                item_id: d.itemable_id,
+                item_type: d.itemable_type,
+                name: d.nama_item,
+                qty: d.qty,
+                rawPrice: Number(d.harga || d.harga_satuan || 0),
+                rawDetail: d
+            })) : [
+                { id: 'fallback', item_id: null, name: transaction.product || 'Layanan Kesehatan', qty: 1, rawPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')) }
+            ];
+            setEditableItems(initialItems);
+        }
+    }, [isOpen, transaction]);
+
+    const handleQtyChange = (id, delta) => {
+        setEditableItems(prev => prev.map(item => {
+            if (item.id === id) {
+                const newQty = Math.max(1, item.qty + delta);
+                return { ...item, qty: newQty };
+            }
+            return item;
+        }));
+    };
+
+    const handleProductChange = (id, newProductId) => {
+        const product = products.find(p => String(p.id) === String(newProductId));
+        if (!product) return;
+
+        setEditableItems(prev => prev.map(item => {
+            if (item.id === id) {
+                return {
+                    ...item,
+                    item_id: product.id,
+                    name: product.Nama_produk || product.nama_produk,
+                    rawPrice: Number(product.Harga || product.harga || 0)
+                };
+            }
+            return item;
+        }));
+    };
+
+    const handleRemoveItem = (id) => {
+        setEditableItems(prev => prev.filter(item => item.id !== id));
+    };
+
+    const subtotal = editableItems.reduce((sum, item) => sum + (item.rawPrice * item.qty), 0);
+    const tax = subtotal * 0.11; // Restore tax for UI 
     const finalTotal = subtotal + tax;
+
 
     const getStatusStyle = (status) => {
         switch (status) {
@@ -184,15 +245,64 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5 font-bold">
-                                    {items.map((item, idx) => (
-                                        <tr key={idx} className="text-xs text-primary group hover:bg-secondary/10 transition-colors">
-                                            <td className="px-8 py-5 font-black uppercase tracking-tight">{item.name}</td>
-                                            <td className="px-8 py-5 text-center">
-                                                <span className="inline-block px-3 py-1 rounded-lg bg-primary/5 text-primary/80 font-black text-sm">{item.qty}x</span>
+                                    {editableItems.map((item, idx) => (
+                                        <tr key={item.id || idx} className="text-xs text-primary group hover:bg-secondary/10 transition-colors">
+                                            <td className="px-8 py-5 font-black uppercase tracking-tight">
+                                                {isGudang && item.item_type === 'App\\Models\\StokProduk' ? (
+                                                    <select 
+                                                        value={item.item_id || ''}
+                                                        onChange={(e) => handleProductChange(item.id, e.target.value)}
+                                                        className="w-full max-w-[200px] bg-primary/5 border border-primary/10 rounded-lg p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
+                                                    >
+                                                        <option value="" disabled>Pilih Produk</option>
+                                                        {products.map(p => (
+                                                            <option key={p.id} value={p.id}>{p.Nama_produk}</option>
+                                                        ))}
+                                                    </select>
+                                                ) : (
+                                                    item.name
+                                                )}
                                             </td>
-                                            <td className="px-8 py-5 text-right font-black italic text-sm">{item.price}</td>
+                                            <td className="px-8 py-5 text-center">
+                                                {isGudang ? (
+                                                    <div className="flex items-center justify-center gap-2">
+                                                        <button 
+                                                            onClick={() => handleQtyChange(item.id, -1)}
+                                                            className="w-6 h-6 rounded-md bg-primary/5 hover:bg-primary/10 text-primary flex items-center justify-center transition-colors">
+                                                            <Minus className="w-3 h-3" />
+                                                        </button>
+                                                        <span className="w-8 text-center font-black text-sm">{item.qty}</span>
+                                                        <button 
+                                                            onClick={() => handleQtyChange(item.id, 1)}
+                                                            className="w-6 h-6 rounded-md bg-primary/5 hover:bg-primary/10 text-primary flex items-center justify-center transition-colors">
+                                                            <Plus className="w-3 h-3" />
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <span className="inline-block px-3 py-1 rounded-lg bg-primary/5 text-primary/80 font-black text-sm">{item.qty}x</span>
+                                                )}
+                                            </td>
+                                            <td className="px-8 py-5 text-right font-black italic text-sm">
+                                                <div className="flex items-center justify-end gap-4">
+                                                    <span>{`Rp ${(item.rawPrice * item.qty).toLocaleString('id-ID')}`}</span>
+                                                    {isGudang && (
+                                                        <button 
+                                                            onClick={() => handleRemoveItem(item.id)}
+                                                            className="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                                            <Trash2 className="w-4 h-4" />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
                                         </tr>
                                     ))}
+                                    {editableItems.length === 0 && (
+                                        <tr>
+                                            <td colSpan="3" className="px-8 py-10 text-center text-primary/40 font-bold text-sm">
+                                                Semua item telah dihapus dari pesanan ini
+                                            </td>
+                                        </tr>
+                                    )}
                                 </tbody>
                             </table>
                         </div>
@@ -233,13 +343,48 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction }) => {
 
                 {/* Bottom Actions */}
                 <div className="p-8 bg-white border-t border-primary/5 flex gap-4 shrink-0">
-                    <button 
-                        onClick={generateThermalReceipt}
-                        className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
-                    >
-                        <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        <span>Cetak Struk Resmi</span>
-                    </button>
+                    {user?.role?.toLowerCase() === 'gudang umum' ? (
+                        transaction.status === 'Pending' && (
+                            <button 
+                                onClick={async () => {
+                                    try {
+                                        const payload = {
+                                            details: editableItems.map(item => ({
+                                                id: item.id,
+                                                qty: item.qty,
+                                                subtotal: item.rawPrice * item.qty,
+                                                itemable_id: item.item_id,
+                                                itemable_type: item.item_type || 'App\\Models\\StokProduk',
+                                                nama_item: item.name,
+                                                harga: item.rawPrice
+                                            }))
+                                        };
+                                        const res = await transaksiAPI.approve(user.token, transaction.raw.id, payload);
+                                        if (res.success) {
+                                            showToast('PO Berhasil di-ACC dan Stok Berkurang', 'success');
+                                            if (onApproveSuccess) onApproveSuccess();
+                                        } else {
+                                            showToast(res.message || 'Gagal ACC PO', 'error');
+                                        }
+                                    } catch (error) {
+                                        showToast('Terjadi kesalahan jaringan', 'error');
+                                    }
+                                }}
+                                className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
+                            >
+                                <CheckCircle2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                <span>Tandai Selesai / ACC PO</span>
+                            </button>
+                        )
+                    ) : (
+                        <button 
+                            onClick={generateThermalReceipt}
+                            className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
+                        >
+                            <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span>Cetak Struk Resmi</span>
+                        </button>
+                    )}
                 </div>
             </div>
         </div>,

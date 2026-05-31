@@ -4,6 +4,9 @@ import { DollarSign, Users, Activity, BarChart3, Calendar, Download, ArrowUpRigh
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import StatsCard from '../Dashboard/StatsCard';
+import { useAuth } from '../../context/AuthContext';
+import { laporanPenjualanAPI } from '../../services/api';
+import ReportDetailModal from '../../components/UI/ReportDetailModal';
 
 const data = [
     { name: 'Jan', revenue: 4000, forecast: 4000, customers: 240 },
@@ -33,66 +36,74 @@ const productData = [
     { name: 'Toner BHA/AHA', value: 200, color: '#829356' },
 ];
 
-const mockTransactions = [
-    { id: 'INV-20260301', date: '2026-03-28', patient: 'Ayu Lestari', treatment: 'Facial Acne', amount: 450000, status: 'Lunas' },
-    { id: 'INV-20260302', date: '2026-03-28', patient: 'Budi Santoso', treatment: 'Konsultasi Dokter', amount: 150000, status: 'Lunas' },
-    { id: 'INV-20260303', date: '2026-03-27', patient: 'Citra Kirana', treatment: 'Laser Rejuvenation', amount: 1200000, status: 'Lunas' },
-    { id: 'INV-20260304', date: '2026-03-27', patient: 'Dewi Persik', treatment: 'Botox', amount: 2500000, status: 'Lunas' },
-    { id: 'INV-20260305', date: '2026-03-26', patient: 'Eka Saputra', treatment: 'Peeling', amount: 350000, status: 'Menunggu' },
-    { id: 'INV-20260306', date: '2026-03-26', patient: 'Faisal Basri', treatment: 'Pembelian Skincare', amount: 850000, status: 'Lunas' },
-];
 
 const ReportsPage = () => {
-    const reportCards = [
-        { title: 'Pertumbuhan Pendapatan', value: 'Rp 45.2M', change: '+15.4%', trend: 'up', icon: DollarSign },
-        { title: 'Pasien Baru', value: '124', change: '+8.2%', trend: 'up', icon: Users },
-        { title: 'Total Kunjungan', value: '312', change: '+11.3%', trend: 'up', icon: Activity },
-        { title: 'Rata-rata Transaksi', value: 'Rp 850k', change: '-2.1%', trend: 'down', icon: BarChart3 },
-    ];
-
+    const { user } = useAuth();
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [isLoading, setIsLoading] = useState(true);
+    const [transactions, setTransactions] = useState([]);
+    const [totalRevenue, setTotalRevenue] = useState(0);
 
-    // Simulate loading
-    useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
-    }, []);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedReportDetail, setSelectedReportDetail] = useState(null);
 
-    const filteredTransactions = mockTransactions.filter(t => {
-        const matchesSearch = t.patient.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              t.treatment.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                              t.id.toLowerCase().includes(searchTerm.toLowerCase());
-        
-        let matchesDate = true;
-        if (startDate && endDate) {
-            matchesDate = t.date >= startDate && t.date <= endDate;
-        } else if (startDate) {
-            matchesDate = t.date >= startDate;
-        } else if (endDate) {
-            matchesDate = t.date <= endDate;
+    const fetchLaporan = async () => {
+        setIsLoading(true);
+        const params = {};
+        if (startDate) params.start_date = startDate;
+        if (endDate) params.end_date = endDate;
+        if (searchTerm) params.search = searchTerm;
+
+        const res = await laporanPenjualanAPI.getAll(user?.token, params);
+        if (res.success) {
+            setTransactions(res.data || []);
+            const total = (res.data || []).reduce((sum, item) => sum + Number(item.Total_Harga || 0), 0);
+            setTotalRevenue(total);
         }
+        setIsLoading(false);
+    };
 
-        return matchesSearch && matchesDate;
-    });
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            fetchLaporan();
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [startDate, endDate, searchTerm]);
+
+    const handleOpenDetail = async (id) => {
+        const res = await laporanPenjualanAPI.getDetail(user?.token, id);
+        if (res.success) {
+            setSelectedReportDetail(res.data);
+            setIsModalOpen(true);
+        } else {
+            alert('Gagal mengambil detail laporan');
+        }
+    };
+
+    const reportCards = [
+        { title: 'Total Pendapatan', value: `Rp ${(totalRevenue / 1000000).toFixed(1)}Juta`, change: '+15.4%', trend: 'up', icon: DollarSign },
+        { title: 'Total Transaksi Selesai', value: transactions.length.toString(), change: '+8.2%', trend: 'up', icon: Activity },
+        { title: 'Pasien Terlayani', value: '124', change: '+11.3%', trend: 'up', icon: Users },
+        { title: 'Rata-rata Transaksi', value: transactions.length > 0 ? `Rp ${(totalRevenue / transactions.length / 1000).toFixed(0)}k` : 'Rp 0', change: '-2.1%', trend: 'down', icon: BarChart3 },
+    ];
 
     const handleExportExcel = () => {
         let csvContent = "sep=,\n";
-        csvContent += "Invoice,Tanggal,Nama Pasien,Layanan/Stok,Total Biaya (Rp),Status\n";
-        filteredTransactions.forEach(t => {
-            csvContent += `"${t.id}",${t.date},"${t.patient}","${t.treatment}",${t.amount},"${t.status}"\n`;
+        csvContent += "Tanggal,No Faktur,Pasien/Distributor,Total Harga (Rp)\n";
+        transactions.forEach(t => {
+            csvContent += `${t.Tanggal_Transaksi},"${t.no_Faktur}","${t.Nama_pasien_atau_Distributor}",${t.Total_Harga}\n`;
         });
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `Laporan_Transaksi_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute("download", `Laporan_Penjualan_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        // Assuming there isn't a Toast context wrapper in this exact file imported yet, we can construct a basic response. Actually, I will just trigger the download silently if showToast is omitted, or we could add the import. Wait, I didn't import useToast. I will just rely on the download visually.
     };
 
     return (
@@ -346,38 +357,34 @@ const ReportsPage = () => {
                     <table className="w-full text-left border-collapse min-w-[800px]">
                         <thead>
                             <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/30 border-b border-primary/5 bg-gray-50/30">
-                                <th className="px-4 py-3 text-primary/80">Invoice</th>
+                                <th className="px-4 py-3 text-primary/80">No Faktur</th>
                                 <th className="px-4 py-3 text-primary/80">Tanggal</th>
-                                <th className="px-4 py-3 text-primary/80">Pasien</th>
-                                <th className="px-4 py-3 text-primary/80">Layanan / Stok</th>
+                                <th className="px-4 py-3 text-primary/80">Pasien/Distributor</th>
                                 <th className="px-4 py-3 text-right text-primary/80">Total (Rp)</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredTransactions.map((trx, idx) => (
-                                <tr key={idx} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
+                            {transactions.map((trx, idx) => (
+                                <tr key={trx.id || idx} onClick={() => handleOpenDetail(trx.id)} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] cursor-pointer transition-colors group">
                                     <td className="px-4 py-2">
-                                        <span className="text-sm font-medium text-primary tracking-tight">{trx.id}</span>
+                                        <span className="text-sm font-medium text-primary tracking-tight">{trx.no_Faktur}</span>
                                     </td>
                                     <td className="px-4 py-2">
-                                        <span className="text-sm font-medium text-primary/80">{trx.date}</span>
+                                        <span className="text-sm font-medium text-primary/80">{trx.Tanggal_Transaksi}</span>
                                     </td>
                                     <td className="px-4 py-2">
-                                        <span className="text-sm font-medium text-primary">{trx.patient}</span>
-                                    </td>
-                                    <td className="px-4 py-2">
-                                        <span className="text-sm font-medium text-primary/80">{trx.treatment}</span>
+                                        <span className="text-sm font-medium text-primary">{trx.Nama_pasien_atau_Distributor}</span>
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        <span className="text-sm font-medium text-primary">{(trx.amount).toLocaleString('id-ID')}</span>
+                                        <span className="text-sm font-medium text-primary">{(trx.Total_Harga).toLocaleString('id-ID')}</span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
-                                        <span className={`inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border ${trx.status === 'Lunas' ? 'bg-green-50 text-green-600 border-green-100' : 'bg-yellow-50 text-yellow-600 border-yellow-100'}`}>{trx.status}</span>
+                                        <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border bg-green-50 text-green-600 border-green-100">Selesai</span>
                                     </td>
                                 </tr>
                             ))}
-                            {filteredTransactions.length === 0 && (
+                            {transactions.length === 0 && (
                                 <tr>
                                     <td colSpan={6}>
                                         <EmptyState 
@@ -394,35 +401,31 @@ const ReportsPage = () => {
 
                 {/* Mobile Card View */}
                 <div className="lg:hidden divide-y divide-primary/5">
-                    {filteredTransactions.map((trx, idx) => (
-                        <div key={trx.id || idx} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
+                    {transactions.map((trx, idx) => (
+                        <div key={trx.id || idx} onClick={() => handleOpenDetail(trx.id)} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{trx.id}</span>
-                                    <h4 className="text-sm font-black text-primary tracking-tight mt-0.5">{trx.patient}</h4>
+                                    <span className="text-[10px] font-black text-primary/40 uppercase tracking-widest">{trx.no_Faktur}</span>
+                                    <h4 className="text-sm font-black text-primary tracking-tight mt-0.5">{trx.Nama_pasien_atau_Distributor}</h4>
                                 </div>
-                                <span className={`inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${trx.status === 'Lunas' ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'}`}>
-                                    {trx.status}
+                                <span className="inline-flex px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-green-100 text-green-600">
+                                    Selesai
                                 </span>
                             </div>
 
                             <div className="bg-gray-50/50 p-4 rounded-2xl border border-primary/5 space-y-3">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan / Stok</span>
-                                    <span className="text-[10px] font-bold text-primary/60">{trx.treatment}</span>
-                                </div>
-                                <div className="flex justify-between items-center pt-2 border-t border-primary/5">
+                                <div className="flex justify-between items-center pt-2 border-primary/5">
                                     <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Total Biaya</span>
-                                    <span className="text-sm font-black text-primary">Rp {(trx.amount).toLocaleString('id-ID')}</span>
+                                    <span className="text-sm font-black text-primary">Rp {(trx.Total_Harga).toLocaleString('id-ID')}</span>
                                 </div>
                             </div>
 
                             <div className="flex justify-between items-center text-[10px] font-bold text-primary/30 px-1">
-                                <span>{trx.date}</span>
+                                <span>{trx.Tanggal_Transaksi}</span>
                             </div>
                         </div>
                     ))}
-                    {filteredTransactions.length === 0 && (
+                    {transactions.length === 0 && (
                         <EmptyState 
                             type="sales"
                             title="Transaksi Tidak Ditemukan"
@@ -433,6 +436,12 @@ const ReportsPage = () => {
                     </>
                 )}
             </div>
+
+            <ReportDetailModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                reportData={selectedReportDetail}
+            />
         </div>
     );
 };

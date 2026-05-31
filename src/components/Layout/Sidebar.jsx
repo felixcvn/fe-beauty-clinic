@@ -28,12 +28,9 @@ const ALL_NAV_ITEMS = [
     { icon: DocumentTextIcon, label: 'Rekam Medis', path: '/medical-records' },
     { icon: UserIcon, label: 'Pasien', path: '/patients' },
     { icon: UsersIcon, label: 'Manajemen Karyawan', path: '/staff' },
-    {
-        icon: ArchiveBoxIcon,
-        label: 'Stok',
-        path: '/management'
-    },
+    { icon: ArchiveBoxIcon, label: 'Stok', path: '/management' },
     { icon: ShoppingCartIcon, label: 'Transaksi', path: '/sales' },
+    { icon: ShoppingCartIcon, label: 'Transaksi Gudang', path: '/warehouse-transactions' },
     { icon: CalendarDaysIcon, label: 'Reservasi', path: '/reservations' },
     { icon: FingerPrintIcon, label: 'Absensi', path: '/attendance' },
     { icon: TagIcon, label: 'Promo', path: '/promos' },
