@@ -59,7 +59,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [perawatanSebelumnya, setPerawatanSebelumnya] = useState('');
     const [diinginkan, setDiinginkan] = useState([]);
     const [diinginkanLainnya, setDiinginkanLainnya] = useState('');
-    const [tensi, setTensi] = useState('Normal');
+    const [tensi, setTensi] = useState('');
     const [keluhanPasien, setKeluhanPasien] = useState('');
     const [riwayatKesehatan, setRiwayatKesehatan] = useState([]);
     const [riwayatKesehatanLainnya, setRiwayatKesehatanLainnya] = useState('');
@@ -112,7 +112,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 setSelectedDoctorId(initialData.dokter_id || initialData.karyawan_id || '');
                 
                 setPerawatanSebelumnya(initialData.perawatan_diklinik_sebelumnya || initialData.perawatan_sebelumnya || '');
-                setTensi(initialData.tekanan_darah || initialData.tensi || 'Normal');
+                setTensi(initialData.tekanan_darah || initialData.tensi || '');
                 setKeluhanPasien(initialData.keluhan_pasien || '');
                 
                 const rawRiwayat = initialData.riwayat_penyakit || initialData.riwayat_kesehatan || '';
@@ -194,7 +194,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 setPerawatanSebelumnya('');
                 setDiinginkan([]);
                 setDiinginkanLainnya('');
-                setTensi('Normal');
+                setTensi('');
                 setKeluhanPasien('');
                 setRiwayatKesehatan([]);
                 setRiwayatKesehatanLainnya('');
@@ -479,18 +479,13 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                         {/* Blood Pressure */}
                                         <div>
                                             <label className={labelClass}>Tekanan Darah</label>
-                                            <div className="flex gap-2 p-1 bg-secondary/30 rounded-2xl w-fit">
-                                                {['Rendah', 'Normal', 'Tinggi'].map((t) => (
-                                                    <button
-                                                        key={t}
-                                                        type="button"
-                                                        onClick={() => setTensi(t)}
-                                                        className={`px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${tensi === t ? 'bg-primary text-secondary shadow-lg' : 'text-primary/40 hover:bg-primary/5'}`}
-                                                    >
-                                                        {t}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                            <input
+                                                type="text"
+                                                value={tensi}
+                                                onChange={(e) => setTensi(e.target.value)}
+                                                placeholder="Masukan tekanan darah..."
+                                                className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary shadow-sm placeholder:text-primary/20"
+                                            />
                                         </div>
 
                                         {/* Conditions checkboxes */}

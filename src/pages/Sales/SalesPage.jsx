@@ -156,7 +156,6 @@ const SalesPage = () => {
             {/* Recent Sales Table */}
             <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
                 <div className="p-6 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row items-stretch lg:items-center gap-6 bg-secondary/10">
-                    <h3 className="text-xl md:text-2xl font-black text-primary tracking-tighter">Riwayat Penjualan</h3>
                     <div className="flex flex-col sm:flex-row flex-1 gap-4 items-stretch sm:items-center">
                         <div className="relative group flex-1">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/20 group-focus-within:text-primary transition-colors" />

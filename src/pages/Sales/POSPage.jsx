@@ -12,7 +12,7 @@ const POSPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { user } = useAuth();
-    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, treatments } = useMockData();
+    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan } = useMockData();
     const [apiPatients, setApiPatients] = useState([]);
     const [apiProducts, setApiProducts] = useState([]);
     const [apiTreatments, setApiTreatments] = useState([]);
@@ -133,16 +133,8 @@ const POSPage = () => {
 
     const categories = ['Semua', 'Obat', 'Treatment', 'Skincare', 'Racikan'];
 
-    const customers = [
-        { id: 'PAS-001', name: 'Siti Aminah', phone: '0812-3456-7890' },
-        { id: 'PAS-002', name: 'Budi Santoso', phone: '0813-9876-5432' },
-        { id: 'PAS-003', name: 'Dewi Lestari', phone: '0811-5555-4444' },
-        { id: 'PAS-004', name: 'Ahmad Fauzi', phone: '0819-2222-3333' },
-        { id: 'PAS-005', name: 'Rina Wijaya', phone: '0812-8888-9999' },
-    ];
-
     const activeCustomers = useMemo(() => {
-        return apiPatients.length > 0 ? apiPatients : customers;
+        return apiPatients;
     }, [apiPatients]);
 
     const filteredCustomers = activeCustomers.filter(c =>
@@ -150,22 +142,13 @@ const POSPage = () => {
         c.id.toLowerCase().includes(customerSearch.toLowerCase())
     );
 
-    const products = [
-        { id: 'PRD-001', name: 'Acne Treatment Pack', category: 'Skincare', price: 450000, stock: 15, image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-004', name: 'Skin Glow Kit', category: 'Skincare', price: 850000, stock: 12, image: 'https://images.unsplash.com/photo-1612817288484-6f916006741a?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-005', name: 'Sunscreen SPF 50', category: 'Skincare', price: 150000, stock: 25, image: 'https://images.unsplash.com/photo-1598440499033-547b19615c0a?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-006', name: 'Paracetamol 500mg', category: 'Obat', price: 15000, stock: 100, image: 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-007', name: 'Night Cream Retinol', category: 'Skincare', price: 250000, stock: 10, image: 'https://images.unsplash.com/photo-1620916297397-a4a5402a3c6c?q=80&w=200&h=200&auto=format&fit=crop' },
-        { id: 'PRD-008', name: 'Amoxicillin Syrup', category: 'Obat', price: 45000, stock: 20, image: 'https://images.unsplash.com/photo-1471864190281-ad5f9f30d947?q=80&w=200&h=200&auto=format&fit=crop' },
-    ];
-
     const activeProductsList = useMemo(() => {
-        return apiProducts.length > 0 ? apiProducts : products;
+        return apiProducts;
     }, [apiProducts]);
 
     const activeTreatmentsList = useMemo(() => {
-        return apiTreatments.length > 0 ? apiTreatments : treatments;
-    }, [apiTreatments, treatments]);
+        return apiTreatments;
+    }, [apiTreatments]);
 
     const allProducts = useMemo(() => {
         return [...activeProductsList, ...activeTreatmentsList, ...apiRacikans];
