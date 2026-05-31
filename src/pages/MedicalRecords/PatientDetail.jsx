@@ -8,6 +8,16 @@ import ReportModal from '../../components/UI/ReportModal';
 import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 
+const getImageUrl = (url) => {
+    if (!url) return null;
+    let finalUrl = url.startsWith('http') || url.startsWith('/') ? url : `${STORAGE_URL}/${url}`;
+    const separator = finalUrl.includes('?') ? '&' : '?';
+    if (!finalUrl.includes('ngrok-skip-browser-warning')) {
+        finalUrl += `${separator}ngrok-skip-browser-warning=1`;
+    }
+    return finalUrl;
+};
+
 const PatientDetail = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -31,7 +41,6 @@ const PatientDetail = () => {
                 if (result.success) {
                     const p = result.data.data || result.data;
                     
-                    // Calculate age from Tanggal_Lahir if available
                     let age = '-';
                     if (p.Tanggal_Lahir) {
                         const birthDate = new Date(p.Tanggal_Lahir);
@@ -195,8 +204,8 @@ const PatientDetail = () => {
                                     const specialistStr = record.dokter?.NamaLengkap_karyawan || record.dokter?.nama_lengkap || record.dokter?.Nama_karyawan || record.karyawan?.Nama_karyawan || 'Unknown';
                                     const recordDate = record.tanggal_kunjungan || record.tanggal || record.created_at?.split('T')[0] || '-';
                                     const recordNote = record.diagnosa || record.catatan_tindakan || record.catatan || '-';
-                                    const beforeImg = record.gambar_sebelum_url || record.gambar_sebelum;
-                                    const afterImg = record.gambar_sesudah_url || record.gambar_sesudah;
+                                    const beforeImg = record.gambar_sebelum;
+                                    const afterImg = record.gambar_sesudah;
                                     
                                     return (
                                     <div key={record.id} className="relative pl-10 sm:pl-16 group">
@@ -222,14 +231,14 @@ const PatientDetail = () => {
                                                         Edit Data
                                                     </button>
                                                     <button
-                                                                                                                 onClick={() => setSelectedRecord({
+                                                        onClick={() => setSelectedRecord({
                                                              ...record, 
                                                              treatment: treatmentStr, 
                                                              specialist: specialistStr,
                                                              date: recordDate,
                                                              notes: recordNote,
-                                                             beforeImage: beforeImg,
-                                                             afterImage: afterImg
+                                                             beforeImage: getImageUrl(beforeImg),
+                                                             afterImage: getImageUrl(afterImg)
                                                          })}
                                                         className="w-full sm:w-auto px-8 py-3 text-[10px] font-black uppercase tracking-widest text-secondary bg-primary rounded-2xl hover:bg-primary/90 transition-all duration-500 shadow-xl shadow-primary/20 active:scale-95"
                                                     >
@@ -250,7 +259,7 @@ const PatientDetail = () => {
                                                     {beforeImg && (
                                                     <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/5 aspect-square">
                                                         <img 
-                                                            src={beforeImg.startsWith('http') || beforeImg.startsWith('/') ? beforeImg : `${STORAGE_URL}/${beforeImg}?ngrok-skip-browser-warning=1`} 
+                                                            src={getImageUrl(beforeImg)} 
                                                             alt="Before" 
                                                             className="w-full h-full object-cover transition-transform group-hover/photo:scale-110 duration-1000" 
                                                         />
@@ -262,7 +271,7 @@ const PatientDetail = () => {
                                                     {afterImg && (
                                                     <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/10 aspect-square">
                                                         <img 
-                                                            src={afterImg.startsWith('http') || afterImg.startsWith('/') ? afterImg : `${STORAGE_URL}/${afterImg}?ngrok-skip-browser-warning=1`} 
+                                                            src={getImageUrl(afterImg)} 
                                                             alt="After" 
                                                             className="w-full h-full object-cover transition-transform group-hover/photo:scale-110 duration-1000" 
                                                         />

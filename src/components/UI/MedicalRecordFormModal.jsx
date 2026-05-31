@@ -10,7 +10,7 @@ import ConfirmModal from './ConfirmModal';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { pasienAPI, karyawanAPI, rekamMedisAPI, treatmentAPI, stokProdukAPI } from '../../services/api';
+import { pasienAPI, karyawanAPI, rekamMedisAPI, treatmentAPI, stokProdukAPI, STORAGE_URL } from '../../services/api';
 
 const mapPatientFromAPI = (p) => ({
     id: p.id,
@@ -33,6 +33,16 @@ const mapProductFromAPI = (p) => ({
     name: p.Nama_produk || p.name,
     category: p.Kategori || p.category || 'Obat',
 });
+
+const getImageUrl = (url) => {
+    if (!url) return null;
+    let finalUrl = url.startsWith('http') || url.startsWith('/') ? url : `${STORAGE_URL}/${url}`;
+    const separator = finalUrl.includes('?') ? '&' : '?';
+    if (!finalUrl.includes('ngrok-skip-browser-warning')) {
+        finalUrl += `${separator}ngrok-skip-browser-warning=1`;
+    }
+    return finalUrl;
+};
 
 const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName = null, mode = 'add', initialData = null, onSuccess }) => {
     const { patients, products, racikans, treatments, staff } = useMockData();
@@ -671,12 +681,12 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                 <ImageUpload 
                                                     label="Sebelum" 
                                                     onImageChange={setBeforeImage} 
-                                                    initialPreview={initialData?.gambar_sebelum_url ? `${initialData.gambar_sebelum_url}?ngrok-skip-browser-warning=1` : null}
+                                                    initialPreview={getImageUrl(initialData?.gambar_sebelum_url || initialData?.gambar_sebelum)}
                                                 />
                                                 <ImageUpload 
                                                     label="Sesudah" 
                                                     onImageChange={setAfterImage} 
-                                                    initialPreview={initialData?.gambar_sesudah_url ? `${initialData.gambar_sesudah_url}?ngrok-skip-browser-warning=1` : null}
+                                                    initialPreview={getImageUrl(initialData?.gambar_sesudah_url || initialData?.gambar_sesudah)}
                                                 />
                                             </div>
                                         </div>
