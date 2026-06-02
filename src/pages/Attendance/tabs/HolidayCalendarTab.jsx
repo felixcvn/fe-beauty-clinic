@@ -1,9 +1,121 @@
-import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
+import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
 import { useMockData } from '../../../context/MockDataContext';
+import { useToast } from '../../../context/ToastContext';
+import CustomSelect from '../../../components/UI/CustomSelect';
+
+const HolidayModal = ({ isOpen, onClose, onSave }) => {
+    const { showToast } = useToast();
+    const [name, setName] = useState('');
+    const [date, setDate] = useState('');
+    const [type, setType] = useState('Libur Nasional');
+
+    useEffect(() => {
+        if (isOpen) {
+            setName('');
+            setDate('');
+            setType('Libur Nasional');
+        }
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (!name || !date || !type) {
+            showToast('Semua field wajib diisi', 'error');
+            return;
+        }
+        onSave({ name, date, type });
+        showToast('Hari libur berhasil ditambahkan', 'success');
+        onClose();
+    };
+
+    return createPortal(
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30" onClick={onClose}>
+            <div 
+                className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-visible animate-fade-in-up flex flex-col"
+                onClick={(e) => e.stopPropagation()}
+            >
+                <button
+                    type="button"
+                    onClick={onClose}
+                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
+                {/* Header */}
+                <div className="relative p-8 pb-6 bg-primary overflow-hidden shrink-0 rounded-t-[2.5rem]">
+                    <div className="absolute inset-0 opacity-10">
+                        <div className="absolute top-0 left-0 w-full h-full animate-[pulse_4s_infinite]" style={{ background: 'radial-gradient(circle, #E5D5B0 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                    </div>
+
+                    <div className="relative z-10 flex items-center gap-4 pr-12">
+                        <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-secondary backdrop-blur-sm border border-white/10">
+                            <CalendarIcon className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl md:text-2xl font-black text-white tracking-tighter leading-none">Tambah Libur</h3>
+                            <p className="text-white/60 text-[10px] font-bold tracking-widest uppercase mt-2">Kalender Klinik</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Form Body */}
+                <div className="p-8 flex-1 overflow-visible bg-gray-50/30 rounded-b-[2.5rem]">
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Nama Hari Libur</label>
+                            <input 
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Contoh: Hari Raya Idul Fitri"
+                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Tanggal</label>
+                            <input 
+                                type="date"
+                                value={date}
+                                onChange={(e) => setDate(e.target.value)}
+                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Jenis Libur</label>
+                            <CustomSelect 
+                                value={type}
+                                onChange={setType}
+                                options={[
+                                    { value: 'Libur Nasional', label: 'Libur Nasional' },
+                                    { value: 'Cuti Bersama', label: 'Cuti Bersama' }
+                                ]}
+                            />
+                        </div>
+
+                        <button
+                            type="submit"
+                            className="w-full flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 mt-4"
+                        >
+                            <CheckCircle2 className="w-4 h-4" />
+                            Simpan Hari Libur
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    , document.body);
+};
 
 const HolidayCalendarTab = () => {
-    const { holidays } = useMockData();
+    const { holidays, addHoliday } = useMockData();
+    const [isModalOpen, setIsModalOpen] = useState(false);
     // Use May 2026 as default to match mock data or current year/month
     const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); 
 
@@ -59,10 +171,13 @@ const HolidayCalendarTab = () => {
                     </div>
                 );
             } else if (dayCounter <= daysCount) {
-                const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(dayCounter).padStart(2, '0')}`;
                 const isSunday = i % 7 === 0;
                 
-                const dayHolidays = currentMonthHolidays.filter(h => h.date === dateStr);
+                // Cari hari libur untuk tanggal ini (lebih aman menggunakan object Date)
+                const dayHolidays = currentMonthHolidays.filter(h => {
+                    const d = new Date(h.date);
+                    return d.getDate() === dayCounter;
+                });
                 
                 grid.push(
                     <div key={`curr-${i}`} className={`min-h-[120px] p-3 hover:bg-primary/[0.02] transition-colors relative group ${borderClasses}`}>
@@ -71,7 +186,7 @@ const HolidayCalendarTab = () => {
                         </span>
                         <div className="mt-2 space-y-1.5">
                             {dayHolidays.map((h, idx) => (
-                                <div key={idx} className={`text-[10px] font-bold p-2 rounded-xl leading-snug shadow-sm ${h.type === 'Libur Nasional' ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}`}>
+                                <div key={idx} className={`text-xs font-medium p-2.5 rounded-xl leading-relaxed shadow-sm ${h.type === 'Libur Nasional' ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}`}>
                                     {h.name}
                                 </div>
                             ))}
@@ -109,7 +224,10 @@ const HolidayCalendarTab = () => {
                             </button>
                         </div>
                     </div>
-                    <button className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-secondary font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    <button 
+                        onClick={() => setIsModalOpen(true)}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-secondary font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                    >
                         <Plus className="w-4 h-4" />
                         Tambah Hari Libur
                     </button>
@@ -158,6 +276,12 @@ const HolidayCalendarTab = () => {
                     )}
                 </div>
             </div>
+            {/* Modal Tambah Libur */}
+            <HolidayModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onSave={addHoliday} 
+            />
         </div>
     );
 };

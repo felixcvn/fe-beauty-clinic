@@ -52,13 +52,17 @@ const mapKaryawanFromAPI = (k) => {
 
 const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
     const { showToast } = useToast();
+    const [tanggal, setTanggal] = useState('');
     const [shift, setShift] = useState('');
     const [lokasiAbsen, setLokasiAbsen] = useState('Di Kantor');
+    const [keterangan, setKeterangan] = useState('');
 
     useEffect(() => {
         if (employee) {
+            setTanggal('');
             setShift(employee.shift || getShiftOptionsByDivisi(employee.divisi)[0]?.value || '');
             setLokasiAbsen(employee.lokasi_absen || 'Di Kantor');
+            setKeterangan('');
         }
     }, [employee]);
 
@@ -68,8 +72,22 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSave(employee.id, { shift, lokasi_absen: lokasiAbsen });
-        showToast('Konfigurasi karyawan berhasil diperbarui', 'success');
+        
+        if (!tanggal) {
+            showToast('Tanggal Wajib Diisi', 'error');
+            return;
+        }
+        if (!shift) {
+            showToast('Keterangan Shift karyawan Wajib Diisi', 'error');
+            return;
+        }
+        if (!lokasiAbsen) {
+            showToast('Lokasi absensi Wajib Diisi', 'error');
+            return;
+        }
+
+        onSave(employee.id, { tanggal, shift, lokasi_absen: lokasiAbsen, keterangan });
+        showToast('Berhasil, Pengaturan absensi karyawan berhasil diubah', 'success');
         onClose();
     };
 
@@ -79,7 +97,7 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
             onClick={onClose}
         >
             <div 
-                className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-visible animate-fade-in-up flex flex-col"
+                className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-visible animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
@@ -108,10 +126,21 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
                 </div>
 
                 {/* Form Body */}
-                <div className="p-8 overflow-visible flex-1 bg-gray-50/30 rounded-b-[2.5rem]">
+                <div className="p-8 overflow-y-auto scrollbar-hide flex-1 bg-gray-50/30 rounded-b-[2.5rem]">
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Shift Kerja</label>
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Tanggal</label>
+                            <input 
+                                type="date"
+                                value={tanggal}
+                                onChange={(e) => setTanggal(e.target.value)}
+                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Keterangan Shift Kerja</label>
                             <CustomSelect 
                                 value={shift}
                                 onChange={setShift}
@@ -128,6 +157,17 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
                                     { value: 'Di Kantor', label: 'Di Kantor' },
                                     { value: 'Di Luar Kantor', label: 'Di Luar Kantor' }
                                 ]}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Keterangan Tambahan</label>
+                            <textarea 
+                                value={keterangan}
+                                onChange={(e) => setKeterangan(e.target.value)}
+                                placeholder="Masukkan keterangan (opsional)..."
+                                rows={3}
+                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm resize-none"
                             />
                         </div>
 
