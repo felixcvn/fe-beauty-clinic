@@ -52,6 +52,7 @@ const WarehouseTransactionsPage = lazy(() => import('./pages/Warehouse/Warehouse
 const PromoManagementPage = lazy(() => import('./pages/Promos/PromoManagementPage'));
 const ReservationsPage    = lazy(() => import('./pages/Reservations/ReservationsPage'));
 const AttendancePage      = lazy(() => import('./pages/Attendance/AttendancePage'));
+const AttendanceSettingsPage = lazy(() => import('./pages/Attendance/AttendanceSettingsPage'));
 const ReportsPage         = lazy(() => import('./pages/Reports/ReportsPage'));
 const NotificationsPage   = lazy(() => import('./pages/Notifications/NotificationsPage'));
 const ProfilePage         = lazy(() => import('./pages/Profile/ProfilePage'));
@@ -164,6 +165,7 @@ function App() {
                                                     <Route path="/sales/pos" element={<RoleProtectedRoute><POSPage /></RoleProtectedRoute>} />
                                                     <Route path="/promos" element={<RoleProtectedRoute><PromoManagementPage /></RoleProtectedRoute>} />
                                                     <Route path="/attendance" element={<RoleProtectedRoute><AttendancePage /></RoleProtectedRoute>} />
+                                                    <Route path="/attendance/settings" element={<RoleProtectedRoute><AttendanceSettingsPage /></RoleProtectedRoute>} />
                                                     <Route path="/reservations" element={<RoleProtectedRoute><ReservationsPage /></RoleProtectedRoute>} />
                                                     <Route path="/reports" element={<RoleProtectedRoute><ReportsPage /></RoleProtectedRoute>} />
                                                     <Route path="/activity-logs" element={<RoleProtectedRoute><ActivityLogPage /></RoleProtectedRoute>} />

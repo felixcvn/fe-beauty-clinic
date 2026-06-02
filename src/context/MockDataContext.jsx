@@ -290,6 +290,31 @@ export const MockDataProvider = ({ children }) => {
 
     ]);
 
+    const [employeeLocations, setEmployeeLocations] = useState([
+        { id: 'EMP-00124', name: 'Budi Darmawan', photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', department: 'Farmasi', branch: 'Cabang Jember (Pusat)', radius: 50, shift: 'umum_normal' },
+        { id: 'EMP-00125', name: 'Siti Aminah', photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', department: 'Kecantikan', branch: 'Cabang Lumajang', radius: 100, shift: 'pelayanan_pagi' },
+        { id: 'EMP-00128', name: 'Rendra Wijaya', photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', department: 'Gudang', branch: 'Cabang Jember (Gudang)', radius: 200, shift: 'ob_normal' },
+        { id: 'EMP-00129', name: 'Dr. Sarah Smith', photo: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', department: 'Klinik', branch: 'Cabang Jember (Pusat)', radius: 50, shift: 'pelayanan_pagi' },
+    ]);
+
+    const [holidays, setHolidays] = useState([
+        { id: 'HOL-001', date: '2024-05-09', name: 'Kenaikan Yesus Kristus', type: 'Libur Nasional' },
+        { id: 'HOL-002', date: '2024-05-23', name: 'Hari Raya Waisak', type: 'Libur Nasional' },
+        { id: 'HOL-003', date: '2024-05-24', name: 'Cuti Bersama Waisak', type: 'Cuti Bersama' },
+        { id: 'HOL-004', date: '2026-05-01', name: 'Hari Buruh Internasional', type: 'Libur Nasional' },
+        { id: 'HOL-005', date: '2026-05-14', name: 'Kenaikan Yesus Kristus', type: 'Libur Nasional' },
+    ]);
+
+    const updateEmployeeLocation = (id, data) => {
+        setEmployeeLocations(prev => prev.map(emp => emp.id === id ? { ...emp, ...data } : emp));
+    };
+
+    const addHoliday = (holiday) => {
+        const id = `HOL-${String(holidays.length + 1).padStart(3, '0')}`;
+        setHolidays(prev => [...prev, { ...holiday, id }]);
+    };
+
+
     const [slotAvailability, setSlotAvailability] = useState([
         { time: '08:00', available: true },
         { time: '09:00', available: true },
@@ -512,7 +537,9 @@ export const MockDataProvider = ({ children }) => {
             leaveRequests, updateLeaveStatus, addLeaveRequest,
             overtimeRequests, updateOvertimeStatus, addOvertimeRequest,
             antreanRacikan, addAntreanRacikan, completeAntreanRacikan, resetAntreanRacikan,
-            activityLogs
+            activityLogs,
+            employeeLocations, updateEmployeeLocation,
+            holidays, addHoliday
         }}>
 
 

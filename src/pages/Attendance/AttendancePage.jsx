@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     CalendarDays, Clock, UserCheck, UserMinus, Search, Filter,
     MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera,
     Calendar, Edit3, Download, FileText, ChevronRight, Moon,
-    AlertTriangle, MapPin, Briefcase
+    AlertTriangle, MapPin, Briefcase, Settings
 } from 'lucide-react';
 import FaceScanModal from '../../components/UI/FaceScanModal';
 import AttendanceDetailModal from '../../components/UI/AttendanceDetailModal';
@@ -25,6 +26,7 @@ import { exportAttendanceToExcel } from '../../utils/excelExport';
 const AttendancePage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
+    const navigate = useNavigate();
 
 
 
@@ -452,6 +454,10 @@ const AttendancePage = () => {
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                         {user?.role === 'HRD' && (
                             <>
+                                <button onClick={() => navigate('/attendance/settings')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-primary border-2 border-primary/10 px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
+                                    <Settings className="w-4 h-4 text-primary/60" />
+                                    <span>Pengaturan</span>
+                                </button>
                                 <button onClick={() => setIsLeaveModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
                                     <CalendarDays className="w-4 h-4" />
                                     <span>Cuti</span>
