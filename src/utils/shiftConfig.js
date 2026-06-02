@@ -6,11 +6,11 @@
 
 // ─── Grup Divisi ─────────────────────────────────────────────────────────────
 // Divisi pelayanan: mengikuti jam shift pelayanan (pagi/siang)
-export const DIVISI_PELAYANAN = ['Dokter', 'Customer Service', 'CS', 'Perawat', 'Treatment'];
+export const DIVISI_PELAYANAN = ['Dokter', 'Customer Service', 'CS', 'Perawat', 'Treatment', 'Supervisor Treatment', 'Asisten Supervisor Treatment', 'Apoteker', 'Asisten Apoteker'];
 // Divisi satpam: shift pagi atau malam
-export const DIVISI_SATPAM = ['Satpam', 'Security'];
+export const DIVISI_SATPAM = ['Satpam', 'Security', 'Staff Satpam'];
 // Divisi OB: shift normal atau lembur
-export const DIVISI_OB = ['OB', 'Office Boy', 'Kebersihan'];
+export const DIVISI_OB = ['OB', 'Office Boy', 'Kebersihan', 'Staff OB'];
 
 // ─── Definisi Semua Shift ─────────────────────────────────────────────────────
 export const SHIFTS = {

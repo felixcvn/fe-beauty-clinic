@@ -26,6 +26,14 @@ const formatTitleCase = (str) => {
 const mapKaryawanFromAPI = (k) => {
     let rawPosisi = (k.Jabatan || k.jabatan || '').trim();
     let rawDivisi = (k.Divisi || k.divisi || '').trim();
+
+    // Backend API sometimes returns combined "JABATAN - DIVISI" in k.jabatan
+    if (!rawDivisi && rawPosisi.includes('-')) {
+        const parts = rawPosisi.split('-');
+        rawDivisi = parts.pop().trim();
+        rawPosisi = parts.join('-').trim();
+    }
+
     rawPosisi = rawPosisi.replace(/(\s*-\s*)+$/, '');
     rawDivisi = rawDivisi.replace(/(\s*-\s*)+$/, '');
     let posisi = formatTitleCase(rawPosisi) || '-';
@@ -221,12 +229,12 @@ const EmployeeLocationTab = () => {
             <div className="overflow-x-auto scrollbar-hide">
                 <table className="w-full text-left border-collapse min-w-[800px]">
                     <thead>
-                        <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/10">
-                            <th className="px-4 py-4">Karyawan</th>
-                            <th className="px-4 py-4">Divisi</th>
-                            <th className="px-4 py-4">Shift</th>
-                            <th className="px-4 py-4">Lokasi Absen</th>
-                            <th className="px-4 py-4 text-center">Aksi</th>
+                        <tr className="border-b border-primary/5 bg-gray-50/30">
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Karyawan</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Divisi</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Shift</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Lokasi Absen</th>
+                            <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50 text-right">Aksi</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-primary/5">
@@ -242,33 +250,32 @@ const EmployeeLocationTab = () => {
                                 
                                 return (
                                     <tr key={emp.id} className="hover:bg-primary/[0.02] transition-colors">
-                                        <td className="px-4 py-4">
-                                            <div>
-                                                <div className="font-bold text-primary text-sm">{emp.name}</div>
-                                                <div className="text-[10px] text-primary/40 font-black uppercase tracking-widest mt-0.5">{emp.kode_karyawan}</div>
-                                            </div>
+                                        <td className="px-6 py-3.5">
+                                            <span className="text-sm font-semibold text-primary tracking-tight">{emp.name}</span>
                                         </td>
-                                        <td className="px-4 py-4">
-                                            <span className="px-3 py-1 rounded-full bg-primary/5 text-primary text-[10px] font-black uppercase tracking-wider">
+                                        <td className="px-6 py-3.5">
+                                            <span className="text-sm font-medium text-primary/80">
                                                 {emp.divisi}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-4 text-sm font-bold text-primary/80">
+                                        <td className="px-6 py-3.5">
                                             <div className="flex items-center gap-2">
                                                 <Clock className="w-4 h-4 text-primary/30" />
-                                                {activeShift.label}
+                                                <span className="text-sm font-medium text-primary/80">{activeShift.label}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4 text-sm font-bold text-primary/80">
+                                        <td className="px-6 py-3.5">
                                             <div className="flex items-center gap-2">
                                                 <MapPin className="w-4 h-4 text-primary/40" />
-                                                {emp.lokasi_absen}
+                                                <span className="text-sm font-medium text-primary/80">{emp.lokasi_absen}</span>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4 text-center">
-                                            <button onClick={() => handleEditClick(emp)} className="p-2 hover:bg-primary/5 rounded-lg text-primary/40 hover:text-primary transition-colors" title="Pengaturan Karyawan">
-                                                <Edit2 className="w-4 h-4 mx-auto" />
-                                            </button>
+                                        <td className="px-6 py-3.5 text-right">
+                                            <div className="flex justify-end">
+                                                <button onClick={() => handleEditClick(emp)} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Pengaturan Karyawan">
+                                                    <Settings className="w-4 h-4" />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 );
