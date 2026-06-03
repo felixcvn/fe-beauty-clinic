@@ -234,13 +234,16 @@ const POSPage = () => {
         }
         setIsProcessing(true);
 
+        const isOnlyTreatments = cart.every(item => item.category === 'Treatment');
+
         const payload = {
             data_pasien_id: String(selectedCustomer.id).startsWith('PAS-') ? null : selectedCustomer.id, // Jika mock ID, kirim null
             nama_pasien_distributor: selectedCustomer.name,
             tanggal_transaksi: new Date().toISOString().split('T')[0],
             catatan_pesanan: '',
+            status: isOnlyTreatments ? 'Selesai' : 'Pending',
             details: cart.map(item => ({
-                item_type: item.type === 'treatment' ? 'Treatment' : (item.type === 'racikan' ? 'StokRacikan' : 'StokProduk'),
+                item_type: item.category === 'Treatment' ? 'Treatment' : (item.category === 'Racikan' ? 'StokRacikan' : 'StokProduk'),
                 item_id: String(item.id).replace(/[^0-9]/g, '') || 1, // Jika ID mock seperti PRD-001, ambil angkanya saja
                 qty: item.quantity
             }))
