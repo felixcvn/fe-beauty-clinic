@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
-import { useMockData } from '../../../context/MockDataContext';
+import { useAuth } from '../../../context/AuthContext';
+import { hariLiburAPI } from '../../../services/api';
 import { useToast } from '../../../context/ToastContext';
 import CustomSelect from '../../../components/UI/CustomSelect';
 
@@ -11,6 +12,7 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
     const [date, setDate] = useState('');
     const [type, setType] = useState('Libur Nasional');
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         if (isOpen) {
             setName('');
@@ -21,15 +23,16 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!name || !date || !type) {
             showToast('Semua field wajib diisi', 'error');
             return;
         }
-        onSave({ name, date, type });
-        showToast('Hari libur berhasil ditambahkan', 'success');
-        onClose();
+        const success = await onSave({ name, date, type });
+        if (success) {
+            onClose();
+        }
     };
 
     return createPortal(
@@ -114,10 +117,49 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
 };
 
 const HolidayCalendarTab = () => {
-    const { holidays, addHoliday } = useMockData();
+    const { user } = useAuth();
+    const { showToast } = useToast();
+    const [holidays, setHolidays] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     // Use May 2026 as default to match mock data or current year/month
     const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); 
+
+    const fetchHolidays = async () => {
+        const res = await hariLiburAPI.getAll(user?.token);
+        if (res.success && res.data) {
+            const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+            const mapped = dataArray.map(h => ({
+                id: h.id || Math.random().toString(),
+                name: h.nama_hari_libur,
+                date: h.tanggal_mulai,
+                type: h.jenis_hari_libur || 'Libur Nasional'
+            }));
+            setHolidays(mapped);
+        }
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        fetchHolidays();
+    }, []);
+
+    const handleSaveHoliday = async (data) => {
+        const payload = {
+            nama_hari_libur: data.name,
+            jenis_hari_libur: data.type,
+            tanggal_mulai: data.date,
+            tanggal_selesai: data.date
+        };
+        const res = await hariLiburAPI.create(user?.token, payload);
+        if (res.success) {
+            showToast('Hari libur berhasil ditambahkan', 'success');
+            fetchHolidays();
+            return true;
+        } else {
+            showToast(res.message, 'error');
+            return false;
+        }
+    };
 
     const prevMonth = () => {
         setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
@@ -280,7 +322,7 @@ const HolidayCalendarTab = () => {
             <HolidayModal 
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
-                onSave={addHoliday} 
+                onSave={handleSaveHoliday} 
             />
         </div>
     );

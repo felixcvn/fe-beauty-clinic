@@ -15,6 +15,7 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
     const [progress, setProgress] = useState(0); // Progress simulasi scanning
     const [locationStatus, setLocationStatus] = useState('unknown'); // Mendeteksi apakah di dalam radius: unknown, inside, outside
     const [locationAddress, setLocationAddress] = useState(null); // Menyimpan alamat lengkap jika di luar kantor
+    const [locationCoords, setLocationCoords] = useState(null); // Koordinat lat,lng
 
 
     useEffect(() => {
@@ -64,6 +65,9 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
 
                         const isOutside = distance > RADIUS_METERS;
                         setLocationStatus(isOutside ? 'outside' : 'inside');
+                        
+                        // Set koordinat untuk dikirim ke API absensi
+                        const lokasiString = `${pos.coords.latitude},${pos.coords.longitude}`;
 
                         if (isOutside) {
                             try {
@@ -76,6 +80,10 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
                             }
                         }
 
+                        // Menyimpan lokasi string di state komponen atau ref (bisa ditambahkan kalau butuh global access)
+                        // Karena kita butuh di handleScanSuccess, kita simpan di state locationAddress sementara kalau inside atau buat state baru.
+                        // Sebaiknya buat state setLocationCoords(lokasiString)
+                        setLocationCoords(lokasiString);
                         setScanStatus('ready');
                     },
                     () => {
@@ -116,7 +124,20 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
      */
     const handleScanSuccess = () => {
         setScanStatus('success');
-        const mockPhoto = `https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop`;
+        
+        let photoDataUrl = `https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop`;
+        if (videoRef.current) {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = videoRef.current.videoWidth || 480;
+                canvas.height = videoRef.current.videoHeight || 640;
+                canvas.getContext('2d').drawImage(videoRef.current, 0, 0);
+                photoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+            } catch (err) {
+                console.error('Gagal mengambil foto dari kamera', err);
+            }
+        }
+
 
         const now = new Date();
         const detectedTime = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
@@ -138,12 +159,12 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
         }
         const isOutside = locationStatus === 'outside';
 
-        const anomalyInfo = { isLate, isOvertime, isOutside, detectedTime, shift, diffMinutes, scheduledTime: type === 'in' ? shift?.checkIn : shift?.checkOut, locationAddress };
+        const anomalyInfo = { isLate, isOvertime, isOutside, detectedTime, shift, diffMinutes, scheduledTime: type === 'in' ? shift?.checkIn : shift?.checkOut, locationAddress, lokasi: locationCoords };
 
         // ────────────────────────────────────────────────────────────────
 
         setTimeout(() => {
-            onScanSuccess(mockPhoto, anomalyInfo);
+            onScanSuccess(photoDataUrl, anomalyInfo);
             onClose();
         }, 1500);
     };

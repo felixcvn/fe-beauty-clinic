@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /**
  * API Service Layer
  * Menghubungkan frontend ke backend Laravel via ngrok
@@ -11,7 +12,7 @@ const isLocalhost = Boolean(
     window.location.hostname === '127.0.0.1' ||
     window.location.hostname === '[::1]'
 );
-const BASE_URL = isLocalhost ? '/api' : 'https://composite-footprint-overarch.ngrok-free.dev/api';
+const BASE_URL = isLocalhost ? 'http://127.0.0.1:8000/api' : 'https://composite-footprint-overarch.ngrok-free.dev/api';
 export const STORAGE_URL = '/storage';
 // Note: We use a relative path to leverage the Vite proxy (which adds the ngrok-skip header)
 // Note: We use the full URL to ensure consistency, and we'll append the skip header via query param in the component.
@@ -1421,41 +1422,263 @@ export const transaksiAPI = {
     }
 };
 
-export const laporanPenjualanAPI = {
+/* ─────────────────────────────────────────────────────────────
+   Absensi, Cuti, Lembur & HRD API
+───────────────────────────────────────────────────────────── */
+export const absensiAPI = {
     getAll: async (token, params = {}) => {
         try {
             const queryParams = new URLSearchParams();
-            if (params.start_date) queryParams.append('start_date', params.start_date);
-            if (params.end_date) queryParams.append('end_date', params.end_date);
-            if (params.tipe_transaksi) queryParams.append('tipe_transaksi', params.tipe_transaksi);
             if (params.search) queryParams.append('search', params.search);
-
-            const response = await fetch(`${BASE_URL}/laporan-penjualan?${queryParams.toString()}`, {
+            if (params.tanggal) queryParams.append('tanggal', params.tanggal);
+            
+            const response = await fetch(`${BASE_URL}/absensi?${queryParams.toString()}`, {
                 method: 'GET',
                 headers: getHeaders(token),
             });
             const json = await response.json();
-            if (response.ok) return { success: true, data: json.data, message: json.message };
-            return { success: false, message: json.message || 'Gagal mengambil data laporan penjualan' };
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data absensi' };
         } catch (error) {
-            console.error('[API] Get all laporan penjualan error:', error);
+            console.error('[API] Get absensi error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
-    getDetail: async (token, id) => {
+    create: async (token, data) => {
         try {
-            const response = await fetch(`${BASE_URL}/laporan-penjualan/${id}`, {
-                method: 'GET',
-                headers: getHeaders(token),
+            const formData = new FormData();
+            
+            // Convert base64 to File object if needed
+            if (typeof data.gambar === 'string' && data.gambar.startsWith('data:image')) {
+                const arr = data.gambar.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                const file = new File([u8arr], 'absensi_scan.jpg', {type: mime});
+                formData.append('gambar', file);
+            } else if (data.gambar) {
+                formData.append('gambar', data.gambar);
+            }
+
+            formData.append('lokasi', data.lokasi);
+            if (data.alasan_keterangan) formData.append('alasan_keterangan', data.alasan_keterangan);
+
+            const headers = getHeaders(token);
+            delete headers['Content-Type']; // Biarkan browser mengatur boundary multipart
+
+            const response = await fetch(`${BASE_URL}/absensi`, {
+                method: 'POST',
+                headers: headers,
+                body: formData
             });
             const json = await response.json();
-            if (response.ok) return { success: true, data: json.data, message: json.message };
-            return { success: false, message: json.message || 'Gagal mengambil detail laporan penjualan' };
+            if (response.ok || response.status === 201) return { success: true, data: json, message: json.message };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal melakukan absensi' };
         } catch (error) {
-            console.error('[API] Get laporan penjualan by id error:', error);
+            console.error('[API] Create absensi error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     }
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, laporanPenjualanAPI };
+export const cutiAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/pengajuan-cuti`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data cuti' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getById: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/pengajuan-cuti/${id}`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil detail cuti' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    review: async (token, id, status_pengajuan) => {
+        try {
+            const payload = { status_pengajuan };
+            const response = await fetch(`${BASE_URL}/pengajuan-cuti/${id}/review`, { 
+                method: 'POST', 
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || (status_pengajuan === 'DISETUJUI' ? 'Berhasil, Pengajuan cuti disetujui.' : 'Pengajuan cuti ditolak.') };
+            return { success: false, message: json.message || 'Gagal mereview cuti' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const formData = new FormData();
+            formData.append('jenis_cuti', data.jenis_cuti);
+            formData.append('tanggal_mulai', data.tanggal_mulai);
+            formData.append('tanggal_selesai', data.tanggal_selesai);
+            formData.append('alasan', data.alasan);
+
+            // Convert base64 to File object if needed
+            if (typeof data.gambar_bukti_cuti === 'string' && data.gambar_bukti_cuti.startsWith('data:image')) {
+                const arr = data.gambar_bukti_cuti.split(',');
+                const mime = arr[0].match(/:(.*?);/)[1];
+                const bstr = atob(arr[1]);
+                let n = bstr.length;
+                const u8arr = new Uint8Array(n);
+                while(n--){
+                    u8arr[n] = bstr.charCodeAt(n);
+                }
+                const file = new File([u8arr], 'bukti_cuti.jpg', {type: mime});
+                formData.append('gambar_bukti_cuti', file);
+            } else if (data.gambar_bukti_cuti) {
+                formData.append('gambar_bukti_cuti', data.gambar_bukti_cuti);
+            }
+
+            const headers = getHeaders(token);
+            delete headers['Content-Type']; // Biarkan browser mengatur boundary multipart
+
+            const response = await fetch(`${BASE_URL}/pengajuan-cuti`, {
+                method: 'POST',
+                headers: headers,
+                body: formData
+            });
+            const json = await response.json();
+            if (response.ok || response.status === 201) return { success: true, data: json, message: json.message };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mengajukan cuti' };
+        } catch (error) {
+            console.error('[API] Create cuti error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    }
+};
+
+export const lemburAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/pengajuan-lembur`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data lembur' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getById: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/pengajuan-lembur/${id}`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil detail lembur' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    review: async (token, id, status_pengajuan) => {
+        try {
+            const payload = { status_pengajuan };
+            const response = await fetch(`${BASE_URL}/pengajuan-lembur/${id}/review`, { 
+                method: 'POST', 
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || (status_pengajuan === 'DISETUJUI' ? 'Berhasil, Pengajuan Lembur telah disetujui' : 'Gagal, pengajuan lembur berhasil di tolak') };
+            return { success: false, message: json.message || 'Gagal mereview lembur' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export const absensiConfigAPI = {
+    create: async (token, data) => {
+        try {
+            const payload = {
+                karyawan_id: data.karyawan_id,
+                tanggal: data.tanggal,
+                ket_shift: data.ket_shift,
+                lokasi_checkin: data.lokasi_checkin,
+                lokasi_checkout: data.lokasi_checkout,
+                keterangan: data.keterangan || ''
+            };
+            const response = await fetch(`${BASE_URL}/absensi-config`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil, Pengaturan absensi karyawan berhasil diubah' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mengubah pengaturan absensi' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export const hariLiburAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/hari-libur`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data hari libur' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                nama_hari_libur: data.nama_hari_libur,
+                jenis_hari_libur: data.jenis_hari_libur,
+                tanggal_mulai: data.tanggal_mulai,
+                tanggal_selesai: data.tanggal_selesai || data.tanggal_mulai,
+                keterangan: data.keterangan || ''
+            };
+            const response = await fetch(`${BASE_URL}/hari-libur`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil, Data Hari Libur berhasil ditambahkan' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Harap lengkapi semua form wajib!' };
+            }
+            return { success: false, message: json.message || 'Gagal menambah hari libur' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/hari-libur/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus hari libur' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export const settingsAPI = {
+    setModeRamadhan: async (token, is_active) => {
+        try {
+            const response = await fetch(`${BASE_URL}/settings/mode-ramadhan`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify({ is_active })
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Mode Ramadhan berhasil diperbarui.' };
+            return { success: false, message: json.message || 'Gagal memperbarui Mode Ramadhan' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI };

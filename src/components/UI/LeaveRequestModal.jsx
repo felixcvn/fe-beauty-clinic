@@ -11,12 +11,13 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [reason, setReason] = useState('');
-    const [attachment, setAttachment] = useState(null);
+    const [attachmentBase64, setAttachmentBase64] = useState(null);
+    const [attachmentName, setAttachmentName] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
 
     if (!isOpen) return null;
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!startDate || !endDate || !reason) {
@@ -40,22 +41,33 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
             }
         }
 
-        if (leaveType === 'Sakit' && !attachment) {
+        if (leaveType === 'Sakit' && !attachmentBase64) {
             showToast('Harap upload surat keterangan sakit!', 'error');
             return;
         }
 
-        onSubmit({ leaveType, startDate, endDate, reason, attachment });
-        
-        // Don't close immediately, show success guidance
-        setIsSubmitted(true);
-        
-        // Reset form for next time
-        setLeaveType('Sakit');
-        setStartDate('');
-        setEndDate('');
-        setReason('');
-        setAttachment(null);
+        try {
+            const success = await onSubmit({ 
+                leaveType, 
+                startDate, 
+                endDate, 
+                reason, 
+                attachment: attachmentBase64 
+            });
+            
+            if (success) {
+                setIsSubmitted(true);
+                // Reset form for next time
+                setLeaveType('Sakit');
+                setStartDate('');
+                setEndDate('');
+                setReason('');
+                setAttachmentBase64(null);
+                setAttachmentName(null);
+            }
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     return createPortal(
@@ -174,17 +186,27 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                         <input 
                                             type="file" 
                                             accept="image/*"
-                                            onChange={(e) => setAttachment(e.target.files[0]?.name)}
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                if (file) {
+                                                    setAttachmentName(file.name);
+                                                    const reader = new FileReader();
+                                                    reader.onloadend = () => {
+                                                        setAttachmentBase64(reader.result);
+                                                    };
+                                                    reader.readAsDataURL(file);
+                                                }
+                                            }}
                                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
-                                        <div className={`p-5 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${attachment ? 'border-primary bg-primary/5' : 'border-primary/10 bg-secondary/5 group-hover:border-primary/20'}`}>
-                                            {attachment ? (
+                                        <div className={`p-5 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${attachmentName ? 'border-primary bg-primary/5' : 'border-primary/10 bg-secondary/5 group-hover:border-primary/20'}`}>
+                                            {attachmentName ? (
                                                 <>
                                                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
                                                         <ImageIcon className="w-5 h-5 text-primary" />
                                                     </div>
                                                     <div className="text-center">
-                                                        <p className="text-[10px] font-black text-primary truncate max-w-[200px]">{attachment}</p>
+                                                        <p className="text-[10px] font-black text-primary truncate max-w-[200px]">{attachmentName}</p>
                                                         <p className="text-[8px] font-bold text-primary/30 uppercase mt-1">Ketuk untuk ganti file</p>
                                                     </div>
                                                 </>

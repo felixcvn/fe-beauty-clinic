@@ -15,7 +15,7 @@ import OvertimeApprovalModal from '../../components/UI/OvertimeApprovalModal';
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
-import { useMockData } from '../../context/MockDataContext';
+import { absensiAPI, cutiAPI, lemburAPI, settingsAPI } from '../../services/api';
 import { getActiveShift } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
@@ -58,7 +58,7 @@ const AttendancePage = () => {
     // Overtime Modal States
     const [isOvertimeNoteOpen, setIsOvertimeNoteOpen] = useState(false);
     const [pendingAnomalyData, setPendingAnomalyData] = useState(null);
-    const [pendingPhotoUrl, setPendingPhotoUrl] = useState(null);
+
     const [isOvertimeApprovalOpen, setIsOvertimeApprovalOpen] = useState(false);
     const [selectedOvertimeReq, setSelectedOvertimeReq] = useState(null);
 
@@ -92,53 +92,122 @@ const AttendancePage = () => {
         return false;
     };
 
-    const handleUpdateLeaveStatus = (id, actionStatus) => {
-        let finalStatus = actionStatus;
-        const req = leaveRequests.find(r => r.id === id);
-        if (actionStatus === 'Disetujui' && req?.status === 'Menunggu Lead') {
-            finalStatus = 'Menunggu HRD';
+    const handleUpdateLeaveStatus = async (id, actionStatus) => {
+        const payloadStatus = actionStatus === 'Disetujui' ? 'DISETUJUI' : 'DITOLAK';
+        const res = await cutiAPI.review(user?.token, id, payloadStatus);
+        if (res.success) {
+            showToast(res.message, 'success');
+            fetchAttendanceData();
+            setIsApprovalModalOpen(false);
+        } else {
+            showToast(res.message, 'error');
         }
-        updateLeaveStatus(id, finalStatus);
     };
 
-    const handleUpdateOvertimeStatus = (id, actionStatus, note) => {
-        let finalStatus = actionStatus;
-        const req = overtimeRequests.find(r => r.id === id);
-        if (actionStatus === 'Disetujui' && req?.status === 'Menunggu Lead') {
-            finalStatus = 'Menunggu HRD';
+    const handleUpdateOvertimeStatus = async (id, actionStatus) => {
+        const payloadStatus = actionStatus === 'Disetujui' ? 'DISETUJUI' : 'DITOLAK';
+        const res = await lemburAPI.review(user?.token, id, payloadStatus);
+        if (res.success) {
+            showToast(res.message, 'success');
+            fetchAttendanceData();
+            setIsOvertimeApprovalOpen(false);
+        } else {
+            showToast(res.message, 'error');
         }
-        updateOvertimeStatus(id, finalStatus, note);
     };
 
-    // ─── Mock Data: Attendance Stats ────────────────────────────────────────────
-    const [attendanceStats] = useState([
-        { title: 'Hadir Hari Ini', value: '24', total: '26', icon: UserCheck, color: 'text-green-500' },
-        { title: 'Izin / Sakit', value: '2', total: '26', icon: UserMinus, color: 'text-yellow-500' },
-        { title: 'Terlambat', value: '3', total: '24', icon: Clock, color: 'text-red-500' },
-        { title: 'Rata-rata Kehadiran', value: '96%', icon: CalendarDays, color: 'text-primary' },
-    ]);
+    const handleLeaveRequestSubmit = async (data) => {
+        showToast('Mengirim pengajuan cuti...', 'info');
+        const payload = {
+            jenis_cuti: data.leaveType,
+            tanggal_mulai: data.startDate,
+            tanggal_selesai: data.endDate,
+            alasan: data.reason,
+            gambar_bukti_cuti: data.attachment || null
+        };
+        
+        const res = await cutiAPI.create(user?.token, payload);
+        if (res.success) {
+            showToast(res.message || 'Pengajuan cuti berhasil dikirim', 'success');
+            fetchAttendanceData(); // Refresh list data
+            return true;
+        } else {
+            showToast(res.message, 'error');
+            return false;
+        }
+    };
 
-    // ─── Mock Data: Staff Attendance ─────────────────────────────────────────────
-    const [staffAttendance, setStaffAttendance] = useState([
-        { name: 'Dr. Sarah Smith', role: 'Dokter', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:15', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Linda Rahayu', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:05', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Andi Pratama', role: 'Customer Service', shift: 'pelayanan_pagi', checkIn: '09:15', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null, isOutside: true, locationAddress: 'Jl. Letjen Suprapto No.14, Kebonsari, Jember, Jawa Timur 68122' },
-        { name: 'Maya Sari', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '--:--', checkOut: '--:--', status: 'Izin', date: '2026-04-18', photoIn: null, photoOut: null },
-        { name: 'Bambang Heru', role: 'OB', shift: 'ob_normal', checkIn: '07:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Ayu Lestari', role: 'Customer Service', shift: 'pelayanan_siang', checkIn: '10:30', checkOut: '19:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Dewi Rahmawati', role: 'HRD', shift: 'umum_normal', checkIn: '08:00', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Fajar Nugroho', role: 'Supervisor Treatment', shift: 'umum_normal', checkIn: '09:30', checkOut: '--:--', status: 'Terlambat', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null, isOutside: true, locationAddress: 'Perumahan Tegal Besar Permai I, Tegal Besar, Jember, Jawa Timur 68132' },
-        { name: 'Rina Kartika', role: 'Perawat', shift: 'pelayanan_pagi', checkIn: '08:45', checkOut: '17:00', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop' },
-        { name: 'Agus Setiawan', role: 'Perawat', shift: 'pelayanan_siang', checkIn: '--:--', checkOut: '--:--', status: 'Sakit', date: '2026-04-18', photoIn: null, photoOut: null },
-        { name: 'Reza Pahlevi', role: 'Kasir', shift: 'umum_normal', checkIn: '08:00', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
-        { name: 'Nina Wulandari', role: 'Kasir', shift: 'umum_normal', checkIn: '--:--', checkOut: '--:--', status: 'Cuti', date: '2026-04-18', photoIn: null, photoOut: null },
-        { name: 'Hendra Saputra', role: 'Satpam', shift: 'satpam_pagi', checkIn: '07:30', checkOut: '--:--', status: 'Hadir', date: '2026-04-18', photoIn: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&h=200&auto=format&fit=crop', photoOut: null },
-    ]);
 
-    const { 
-        leaveRequests, updateLeaveStatus, addLeaveRequest,
-        overtimeRequests, updateOvertimeStatus, addOvertimeRequest 
-    } = useMockData();
+
+    // ─── Real Data States ─────────────────────────────────────────────
+    const [staffAttendance, setStaffAttendance] = useState([]);
+    const [leaveRequests, setLeaveRequests] = useState([]);
+    const [overtimeRequests, setOvertimeRequests] = useState([]);
+
+    const fetchAttendanceData = async () => {
+        setIsLoading(true);
+        try {
+            if (activeTab === 'attendance') {
+                const res = await absensiAPI.getAll(user?.token, { search: searchTerm, tanggal: startDate });
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const mapped = dataArray.map(item => ({
+                        id: item.id || Math.random().toString(),
+                        name: item.Nama_Karyawan || 'Unknown',
+                        role: item.Jabatan || '-',
+                        shift: item.Ket_Shift || 'Pagi',
+                        checkIn: item.Jam_Masuk ? item.Jam_Masuk.substring(0, 5) : '--:--',
+                        checkOut: item.Jam_Keluar ? item.Jam_Keluar.substring(0, 5) : '--:--',
+                        status: item.Status === 'Tepat Waktu' ? 'Hadir' : (item.Status || 'Alpa'),
+                        date: item.Tanggal || new Date().toISOString().split('T')[0],
+                        photoIn: null, photoOut: null
+                    }));
+                    setStaffAttendance(mapped);
+                }
+            } else if (activeTab === 'leave') {
+                const res = await cutiAPI.getAll(user?.token);
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const mapped = dataArray.map(item => ({
+                        id: item.id,
+                        staffName: item.karyawan?.nama_lengkap || item.Nama_Karyawan || 'Karyawan',
+                        role: item.karyawan?.Jabatan || item.Jabatan || '-',
+                        type: item.jenis_cuti || 'Cuti',
+                        startDate: item.tanggal_mulai,
+                        endDate: item.tanggal_selesai,
+                        reason: item.alasan,
+                        attachment: item.gambar_bukti_cuti,
+                        status: item.status_pengajuan === 'DISETUJUI' ? 'Disetujui' : (item.status_pengajuan === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
+                    }));
+                    setLeaveRequests(mapped);
+                }
+            } else if (activeTab === 'overtime') {
+                const res = await lemburAPI.getAll(user?.token);
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const mapped = dataArray.map(item => ({
+                        id: item.id,
+                        staffName: item.karyawan?.nama_lengkap || item.Nama_Karyawan || 'Karyawan',
+                        role: item.karyawan?.Jabatan || item.Jabatan || '-',
+                        primaryType: item.jenis_lembur || 'Lembur',
+                        notes: item.keterangan || item.alasan,
+                        date: item.tanggal || new Date().toISOString().split('T')[0],
+                        status: item.status_pengajuan === 'DISETUJUI' ? 'Disetujui' : (item.status_pengajuan === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
+                    }));
+                    setOvertimeRequests(mapped);
+                }
+            }
+        } catch (error) {
+            console.error('Fetch error:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useEffect(() => {
+        fetchAttendanceData();
+    }, [activeTab, searchTerm, startDate, endDate, statusFilter]);
 
     const handleOpenScan = (type, staffId = null) => {
         setScanType(type);
@@ -169,78 +238,53 @@ const AttendancePage = () => {
     const myStaffRecord = staffAttendance.find(s => s.name === user?.name);
     const myShift = myStaffRecord?.shift || 'umum_normal';
 
-    const handleScanSuccess = (photoUrl, anomalyInfo) => {
-        const currentTime = anomalyInfo?.detectedTime || new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-        if (scanType === 'in') {
-            let newStatus = 'Hadir';
-            if (anomalyInfo?.isLate) newStatus = 'Terlambat';
-
-            setStaffAttendance(prev => {
-                const existingIndex = prev.findIndex(s => s.name === user?.name);
-                if (existingIndex !== -1) {
-                    return prev.map((s, i) => i === existingIndex ? { ...s, checkIn: currentTime, photoIn: photoUrl, status: newStatus, isOutside: anomalyInfo?.isOutside, locationAddress: anomalyInfo?.locationAddress } : s);
-                } else {
-                    return [
-                        ...prev,
-                        {
-                            id: `STF-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`,
-                            name: user?.name, role: user?.role, shift: myShift,
-                            checkIn: currentTime, checkOut: '--:--', status: newStatus,
-                            date: new Date().toISOString().split('T')[0], photoIn: photoUrl, photoOut: null,
-                            isOutside: anomalyInfo?.isOutside, locationAddress: anomalyInfo?.locationAddress
-                        }
-                    ];
-                }
-            });
-        } else {
-            const targetId = selectedStaffId || staffAttendance.find(s => s.name === user?.name)?.id;
-            if (targetId) {
-                setStaffAttendance(prev => prev.map(staff =>
-                    staff.id === targetId ? { ...staff, checkOut: currentTime, photoOut: photoUrl, isOutside: anomalyInfo?.isOutside, locationAddress: anomalyInfo?.locationAddress } : staff
-                ));
-            }
-        }
-
+    const handleScanSuccess = async (photoUrl, anomalyInfo) => {
         setIsScanModalOpen(false);
 
-        // Jika ada anomali â†’ buka modal notes
+        // Jika ada anomali → buka modal notes untuk minta alasan
         if (anomalyInfo && (anomalyInfo.isLate || anomalyInfo.isOvertime || anomalyInfo.isOutside)) {
-            setPendingAnomalyData(anomalyInfo);
-            setPendingPhotoUrl(photoUrl);
+            // Simpan data foto ke dalam anomalyInfo untuk dikirim nanti
+            setPendingAnomalyData({ ...anomalyInfo, photoUrl });
             setIsOvertimeNoteOpen(true);
         } else {
-            showToast(
-                scanType === 'in'
-                    ? `Check-in berhasil! Selamat bekerja.`
-                    : `Check-out berhasil! Sampai jumpa.`,
-                'success'
-            );
+            // Jika tidak ada anomali, langsung tembak API Check-in/Check-out
+            const payload = {
+                gambar: photoUrl,
+                lokasi: anomalyInfo?.lokasi || '-8.1702,113.7120', // fallback jika unknown
+                alasan_keterangan: ''
+            };
+            
+            showToast('Memproses absensi...', 'info');
+            const res = await absensiAPI.create(user?.token, payload);
+            
+            if (res.success) {
+                showToast(res.message || (scanType === 'in' ? `Check-in berhasil! Selamat bekerja.` : `Check-out berhasil! Sampai jumpa.`), 'success');
+                fetchAttendanceData(); // Refresh list data absen
+            } else {
+                showToast(res.message, 'error');
+            }
         }
     };
 
-    const handleOvertimeNoteSubmit = (data) => {
-        const initialStatus = 'Menunggu HRD';
-
-        const newRequest = {
-            id: `OT-${Math.floor(Math.random() * 9000 + 1000)}`,
-            staffName: user?.name,
-            role: user?.role,
-            shift: myShift,
-            primaryType: data.primaryType,
-            anomalyTypes: data.anomalyTypes,
-            scheduledTime: data.scheduledTime,
-            detectedTime: data.detectedTime,
-            diffMinutes: data.diffMinutes,
-            notes: data.notes,
-            date: new Date().toISOString().split('T')[0],
-            status: initialStatus,
-            hrdNote: ''
-        };
-        addOvertimeRequest(newRequest);
+    const handleOvertimeNoteSubmit = async (data) => {
         setIsOvertimeNoteOpen(false);
         setPendingAnomalyData(null);
-        showToast('Pengajuan berhasil dikirim untuk review.', 'success');
+        
+        const payload = {
+            gambar: pendingAnomalyData?.photoUrl || '',
+            lokasi: pendingAnomalyData?.lokasi || '-8.1702,113.7120', // fallback
+            alasan_keterangan: data.notes
+        };
+        
+        showToast('Mengirim data absensi...', 'info');
+        const res = await absensiAPI.create(user?.token, payload);
+        
+        if (res.success) {
+            showToast(res.message || 'Berhasil, Pengajuan dikirim untuk review', 'success');
+            fetchAttendanceData(); // Refresh list data absen
+        } else {
+            showToast(res.message, 'error');
+        }
     };
 
 
@@ -410,12 +454,7 @@ const AttendancePage = () => {
                 showActions={selectedLeaveRequest ? canApproveRequest(selectedLeaveRequest.role, selectedLeaveRequest.status) : false}
                 onUpdateStatus={handleUpdateLeaveStatus}
             />
-            <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={(data) => {
-                const isSubordinate = ['ASS SPV TREATMENT', 'Asisten Supervisor Treatment', 'ASS FINANCE', 'Asisten Finance', 'ASS MOS', 'Asisten Marketing of Sales', 'ASS APOTEK', 'Asisten Apoteker'].includes(user?.role);
-                const initialStatus = isSubordinate ? 'Menunggu Lead' : 'Menunggu HRD';
-                const newRequest = { id: `LR-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`, staffName: user?.name, role: user?.role, type: data.leaveType, startDate: data.startDate, endDate: data.endDate, reason: data.reason, attachment: data.attachment, status: initialStatus };
-                addLeaveRequest(newRequest);
-            }} />
+            <LeaveRequestModal isOpen={isLeaveModalOpen} onClose={() => setIsLeaveModalOpen(false)} onSubmit={handleLeaveRequestSubmit} />
 
             <OvertimeNoteModal
                 isOpen={isOvertimeNoteOpen}
@@ -441,7 +480,16 @@ const AttendancePage = () => {
                             <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Rekap Absensi</h2>
                             {/* Ramadhan Toggle */}
                             <button
-                                onClick={() => { setIsRamadhan(r => !r); showToast(`Mode Ramadhan ${!isRamadhan ? 'diaktifkan' : 'dinonaktifkan'}`, 'info'); }}
+                                onClick={async () => { 
+                                    const newStatus = !isRamadhan;
+                                    const res = await settingsAPI.setModeRamadhan(user?.token, newStatus);
+                                    if (res.success) {
+                                        setIsRamadhan(newStatus);
+                                        showToast(res.message, 'success');
+                                    } else {
+                                        showToast(res.message, 'error');
+                                    }
+                                }}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all ${isRamadhan ? 'bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-500/20' : 'bg-white text-primary/40 border-primary/10 hover:border-amber-400 hover:text-amber-500'}`}
                                 title={isRamadhan ? 'Nonaktifkan Mode Ramadhan' : 'Aktifkan Mode Ramadhan'}
                             >
@@ -453,21 +501,19 @@ const AttendancePage = () => {
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                         {user?.role === 'HRD' && (
-                            <>
-                                <button onClick={() => navigate('/attendance/settings')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-primary border-2 border-primary/10 px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
-                                    <Settings className="w-4 h-4 text-primary/60" />
-                                    <span>Pengaturan</span>
-                                </button>
-                                <button onClick={() => setIsLeaveModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
-                                    <CalendarDays className="w-4 h-4" />
-                                    <span>Cuti</span>
-                                </button>
-                                <button onClick={handleAttend} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
-                                    <Camera className="w-4 h-4" />
-                                    <span>Absen</span>
-                                </button>
-                            </>
+                            <button onClick={() => navigate('/attendance/settings')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-primary border-2 border-primary/10 px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
+                                <Settings className="w-4 h-4 text-primary/60" />
+                                <span>Pengaturan</span>
+                            </button>
                         )}
+                        <button onClick={() => setIsLeaveModalOpen(true)} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-secondary text-primary border-2 border-primary px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
+                            <CalendarDays className="w-4 h-4" />
+                            <span>Cuti</span>
+                        </button>
+                        <button onClick={handleAttend} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
+                            <Camera className="w-4 h-4" />
+                            <span>Absen</span>
+                        </button>
                         <button onClick={handleExport} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20">
                             <Download className="w-4 h-4" />
                             <span>Export Laporan</span>

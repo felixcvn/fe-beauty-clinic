@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Filter, Edit2, MapPin, Clock, X, Settings, CheckCircle2 } from 'lucide-react';
-import { karyawanAPI } from '../../../services/api';
+import { karyawanAPI, absensiConfigAPI } from '../../../services/api';
 import { getActiveShift, getShiftOptionsByDivisi } from '../../../utils/shiftConfig';
 import { useAuth } from '../../../context/AuthContext';
 import { useToast } from '../../../context/ToastContext';
@@ -57,6 +57,7 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
     const [lokasiAbsen, setLokasiAbsen] = useState('Di Kantor');
     const [keterangan, setKeterangan] = useState('');
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         if (employee) {
             setTanggal('');
@@ -70,7 +71,7 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
 
     const shiftOptions = getShiftOptionsByDivisi(employee.divisi);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         
         if (!tanggal) {
@@ -86,9 +87,10 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
             return;
         }
 
-        onSave(employee.id, { tanggal, shift, lokasi_absen: lokasiAbsen, keterangan });
-        showToast('Berhasil, Pengaturan absensi karyawan berhasil diubah', 'success');
-        onClose();
+        const success = await onSave(employee.id, { tanggal, shift, lokasi_absen: lokasiAbsen, keterangan });
+        if (success) {
+            onClose();
+        }
     };
 
     return createPortal(
@@ -187,6 +189,7 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
 
 const EmployeeLocationTab = () => {
     const { user } = useAuth();
+    const { showToast } = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -231,10 +234,25 @@ const EmployeeLocationTab = () => {
         setIsModalOpen(true);
     };
 
-    const handleSaveSettings = (id, data) => {
-        // In a real app, send update to backend.
-        // For now, update local state
-        setEmployees(prev => prev.map(emp => emp.id === id ? { ...emp, ...data } : emp));
+    const handleSaveSettings = async (id, data) => {
+        const payload = {
+            karyawan_id: id,
+            tanggal: data.tanggal,
+            ket_shift: data.shift,
+            lokasi_checkin: data.lokasi_absen,
+            lokasi_checkout: data.lokasi_absen,
+            keterangan: data.keterangan || ''
+        };
+        const token = user?.token || localStorage.getItem('token');
+        const res = await absensiConfigAPI.create(token, payload);
+        if (res.success) {
+            showToast(res.message, 'success');
+            setEmployees(prev => prev.map(emp => emp.id === id ? { ...emp, shift: data.shift, lokasi_absen: data.lokasi_absen } : emp));
+            return true;
+        } else {
+            showToast(res.message, 'error');
+            return false;
+        }
     };
 
     const totalPages = paginationInfo?.last_page || 1;
