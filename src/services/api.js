@@ -4,23 +4,13 @@
  * Menghubungkan frontend ke backend Laravel via ngrok
  */
 
-// Gunakan proxy '/api' saat development untuk menghindari CORS, atau full URL saat production
-// Gunakan proxy '/api' agar tidak kena CORS (OPTIONS) saat development
-// Gunakan proxy '/api' saat development untuk menghindari CORS
-const isLocalhost = Boolean(
-    window.location.hostname === 'localhost' ||
-    window.location.hostname === '127.0.0.1' ||
-    window.location.hostname === '[::1]'
-);
-const BASE_URL = isLocalhost ? 'http://127.0.0.1:8000/api' : 'https://composite-footprint-overarch.ngrok-free.dev/api';
+const BASE_URL = 'https://composite-footprint-overarch.ngrok-free.dev/api';
 export const STORAGE_URL = '/storage';
-// Note: We use a relative path to leverage the Vite proxy (which adds the ngrok-skip header)
-// Note: We use the full URL to ensure consistency, and we'll append the skip header via query param in the component.
 
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
     const headers = {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', 
         'Accept': 'application/json',
         'ngrok-skip-browser-warning': 'true',
     };
