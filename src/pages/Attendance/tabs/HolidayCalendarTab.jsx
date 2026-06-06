@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
@@ -5,31 +6,46 @@ import { useAuth } from '../../../context/AuthContext';
 import { hariLiburAPI } from '../../../services/api';
 import { useToast } from '../../../context/ToastContext';
 import CustomSelect from '../../../components/UI/CustomSelect';
+import CustomDatePicker from '../../../components/UI/CustomDatePicker';
 
 const HolidayModal = ({ isOpen, onClose, onSave }) => {
     const { showToast } = useToast();
     const [name, setName] = useState('');
-    const [date, setDate] = useState('');
+    const [startDate, setStartDate] = useState('');
+    const [endDate, setEndDate] = useState('');
     const [type, setType] = useState('Libur Nasional');
+    const [description, setDescription] = useState('');
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
         if (isOpen) {
             setName('');
-            setDate('');
+            setStartDate('');
+            setEndDate('');
             setType('Libur Nasional');
+            setDescription('');
         }
     }, [isOpen]);
 
     if (!isOpen) return null;
 
+    const handleStartDateChange = (val) => {
+        setStartDate(val);
+        if (!endDate || endDate < val) {
+            setEndDate(val);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!name || !date || !type) {
+        if (!name || !startDate || !endDate || !type) {
             showToast('Semua field wajib diisi', 'error');
             return;
         }
-        const success = await onSave({ name, date, type });
+        if (endDate < startDate) {
+            showToast('Tanggal selesai tidak boleh sebelum tanggal mulai', 'error');
+            return;
+        }
+        const success = await onSave({ name, startDate, endDate, type, description });
         if (success) {
             onClose();
         }
@@ -37,7 +53,7 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
 
     return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30" onClick={onClose}>
-            <div 
+            <div
                 className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-visible animate-fade-in-up flex flex-col"
                 onClick={(e) => e.stopPropagation()}
             >
@@ -71,7 +87,7 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Nama Hari Libur</label>
-                            <input 
+                            <input
                                 type="text"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -80,25 +96,39 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
                             />
                         </div>
 
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Tanggal</label>
-                            <input 
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                        <div className="grid grid-cols-2 gap-4">
+                            <CustomDatePicker
+                                label="Tanggal Mulai"
+                                value={startDate}
+                                onChange={handleStartDateChange}
+                            />
+                            <CustomDatePicker
+                                label="Tanggal Selesai"
+                                value={endDate}
+                                onChange={setEndDate}
                             />
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Jenis Libur</label>
-                            <CustomSelect 
+                            <CustomSelect
                                 value={type}
                                 onChange={setType}
                                 options={[
                                     { value: 'Libur Nasional', label: 'Libur Nasional' },
                                     { value: 'Cuti Bersama', label: 'Cuti Bersama' }
                                 ]}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Keterangan</label>
+                            <input
+                                type="text"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="Contoh: Libur nasional memperingati..."
+                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                             />
                         </div>
 
@@ -113,7 +143,7 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
                 </div>
             </div>
         </div>
-    , document.body);
+        , document.body);
 };
 
 const HolidayCalendarTab = () => {
@@ -121,8 +151,8 @@ const HolidayCalendarTab = () => {
     const { showToast } = useToast();
     const [holidays, setHolidays] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    // Use May 2026 as default to match mock data or current year/month
-    const [currentDate, setCurrentDate] = useState(new Date(2026, 4, 1)); 
+    // Use current date as default
+    const [currentDate, setCurrentDate] = useState(new Date());
 
     const fetchHolidays = async () => {
         const res = await hariLiburAPI.getAll(user?.token);
@@ -132,6 +162,8 @@ const HolidayCalendarTab = () => {
                 id: h.id || Math.random().toString(),
                 name: h.nama_hari_libur,
                 date: h.tanggal_mulai,
+                endDate: h.tanggal_selesai || h.tanggal_mulai,
+                description: h.keterangan || '',
                 type: h.jenis_hari_libur || 'Libur Nasional'
             }));
             setHolidays(mapped);
@@ -147,8 +179,9 @@ const HolidayCalendarTab = () => {
         const payload = {
             nama_hari_libur: data.name,
             jenis_hari_libur: data.type,
-            tanggal_mulai: data.date,
-            tanggal_selesai: data.date
+            tanggal_mulai: data.startDate,
+            tanggal_selesai: data.endDate,
+            keterangan: data.description
         };
         const res = await hariLiburAPI.create(user?.token, payload);
         if (res.success) {
@@ -180,12 +213,12 @@ const HolidayCalendarTab = () => {
     const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate();
 
     const currentMonthHolidays = (holidays || []).filter(h => {
-        const d = new Date(h.date);
-        return d.getFullYear() === currentYear && d.getMonth() === currentMonth;
-    });
-
-    const yearHolidays = (holidays || []).filter(h => new Date(h.date).getFullYear() === currentYear)
-                                 .sort((a,b) => new Date(a.date) - new Date(b.date));
+        const start = new Date(h.date);
+        const end = h.endDate ? new Date(h.endDate) : start;
+        const firstOfMonth = new Date(currentYear, currentMonth, 1);
+        const lastOfMonth = new Date(currentYear, currentMonth + 1, 0);
+        return start <= lastOfMonth && end >= firstOfMonth;
+    }).sort((a, b) => new Date(a.date) - new Date(b.date));
 
     const renderCalendarGrid = () => {
         const grid = [];
@@ -214,13 +247,19 @@ const HolidayCalendarTab = () => {
                 );
             } else if (dayCounter <= daysCount) {
                 const isSunday = i % 7 === 0;
-                
-                // Cari hari libur untuk tanggal ini (lebih aman menggunakan object Date)
+
+                // Cari hari libur untuk tanggal ini
+                const currentCellDate = new Date(currentYear, currentMonth, dayCounter);
+                currentCellDate.setHours(0, 0, 0, 0);
+
                 const dayHolidays = currentMonthHolidays.filter(h => {
-                    const d = new Date(h.date);
-                    return d.getDate() === dayCounter;
+                    const start = new Date(h.date);
+                    start.setHours(0, 0, 0, 0);
+                    const end = h.endDate ? new Date(h.endDate) : start;
+                    end.setHours(0, 0, 0, 0);
+                    return currentCellDate >= start && currentCellDate <= end;
                 });
-                
+
                 grid.push(
                     <div key={`curr-${i}`} className={`min-h-[120px] p-3 hover:bg-primary/[0.02] transition-colors relative group ${borderClasses}`}>
                         <span className={`font-bold text-sm ${isSunday || dayHolidays.length > 0 ? 'text-red-500' : 'text-primary'}`}>
@@ -228,7 +267,11 @@ const HolidayCalendarTab = () => {
                         </span>
                         <div className="mt-2 space-y-1.5">
                             {dayHolidays.map((h, idx) => (
-                                <div key={idx} className={`text-xs font-medium p-2.5 rounded-xl leading-relaxed shadow-sm ${h.type === 'Libur Nasional' ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}`}>
+                                <div 
+                                    key={idx} 
+                                    title={h.description ? `${h.name}: ${h.description}` : h.name}
+                                    className={`text-xs font-medium p-2.5 rounded-xl leading-relaxed shadow-sm ${h.type === 'Libur Nasional' ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}`}
+                                >
                                     {h.name}
                                 </div>
                             ))}
@@ -266,7 +309,7 @@ const HolidayCalendarTab = () => {
                             </button>
                         </div>
                     </div>
-                    <button 
+                    <button
                         onClick={() => setIsModalOpen(true)}
                         className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-primary text-secondary font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
                     >
@@ -286,15 +329,28 @@ const HolidayCalendarTab = () => {
             <div className="w-full xl:w-80 shrink-0 border-t xl:border-t-0 xl:border-l border-primary/10 pt-8 xl:pt-0 xl:pl-8 space-y-6">
                 <div>
                     <h3 className="text-xl font-black text-primary tracking-tighter">Daftar Hari Libur</h3>
-                    <p className="text-[10px] text-primary/40 font-black uppercase tracking-widest mt-0.5">Tahun {currentYear}</p>
+                    <p className="text-[10px] text-primary/40 font-black uppercase tracking-widest mt-0.5">{monthNames[currentMonth]} {currentYear}</p>
                 </div>
 
                 <div className="space-y-4">
-                    {yearHolidays.length > 0 ? (
-                        yearHolidays.map((holiday) => {
-                            const dateObj = new Date(holiday.date);
-                            const formattedDate = `${dateObj.getDate()} ${monthNames[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
-                            
+                    {currentMonthHolidays.length > 0 ? (
+                        currentMonthHolidays.map((holiday) => {
+                            const startDateObj = new Date(holiday.date);
+                            startDateObj.setHours(0, 0, 0, 0);
+                            const endDateObj = holiday.endDate ? new Date(holiday.endDate) : startDateObj;
+                            endDateObj.setHours(0, 0, 0, 0);
+
+                            let formattedDate = `${startDateObj.getDate()} ${monthNames[startDateObj.getMonth()]} ${startDateObj.getFullYear()}`;
+                            if (startDateObj.getTime() !== endDateObj.getTime()) {
+                                const startStr = `${startDateObj.getDate()} ${monthNames[startDateObj.getMonth()]}`;
+                                const endStr = `${endDateObj.getDate()} ${monthNames[endDateObj.getMonth()]} ${endDateObj.getFullYear()}`;
+                                if (startDateObj.getFullYear() !== endDateObj.getFullYear()) {
+                                    formattedDate = `${startStr} ${startDateObj.getFullYear()} - ${endStr}`;
+                                } else {
+                                    formattedDate = `${startStr} - ${endStr}`;
+                                }
+                            }
+
                             return (
                                 <div key={holiday.id} className="p-5 rounded-2xl border border-primary/10 hover:border-primary/20 hover:shadow-lg transition-all bg-white group cursor-pointer">
                                     <div className={`text-xs font-bold mb-1.5 ${holiday.type === 'Libur Nasional' ? 'text-red-500' : 'text-gray-500'}`}>
@@ -303,6 +359,11 @@ const HolidayCalendarTab = () => {
                                     <div className="font-black text-primary text-base group-hover:text-primary transition-colors leading-tight">
                                         {holiday.name}
                                     </div>
+                                    {holiday.description && (
+                                        <div className="text-xs text-primary/60 mt-1 font-medium leading-normal">
+                                            {holiday.description}
+                                        </div>
+                                    )}
                                     <div className="text-[11px] text-primary/50 font-bold mt-2">
                                         {holiday.type}
                                     </div>
@@ -312,17 +373,17 @@ const HolidayCalendarTab = () => {
                     ) : (
                         <div className="p-6 rounded-3xl border border-dashed border-primary/20 bg-primary/5 flex items-center justify-center text-center">
                             <span className="text-sm font-medium text-primary/40 italic">
-                                Belum ada hari libur untuk tahun {currentYear}
+                                Belum ada hari libur untuk bulan {monthNames[currentMonth]} {currentYear}
                             </span>
                         </div>
                     )}
                 </div>
             </div>
             {/* Modal Tambah Libur */}
-            <HolidayModal 
-                isOpen={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                onSave={handleSaveHoliday} 
+            <HolidayModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveHoliday}
             />
         </div>
     );
