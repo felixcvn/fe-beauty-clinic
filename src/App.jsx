@@ -57,6 +57,7 @@ const ReportsPage         = lazy(() => import('./pages/Reports/ReportsPage'));
 const NotificationsPage   = lazy(() => import('./pages/Notifications/NotificationsPage'));
 const ProfilePage         = lazy(() => import('./pages/Profile/ProfilePage'));
 const ActivityLogPage     = lazy(() => import('./pages/Logs/ActivityLogPage'));
+const DistributorsPage    = lazy(() => import('./pages/Distributors/DistributorsPage'));
 
 // ── Page loader (fallback Suspense) ──────────────────────────────────────────
 const PageLoader = () => (
@@ -176,6 +177,7 @@ function App() {
                                                     <Route path="/apotek-inventory" element={<RoleProtectedRoute><ApotekerInventoryPage /></RoleProtectedRoute>} />
                                                     <Route path="/cs-treatments" element={<RoleProtectedRoute><ItemManagementPage fixedFilter="treatment" fixedTitle="Treatment" /></RoleProtectedRoute>} />
                                                     <Route path="/superadmin-inventory" element={<RoleProtectedRoute><SuperAdminInventoryPage /></RoleProtectedRoute>} />
+                                                    <Route path="/distributors" element={<RoleProtectedRoute><DistributorsPage /></RoleProtectedRoute>} />
                                                     <Route path="/profile" element={<ProfilePage />} />
                                                 </Routes>
                                             </Suspense>

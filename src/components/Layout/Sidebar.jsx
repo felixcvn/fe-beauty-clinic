@@ -16,6 +16,7 @@ import {
     FingerPrintIcon,
     SparklesIcon,
     EyeIcon,
+    BriefcaseIcon,
 } from '@heroicons/react/24/solid';
 import { NavLink } from 'react-router-dom';
 import logo from '../../assets/logo.png';
@@ -39,6 +40,7 @@ const ALL_NAV_ITEMS = [
     { icon: ArchiveBoxIcon, label: 'Stok', path: '/apotek-inventory' },
     { icon: ArchiveBoxIcon, label: 'Stok', path: '/superadmin-inventory' },
     { icon: SparklesIcon, label: 'Treatment', path: '/cs-treatments' },
+    { icon: BriefcaseIcon, label: 'Distributor', path: '/distributors' },
     { icon: EyeIcon, label: 'Log Aktivitas', path: '/activity-logs' },
 ];
 

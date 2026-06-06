@@ -24,7 +24,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.CS]: ['/', '/patients', '/sales', '/attendance', '/reservations', '/cs-products', '/cs-treatments'],
     [ROLES.HRD]: ['/', '/staff', '/patients', '/attendance'],
     [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance', '/reservations', '/cs-treatments'],
-    [ROLES.MANAJER_MARKETING_SALES]: ['/', '/promos', '/attendance', '/cs-products', '/products'],
+    [ROLES.MANAJER_MARKETING_SALES]: ['/', '/sales', '/promos', '/cs-products', '/attendance', '/products', '/distributors'],
     [ROLES.MARKETING_SALES]: ['/', '/promos', '/attendance', '/products'],
     [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management', '/notifications', '/warehouse-transactions'],
@@ -33,7 +33,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_SUPERVISOR_TREATMENT]: ['/', '/reservations', '/attendance'],
-    [ROLES.ASISTEN_MARKETING_SALES]: ['/', '/promos', '/attendance', '/products'],
+    [ROLES.ASISTEN_MARKETING_SALES]: ['/', '/promos', '/attendance', '/products', '/distributors'],
     [ROLES.ASISTEN_FINANCE]: ['/', '/attendance', '/reports'],
 };
 
