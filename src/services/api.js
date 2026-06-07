@@ -1671,4 +1671,74 @@ export const settingsAPI = {
     }
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI };
+export const distributorAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/distributor`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data distributor' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                nama_distributor: data.Nama_Distributor,
+                tanggal_lahir: data.Tanggal_Lahir,
+                alamat: data.Alamat,
+                no_telp: data.No_Telp,
+                email: data.Email,
+                deposit_masuk: data.Deposit_masuk,
+                distributor: 'Pusat'
+            };
+            const response = await fetch(`${BASE_URL}/distributor`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil, Data Distributor berhasil ditambahkan' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Harap lengkapi semua form wajib!' };
+            }
+            return { success: false, message: json.message || 'Gagal menambah distributor' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = { 
+                nama_distributor: data.Nama_Distributor,
+                tanggal_lahir: data.Tanggal_Lahir,
+                alamat: data.Alamat,
+                no_telp: data.No_Telp,
+                email: data.Email,
+                deposit_masuk: data.Deposit_masuk,
+                distributor: 'Pusat',
+                _method: 'PUT' 
+            };
+            const response = await fetch(`${BASE_URL}/distributor/${id}`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil, Data Distributor berhasil diperbarui' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mengupdate distributor' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/distributor/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus distributor' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI, distributorAPI };

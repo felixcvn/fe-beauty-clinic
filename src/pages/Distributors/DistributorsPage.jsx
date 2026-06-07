@@ -1,17 +1,30 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Search, Plus, User, Edit3, Eye, Briefcase, X, CheckCircle2 } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
-
-const initialDistributors = [
-    { id: 1, Nama_Distributor: 'PT Indo Sukses', Tanggal_Lahir: '1990-01-01', Alamat: 'Jl. Sudirman No 1', No_Telp: '081234567890', Email: 'indo@sukses.com', Distributor: 'Pusat', Sisa_Deposit: 5000000 },
-    { id: 2, Nama_Distributor: 'CV Berkah Bersama', Tanggal_Lahir: '1985-05-15', Alamat: 'Jl. Merdeka 45', No_Telp: '085678901234', Email: 'berkah@bersama.com', Distributor: 'Cabang', Sisa_Deposit: 1500000 },
-];
+import { useAuth } from '../../context/AuthContext';
+import { distributorAPI } from '../../services/api';
 
 const DistributorsPage = () => {
     const { showToast } = useToast();
-    const [distributors, setDistributors] = useState(initialDistributors);
+    const { user } = useAuth();
+    const [distributors, setDistributors] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+
+    const fetchDistributors = async () => {
+        const res = await distributorAPI.getAll(user?.token);
+        if (res.success) {
+            setDistributors(res.data.data || res.data);
+        } else {
+            showToast(res.message || 'Gagal mengambil data', 'error');
+        }
+    };
+
+    useEffect(() => {
+        if (user?.token) {
+            fetchDistributors();
+        }
+    }, [user?.token]);
 
     // Modal states
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -91,7 +104,7 @@ const DistributorsPage = () => {
         return isValid;
     };
 
-    const handleSave = (e) => {
+    const handleSave = async (e) => {
         e.preventDefault();
 
         if (!validateForm()) {
@@ -99,21 +112,24 @@ const DistributorsPage = () => {
         }
 
         if (isEditing) {
-            setDistributors(prev => prev.map(d => d.id === selectedData.id ? {
-                ...d,
-                ...formData,
-                Sisa_Deposit: formData.Deposit_masuk // Map back to Sisa_Deposit
-            } : d));
-            showToast('Berhasil, Data Distributor berhasil diperbarui', 'success');
+            const res = await distributorAPI.update(user?.token, selectedData.id, formData);
+            if (res.success) {
+                showToast('Berhasil, Data Distributor berhasil diperbarui', 'success');
+                fetchDistributors();
+                handleCloseForm();
+            } else {
+                showToast(res.message || 'Gagal memperbarui', 'error');
+            }
         } else {
-            setDistributors(prev => [{
-                ...formData,
-                id: Date.now(),
-                Sisa_Deposit: formData.Deposit_masuk
-            }, ...prev]);
-            showToast('Berhasil, Data Distributor berhasil ditambahkan', 'success');
+            const res = await distributorAPI.create(user?.token, formData);
+            if (res.success) {
+                showToast('Berhasil, Data Distributor berhasil ditambahkan', 'success');
+                fetchDistributors();
+                handleCloseForm();
+            } else {
+                showToast(res.message || 'Gagal menambahkan', 'error');
+            }
         }
-        handleCloseForm();
     };
 
     const formatCurrency = (amount) => {

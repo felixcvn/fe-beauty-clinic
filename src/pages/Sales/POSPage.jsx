@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
-import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI, stokRacikanAPI } from '../../services/api';
+import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI, stokRacikanAPI, distributorAPI } from '../../services/api';
 
 const POSPage = () => {
     const navigate = useNavigate();
@@ -40,11 +40,12 @@ const POSPage = () => {
             }
             setIsFetchingData(true);
             try {
-                const [resProducts, resPatients, resTreatments, resRacikans] = await Promise.all([
+                const [resProducts, resPatients, resTreatments, resRacikans, resDistributors] = await Promise.all([
                     stokProdukAPI.getAll(user.token),
                     pasienAPI.getAll(user.token, 1, 'per_page=100'),
                     treatmentAPI.getAll(user.token),
-                    stokRacikanAPI.getAll(user.token)
+                    stokRacikanAPI.getAll(user.token),
+                    distributorAPI.getAll(user.token)
                 ]);
 
                 if (resProducts.success && resProducts.data) {
@@ -55,20 +56,35 @@ const POSPage = () => {
                         name: p.Nama_produk || p.Nama_Produk || p.nama_produk || p.name || 'Tanpa Nama',
                         category: p.Kategori || p.category || p.kategori || 'Skincare',
                         price: Number(p.Harga || p.harga || p.price || 0),
+                        harga_distributor: Number(p.Harga_Distributor || p.harga_distributor || p.Harga || 0),
                         stock: Number(p.Stok || p.stok || p.stock || 0),
                         image: p.image || 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
                     })));
                 }
 
+                let customers = [];
                 if (resPatients.success && resPatients.data) {
                     const responseData = resPatients.data.data || resPatients.data;
                     const patientArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                    setApiPatients(patientArray.map(p => ({
+                    customers = [...customers, ...patientArray.map(p => ({
                         id: String(p.id),
                         name: p.Nama_pasien || p.nama_pasien || p.name || 'Unknown Patient',
-                        phone: p.no_Telp || p.no_telp || p.phone || '-'
-                    })));
+                        phone: p.no_Telp || p.no_telp || p.phone || '-',
+                        isDistributor: false
+                    }))];
                 }
+                
+                if (resDistributors && resDistributors.success && resDistributors.data) {
+                    const responseData = resDistributors.data.data || resDistributors.data;
+                    const distributorArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    customers = [...customers, ...distributorArray.map(d => ({
+                        id: `DIST-${d.id}`,
+                        name: `${d.Nama_Distributor} - DISTRIBUTOR`,
+                        phone: d.No_Telp || d.no_telp || '-',
+                        isDistributor: true
+                    }))];
+                }
+                setApiPatients(customers);
 
                 if (resTreatments.success && resTreatments.data) {
                     const responseData = resTreatments.data.data || resTreatments.data;
@@ -159,6 +175,13 @@ const POSPage = () => {
         p.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const getProductPrice = (item) => {
+        if (selectedCustomer?.isDistributor && item.harga_distributor) {
+            return item.harga_distributor;
+        }
+        return item.price;
+    };
+
     const addToCart = (product) => {
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id);
@@ -185,8 +208,8 @@ const POSPage = () => {
     };
 
     const cartTotal = useMemo(() =>
-        cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
-        , [cart]);
+        cart.reduce((sum, item) => sum + (getProductPrice(item) * item.quantity), 0)
+        , [cart, selectedCustomer]);
 
     // Kalkulasi Harga Akhir
     const memberDiscount = isMember ? (cartTotal * 0.05) : 0;
@@ -237,8 +260,9 @@ const POSPage = () => {
         const isOnlyTreatments = cart.every(item => item.category === 'Treatment');
 
         const payload = {
-            data_pasien_id: String(selectedCustomer.id).startsWith('PAS-') ? null : selectedCustomer.id, // Jika mock ID, kirim null
+            data_pasien_id: (selectedCustomer && !selectedCustomer.isDistributor && !String(selectedCustomer.id).startsWith('PAS-')) ? selectedCustomer.id : null,
             nama_pasien_distributor: selectedCustomer.name,
+            is_distributor: selectedCustomer?.isDistributor || false,
             tanggal_transaksi: new Date().toISOString().split('T')[0],
             catatan_pesanan: '',
             status: isOnlyTreatments ? 'Selesai' : 'Pending',
@@ -489,7 +513,7 @@ const POSPage = () => {
                                         <p className="text-[9px] md:text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-3 text-center">{product.category}</p>
                                     </div>
                                     <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5">
-                                        <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
+                                        <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {getProductPrice(product).toLocaleString('id-ID')}</span>
                                         <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
                                             <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                         </div>
@@ -653,7 +677,7 @@ const POSPage = () => {
                                         <span className="text-[9px] font-black text-primary">{item.quantity}</span>
                                         <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:bg-white rounded transition-all"><Plus className="w-2.5 h-2.5 text-primary/40" /></button>
                                     </div>
-                                    <span className="text-[11px] font-black text-primary tracking-tighter">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                    <span className="text-[11px] font-black text-primary tracking-tighter">Rp {(getProductPrice(item) * item.quantity).toLocaleString('id-ID')}</span>
                                 </div>
                             </div>
                         ))
