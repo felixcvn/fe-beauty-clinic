@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, CircleMarker, Tooltip } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useAuth } from '../../../context/AuthContext';
-import { pasienAPI } from '../../../services/api';
+import { useAuth } from '../../context/AuthContext';
+import { pasienAPI } from '../../services/api';
 
 // Dictionary koordinat untuk kecamatan di Jember dan sekitarnya
 const KECAMATAN_COORDS = {
@@ -59,17 +59,38 @@ const PatientDistributionMap = () => {
                 const res = await pasienAPI.getDistribusiWilayah(user.token);
                 if (res.success && res.data) {
                     // Mapping data dari backend dengan koordinat
-                    // Asumsi struktur data backend: [{ name: 'Sumbersari', total_pasien: 150 }, ...]
+                    // Asumsi struktur data backend: [{ kecamatan: 'SUMBERSARI', total_pasien: 150 }, ...]
                     const mapped = res.data.map(item => {
-                        const coords = KECAMATAN_COORDS[item.name] || { lat: -8.1691, lng: 113.7020 }; // default ke pusat Jember jika tak ketemu
+                        const namaKecamatan = item.kecamatan || item.name || "";
+                        
+                        // Normalisasi string: hilangkan spasi dan jadikan uppercase agar cocok ('GUMUK MAS' -> 'GUMUKMAS')
+                        const normalizedBackendName = namaKecamatan.toUpperCase().replace(/\s+/g, '');
+                        
+                        // Cari di dictionary yang key-nya juga sudah kita uppercase & buang spasi
+                        const matchedKey = Object.keys(KECAMATAN_COORDS).find(
+                            key => key.toUpperCase().replace(/\s+/g, '') === normalizedBackendName
+                        );
+
+                        const coords = matchedKey ? KECAMATAN_COORDS[matchedKey] : { lat: -8.1691, lng: 113.7020 };
+                        
                         return {
-                            kecamatan: item.name,
+                            kecamatan: matchedKey || namaKecamatan, // Tampilkan nama yang rapi jika ada
                             lat: coords.lat,
                             lng: coords.lng,
                             total: parseInt(item.total_pasien || 0)
                         };
                     });
-                    setMapData(mapped);
+                    
+                    // Gabungkan (sum) total pasien jika ada kecamatan yang koordinatnya jatuh di titik yang persis sama
+                    // (misalnya karena gagal mapping dan masuk ke default)
+                    const aggregated = Object.values(mapped.reduce((acc, curr) => {
+                        const key = `${curr.lat},${curr.lng}`;
+                        if (!acc[key]) acc[key] = { ...curr };
+                        else acc[key].total += curr.total;
+                        return acc;
+                    }, {}));
+
+                    setMapData(aggregated);
                 }
             } catch (error) {
                 console.error("Gagal mengambil data persebaran pasien", error);
