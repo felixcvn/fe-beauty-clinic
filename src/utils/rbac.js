@@ -26,7 +26,7 @@ export const ROLE_PERMISSIONS = {
     [ROLES.SUPERVISOR_TREATMENT]: ['/', '/promos', '/attendance', '/reservations', '/cs-treatments'],
     [ROLES.MANAJER_MARKETING_SALES]: ['/', '/sales', '/promos', '/cs-products', '/attendance', '/products', '/distributors'],
     [ROLES.MARKETING_SALES]: ['/', '/promos', '/attendance', '/products'],
-    [ROLES.OWNER]: ['/', '/patients', '/staff', '/reports', '/attendance', '/reservations'],
+    [ROLES.OWNER]: ['/','/reports'],
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management', '/notifications', '/warehouse-transactions'],
     [ROLES.STAFF_OB]: ['/', '/attendance'],
     [ROLES.STAFF_SATPAM]: ['/', '/attendance'],

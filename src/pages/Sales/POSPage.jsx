@@ -223,8 +223,8 @@ const POSPage = () => {
     };
     const promoDiscount = calculatePromoDiscount();
 
-    const tax = Math.max(0, (cartTotal - memberDiscount - promoDiscount) * 0.11);
-    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount) + tax);
+    const tax = 0;
+    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount));
 
     const handleApplyPromo = (codeToApply = promoInput) => {
         if (!codeToApply.trim()) {
@@ -558,7 +558,7 @@ const POSPage = () => {
                                     </button>
                                 </div>
 
-                                {!hasFetchedRecord && (
+                                {!hasFetchedRecord && !selectedCustomer.isDistributor && (
                                     <button
                                         onClick={handleFetchMedicalRecord}
                                         disabled={isFetchingRecord}
@@ -697,10 +697,7 @@ const POSPage = () => {
                                 <span>- Rp {promoDiscount.toLocaleString('id-ID')}</span>
                             </div>
                         )}
-                        <div className="flex justify-between text-primary/40 font-bold text-[9px] uppercase tracking-widest px-1">
-                            <span>Pajak (11%)</span>
-                            <span>Rp {tax.toLocaleString('id-ID')}</span>
-                        </div>
+
                         <div className="flex justify-between items-center pt-3 border-t border-primary/5 mt-2">
                             <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">Total Tagihan</span>
                             <span className="text-2xl font-black text-primary tracking-tighter">Rp {finalTotal.toLocaleString('id-ID')}</span>

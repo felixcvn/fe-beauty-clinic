@@ -23,9 +23,7 @@ const SalesPage = () => {
         if (res.success) {
             const formatted = res.data.map(t => {
                 const totalKeseluruhan = Number(t.total_keseluruhan || 0);
-                const totalWithPpn = totalKeseluruhan + (totalKeseluruhan * 0.11);
-                // Hitung PPN jika dari backend belum ada kolom pajak (misalnya kita anggap total sudah include PPN atau belum, tapi kita ikuti format lama)
-                // Disini kita format tampilan amount
+                const totalWithPpn = totalKeseluruhan;
                 return {
                     id: t.order_id || `INV-${t.id}`,
                     customer: t.pasien ? t.pasien.Nama_pasien : (t.nama_pasien_distributor || 'Umum'),
@@ -85,7 +83,7 @@ const SalesPage = () => {
     const salesStats = useMemo(() => {
         const totalSales = recentSales.reduce((sum, sale) => {
             const rawTotal = sale.raw?.total_keseluruhan ? Number(sale.raw.total_keseluruhan) : 0;
-            const rawTotalWithPpn = rawTotal + (rawTotal * 0.11);
+            const rawTotalWithPpn = rawTotal;
             return sum + rawTotalWithPpn;
         }, 0);
         const transactions = recentSales.length;

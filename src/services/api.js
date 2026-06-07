@@ -521,6 +521,23 @@ export const pasienAPI = {
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
+
+    getDistribusiWilayah: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/pasien-distribusi`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) {
+                return { success: true, data: json.data || json };
+            }
+            return { success: false, message: json.message || 'Gagal mengambil distribusi pasien' };
+        } catch (error) {
+            console.error('[API] Get distribusi pasien error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
 };
 
 /* ─────────────────────────────────────────────────────────────

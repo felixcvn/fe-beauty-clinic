@@ -4,6 +4,7 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import StatsCard from './StatsCard'; 
 import { useAuth } from '../../context/AuthContext'; 
 import { transaksiAPI } from '../../services/api';
+import PatientDistributionMap from '../../components/Dashboard/PatientDistributionMap';
 
 const revenueData = [
     { name: 'Jan', revenue: 450, target: 400 }, 
@@ -355,6 +356,17 @@ const OwnerDashboard = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* Map Section */}
+            <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] flex flex-col">
+                <div className="mb-6">
+                    <h3 className="text-xl font-black text-primary tracking-tight">Peta Kepadatan Pasien</h3>
+                    <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Distribusi Pasien Berdasarkan Kecamatan</span>
+                </div>
+                <div className="h-[500px] w-full rounded-[2rem] overflow-hidden border border-primary/10">
+                    <PatientDistributionMap />
                 </div>
             </div>
         </div>

@@ -98,8 +98,8 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
         return appliedPromo.value;
     }, [appliedPromo, cartTotal, memberDiscount]);
 
-    const tax = Math.max(0, (cartTotal - memberDiscount - promoDiscount) * 0.11);
-    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount) + tax);
+    const tax = 0;
+    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount));
 
     const handleApplyPromo = (codeToApply = promoInput) => {
         if (!codeToApply.trim()) {
@@ -365,10 +365,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                     <span>- Rp {promoDiscount.toLocaleString('id-ID')}</span>
                                 </div>
                             )}
-                            <div className="flex justify-between text-primary/40 font-bold text-[9px] uppercase tracking-[0.2em]">
-                                <span>Pajak (11%)</span>
-                                <span>Rp {tax.toLocaleString('id-ID')}</span>
-                            </div>
+
                             <div className="flex justify-between items-center pt-2">
                                 <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Total Bayar</span>
                                 <span className="text-2xl font-black text-primary tracking-tighter">Rp {finalTotal.toLocaleString('id-ID')}</span>

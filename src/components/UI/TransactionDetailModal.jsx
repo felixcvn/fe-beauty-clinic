@@ -75,8 +75,8 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
     };
 
     const subtotal = editableItems.reduce((sum, item) => sum + (item.rawPrice * item.qty), 0);
-    const tax = subtotal * 0.11; // Restore tax for UI 
-    const finalTotal = subtotal + tax;
+    const tax = 0;
+    const finalTotal = subtotal;
 
 
     const getStatusStyle = (status) => {
@@ -137,7 +137,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
         receiptText += line + '\n';
         receiptText += leftRightText('Subtotal', `Rp ${subtotal.toLocaleString('id-ID')}`) + '\n';
-        receiptText += leftRightText('PPN (11%)', `Rp ${tax.toLocaleString('id-ID')}`) + '\n';
+
         receiptText += line + '\n';
         receiptText += leftRightText('TOTAL', `Rp ${finalTotal.toLocaleString('id-ID')}`) + '\n';
         receiptText += line + '\n';
@@ -318,10 +318,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                 <span className="opacity-50">Subtotal</span>
                                 <span className="text-sm italic">Rp {subtotal.toLocaleString('id-ID')}</span>
                              </div>
-                             <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
-                                <span className="opacity-50">Pajak PPN (11%)</span>
-                                <span className="text-sm italic">Rp {tax.toLocaleString('id-ID')}</span>
-                             </div>
+
                              <div className="h-px bg-white/10 my-6" />
                              <div className="flex justify-between items-center">
                                 <div className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Total Tagihan</div>
