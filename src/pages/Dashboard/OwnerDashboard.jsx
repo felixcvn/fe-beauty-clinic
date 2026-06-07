@@ -1,8 +1,9 @@
-import React, { useState } from 'react'; 
+import React, { useState, useEffect } from 'react'; 
 import { Users, DollarSign, Activity, TrendingUp, PieChart, BarChart3, ArrowUpRight, ArrowDownRight, ShoppingBag, Target } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Legend } from 'recharts'; 
 import StatsCard from './StatsCard'; 
 import { useAuth } from '../../context/AuthContext'; 
+import { transaksiAPI } from '../../services/api';
 
 const revenueData = [
     { name: 'Jan', revenue: 450, target: 400 }, 
@@ -31,6 +32,84 @@ const treatmentPerfData = [
 const OwnerDashboard = () => {
     const { user } = useAuth();
     const [activePieIndex, setActivePieIndex] = useState(0);
+    const [stats, setStats] = useState({
+        revenue: { value: 'Rp 0', change: '0%', trend: 'up' },
+        profitMargin: { value: '28.4%', change: '2.1%', trend: 'up' },
+        patients: { value: '0', change: '0%', trend: 'up' },
+        cac: { value: 'Rp 85k', change: '12%', trend: 'down' }
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!user?.token) return;
+            const res = await transaksiAPI.getAll(user.token, 'Selesai');
+            if (res.success) {
+                const transactions = res.data || [];
+                
+                const now = new Date();
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+                
+                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+
+                let currentMonthRev = 0;
+                let lastMonthRev = 0;
+                let currentMonthCount = 0;
+                let lastMonthCount = 0;
+
+                transactions.forEach(trx => {
+                    const trxDate = new Date(trx.tanggal_transaksi || trx.created_at);
+                    const trxMonth = trxDate.getMonth();
+                    const trxYear = trxDate.getFullYear();
+                    
+                    if (trxMonth === currentMonth && trxYear === currentYear) {
+                        currentMonthRev += Number(trx.total_keseluruhan || 0);
+                        currentMonthCount++;
+                    } else if (trxMonth === lastMonth && trxYear === lastMonthYear) {
+                        lastMonthRev += Number(trx.total_keseluruhan || 0);
+                        lastMonthCount++;
+                    }
+                });
+
+                const formatRev = (num) => {
+                    if (num >= 1000000) return `Rp ${(num / 1000000).toFixed(1)}M`;
+                    if (num >= 1000) return `Rp ${(num / 1000).toFixed(1)}k`;
+                    return `Rp ${num}`;
+                };
+
+                let revGrowth = 0;
+                if (lastMonthRev > 0) {
+                    revGrowth = ((currentMonthRev - lastMonthRev) / lastMonthRev) * 100;
+                } else if (currentMonthRev > 0) {
+                    revGrowth = 100;
+                }
+
+                let countGrowth = 0;
+                if (lastMonthCount > 0) {
+                    countGrowth = ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
+                } else if (currentMonthCount > 0) {
+                    countGrowth = 100;
+                }
+
+                setStats(prev => ({
+                    ...prev,
+                    revenue: {
+                        value: formatRev(currentMonthRev),
+                        change: `${Math.abs(revGrowth).toFixed(1)}%`,
+                        trend: revGrowth >= 0 ? 'up' : 'down'
+                    },
+                    patients: {
+                        value: `+${currentMonthCount}`,
+                        change: `${Math.abs(countGrowth).toFixed(1)}%`,
+                        trend: countGrowth >= 0 ? 'up' : 'down'
+                    }
+                }));
+            }
+        };
+
+        fetchData();
+    }, [user?.token]);
 
     const onPieEnter = (_, index) => {
         setActivePieIndex(index);
@@ -64,10 +143,10 @@ const OwnerDashboard = () => {
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12"> 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Executive Dashboard</h2>
+                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Dashboard Owner</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse"></span>
-                        Overview Strategis - {user?.role} 
+                        {user?.role} 
                     </p>
                 </div>
                 <div className="flex gap-4">
@@ -84,30 +163,30 @@ const OwnerDashboard = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <StatsCard
                     title="Total Pendapatan"
-                    value="Rp 3.7M"
-                    change="15.8%"
-                    trend="up"
+                    value={stats.revenue.value}
+                    change={stats.revenue.change}
+                    trend={stats.revenue.trend}
                     icon={DollarSign}
                 />
                 <StatsCard
                     title="Profit margin"
-                    value="28.4%"
-                    change="2.1%"
-                    trend="up"
+                    value={stats.profitMargin.value}
+                    change={stats.profitMargin.change}
+                    trend={stats.profitMargin.trend}
                     icon={Target}
                 />
                 <StatsCard
-                    title="Pertumbuhan Pasien"
-                    value="+482"
-                    change="5.4%"
-                    trend="up"
+                    title="Pertumbuhan Transaksi"
+                    value={stats.patients.value}
+                    change={stats.patients.change}
+                    trend={stats.patients.trend}
                     icon={Users}
                 />
                 <StatsCard
                     title="Biaya Akuisisi Cust"
-                    value="Rp 85k"
-                    change="12%"
-                    trend="down"
+                    value={stats.cac.value}
+                    change={stats.cac.change}
+                    trend={stats.cac.trend}
                     icon={Activity}
                 />
             </div>

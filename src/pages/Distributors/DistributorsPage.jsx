@@ -189,7 +189,7 @@ const DistributorsPage = () => {
                                             <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary shrink-0 border border-primary/10">
                                                 <Briefcase className="w-5 h-5" />
                                             </div>
-                                            <div className="font-bold text-primary text-sm">{item.Nama_Distributor}</div>
+                                            <div className="font-medium text-primary text-sm">{item.Nama_Distributor}</div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4 text-sm font-medium text-primary/80">

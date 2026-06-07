@@ -5,7 +5,7 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
-import { laporanPenjualanAPI } from '../../services/api';
+import { laporanPenjualanAPI, transaksiAPI } from '../../services/api';
 import ReportDetailModal from '../../components/UI/ReportDetailModal';
 
 const data = [
@@ -20,23 +20,6 @@ const data = [
     { name: 'Sep', forecast: 4200 },
 ];
 
-const treatmentData = [
-    { name: 'Facial Acne', value: 400, color: '#1B4D3E' },
-    { name: 'Laser Therapy', value: 300, color: '#D4AF37' },
-    { name: 'Botox', value: 300, color: '#2C5F4D' },
-    { name: 'Chemical Peel', value: 200, color: '#E5D5B0' },
-    { name: 'Skin Booster', value: 150, color: '#4A7C59' },
-];
-
-const productData = [
-    { name: 'Serum Vit C', value: 500, color: '#1B4D3E' },
-    { name: 'Sunscreen SPF50', value: 450, color: '#D4AF37' },
-    { name: 'Krim Malam', value: 350, color: '#2C5F4D' },
-    { name: 'Sabun Wajah', value: 250, color: '#E5D5B0' },
-    { name: 'Toner BHA/AHA', value: 200, color: '#829356' },
-];
-
-
 const ReportsPage = () => {
     const { user } = useAuth();
     
@@ -46,6 +29,11 @@ const ReportsPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [transactions, setTransactions] = useState([]);
     const [totalRevenue, setTotalRevenue] = useState(0);
+
+    const [treatmentData, setTreatmentData] = useState([]);
+    const [productData, setProductData] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedReportDetail, setSelectedReportDetail] = useState(null);
@@ -57,16 +45,58 @@ const ReportsPage = () => {
         if (endDate) params.end_date = endDate;
         if (searchTerm) params.search = searchTerm;
 
-        const res = await laporanPenjualanAPI.getAll(user?.token, params);
-        if (res.success) {
-            setTransactions(res.data || []);
-            const total = (res.data || []).reduce((sum, item) => sum + Number(item.Total_Harga || 0), 0);
-            setTotalRevenue(total);
+        try {
+            const [res, resTransaksi] = await Promise.all([
+                laporanPenjualanAPI.getAll(user?.token, params),
+                transaksiAPI.getAll(user?.token, 'Selesai')
+            ]);
+
+            if (res.success) {
+                setTransactions(res.data || []);
+                const total = (res.data || []).reduce((sum, item) => sum + Number(item.Total_Harga || 0), 0);
+                setTotalRevenue(total);
+            }
+
+            let tSales = {};
+            let pSales = {};
+            if (resTransaksi.success) {
+                resTransaksi.data.forEach(trx => {
+                    if (trx.details) {
+                        trx.details.forEach(detail => {
+                            if (detail.itemable_type === 'App\\Models\\Treatment') {
+                                tSales[detail.nama_item] = (tSales[detail.nama_item] || 0) + detail.qty;
+                            } else if (detail.itemable_type === 'App\\Models\\StokProduk') {
+                                pSales[detail.nama_item] = (pSales[detail.nama_item] || 0) + detail.qty;
+                            }
+                        });
+                    }
+                });
+            }
+
+            const tColors = ['#1B4D3E', '#2C5F4D', '#4A7C59', '#829356', '#D4AF37'];
+            const sortedTreatments = Object.keys(tSales)
+                .map(name => ({ name, value: tSales[name] }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 5)
+                .map((item, idx) => ({ ...item, color: tColors[idx % tColors.length] }));
+            setTreatmentData(sortedTreatments);
+
+            const pColors = ['#D4AF37', '#E5D5B0', '#1B4D3E', '#2C5F4D', '#829356'];
+            const sortedProducts = Object.keys(pSales)
+                .map(name => ({ name, value: pSales[name] }))
+                .sort((a, b) => b.value - a.value)
+                .slice(0, 5)
+                .map((item, idx) => ({ ...item, color: pColors[idx % pColors.length] }));
+            setProductData(sortedProducts);
+
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
         setIsLoading(false);
     };
 
     useEffect(() => {
+        setCurrentPage(1);
         const timer = setTimeout(() => {
             fetchLaporan();
         }, 500);
@@ -209,7 +239,7 @@ const ReportsPage = () => {
                                 <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Distribusi layanan terpopuler</p>
                             </div>
                             <div className="bg-primary/5 px-4 py-2 rounded-xl">
-                                <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Total: 1,200</span>
+                                <span className="text-[10px] font-black text-primary uppercase tracking-widest leading-none">Total: {treatmentData.reduce((acc, curr) => acc + curr.value, 0)}</span>
                             </div>
                         </div>
                         <div className="h-[200px] md:h-[250px] w-full mb-10">
@@ -261,7 +291,7 @@ const ReportsPage = () => {
                                         </div>
                                     </div>
                                     <div className="text-[10px] font-black text-primary/40 uppercase tracking-widest">
-                                        {Math.round((item.value / 1200) * 100)}%
+                                        {treatmentData.reduce((acc, curr) => acc + curr.value, 0) > 0 ? Math.round((item.value / treatmentData.reduce((acc, curr) => acc + curr.value, 0)) * 100) : 0}%
                                     </div>
                                 </div>
                             ))}
@@ -275,7 +305,7 @@ const ReportsPage = () => {
                                 <p className="text-[10px] font-black text-primary/30 uppercase tracking-widest mt-1">Perputaran item stok terjual</p>
                             </div>
                             <div className="bg-accent-gold/10 px-4 py-2 rounded-xl">
-                                <span className="text-[10px] font-black text-accent-gold uppercase tracking-widest leading-none">Total: 1,550</span>
+                                <span className="text-[10px] font-black text-accent-gold uppercase tracking-widest leading-none">Total: {productData.reduce((acc, curr) => acc + curr.value, 0)}</span>
                             </div>
                         </div>
                         <div className="h-[200px] md:h-[250px] w-full mb-10">
@@ -327,7 +357,7 @@ const ReportsPage = () => {
                                         </div>
                                     </div>
                                     <div className="text-[10px] font-black text-primary/40 uppercase tracking-widest">
-                                        {Math.round((item.value / 1550) * 100)}%
+                                        {productData.reduce((acc, curr) => acc + curr.value, 0) > 0 ? Math.round((item.value / productData.reduce((acc, curr) => acc + curr.value, 0)) * 100) : 0}%
                                     </div>
                                 </div>
                             ))}
@@ -365,7 +395,7 @@ const ReportsPage = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {transactions.map((trx, idx) => (
+                            {transactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((trx, idx) => (
                                 <tr key={trx.id || idx} onClick={() => handleOpenDetail(trx.id)} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] cursor-pointer transition-colors group">
                                     <td className="px-4 py-2">
                                         <span className="text-sm font-medium text-primary tracking-tight">{trx.no_Faktur}</span>
@@ -377,7 +407,7 @@ const ReportsPage = () => {
                                         <span className="text-sm font-medium text-primary">{trx.Nama_pasien_atau_Distributor}</span>
                                     </td>
                                     <td className="px-4 py-2 text-right">
-                                        <span className="text-sm font-medium text-primary">{(trx.Total_Harga).toLocaleString('id-ID')}</span>
+                                        <span className="text-sm font-medium text-primary">{Number(trx.Total_Harga || 0).toLocaleString('id-ID')}</span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
                                         <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm border bg-green-50 text-green-600 border-green-100">Selesai</span>
@@ -399,9 +429,33 @@ const ReportsPage = () => {
                     </table>
                 </div>
 
+                {transactions.length > itemsPerPage && (
+                    <div className="hidden lg:flex p-4 border-t border-primary/5 items-center justify-between">
+                        <span className="text-xs font-bold text-primary/40">
+                            Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, transactions.length)} dari {transactions.length} data
+                        </span>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1.5 rounded-lg border border-primary/10 text-xs font-bold text-primary disabled:opacity-30"
+                            >
+                                Prev
+                            </button>
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.min(Math.ceil(transactions.length / itemsPerPage), p + 1))}
+                                disabled={currentPage === Math.ceil(transactions.length / itemsPerPage)}
+                                className="px-3 py-1.5 rounded-lg border border-primary/10 text-xs font-bold text-primary disabled:opacity-30"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
+
                 {/* Mobile Card View */}
                 <div className="lg:hidden divide-y divide-primary/5">
-                    {transactions.map((trx, idx) => (
+                    {transactions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((trx, idx) => (
                         <div key={trx.id || idx} onClick={() => handleOpenDetail(trx.id)} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
                             <div className="flex justify-between items-start">
                                 <div>
@@ -416,7 +470,7 @@ const ReportsPage = () => {
                             <div className="bg-gray-50/50 p-4 rounded-2xl border border-primary/5 space-y-3">
                                 <div className="flex justify-between items-center pt-2 border-primary/5">
                                     <span className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Total Biaya</span>
-                                    <span className="text-sm font-black text-primary">Rp {(trx.Total_Harga).toLocaleString('id-ID')}</span>
+                                    <span className="text-sm font-black text-primary">Rp {Number(trx.Total_Harga || 0).toLocaleString('id-ID')}</span>
                                 </div>
                             </div>
 
@@ -433,6 +487,54 @@ const ReportsPage = () => {
                         />
                     )}
                 </div>
+
+                {transactions.length > itemsPerPage && (
+                    <div className="lg:hidden p-4 border-t border-primary/5 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-primary/40">
+                            {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, transactions.length)} / {transactions.length}
+                        </span>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 rounded-lg border border-primary/10 text-[10px] font-bold text-primary disabled:opacity-30"
+                            >
+                                Prev
+                            </button>
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.min(Math.ceil(transactions.length / itemsPerPage), p + 1))}
+                                disabled={currentPage === Math.ceil(transactions.length / itemsPerPage)}
+                                className="px-3 py-1 rounded-lg border border-primary/10 text-[10px] font-bold text-primary disabled:opacity-30"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {transactions.length > itemsPerPage && (
+                    <div className="lg:hidden p-4 border-t border-primary/5 flex items-center justify-between">
+                        <span className="text-[10px] font-bold text-primary/40">
+                            {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, transactions.length)} / {transactions.length}
+                        </span>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                                className="px-3 py-1 rounded-lg border border-primary/10 text-[10px] font-bold text-primary disabled:opacity-30"
+                            >
+                                Prev
+                            </button>
+                            <button 
+                                onClick={() => setCurrentPage(p => Math.min(Math.ceil(transactions.length / itemsPerPage), p + 1))}
+                                disabled={currentPage === Math.ceil(transactions.length / itemsPerPage)}
+                                className="px-3 py-1 rounded-lg border border-primary/10 text-[10px] font-bold text-primary disabled:opacity-30"
+                            >
+                                Next
+                            </button>
+                        </div>
+                    </div>
+                )}
                     </>
                 )}
             </div>

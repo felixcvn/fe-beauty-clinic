@@ -1347,6 +1347,45 @@ export const activityLogsAPI = {
     }
 };
 
+/* ─────────────────────────────────────────────────────────────
+   Laporan Penjualan API
+───────────────────────────────────────────────────────────── */
+export const laporanPenjualanAPI = {
+    getAll: async (token, params = {}) => {
+        try {
+            const queryParams = new URLSearchParams();
+            if (params.start_date) queryParams.append('start_date', params.start_date);
+            if (params.end_date) queryParams.append('end_date', params.end_date);
+            if (params.search) queryParams.append('search', params.search);
+            
+            const response = await fetch(`${BASE_URL}/laporan-penjualan?${queryParams.toString()}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data laporan penjualan' };
+        } catch (error) {
+            console.error('[API] Get laporan penjualan error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
+    getDetail: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/laporan-penjualan/${id}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil detail laporan penjualan' };
+        } catch (error) {
+            console.error('[API] Get detail laporan penjualan error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    }
+};
+
 export const transaksiAPI = {
     getAll: async (token, status = '') => {
         try {
