@@ -5,6 +5,7 @@ import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext'; 
 import { transaksiAPI } from '../../services/api';
 import PatientDistributionMap from '../../components/Dashboard/PatientDistributionMap';
+import TopSellingItems from '../../components/Dashboard/TopSellingItems';
 
 const revenueData = [
     { name: 'Jan', revenue: 450, target: 400 }, 
@@ -287,74 +288,21 @@ const OwnerDashboard = () => {
                 </div>
             </div>
 
-            {/* Breakdown & Operational Efficiency */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                {/* Treatment Performance */}
+            {/* Breakdown */}
+            <div className="w-full">
+                {/* Top Selling Items (Dynamic) */}
                 <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white">
-                     <div className="flex justify-between items-center mb-8">
+                     <div className="flex justify-between items-center mb-6">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tight">Perilaku Pelanggan</h3>
-                            <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Transaksi Tertinggi berdasarkan Kategori</span>
+                            <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Item Paling Banyak Diminati</span>
                         </div>
                         <div className="p-3 bg-secondary rounded-2xl">
                             <ShoppingBag className="w-5 h-5 text-primary" />
                         </div>
                     </div>
-                    <div className="h-[200px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={treatmentPerfData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#E5D5B0" opacity={0.3} />
-                                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#1B4D3E', opacity: 0.5 }} />
-                                <YAxis dataKey="name" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 'bold', fill: '#1B4D3E' }} />
-                                <Tooltip
-                                    cursor={{fill: '#1B4D3E', opacity: 0.05}}
-                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-                                />
-                                <Bar dataKey="total" fill="#D4AF37" radius={[0, 4, 4, 0]} barSize={20} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </div>
-
-                 {/* Operational Highlights */}
-                 <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white flex flex-col justify-between">
-                    <div>
-                        <h3 className="text-xl font-black text-primary tracking-tight">Highlight Operasional</h3>
-                        <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Ringkasan Efisiensi Bisnis</span>
-                    </div>
-
-                    <div className="space-y-6 mt-6">
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
-                                    <Target className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-sm text-primary">Tingkat Retensi (Retention Rate)</h4>
-                                    <p className="text-xs font-medium text-primary/60">Pasien yang kembali dalam 6 bulan</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <span className="block text-xl font-black text-primary">68%</span>
-                                <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded-full">+4% dari bulan lalu</span>
-                            </div>
-                        </div>
-
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
-                                    <TrendingUp className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-sm text-primary">Rata-rata Nilai Transaksi</h4>
-                                    <p className="text-xs font-medium text-primary/60">Perawatan + Stok Skincare</p>
-                                </div>
-                            </div>
-                            <div className="text-right">
-                                <span className="block text-xl font-black text-primary">Rp 1.2M</span>
-                                <span className="text-[10px] font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded-full">+12% dari Q1</span>
-                            </div>
-                        </div>
+                    <div className="w-full">
+                        <TopSellingItems />
                     </div>
                 </div>
             </div>

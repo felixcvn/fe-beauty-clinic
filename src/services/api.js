@@ -1797,4 +1797,23 @@ export const distributorAPI = {
     }
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI, distributorAPI };
+export const dashboardAPI = {
+    getTopSellingItems: async (token, filters = {}) => {
+        try {
+            const queryParams = new URLSearchParams(filters).toString();
+            const url = `${BASE_URL}/dashboard-owner/top-selling${queryParams ? '?' + queryParams : ''}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data penjualan' };
+        } catch (error) {
+            console.error('[API] Get top selling items error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI, distributorAPI, dashboardAPI };
