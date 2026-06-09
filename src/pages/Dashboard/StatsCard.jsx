@@ -11,12 +11,12 @@ const StatsCard = ({ title, value, change, icon: Icon, trend = 'up' }) => {
 
             <div className="flex justify-between items-start relative z-10">
                 <div className="flex-1 min-w-0">
-                    <p className="text-primary/40 text-[8px] md:text-[9px] lg:text-[10px] uppercase font-black tracking-[0.2em] mb-1.5 truncate">{title}</p>
+                    <p className="text-primary/40 text-[8px] md:text-[9px] lg:text-[10px] uppercase font-semibold tracking-[0.2em] mb-1.5 truncate">{title}</p>
                     <div className="flex items-baseline gap-1 overflow-hidden">
-                        <h3 className={`${typeof value === 'string' && value.length > 10 ? 'text-lg lg:text-xl' : 'text-xl lg:text-2xl'} font-black text-primary tracking-tight leading-none truncate`}>
+                        <h3 className={`${typeof value === 'string' && value.length > 10 ? 'text-lg lg:text-xl' : 'text-xl lg:text-2xl'} font-bold text-primary tracking-tight leading-none truncate`}>
                             {value}
                         </h3>
-                        {isRevenue && !value.toString().includes('Rp') && <span className="text-primary/20 text-[10px] font-black leading-none ml-0.5">K</span>}
+                        {isRevenue && !value.toString().includes('Rp') && <span className="text-primary/20 text-[10px] font-semibold leading-none ml-0.5">K</span>}
                     </div>
                 </div>
                 <div className={`p-2.5 md:p-3 rounded-[14px] md:rounded-2xl transition-all duration-500 group-hover:scale-110 group-hover:rotate-3 shadow-lg flex-shrink-0 ${isPositive ? 'bg-primary text-secondary shadow-primary/20' : 'bg-red-500 text-white shadow-red-500/20'}`}>
@@ -26,10 +26,10 @@ const StatsCard = ({ title, value, change, icon: Icon, trend = 'up' }) => {
 
             {change && (
                 <div className="mt-6 md:mt-8 flex items-center gap-2 relative z-10">
-                    <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] md:text-[9px] font-black tracking-widest shadow-sm ${isPositive ? 'bg-primary/10 text-primary' : 'bg-red-50 text-red-600'}`}>
+                    <div className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[8px] md:text-[9px] font-semibold tracking-widest shadow-sm ${isPositive ? 'bg-primary/10 text-primary' : 'bg-red-50 text-red-600'}`}>
                         {isPositive ? '↑' : '↓'} {change}
                     </div>
-                    <span className="text-primary/20 text-[8px] md:text-[9px] font-black uppercase tracking-[0.1em] leading-none">Growth</span>
+                    <span className="text-primary/20 text-[8px] md:text-[9px] font-semibold uppercase tracking-[0.1em] leading-none">Growth</span>
                 </div>
             )}
         </div>

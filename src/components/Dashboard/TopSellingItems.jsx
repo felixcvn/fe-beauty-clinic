@@ -58,40 +58,52 @@ const TopSellingItems = () => {
             );
         }
 
+        const maxSold = Math.max(...items.map(item => Number(item.total_terjual) || 0), 1);
+
         return (
             <div className="space-y-4 mt-6">
-                {items.map((item, index) => (
-                    <div key={item.id || index} className="flex items-center justify-between p-4 rounded-2xl bg-gray-50/50 hover:bg-white border border-transparent hover:border-primary/10 transition-all group shadow-sm hover:shadow-md">
-                        <div className="flex items-center gap-4">
-                            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg
-                                ${index === 0 ? 'bg-amber-100 text-amber-600' : 
-                                  index === 1 ? 'bg-gray-200 text-gray-600' : 
-                                  index === 2 ? 'bg-orange-100 text-orange-600' : 'bg-gray-100 text-gray-400'}`}>
-                                #{index + 1}
+                {items.map((item, index) => {
+                    const percent = Math.min((Number(item.total_terjual) / maxSold) * 100, 100);
+                    return (
+                        <div key={item.id || index} className="relative flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:border-primary/20 transition-all group shadow-sm hover:shadow-md overflow-hidden">
+                            {/* Visual Progress Bar Indicator */}
+                            <div 
+                                className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl transition-all duration-1000 ease-out" 
+                                style={{ width: `${percent}%` }}
+                            ></div>
+                            
+                            <div className="flex items-center gap-4 relative z-10">
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shadow-sm
+                                    ${index === 0 ? 'bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700' : 
+                                      index === 1 ? 'bg-gradient-to-br from-gray-100 to-gray-200 text-gray-600' : 
+                                      index === 2 ? 'bg-gradient-to-br from-orange-100 to-orange-200 text-orange-700' : 'bg-gray-50 text-gray-400'}`}>
+                                    #{index + 1}
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold text-gray-800 group-hover:text-primary transition-colors text-base">{item.nama_item}</h4>
+                                    <div className="flex items-center gap-3 mt-1.5">
+                                        <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md border border-gray-200/50">
+                                            {formatCurrency(item.harga)} / qty
+                                        </span>
+                                        {item.kode && <span className="text-[10px] text-gray-400 font-mono tracking-wider">{item.kode}</span>}
+                                    </div>
+                                </div>
                             </div>
-                            <div>
-                                <h4 className="font-bold text-gray-800 group-hover:text-primary transition-colors">{item.nama_item}</h4>
-                                <div className="flex items-center gap-3 mt-1">
-                                    <span className="text-xs font-semibold text-gray-500 bg-gray-200/50 px-2 py-0.5 rounded-md">
-                                        {formatCurrency(item.harga)} / qty
+                            
+                            <div className="text-right relative z-10 flex flex-col items-end justify-center gap-1.5">
+                                <div className="text-sm md:text-base font-bold text-primary bg-white/80 backdrop-blur-sm px-3 py-1 rounded-lg shadow-sm border border-primary/5">
+                                    {formatCurrency(item.total_pendapatan)}
+                                </div>
+                                <div className="flex items-center gap-1.5 text-gray-500 bg-white/80 backdrop-blur-sm px-2 py-0.5 rounded-md">
+                                    <TrendingUp className="w-3.5 h-3.5 text-green-500" />
+                                    <span className="text-xs font-medium">
+                                        <span className="font-bold text-gray-700">{item.total_terjual}</span> terjual
                                     </span>
-                                    {item.kode && <span className="text-[10px] text-gray-400 font-mono">{item.kode}</span>}
                                 </div>
                             </div>
                         </div>
-                        <div className="text-right">
-                            <div className="flex items-center justify-end gap-1.5 mb-1">
-                                <TrendingUp className="w-4 h-4 text-green-500" />
-                                <span className="font-black text-gray-800">{item.total_terjual} <span className="text-xs font-semibold text-gray-400">terjual</span></span>
-                            </div>
-                            <div className="flex items-center justify-end gap-1 text-primary">
-                                <span className="text-xs font-bold bg-primary/5 px-2 py-0.5 rounded-md">
-                                    {formatCurrency(item.total_pendapatan)}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         );
     };
@@ -107,7 +119,7 @@ const TopSellingItems = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 ${
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
                                 isActive 
                                     ? 'bg-primary text-secondary shadow-md scale-100' 
                                     : 'bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 scale-95 hover:scale-100'

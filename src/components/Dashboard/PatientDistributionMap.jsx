@@ -136,7 +136,7 @@ const PatientDistributionMap = () => {
                         >
                             <Tooltip direction="top" offset={[0, -10]} opacity={1} className="custom-tooltip">
                                 <div className="text-center font-sans">
-                                    <h4 className="font-bold text-sm text-gray-800">{data.kecamatan}</h4>
+                                    <h4 className="font-medium text-sm text-gray-800">{data.kecamatan}</h4>
                                     <p className="text-xs text-gray-600">Total Pasien: <strong className="text-red-500">{data.total}</strong></p>
                                 </div>
                             </Tooltip>
@@ -147,8 +147,8 @@ const PatientDistributionMap = () => {
             
             {/* Legend untuk Heatmap */}
             <div className="absolute bottom-4 left-4 z-[400] bg-white/90 backdrop-blur-sm p-3 rounded-xl border border-gray-100 shadow-lg pointer-events-none">
-                <h4 className="text-[10px] font-black uppercase text-gray-500 mb-2">Kepadatan Pasien</h4>
-                <div className="flex flex-col gap-1 text-[10px] font-bold text-gray-700">
+                <h4 className="text-[10px] font-semibold uppercase text-gray-500 mb-2">Kepadatan Pasien</h4>
+                <div className="flex flex-col gap-1 text-[10px] font-medium text-gray-700">
                     <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#FF0000]"></span> &gt; 400 Pasien</div>
                     <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#FF8C00]"></span> 200 - 400 Pasien</div>
                     <div className="flex items-center gap-2"><span className="w-3 h-3 rounded-full bg-[#FFD700]"></span> 50 - 200 Pasien</div>

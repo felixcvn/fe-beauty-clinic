@@ -1813,6 +1813,20 @@ export const dashboardAPI = {
             console.error('[API] Get top selling items error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
+    },
+    getSummaryStats: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/dashboard-owner/summary-stats`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil summary stats' };
+        } catch (error) {
+            console.error('[API] Get summary stats error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
     }
 };
 

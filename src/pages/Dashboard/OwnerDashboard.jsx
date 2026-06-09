@@ -3,7 +3,7 @@ import { Users, DollarSign, Activity, TrendingUp, PieChart, BarChart3, ArrowUpRi
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Legend } from 'recharts'; 
 import StatsCard from './StatsCard'; 
 import { useAuth } from '../../context/AuthContext'; 
-import { transaksiAPI } from '../../services/api';
+import { dashboardAPI } from '../../services/api';
 import PatientDistributionMap from '../../components/Dashboard/PatientDistributionMap';
 import TopSellingItems from '../../components/Dashboard/TopSellingItems';
 
@@ -34,45 +34,25 @@ const treatmentPerfData = [
 const OwnerDashboard = () => {
     const { user } = useAuth();
     const [activePieIndex, setActivePieIndex] = useState(0);
+    const [salesSource, setSalesSource] = useState([
+        { name: 'Klinik (Kantor)', value: 0, color: '#1B4D3E' }, 
+        { name: 'Reseller', value: 0, color: '#829356' }
+    ]);
     const [stats, setStats] = useState({
         revenue: { value: 'Rp 0', change: '0%', trend: 'up' },
-        profitMargin: { value: '28.4%', change: '2.1%', trend: 'up' },
-        patients: { value: '0', change: '0%', trend: 'up' },
-        cac: { value: 'Rp 85k', change: '12%', trend: 'down' }
+        patients: { value: '0', change: '0%', trend: 'up' }
     });
+
+    const formatJuta = (num) => {
+        return (num / 1000000).toFixed(1);
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             if (!user?.token) return;
-            const res = await transaksiAPI.getAll(user.token, 'Selesai');
-            if (res.success) {
-                const transactions = res.data || [];
-                
-                const now = new Date();
-                const currentMonth = now.getMonth();
-                const currentYear = now.getFullYear();
-                
-                const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-                const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-
-                let currentMonthRev = 0;
-                let lastMonthRev = 0;
-                let currentMonthCount = 0;
-                let lastMonthCount = 0;
-
-                transactions.forEach(trx => {
-                    const trxDate = new Date(trx.tanggal_transaksi || trx.created_at);
-                    const trxMonth = trxDate.getMonth();
-                    const trxYear = trxDate.getFullYear();
-                    
-                    if (trxMonth === currentMonth && trxYear === currentYear) {
-                        currentMonthRev += Number(trx.total_keseluruhan || 0);
-                        currentMonthCount++;
-                    } else if (trxMonth === lastMonth && trxYear === lastMonthYear) {
-                        lastMonthRev += Number(trx.total_keseluruhan || 0);
-                        lastMonthCount++;
-                    }
-                });
+            const res = await dashboardAPI.getSummaryStats(user.token);
+            if (res.success && res.data) {
+                const { revenue, transactions, sales_sources } = res.data;
 
                 const formatRev = (num) => {
                     if (num >= 1000000) return `Rp ${(num / 1000000).toFixed(1)}M`;
@@ -80,33 +60,22 @@ const OwnerDashboard = () => {
                     return `Rp ${num}`;
                 };
 
-                let revGrowth = 0;
-                if (lastMonthRev > 0) {
-                    revGrowth = ((currentMonthRev - lastMonthRev) / lastMonthRev) * 100;
-                } else if (currentMonthRev > 0) {
-                    revGrowth = 100;
-                }
-
-                let countGrowth = 0;
-                if (lastMonthCount > 0) {
-                    countGrowth = ((currentMonthCount - lastMonthCount) / lastMonthCount) * 100;
-                } else if (currentMonthCount > 0) {
-                    countGrowth = 100;
-                }
-
-                setStats(prev => ({
-                    ...prev,
+                setStats({
                     revenue: {
-                        value: formatRev(currentMonthRev),
-                        change: `${Math.abs(revGrowth).toFixed(1)}%`,
-                        trend: revGrowth >= 0 ? 'up' : 'down'
+                        value: formatRev(revenue.value),
+                        change: `${Math.abs(revenue.growth).toFixed(1)}%`,
+                        trend: revenue.trend
                     },
                     patients: {
-                        value: `+${currentMonthCount}`,
-                        change: `${Math.abs(countGrowth).toFixed(1)}%`,
-                        trend: countGrowth >= 0 ? 'up' : 'down'
+                        value: `+${transactions.value}`,
+                        change: `${Math.abs(transactions.growth).toFixed(1)}%`,
+                        trend: transactions.trend
                     }
-                }));
+                });
+
+                if (sales_sources) {
+                    setSalesSource(sales_sources);
+                }
             }
         };
 
@@ -121,10 +90,10 @@ const OwnerDashboard = () => {
         const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, value } = props;
         return (
             <g>
-                <text x={cx} y={cy} dy={-10} textAnchor="middle" fill="#1B4D3E" className="font-black text-xs uppercase tracking-tighter">
+                <text x={cx} y={cy} dy={-10} textAnchor="middle" fill="#1B4D3E" className="font-semibold text-xs uppercase tracking-tighter">
                     {payload.name}
                 </text>
-                <text x={cx} y={cy} dy={15} textAnchor="middle" fill="#1B4D3E" className="font-black text-lg tracking-tighter">
+                <text x={cx} y={cy} dy={15} textAnchor="middle" fill="#1B4D3E" className="font-semibold text-lg tracking-tighter">
                     Rp {value}jt
                 </text>
                 <Pie
@@ -145,8 +114,8 @@ const OwnerDashboard = () => {
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12"> 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Dashboard Owner</h2>
-                    <p className="text-primary/40 mt-3 font-bold text-sm flex items-center gap-2">
+                    <h2 className="text-3xl md:text-4xl font-bold text-primary tracking-tighter leading-none">Dashboard Owner</h2>
+                    <p className="text-primary/40 mt-3 font-medium text-sm flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse"></span>
                         {user?.role} 
                     </p>
@@ -162,7 +131,7 @@ const OwnerDashboard = () => {
             </div>
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <StatsCard
                     title="Total Pendapatan"
                     value={stats.revenue.value}
@@ -171,25 +140,11 @@ const OwnerDashboard = () => {
                     icon={DollarSign}
                 />
                 <StatsCard
-                    title="Profit margin"
-                    value={stats.profitMargin.value}
-                    change={stats.profitMargin.change}
-                    trend={stats.profitMargin.trend}
-                    icon={Target}
-                />
-                <StatsCard
                     title="Pertumbuhan Transaksi"
                     value={stats.patients.value}
                     change={stats.patients.change}
                     trend={stats.patients.trend}
                     icon={Users}
-                />
-                <StatsCard
-                    title="Biaya Akuisisi Cust"
-                    value={stats.cac.value}
-                    change={stats.cac.change}
-                    trend={stats.cac.trend}
-                    icon={Activity}
                 />
             </div>
 
@@ -199,17 +154,17 @@ const OwnerDashboard = () => {
                 <div className="lg:col-span-2 bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h3 className="text-xl font-black text-primary tracking-tight">Pendapatan vs Target</h3>
-                            <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Dalam Jutaan Rupiah</span>
+                            <h3 className="text-xl font-semibold text-primary tracking-tight">Pendapatan vs Target</h3>
+                            <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Dalam Jutaan Rupiah</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full bg-primary/20"></span>
-                                <span className="text-xs font-bold text-primary">Target</span>
+                                <span className="text-xs font-medium text-primary">Target</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <span className="w-3 h-3 rounded-full bg-primary"></span>
-                                <span className="text-xs font-bold text-primary">Realisasi</span>
+                                <span className="text-xs font-medium text-primary">Realisasi</span>
                             </div>
                         </div>
                     </div>
@@ -227,11 +182,11 @@ const OwnerDashboard = () => {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5D5B0" opacity={0.3} />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#1B4D3E', opacity: 0.5 }} dy={10} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 'bold', fill: '#1B4D3E', opacity: 0.5 }} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: '500', fill: '#1B4D3E', opacity: 0.5 }} dy={10} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: '500', fill: '#1B4D3E', opacity: 0.5 }} />
                                 <Tooltip
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
-                                    itemStyle={{ color: '#1B4D3E', fontWeight: 'bold' }}
+                                    itemStyle={{ color: '#1B4D3E', fontWeight: '500' }}
                                 />
                                 <Area type="monotone" dataKey="target" stroke="#1B4D3E" strokeWidth={2} strokeDasharray="5 5" fillOpacity={1} fill="url(#colorRevTarget)" />
                                 <Area type="monotone" dataKey="revenue" stroke="#1B4D3E" strokeWidth={3} fillOpacity={1} fill="url(#colorRevReal)" />
@@ -241,18 +196,42 @@ const OwnerDashboard = () => {
                 </div>
 
                 {/* Sales Sources Pie Chart */}
-                <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white flex flex-col">
+                <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] flex flex-col">
                     <div>
-                        <h3 className="text-xl font-black text-primary tracking-tight">Sumber Penjualan</h3>
-                        <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Distribusi Saluran (Juta Rp)</span>
+                        <h3 className="text-xl font-semibold text-primary tracking-tight">Sumber Penjualan</h3>
+                        <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Distribusi Saluran (Juta Rp)</span>
                     </div>
                     <div className="h-[250px] w-full mt-4 flex-1">
                         <ResponsiveContainer width="100%" height="100%">
                             <RechartsPieChart>
                                 <Pie
                                     activeIndex={activePieIndex}
-                                    activeShape={renderActiveShape}
-                                    data={salesSourceData}
+                                    activeShape={(props) => {
+                                        const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload, value } = props;
+                                        return (
+                                            <g>
+                                                <text x={cx} y={cy} dy={-10} textAnchor="middle" fill="#1B4D3E" className="font-semibold text-xs uppercase tracking-tighter">
+                                                    {payload.name}
+                                                </text>
+                                                <text x={cx} y={cy} dy={15} textAnchor="middle" fill="#1B4D3E" className="font-semibold text-lg tracking-tighter">
+                                                    Rp {formatJuta(value)} Juta
+                                                </text>
+                                                <Pie
+                                                    cx={cx}
+                                                    cy={cy}
+                                                    innerRadius={innerRadius}
+                                                    outerRadius={outerRadius + 8}
+                                                    startAngle={startAngle}
+                                                    endAngle={endAngle}
+                                                    fill={fill}
+                                                    stroke="none"
+                                                    data={salesSource}
+                                                    dataKey="value"
+                                                />
+                                            </g>
+                                        );
+                                    }}
+                                    data={salesSource}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={55}
@@ -262,26 +241,26 @@ const OwnerDashboard = () => {
                                     stroke="none"
                                     onMouseEnter={onPieEnter}
                                 >
-                                    {salesSourceData.map((entry, index) => (
+                                    {salesSource.map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={entry.color} opacity={activePieIndex === index ? 1 : 0.6} />
                                     ))}
                                 </Pie>
                                 <Tooltip 
-                                    formatter={(v) => [`Rp ${v}jt`, 'Total']}
+                                    formatter={(v) => [`Rp ${formatJuta(v)} Juta`, 'Total']}
                                     contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 4px 15px rgba(0,0,0,0.1)' }}
-                                    itemStyle={{ color: '#1B4D3E', fontWeight: 'bold', fontSize: '12px' }}
+                                    itemStyle={{ color: '#1B4D3E', fontWeight: '500', fontSize: '12px' }}
                                 />
                             </RechartsPieChart>
                         </ResponsiveContainer>
                     </div>
-                    <div className="space-y-3 mt-4">
-                        {salesSourceData.map((source, idx) => (
-                            <div key={idx} className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: source.color }}></div>
-                                    <span className="text-xs font-bold text-primary">{source.name}</span>
+                    <div className="space-y-2.5 mt-4">
+                        {salesSource.map((source, idx) => (
+                            <div key={idx} className="flex items-center justify-between p-3 rounded-xl bg-gray-50/50 hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-3 h-3 rounded-full shadow-sm" style={{ backgroundColor: source.color }}></div>
+                                    <span className="text-sm font-medium text-gray-700">{source.name}</span>
                                 </div>
-                                <span className="text-sm font-black text-primary">{(source.value / 10).toFixed(1)}k</span>
+                                <span className="text-sm font-bold text-primary">Rp {formatJuta(source.value)} Juta</span>
                             </div>
                         ))}
                     </div>
@@ -294,8 +273,8 @@ const OwnerDashboard = () => {
                 <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white">
                      <div className="flex justify-between items-center mb-6">
                         <div>
-                            <h3 className="text-xl font-black text-primary tracking-tight">Perilaku Pelanggan</h3>
-                            <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Item Paling Banyak Diminati</span>
+                            <h3 className="text-xl font-semibold text-primary tracking-tight">Perilaku Pelanggan</h3>
+                            <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Item Paling Banyak Diminati</span>
                         </div>
                         <div className="p-3 bg-secondary rounded-2xl">
                             <ShoppingBag className="w-5 h-5 text-primary" />
@@ -310,8 +289,8 @@ const OwnerDashboard = () => {
             {/* Map Section */}
             <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] flex flex-col">
                 <div className="mb-6">
-                    <h3 className="text-xl font-black text-primary tracking-tight">Peta Kepadatan Pasien</h3>
-                    <span className="text-primary/40 text-[10px] font-black uppercase tracking-widest mt-1 block">Distribusi Pasien Berdasarkan Kecamatan</span>
+                    <h3 className="text-xl font-semibold text-primary tracking-tight">Peta Kepadatan Pasien</h3>
+                    <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Distribusi Pasien Berdasarkan Kecamatan</span>
                 </div>
                 <div className="h-[500px] w-full rounded-[2rem] overflow-hidden border border-primary/10">
                     <PatientDistributionMap />
