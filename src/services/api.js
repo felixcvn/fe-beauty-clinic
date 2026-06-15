@@ -376,7 +376,11 @@ export const pasienAPI = {
             });
             const json = await response.json();
             if (response.ok) {
-                return { success: true, data: json.data || json };
+                const data = json.data || json;
+                if (json.riwayat_pembelian) {
+                    data.riwayat_pembelian = json.riwayat_pembelian;
+                }
+                return { success: true, data };
             } else {
                 return { success: false, message: json.message || 'Gagal mengambil detail pasien' };
             }

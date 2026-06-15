@@ -4,6 +4,7 @@ import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Ma
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { useAuth } from '../../context/AuthContext';
+import { useToast } from '../../context/ToastContext';
 import { wilayahAPI, pasienAPI } from '../../services/api';
 import ConfirmModal from './ConfirmModal';
 
@@ -15,11 +16,13 @@ import ConfirmModal from './ConfirmModal';
 const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     const isEdit = !!initialData;
     const { user } = useAuth();
+    const { showToast } = useToast();
 
     
     // State untuk daftar pilihan wilayah dari API
     const [kabKotaOptions, setKabKotaOptions] = useState([]);
     const [kecamatanOptions, setKecamatanOptions] = useState([]);
+    const [nextMemberNumber, setNextMemberNumber] = useState('');
 
     // State untuk menampung data formulir pasien
     const [formData, setFormData] = useState({
@@ -58,11 +61,24 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                             ...prev,
                             noRM: res.data.no_RM || res.data.no_rm || res.data.noRM || prev.noRM
                         }));
+                        if (res.data.no_member) {
+                            setNextMemberNumber(res.data.no_member);
+                        }
                     }
                 });
             }
         }
     }, [isOpen, user?.token, isEdit]);
+
+    useEffect(() => {
+        if (!isEdit) {
+            if (formData.tipeMember === 'Member') {
+                setFormData(prev => ({ ...prev, noMember: nextMemberNumber }));
+            } else {
+                setFormData(prev => ({ ...prev, noMember: '' }));
+            }
+        }
+    }, [formData.tipeMember, nextMemberNumber, isEdit]);
 
     useEffect(() => {
         if (formData.kabupatenKota && user?.token) {
@@ -137,24 +153,31 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
     const validateForm = () => {
         let newErrors = {};
 
-        if (!formData.namaLengkap.trim()) newErrors.namaLengkap = "Nama lengkap wajib diisi";
+        const namaLengkap = formData.namaLengkap || '';
+        const noIdentitas = formData.noIdentitas || '';
+        const tempatLahir = formData.tempatLahir || '';
+        const email = formData.email || '';
+        const noTelepon = formData.noTelepon || '';
+
+        if (!namaLengkap.trim()) newErrors.namaLengkap = "Nama lengkap wajib diisi";
 
         // Validasi No. Identitas: harus angka, minimal 16 karakter
-        if (!formData.noIdentitas.trim()) newErrors.noIdentitas = "No. Identitas wajib diisi";
-        else if (!/^\d+$/.test(formData.noIdentitas)) newErrors.noIdentitas = "No. Identitas hanya boleh berisi angka";
-        else if (formData.noIdentitas.length < 16) newErrors.noIdentitas = "No. Identitas minimal 16 karakter";
+        if (!noIdentitas.trim()) newErrors.noIdentitas = "No. Identitas wajib diisi";
+        else if (!/^\d+$/.test(noIdentitas)) newErrors.noIdentitas = "No. Identitas hanya boleh berisi angka";
+        else if (noIdentitas.length < 16) newErrors.noIdentitas = "No. Identitas minimal 16 karakter";
 
-        if (!formData.tempatLahir.trim()) newErrors.tempatLahir = "Tempat lahir wajib diisi";
+        if (!tempatLahir.trim()) newErrors.tempatLahir = "Tempat lahir wajib diisi";
         
         if (!formData.tanggalLahir) newErrors.tanggalLahir = "Tanggal lahir wajib diisi";
 
         // Validasi Email (Opsional tapi harus format benar jika diisi)
-        if (formData.email.trim() && !formData.email.endsWith('@gmail.com')) {
+        if (email.trim() && !email.endsWith('@gmail.com')) {
             newErrors.email = "Email harus menggunakan format @gmail.com";
         }
 
-        if (!formData.noTelepon.trim()) newErrors.noTelepon = "Nomor telepon wajib diisi";
-        else if (!/^\d+$/.test(formData.noTelepon)) newErrors.noTelepon = "Nomor telepon hanya boleh berisi angka";
+        if (!noTelepon.trim()) newErrors.noTelepon = "Nomor telepon wajib diisi";
+        else if (!/^\d+$/.test(noTelepon)) newErrors.noTelepon = "Nomor telepon hanya boleh berisi angka";
+        else if (noTelepon.length < 12 || noTelepon.length > 14) newErrors.noTelepon = "Nomor telepon harus terdiri dari 12 hingga 14 angka";
 
         if (!formData.kabupatenKota) newErrors.kabupatenKota = "Kabupaten/Kota wajib dipilih";
         if (!formData.kecamatan) newErrors.kecamatan = "Kecamatan wajib dipilih";
@@ -168,6 +191,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         e.preventDefault();
         if (validateForm()) {
             onSave(formData);
+        } else {
+            showToast('Mohon lengkapi semua data wajib dengan benar!', 'error');
         }
     };
 
@@ -235,7 +260,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                 
                 {/* Body Form */}
                 <div className="p-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
@@ -245,8 +270,9 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     <input
                                         type="text"
                                         placeholder="Nomor Member"
-                                        className={getInputWithIconClass(false)}
+                                        className={`${getInputWithIconClass(false)} ${!isEdit ? 'bg-secondary/30 text-primary/60 cursor-not-allowed' : ''}`}
                                         value={formData.noMember}
+                                        readOnly={!isEdit}
                                         onChange={(e) => handleChange('noMember', e.target.value)}
                                     />
                                 </div>
@@ -409,6 +435,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     placeholder={kabKotaOptions.length > 0 ? "Pilih Kabupaten/Kota" : "Memuat..."}
                                     searchable={true}
                                     options={kabKotaOptions}
+                                    direction="up"
                                 />
                                 {errors.kabupatenKota && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kabupatenKota}</p>}
                             </div>
@@ -425,6 +452,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                     searchable={true}
                                     options={kecamatanOptions}
                                     disabled={!formData.kabupatenKota}
+                                    direction="up"
                                 />
                                 {errors.kecamatan && <p className="text-red-500 text-[10px] font-bold mt-2 ml-1">{errors.kecamatan}</p>}
                             </div>

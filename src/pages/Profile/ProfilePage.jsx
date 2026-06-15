@@ -26,14 +26,14 @@ const roleBadgeColor = {
     'Marketing of Sales': 'bg-amber-100 text-amber-600',
 };
 
-const InfoRow = ({ icon: Icon, label, field, type = 'text', isEditing, form, handleChange, setForm }) => (
+const InfoRow = ({ icon: Icon, label, field, type = 'text', isEditing, form, handleChange, setForm, readOnly }) => (
     <div className="flex items-start gap-4 py-4 border-b border-primary/5 last:border-0">
         <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center text-primary shrink-0 mt-0.5">
             <Icon className="w-4 h-4" />
         </div>
         <div className="flex-1 min-w-0">
             <p className="text-xs font-bold text-primary/40 uppercase tracking-widest mb-1">{label}</p>
-            {isEditing ? (
+            {isEditing && !readOnly ? (
                 type === 'date' ? (
                     <CustomDatePicker
                         value={form[field]}
@@ -168,9 +168,9 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Avatar Card */}
-                <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-8 flex flex-col items-center text-center gap-4">
+                <div className="bg-white rounded-[2rem] border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8 flex flex-col items-center text-center gap-4">
                     {/* Avatar */}
-                    <div className="relative group">
+                    <div className="relative">
                         <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-primary/10 overflow-hidden bg-secondary flex items-center justify-center">
                             {preview ? (
                                 <img src={preview} alt="Profile" className="w-full h-full object-cover" />
@@ -178,21 +178,6 @@ const ProfilePage = () => {
                                 <UserCircleIcon className="w-20 h-20 text-primary/30" />
                             )}
                         </div>
-                        {isEditing && (
-                            <button
-                                onClick={() => fileRef.current.click()}
-                                className="absolute inset-0 rounded-full bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer"
-                            >
-                                <CameraIcon className="w-8 h-8 text-white" />
-                            </button>
-                        )}
-                        <input
-                            ref={fileRef}
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onChange={handleAvatarChange}
-                        />
                     </div>
 
                     {/* Name & Role */}
@@ -207,32 +192,31 @@ const ProfilePage = () => {
                         <h3 className="text-xl font-black text-primary tracking-tight">{form.name}</h3>
                     )}
 
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${badgeClass}`}>
+                    <span className={`inline-flex items-center px-5 py-2 rounded-full text-xs font-black uppercase tracking-widest ${badgeClass}`}>
                         {user?.role}
                     </span>
 
-                    {isEditing ? (
-                        <input
-                            name="position"
-                            value={form.position}
-                            onChange={handleChange}
-                            placeholder="Job title / Position"
-                            className="text-center w-full text-sm font-semibold text-primary/60 bg-secondary/60 border border-primary/10 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
-                        />
-                    ) : (
-                        <p className="text-sm font-semibold text-primary/50">{form.position || user?.role}</p>
-                    )}
+                    <div className="w-full mt-6 pt-6 border-t border-primary/5 space-y-3 text-left">
+                        <div className="flex justify-between items-center bg-secondary/30 px-4 py-3 rounded-2xl">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">Status</span>
+                            <span className="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-green-50 text-green-700 border border-green-200">Aktif</span>
+                        </div>
+                        <div className="flex justify-between items-center bg-secondary/30 px-4 py-3 rounded-2xl">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-primary/40">Lokasi Cabang</span>
+                            <span className="text-[11px] font-black text-primary uppercase tracking-wider">{user?.cabang || 'Jember'}</span>
+                        </div>
+                    </div>
                 </div>
 
                 {/* Right: Info Card */}
-                <div className="lg:col-span-2 bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-8">
+                <div className="lg:col-span-2 bg-white rounded-[2rem] border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8">
                     <h4 className="text-lg font-black text-primary tracking-tight mb-2">Personal Information</h4>
                     <p className="text-xs font-bold text-primary/30 mb-6">Your contact details and workplace information</p>
 
                     <div className="divide-y divide-primary/5">
                         <InfoRow icon={EnvelopeIcon} label="Email Address" field="email" type="email" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
                         <InfoRow icon={PhoneIcon} label="Phone Number" field="phone" type="tel" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
-                        <InfoRow icon={BriefcaseIcon} label="Position / Title" field="position" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={BriefcaseIcon} label="Position / Title" field="position" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} readOnly={true} />
                         <InfoRow icon={CalendarDaysIcon} label="Join Date" field="joinDate" type="date" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
                         <InfoRow icon={MapPinIcon} label="Address" field="address" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
                     </div>

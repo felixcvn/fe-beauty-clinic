@@ -101,11 +101,46 @@ const PatientDetailPage = () => {
         kecamatan: mockPatient?.kecamatan || '-',
     };
 
-    // Gunakan data riwayat point dari pasien jika ada, atau array kosong
-    const pointHistory = isApiData ? [] : (mockPatient?.pointHistory || []);
+    // Helper function to group history items by invoice
+    const groupHistoryByInvoice = (itemsArray) => {
+        if (!itemsArray || !Array.isArray(itemsArray)) return [];
+        
+        const groups = {};
+        itemsArray.forEach(item => {
+            const key = item.no_faktur || `TRX-${item.transaksi_id}`;
+            if (!groups[key]) {
+                groups[key] = {
+                    id: key,
+                    date: item.tanggal ? new Date(item.tanggal).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : '-',
+                    rawDate: item.tanggal || '',
+                    total: 0,
+                    items: []
+                };
+            }
+            groups[key].items.push({
+                name: item.nama_item || 'Item Tidak Diketahui',
+                qty: item.qty || 1,
+                harga: item.harga || 0,
+                total_harga: item.total_harga || 0
+            });
+            groups[key].total += Number(item.total_harga || 0);
+        });
+        
+        return Object.values(groups).sort((a, b) => new Date(b.rawDate || 0) - new Date(a.rawDate || 0));
+    };
 
-    // Gunakan data riwayat stok dari pasien jika ada, atau array kosong
-    const productHistory = isApiData ? [] : (mockPatient?.productHistory || []);
+    // Parse API riwayat pembelian
+    const apiProducts = apiPatient?.riwayat_pembelian?.produk || [];
+    const apiRacikan = apiPatient?.riwayat_pembelian?.racikan || [];
+    const apiTreatments = apiPatient?.riwayat_pembelian?.treatment || [];
+
+    const productHistory = isApiData 
+        ? groupHistoryByInvoice([...apiProducts, ...apiRacikan]) 
+        : (mockPatient?.productHistory || []);
+
+    const treatmentHistory = isApiData
+        ? groupHistoryByInvoice(apiTreatments)
+        : [];
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -201,7 +236,7 @@ const PatientDetailPage = () => {
                         </div>
                     </div>
 
-                    <div className="p-4 sm:p-6 flex-1 bg-gray-50/50 space-y-6">
+                    <div className="p-4 sm:p-6 flex-1 bg-gray-50/50 space-y-6 max-h-[480px] overflow-y-auto scrollbar-hide">
                         {isLoading ? (
                             <TableSkeleton mode="card" rows={3} />
                         ) : (
@@ -220,8 +255,8 @@ const PatientDetailPage = () => {
                                                 <ul className="space-y-2">
                                                     {trx.items.map((item, idx) => (
                                                         <li key={idx} className="flex justify-between items-center text-sm font-bold text-primary">
-                                                            <span>{item}</span>
-                                                            <span className="text-teal-500">1</span>
+                                                            <span>{typeof item === 'string' ? item : item.name}</span>
+                                                            <span className="text-teal-500">{typeof item === 'string' ? '1' : item.qty}</span>
                                                         </li>
                                                     ))}
                                                 </ul>
@@ -234,10 +269,32 @@ const PatientDetailPage = () => {
                                         </div>
                                     )
                                 ) : (
-                                    <div className="flex flex-col items-center justify-center h-48 text-primary/30">
-                                        <FileText className="w-12 h-12 mb-3" />
-                                        <p className="font-bold text-sm tracking-wide">Belum ada riwayat treatment.</p>
-                                    </div>
+                                    treatmentHistory.length > 0 ? treatmentHistory.map((trx, index) => (
+                                        <div key={index} className="bg-white rounded-2xl border border-primary/5 shadow-sm overflow-hidden">
+                                            <div className="bg-teal-600 px-4 py-2 text-white font-black text-[10px] tracking-widest inline-block rounded-br-2xl mb-2">
+                                                {trx.id}
+                                            </div>
+                                            <div className="p-5 pt-0">
+                                                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4 pb-4 border-b border-primary/5">
+                                                    <span className="font-bold text-primary/60 text-sm">Total Order: Rp {trx.total.toLocaleString('id-ID')}</span>
+                                                    <span className="flex items-center gap-1.5 text-xs text-primary/40 font-bold"><Calendar className="w-3.5 h-3.5" /> {trx.date}</span>
+                                                </div>
+                                                <ul className="space-y-2">
+                                                    {trx.items.map((item, idx) => (
+                                                        <li key={idx} className="flex justify-between items-center text-sm font-bold text-primary">
+                                                            <span>{typeof item === 'string' ? item : item.name}</span>
+                                                            <span className="text-teal-500">{typeof item === 'string' ? '1' : item.qty}</span>
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    )) : (
+                                        <div className="flex flex-col items-center justify-center h-48 text-primary/30">
+                                            <FileText className="w-12 h-12 mb-3" />
+                                            <p className="font-bold text-sm tracking-wide">Belum ada riwayat treatment.</p>
+                                        </div>
+                                    )
                                 )}
                             </>
                         )}

@@ -184,13 +184,8 @@ const NotificationsPage = () => {
                                         <div className="mt-4 flex flex-wrap gap-3">
                                             <button 
                                                 onClick={() => handleDetail(notif)}
-                                                className="px-4 py-2 rounded-lg bg-primary text-secondary text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-md">
+                                                className="px-6 py-3 rounded-xl bg-primary text-secondary text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-md">
                                                 Lihat Detail
-                                            </button>
-                                            <button 
-                                                onClick={() => handleApprove(notif.id)}
-                                                className="px-4 py-2 rounded-lg border border-primary/10 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/5 transition-all shadow-sm">
-                                                Tandai Selesai / ACC
                                             </button>
                                         </div>
                                     )}

@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Check, Search } from 'lucide-react';
 
-const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih salah satu...", icon: Icon, required, searchable = false, className = "" }) => {
+const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih salah satu...", icon: Icon, required, searchable = false, className = "", direction = "down" }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const selectRef = useRef(null);
@@ -54,7 +54,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
 
             {/* Dropdown Menu */}
             <div 
-                className={`absolute z-[200] w-full mt-2 bg-white border border-primary/10 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden transition-all duration-300 transform origin-top ${
+                className={`absolute z-[200] w-full ${direction === 'up' ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2 origin-top'} bg-white border border-primary/10 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden transition-all duration-300 transform ${
                     isOpen 
                         ? 'opacity-100 scale-y-100 translate-y-0 visible' 
                         : 'opacity-0 scale-y-95 -translate-y-2 invisible'
