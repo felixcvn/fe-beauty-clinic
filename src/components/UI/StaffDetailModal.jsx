@@ -75,9 +75,9 @@ const StaffDetailModal = ({ isOpen, onClose, staff }) => {
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div>
-                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-1">Jabatan & Divisi</p>
+                                    <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-1">Jabatan</p>
                                     <p className="text-sm font-black text-primary flex items-center gap-2">
-                                        <ShieldCheck className="w-4 h-4 text-accent-gold" /> {['HRD', 'Owner', 'Komisaris'].includes(staff.divisi) ? staff.divisi : `${staff.posisi} - ${staff.divisi}`}
+                                        <ShieldCheck className="w-4 h-4 text-accent-gold" /> {staff.divisi}
                                     </p>
                                 </div>
                                 <div>

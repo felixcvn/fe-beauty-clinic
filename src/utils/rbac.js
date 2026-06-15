@@ -14,7 +14,9 @@ export const ROLES = {
     ASISTEN_APOTEKER: 'Asisten Apoteker',
     ASISTEN_SUPERVISOR_TREATMENT: 'Asisten Supervisor Treatment',
     ASISTEN_MARKETING_SALES: 'Asisten Marketing of Sales',
-    ASISTEN_FINANCE: 'Asisten Finance'
+    ASISTEN_FINANCE: 'Asisten Finance',
+    LEAD_FINANCE: 'Lead Finance',
+    PANTRY: 'Pantry',
 };
 
 
@@ -30,11 +32,13 @@ export const ROLE_PERMISSIONS = {
     [ROLES.GUDANG_UMUM]: ['/', '/products', '/treatments', '/attendance', '/management', '/notifications', '/warehouse-transactions'],
     [ROLES.STAFF_OB]: ['/', '/attendance'],
     [ROLES.STAFF_SATPAM]: ['/', '/attendance'],
+    [ROLES.PANTRY]: ['/', '/attendance'],
     [ROLES.APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_APOTEKER]: ['/', '/attendance', '/apotek-inventory'],
     [ROLES.ASISTEN_SUPERVISOR_TREATMENT]: ['/', '/reservations', '/attendance'],
     [ROLES.ASISTEN_MARKETING_SALES]: ['/', '/promos', '/attendance', '/products', '/distributors'],
     [ROLES.ASISTEN_FINANCE]: ['/', '/attendance', '/reports'],
+    [ROLES.LEAD_FINANCE]: ['/', '/attendance', '/sales', '/distributors'],
 };
 
 

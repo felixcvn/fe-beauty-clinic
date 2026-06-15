@@ -261,6 +261,7 @@ const POSPage = () => {
 
         const payload = {
             data_pasien_id: (selectedCustomer && !selectedCustomer.isDistributor && !String(selectedCustomer.id).startsWith('PAS-')) ? selectedCustomer.id : null,
+            distributor_id: (selectedCustomer && selectedCustomer.isDistributor) ? String(selectedCustomer.id).replace('DIST-', '') : null,
             nama_pasien_distributor: selectedCustomer.name,
             is_distributor: selectedCustomer?.isDistributor || false,
             tanggal_transaksi: new Date().toISOString().split('T')[0],

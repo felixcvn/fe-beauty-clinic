@@ -6,6 +6,17 @@ import CustomDatePicker from './CustomDatePicker';
 import { ROLES } from '../../utils/rbac';
 import ConfirmModal from './ConfirmModal';
 
+// Divisi yang tidak membutuhkan posisi jabatan terpisah (jabatan sudah terkandung dalam nama divisinya)
+const DIVISI_TANPA_POSISI = [
+    ROLES.OWNER,
+    ROLES.SUPER_ADMIN,
+    ROLES.LEAD_FINANCE,
+    ROLES.ASISTEN_FINANCE,
+    ROLES.HRD,
+    ROLES.STAFF_OB,
+    ROLES.STAFF_SATPAM,
+];
+
 const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = [], mode = 'full' }) => {
     const isEdit = !!initialData;
 
@@ -43,7 +54,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                     tempat_lahir: initialData.tempat_lahir || '',
                     tanggal_lahir: initialData.tanggal_lahir || '',
                     divisi: initialData.divisi || 'Dokter',
-                    posisi: initialData.posisi || 'Anggota Staff',
+                    posisi: (initialData.posisi && initialData.posisi !== '-') ? initialData.posisi : 'Anggota Staff',
                     cabang: initialData.cabang || 'Jember',
                     email: initialData.email || '',
                     phone: initialData.phone || '',
@@ -74,6 +85,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
 
     if (!isOpen) return null;
 
+    // Cek apakah divisi yang dipilih membutuhkan posisi jabatan terpisah
     const validateStep1 = () => {
         let newErrors = {};
         if (!formState.name.trim()) newErrors.name = "Nama lengkap wajib diisi";
@@ -85,8 +97,9 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         if (!formState.tempat_lahir.trim()) newErrors.tempat_lahir = "Tempat lahir wajib diisi";
         if (!formState.tanggal_lahir) newErrors.tanggal_lahir = "Tanggal lahir wajib diisi";
 
-        if (!formState.divisi) newErrors.divisi = "Divisi wajib diisi";
-        if (!formState.posisi) newErrors.posisi = "Posisi wajib diisi";
+        if (!formState.alamat || !formState.alamat.trim()) newErrors.alamat = "Alamat wajib diisi";
+
+        if (!formState.divisi) newErrors.divisi = "Jabatan wajib diisi";
 
         if (!formState.cabang) newErrors.cabang = "Cabang wajib diisi";
         if (!formState.tanggal_bergabung) newErrors.tanggal_bergabung = "Tanggal bergabung wajib diisi";
@@ -129,6 +142,13 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         return Object.keys(newErrors).length === 0;
     };
 
+    // Normalisasi form sebelum dikirim: untuk divisi tanpa posisi, kosongkan posisi
+    const getNormalizedForm = () => {
+        const f = { ...formState };
+        f.posisi = null;
+        return f;
+    };
+
     const handleNext = () => {
         if (step === 1 && validateStep1()) {
             setStep(2);
@@ -137,7 +157,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                 setStep(3);
             } else if (mode === 'personal') {
                 // Dalam mode personal, step 2 adalah akhir (Username)
-                onSave({ ...formState });
+                onSave(getNormalizedForm());
             }
         }
     };
@@ -154,7 +174,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         if (mode === 'credentials') {
             // Mode gembok: hanya edit password (Step 3)
             if (validateStep3()) {
-                onSave({ ...formState });
+                onSave(getNormalizedForm());
             }
             return;
         }
@@ -164,14 +184,14 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         } else if (step === 2) {
             if (validateStep2()) {
                 if (mode === 'personal') {
-                    onSave({ ...formState });
+                    onSave(getNormalizedForm());
                 } else {
                     setStep(3);
                 }
             }
         } else if (step === 3) {
             if (validateStep3()) {
-                onSave({ ...formState });
+                onSave(getNormalizedForm());
             }
         }
     };
@@ -347,30 +367,20 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                     </div>
                                 </div>
 
-                                {/* Posisi & Penempatan */}
+                                {/* Jabatan & Penempatan */}
                                 <div className="space-y-4">
-                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Posisi & Penempatan</h4>
+                                    <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40 border-b border-primary/5 pb-2">Jabatan & Penempatan</h4>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Divisi Karyawan</label>
+                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Jabatan Karyawan</label>
                                             <CustomSelect
                                                 value={formState.divisi}
-                                                onChange={(value) => handleChange('divisi', value)}
+                                                onChange={(value) => {
+                                                    handleChange('divisi', value);
+                                                }}
                                                 options={Object.values(ROLES).map(role => ({ value: role, label: role }))}
                                             />
                                             {errors.divisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.divisi}</p>}
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Posisi Jabatan</label>
-                                            <CustomSelect
-                                                value={formState.posisi}
-                                                onChange={(value) => handleChange('posisi', value)}
-                                                options={[
-                                                    { value: 'Lead', label: 'Lead' },
-                                                    { value: 'Anggota Staff', label: 'Anggota Staff' }
-                                                ]}
-                                            />
-                                            {errors.posisi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.posisi}</p>}
                                         </div>
                                         <div className="space-y-2">
                                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/60 ml-1">Cabang</label>
@@ -383,6 +393,8 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                                                 ]}
                                             />
                                         </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="space-y-2 flex flex-col justify-end">
                                             <CustomDatePicker
                                                 label="Tanggal Bergabung"

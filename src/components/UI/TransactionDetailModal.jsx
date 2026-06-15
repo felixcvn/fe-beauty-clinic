@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, ArrowRight, CheckCircle2, Minus, Plus, Trash2 } from 'lucide-react';
+import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, ArrowRight, CheckCircle2, Minus, Plus, Trash2, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { transaksiAPI, stokProdukAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
@@ -9,12 +9,12 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
     const { user } = useAuth();
     const { showToast } = useToast();
 
-    if (!isOpen || !transaction) return null;
-
-    const isGudang = user?.role?.toLowerCase() === 'gudang umum' && transaction.status === 'Pending';
+    const isGudang = user?.role?.toLowerCase() === 'gudang umum' && transaction?.status === 'Pending';
     
     const [editableItems, setEditableItems] = React.useState([]);
     const [products, setProducts] = React.useState([]);
+    const [alamat, setAlamat] = React.useState('');
+    const [initialAlamat, setInitialAlamat] = React.useState('');
 
     React.useEffect(() => {
         if (isGudang && user?.token) {
@@ -40,8 +40,14 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                 { id: 'fallback', item_id: null, name: transaction.product || 'Layanan Kesehatan', qty: 1, rawPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')) }
             ];
             setEditableItems(initialItems);
+            
+            const initialAddr = transaction.raw?.alamat_pengiriman || transaction.raw?.pasien?.Alamat || '';
+            setAlamat(initialAddr);
+            setInitialAlamat(initialAddr);
         }
     }, [isOpen, transaction]);
+
+    if (!isOpen || !transaction) return null;
 
     const handleQtyChange = (id, delta) => {
         setEditableItems(prev => prev.map(item => {
@@ -230,6 +236,25 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                         </div>
                     </div>
 
+                    {/* Alamat Pengiriman Card */}
+                    <div className="p-6 rounded-3xl bg-white border border-primary/5 space-y-4 shadow-sm">
+                        <div className="flex items-center gap-2 mb-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
+                            <MapPin className="w-3 h-3 text-primary/40" /> Alamat Pengiriman
+                        </div>
+                        {isGudang ? (
+                            <textarea 
+                                value={alamat}
+                                onChange={(e) => setAlamat(e.target.value)}
+                                className="w-full bg-white border border-primary/10 rounded-xl p-4 text-sm font-semibold text-primary outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none min-h-[80px]"
+                                placeholder="Masukkan detail alamat pengiriman..."
+                            />
+                        ) : (
+                            <div className="bg-primary/5 border border-primary/10 rounded-xl p-4">
+                                <p className="text-sm font-semibold text-primary/80 leading-relaxed">{alamat || 'Alamat tidak tersedia'}</p>
+                            </div>
+                        )}
+                    </div>
+
                     {/* Items Table */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
@@ -356,6 +381,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                                 harga: item.rawPrice
                                             }))
                                         };
+                                        if (alamat !== initialAlamat) {
+                                            payload.alamat_pengiriman = alamat;
+                                        }
                                         const res = await transaksiAPI.approve(user.token, transaction.raw.id, payload);
                                         if (res.success) {
                                             showToast('PO Berhasil di-ACC dan Stok Berkurang', 'success');

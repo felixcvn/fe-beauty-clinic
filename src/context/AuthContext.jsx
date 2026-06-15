@@ -32,6 +32,7 @@ const mapToRole = (jabatan = '', divisi = '') => {
     if (d.includes('asisten apoteker') || j.includes('asisten apoteker')) return 'Asisten Apoteker';
     if (d.includes('asisten') && d.includes('marketing of sales')) return 'Asisten Marketing of Sales';
     if (d.includes('asisten') && d.includes('finance')) return 'Asisten Finance';
+    if (d.includes('lead finance')) return 'Lead Finance';
 
     // Mapping berdasarkan divisi (lebih spesifik)
     if (d.includes('manager') || d.includes('super admin')) return 'Super Admin';

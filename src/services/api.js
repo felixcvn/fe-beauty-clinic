@@ -184,8 +184,9 @@ export const karyawanAPI = {
                 tanggal_bergabung: data.tanggal_bergabung || new Date().toISOString().split('T')[0],
             };
 
-            // Logic backend: Owner dan Super Admin tidak punya Jabatan (null)
-            if (payload.Divisi === 'Owner' || payload.Divisi === 'Super Admin') {
+            // Logic backend: beberapa divisi tidak punya Jabatan terpisah (null)
+            const divisiTanpaJabatan = ['Owner', 'Super Admin', 'Lead Finance', 'Asisten Finance', 'HRD', 'Staff OB', 'Staff Satpam', 'Pantry'];
+            if (divisiTanpaJabatan.includes(payload.Divisi)) {
                 payload.Jabatan = null;
                 payload.jabatan = null;
                 payload.posisi = null;
@@ -253,8 +254,9 @@ export const karyawanAPI = {
                 tanggal_bergabung: data.tanggal_bergabung,
             };
 
-            // Pastikan Jabatan dihapus (null) jika divisi adalah Owner atau Super Admin sesuai logic backend
-            if (payload.Divisi === 'Owner' || payload.Divisi === 'Super Admin') {
+            // Pastikan Jabatan dihapus (null) jika divisi tidak membutuhkan jabatan terpisah
+            const divisiTanpaJabatan = ['Owner', 'Super Admin', 'Lead Finance', 'Asisten Finance', 'HRD', 'Staff OB', 'Staff Satpam', 'Pantry'];
+            if (divisiTanpaJabatan.includes(payload.Divisi)) {
                 payload.Jabatan = null;
                 payload.jabatan = null;
                 payload.posisi = null;
@@ -1452,12 +1454,16 @@ export const transaksiAPI = {
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
-    approve: async (token, id) => {
+    approve: async (token, id, payload = null) => {
         try {
-            const response = await fetch(`${BASE_URL}/transaksi/${id}/approve`, {
+            const options = {
                 method: 'POST',
                 headers: getHeaders(token),
-            });
+            };
+            if (payload) {
+                options.body = JSON.stringify(payload);
+            }
+            const response = await fetch(`${BASE_URL}/transaksi/${id}/approve`, options);
             const json = await response.json();
             if (response.ok || response.status === 200) return { success: true, data: json.data, message: json.message };
             return { success: false, message: json.message || 'Gagal menyetujui transaksi' };
@@ -1785,6 +1791,53 @@ export const distributorAPI = {
                 return { success: false, message: firstError || json.message || 'Data tidak valid' };
             }
             return { success: false, message: json.message || 'Gagal mengupdate distributor' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    // Update hanya data diri distributor (untuk Manajer Marketing of Sales)
+    updateProfile: async (token, id, data) => {
+        try {
+            const payload = {
+                nama_distributor: data.Nama_Distributor,
+                tanggal_lahir: data.Tanggal_Lahir,
+                alamat: data.Alamat,
+                no_telp: data.No_Telp,
+                email: data.Email,
+                distributor: 'Pusat',
+                _method: 'PUT'
+            };
+            const response = await fetch(`${BASE_URL}/distributor/${id}`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil, Data Distributor berhasil diperbarui' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mengupdate distributor' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    // Tambah deposit untuk distributor (untuk Lead Finance)
+    addDeposit: async (token, id, depositAmount) => {
+        try {
+            const payload = {
+                deposit_masuk: depositAmount,
+                _method: 'PUT'
+            };
+            const response = await fetch(`${BASE_URL}/distributor/${id}/deposit`, {
+                method: 'POST',
+                headers: getHeaders(token),
+                body: JSON.stringify(payload)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil, Deposit berhasil ditambahkan' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || json.message || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal menambah deposit' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
     delete: async (token, id) => {

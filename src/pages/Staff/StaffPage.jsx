@@ -40,31 +40,15 @@ const mapKaryawanFromAPI = (k) => {
     rawPosisi = rawPosisi.replace(/(\s*-\s*)+$/, '');
     rawDivisi = rawDivisi.replace(/(\s*-\s*)+$/, '');
 
-    let posisi = formatTitleCase(rawPosisi) || '-';
     let divisi = formatTitleCase(rawDivisi) || '-';
-
-    let displayJabatan = '';
-    if (posisi !== '-' && divisi !== '-') {
-        if (posisi.toLowerCase().includes(divisi.toLowerCase())) {
-            displayJabatan = posisi;
-        } else {
-            displayJabatan = `${posisi} - ${divisi}`;
-        }
-    } else if (posisi !== '-') {
-        displayJabatan = posisi;
-    } else if (divisi !== '-') {
-        displayJabatan = divisi;
-    } else {
-        displayJabatan = '-';
-    }
 
     return {
         id: k.id,
         name: k.nama_lengkap || k.NamaLengkap_karyawan,
         email: k.email || k.Email,
         phone: k.no_telp || k.No_Telp,
-        jabatan: displayJabatan,
-        posisi: posisi,
+        jabatan: divisi,
+        posisi: rawPosisi || '',
         divisi: divisi,
         cabang: k.cabang || k.Cabang,
         inisial: k.inisial,
@@ -98,12 +82,13 @@ const StaffPage = () => {
     const itemsPerPage = 10;
 
     // ── Fetch data karyawan dari API ─────────────────────────────────────────
-    const fetchKaryawan = useCallback(async (page = 1) => {
+    const fetchKaryawan = useCallback(async (page = 1, search = '') => {
         setIsLoading(true);
         setApiError(null);
         try {
             const token = user?.token || localStorage.getItem('token');
-            const result = await karyawanAPI.getAll(token, page);
+            const params = search ? `search=${encodeURIComponent(search)}` : '';
+            const result = await karyawanAPI.getAll(token, page, params);
 
             if (result.success && result.data) {
                 console.log('[StaffPage] API Result:', result.data);
@@ -131,8 +116,11 @@ const StaffPage = () => {
     }, [user?.token]);
 
     useEffect(() => {
-        fetchKaryawan(1);
-    }, [fetchKaryawan]);
+        const delayDebounce = setTimeout(() => {
+            fetchKaryawan(currentPage, searchTerm);
+        }, 300);
+        return () => clearTimeout(delayDebounce);
+    }, [fetchKaryawan, currentPage, searchTerm]);
 
     // Modal State
     const [editingStaff, setEditingStaff] = useState(null);
@@ -147,14 +135,15 @@ const StaffPage = () => {
     // ── Pilih source data: API atau Mock ──────────────────────────────────────
     const staffList = isApiMode ? apiStaff : mockStaffList;
 
-    const filteredStaff = useMemo(() =>
-        staffList.filter(s =>
+    const filteredStaff = useMemo(() => {
+        if (isApiMode) return staffList;
+        return staffList.filter(s =>
             s.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             (s.jabatan && s.jabatan.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (s.divisi && s.divisi.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (s.posisi && s.posisi.toLowerCase().includes(searchTerm.toLowerCase()))
-        ),
-        [staffList, searchTerm]);
+        );
+    }, [staffList, searchTerm, isApiMode]);
 
     useEffect(() => { setCurrentPage(1); }, [searchTerm]);
 
@@ -404,7 +393,7 @@ const StaffPage = () => {
             <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
 
                 {isLoading ? (
-                    <TableSkeleton rows={itemsPerPage} columns={isReadOnly ? 5 : 6} />
+                    <TableSkeleton rows={itemsPerPage} columns={isReadOnly ? 4 : 5} />
                 ) : (
                     <>
                         {/* Desktop */}
@@ -415,7 +404,6 @@ const StaffPage = () => {
                                         <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Nama Karyawan</th>
                                         <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">No. Telpon</th>
                                         <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Email</th>
-                                        <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Jabatan</th>
                                         <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50">Cabang</th>
                                         {!isReadOnly && (
                                             <th className="px-6 py-4 text-[10px] font-black uppercase tracking-[0.15em] text-primary/50 text-right">Aksi</th>
@@ -442,11 +430,6 @@ const StaffPage = () => {
                                             </td>
                                             <td className="px-6 py-3.5">
                                                 <span className="text-sm font-medium text-primary/70">{staff.email}</span>
-                                            </td>
-                                            <td className="px-6 py-3.5">
-                                                <span className="text-sm font-medium text-primary/80">
-                                                    {staff.jabatan}
-                                                </span>
                                             </td>
                                             <td className="px-6 py-3.5">
                                                 <span className="text-sm font-medium text-primary/70">{staff.cabang}</span>
@@ -476,7 +459,7 @@ const StaffPage = () => {
                                     ))}
                                     {currentStaff.length === 0 && (
                                         <tr>
-                                            <td colSpan={isReadOnly ? 5 : 6}>
+                                            <td colSpan={isReadOnly ? 4 : 5}>
                                                 <EmptyState
                                                     type="staff"
                                                     title="Karyawan Tidak Ditemukan"
@@ -569,7 +552,6 @@ const StaffPage = () => {
                             onClick={() => {
                                 const prev = currentPage - 1;
                                 setCurrentPage(prev);
-                                if (isApiMode) fetchKaryawan(prev);
                             }}
                             disabled={currentPage === 1}
                             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all disabled:opacity-30 active:scale-95 shadow-sm"
@@ -580,7 +562,6 @@ const StaffPage = () => {
                             onClick={() => {
                                 const next = currentPage + 1;
                                 setCurrentPage(next);
-                                if (isApiMode) fetchKaryawan(next);
                             }}
                             disabled={currentPage === totalPages || totalPages === 0}
                             className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all disabled:opacity-30 active:scale-95 shadow-sm"

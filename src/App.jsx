@@ -23,6 +23,7 @@ const HRDashboard         = lazy(() => import('./pages/Dashboard/HRDashboard'));
 const TreatmentDashboard  = lazy(() => import('./pages/Dashboard/TreatmentDashboard'));
 const MarketingDashboard  = lazy(() => import('./pages/Dashboard/MarketingDashboard'));
 const SimpleStaffDashboard= lazy(() => import('./pages/Dashboard/SimpleStaffDashboard'));
+const LeadFinanceDashboard= lazy(() => import('./pages/Dashboard/LeadFinanceDashboard'));
 
 // Medical Records
 const PatientList   = lazy(() => import('./pages/MedicalRecords/PatientList'));
@@ -131,8 +132,12 @@ const DashboardSwitcher = () => {
         case 'marketing of sales':
             return <MarketingDashboard />;
         
+        case 'lead finance':
+            return <LeadFinanceDashboard />;
+        
         case 'staff ob':
         case 'staff satpam':
+        case 'pantry':
             return <SimpleStaffDashboard />;
             
         default:
