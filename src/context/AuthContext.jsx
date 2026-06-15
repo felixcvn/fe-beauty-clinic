@@ -47,6 +47,7 @@ const mapToRole = (jabatan = '', divisi = '') => {
     if (d.includes('owner'))                                return 'Owner';
     if (d.includes('ob'))                                   return 'Staff OB';
     if (d.includes('satpam'))                               return 'Staff Satpam';
+    if (d.includes('pantry'))                               return 'Pantry';
     
     // Fallback ke jabatan jika divisi tidak match
     if (j.includes('asisten'))                             return 'Asisten';
