@@ -9,7 +9,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
     const { user } = useAuth();
     const { showToast } = useToast();
 
-    const isGudang = user?.role?.toLowerCase() === 'gudang umum' && transaction?.status === 'Pending';
+    const isGudang = (user?.role?.toLowerCase() === 'gudang umum' || user?.role?.toLowerCase() === 'super admin') && transaction?.status === 'Pending';
     
     const [editableItems, setEditableItems] = React.useState([]);
     const [products, setProducts] = React.useState([]);
@@ -365,7 +365,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
                 {/* Bottom Actions */}
                 <div className="p-8 bg-white border-t border-primary/5 flex gap-4 shrink-0">
-                    {user?.role?.toLowerCase() === 'gudang umum' ? (
+                    {(user?.role?.toLowerCase() === 'gudang umum' || user?.role?.toLowerCase() === 'super admin') ? (
                         transaction.status === 'Pending' && (
                             <button 
                                 onClick={async () => {

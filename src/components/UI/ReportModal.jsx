@@ -104,101 +104,94 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
                             
                             {/* PAGE 1: HEADER & CLINICAL INFO */}
                             <div id="report-page-1" className="bg-white">
-                                {/* Letterhead (Kop Surat) */}
-                                <div className="border-b-4 border-double border-[#1B4D3E] pb-6 mb-8 flex items-center justify-between">
-                                    <div className="flex items-center gap-6">
-                                        <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-lg border border-[#e9efed] bg-white flex items-center justify-center p-2">
-                                            <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <h1 className="text-3xl font-black uppercase tracking-tighter text-[#1B4D3E]">Personal Beauty</h1>
-                                            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#779e93]">Aesthetics & Wellness Clinic</p>
-                                            <p className="text-[11px] font-medium leading-tight text-[#446d60] max-w-[280px]">
-                                                Jl. Kalimantan No. 123, Jember, Jawa Timur<br />
-                                                Telp: (0331) 123456 | WA: +62 812-3456-7890<br />
-                                                Email: info@personalbeauty.id
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div className="text-right hidden sm:block">
-                                        <div className="text-[10px] font-black uppercase tracking-widest bg-[#f4f7f6] px-4 py-2 rounded-lg inline-block border border-[#e9efed] text-[#1B4D3E]">
-                                            Surat Keterangan Medis
-                                        </div>
-                                    </div>
-                                </div>
+                                 {/* Letterhead (Kop Surat) */}
+                                 <div className="border-b-4 border-double border-[#1B4D3E] pb-4 mb-8 text-center flex flex-col items-center">
+                                     <div className="flex items-center gap-4 justify-center">
+                                         <div className="w-16 h-16 rounded-full overflow-hidden border border-[#1B4D3E] flex items-center justify-center bg-white shrink-0">
+                                             <img src="/logo.png" alt="Logo" className="w-full h-full object-contain p-1 rounded-full" crossOrigin="anonymous" />
+                                         </div>
+                                         <div className="text-left">
+                                             <h1 className="text-3xl font-serif font-bold tracking-tight text-[#1B4D3E] leading-none">Personal Beauty</h1>
+                                             <p className="text-[10px] font-sans font-medium text-[#1B4D3E] tracking-wider mt-1">your skin beauty solution</p>
+                                         </div>
+                                     </div>
+                                     <p className="text-[11px] font-medium text-[#1B4D3E] mt-3">
+                                         Jalan Kalimantan Nomor 64 C Jember
+                                     </p>
+                                 </div>
 
-                                {/* Report Header */}
-                                <div className="text-center space-y-2 mb-10">
-                                    <h2 className="text-xl font-black uppercase tracking-widest underline decoration-2 underline-offset-8 text-[#1B4D3E]">LAPORAN REKAM MEDIS</h2>
-                                    <p className="text-xs font-bold text-[#779e93]">Nomor: RM/{new Date().getFullYear()}/{data.id?.toString().slice(-4) || '0000'}</p>
-                                </div>
 
-                                {/* Patient Info Table */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
-                                    <div className="space-y-4">
-                                        <div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Nama Pasien</h4>
-                                            <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.patientDetails?.name || '-'}</p>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">ID Pasien</h4>
-                                            <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.patientDetails?.id ? (data.patientDetails.id.length > 15 ? data.patientDetails.id.slice(0, 15) + '...' : data.patientDetails.id) : '-'}</p>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Tanggal Kunjungan</h4>
-                                            <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.date || '-'}</p>
-                                        </div>
-                                        <div>
-                                            <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Dokter Pemeriksa</h4>
-                                            <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.specialist || '-'}</p>
-                                        </div>
-                                    </div>
-                                </div>
 
-                                {/* Treatment Details */}
-                                <div className="mt-10 space-y-6 pb-10">
-                                    <div className="bg-[#f4f7f6] p-6 rounded-2xl border border-[#e9efed]">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#779e93] mb-3">Tindakan / Perawatan</h4>
-                                        <p className="text-base font-bold text-[#1B4D3E]">{data.treatment || 'General Checkup'}</p>
-                                    </div>
+                                 {/* Patient Info Table */}
+                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+                                     <div className="space-y-4">
+                                         <div>
+                                             <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Nama Pasien</h4>
+                                             <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.patientDetails?.name || data.patientDetails?.Nama_pasien || data.patientDetails?.nama_pasien || '-'}</p>
+                                         </div>
+                                         <div>
+                                             <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Nomor HP</h4>
+                                             <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.patientDetails?.noTelepon || data.patientDetails?.no_Telp || data.patientDetails?.no_telp || data.patientDetails?.phone || '-'}</p>
+                                         </div>
+                                         <div>
+                                             <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Alamat</h4>
+                                             <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.patientDetails?.alamat || data.patientDetails?.Alamat || data.patientDetails?.address || '-'}</p>
+                                         </div>
+                                     </div>
+                                     <div className="space-y-4">
+                                         <div>
+                                             <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Tanggal Kunjungan</h4>
+                                             <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.date || '-'}</p>
+                                         </div>
+                                         <div>
+                                             <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-1">Dokter Pemeriksa</h4>
+                                             <p className="text-sm font-bold border-b border-[#e9efed] pb-2 text-[#1B4D3E]">{data.specialist || '-'}</p>
+                                         </div>
+                                     </div>
+                                 </div>
 
-                                    <div className="space-y-4">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7]">Diagnosa & Catatan Medis</h4>
-                                        <div className="min-h-[120px] p-6 rounded-2xl border border-dashed border-[#d1dfdb] text-sm leading-relaxed italic text-[#446d60]">
-                                            "{data.notes || 'Tidak ada catatan medis tambahan untuk sesi ini.'}"
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                 {/* Treatment Details */}
+                                 <div className="mt-10 space-y-6 pb-10">
+                                     <div className="bg-[#f4f7f6] p-6 rounded-2xl border border-[#e9efed]">
+                                         <h4 className="text-[10px] font-black uppercase tracking-widest text-[#779e93] mb-3">Tindakan / Perawatan</h4>
+                                         <p className="text-base font-bold text-[#1B4D3E]">{data.treatment || 'General Checkup'}</p>
+                                     </div>
 
-                            {/* PAGE 2: PHOTOS & SIGNATURE */}
-                            <div id="report-page-2" className="bg-white">
-                                {/* Treatment Photos */}
-                                {(data.beforeImage || data.afterImage) && (
-                                    <div className="pt-8 border-t border-[#e9efed]">
-                                        <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-4">Dokumentasi Foto</h4>
-                                        <div className="grid grid-cols-2 gap-8">
-                                            {data.beforeImage && (
-                                                <div className="space-y-2">
-                                                    <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sebelum</p>
-                                                    <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6]">
-                                                        <img src={data.beforeImage} alt="Before" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                                                    </div>
-                                                </div>
-                                            )}
-                                            {data.afterImage && (
-                                                <div className="space-y-2">
-                                                    <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sesudah</p>
-                                                    <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6]">
-                                                        <img src={data.afterImage} alt="After" className="w-full h-full object-cover" crossOrigin="anonymous" />
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+                                     <div className="space-y-4">
+                                         <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7]">Diagnosa & Catatan Medis</h4>
+                                         <div className="min-h-[120px] p-6 rounded-2xl border border-dashed border-[#d1dfdb] text-sm leading-relaxed italic text-[#446d60]">
+                                             "{data.notes || 'Tidak ada catatan medis tambahan untuk sesi ini.'}"
+                                         </div>
+                                     </div>
+                                 </div>
+                             </div>
+
+                             {/* PAGE 2: PHOTOS & SIGNATURE */}
+                             <div id="report-page-2" className="bg-white">
+                                 {/* Treatment Photos */}
+                                 {(data.beforeImage || data.afterImage) && (
+                                     <div className="pt-8 border-t border-[#e9efed]">
+                                         <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-4">Dokumentasi Foto</h4>
+                                         <div className="grid grid-cols-2 gap-8">
+                                             {data.beforeImage && (
+                                                 <div className="space-y-2">
+                                                     <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sebelum</p>
+                                                     <div className="rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6] flex items-center justify-center p-2">
+                                                         <img src={data.beforeImage} alt="Before" className="w-full max-h-[300px] object-contain rounded-xl" crossOrigin="anonymous" />
+                                                     </div>
+                                                 </div>
+                                             )}
+                                             {data.afterImage && (
+                                                 <div className="space-y-2">
+                                                     <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sesudah</p>
+                                                     <div className="rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6] flex items-center justify-center p-2">
+                                                         <img src={data.afterImage} alt="After" className="w-full max-h-[300px] object-contain rounded-xl" crossOrigin="anonymous" />
+                                                     </div>
+                                                 </div>
+                                             )}
+                                         </div>
+                                     </div>
+                                 )}
 
                                 {/* Signature Area */}
                                 <div className="pt-16 flex justify-end">

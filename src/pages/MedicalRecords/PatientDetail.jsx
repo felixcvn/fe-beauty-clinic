@@ -58,6 +58,8 @@ const PatientDetail = () => {
                         age: age,
                         lastVisit: p.terakhir_kunjungan || p.updated_at?.split('T')[0] || '-',
                         allergies: p.riwayat_alergi || p.allergies || 'Tidak ada riwayat alergi yang tercatat.',
+                        alamat: p.Alamat || p.alamat || '-',
+                        noTelepon: p.no_Telp || p.no_telp || p.phone || p.noTelepon || '-'
                     });
                 }
             } catch (error) {
@@ -138,7 +140,7 @@ const PatientDetail = () => {
             <ReportModal
                 isOpen={!!selectedRecord}
                 onClose={() => setSelectedRecord(null)}
-                data={{ ...selectedRecord, patientDetails: patient }}
+                data={{ ...selectedRecord, patientDetails: patient || selectedRecord?.pasien }}
                 type="patient"
             />
 

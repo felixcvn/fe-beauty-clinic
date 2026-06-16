@@ -510,7 +510,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                         onClick={() => toggleItem(riwayatKesehatan, setRiwayatKesehatan, condition)}
                                                         className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${riwayatKesehatan.includes(condition) ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-primary/5 bg-white hover:border-primary/20'}`}
                                                     >
-                                                        <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${riwayatKesehatan.includes(condition) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
+                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${riwayatKesehatan.includes(condition) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
                                                             {riwayatKesehatan.includes(condition) && <CheckCircle2 className="w-3 h-3 text-secondary" />}
                                                         </div>
                                                         <span className={`text-[10px] font-black uppercase tracking-tighter ${riwayatKesehatan.includes(condition) ? 'text-primary' : 'text-primary/40'}`}>
@@ -570,7 +570,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                         onClick={() => toggleItem(diinginkan, setDiinginkan, item)}
                                                         className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${diinginkan.includes(item) ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-primary/5 bg-white hover:border-primary/20'}`}
                                                     >
-                                                        <div className={`w-5 h-5 rounded-lg border-2 flex items-center justify-center transition-all ${diinginkan.includes(item) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
+                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${diinginkan.includes(item) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
                                                             {diinginkan.includes(item) && <CheckCircle2 className="w-3 h-3 text-secondary" />}
                                                         </div>
                                                         <span className={`text-[10px] font-black uppercase tracking-tighter ${diinginkan.includes(item) ? 'text-primary' : 'text-primary/40'}`}>
