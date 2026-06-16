@@ -37,11 +37,23 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
                 document.body.appendChild(container);
 
                 const canvas = await html2canvas(container, {
-                    scale: 2,
+                    scale: 3,
                     useCORS: true,
                     allowTaint: false,
                     backgroundColor: '#ffffff',
-                    logging: false
+                    logging: false,
+                    imageTimeout: 15000,
+                    onclone: (clonedDoc) => {
+                        // Pastikan semua gambar dalam container kloning sudah terload
+                        const imgs = clonedDoc.querySelectorAll('img');
+                        return Promise.all(Array.from(imgs).map(img => {
+                            if (img.complete) return Promise.resolve();
+                            return new Promise(resolve => {
+                                img.onload = resolve;
+                                img.onerror = resolve;
+                            });
+                        }));
+                    }
                 });
 
                 document.body.removeChild(container);
@@ -172,20 +184,20 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
                                  {(data.beforeImage || data.afterImage) && (
                                      <div className="pt-8 border-t border-[#e9efed]">
                                          <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7] mb-4">Dokumentasi Foto</h4>
-                                         <div className="grid grid-cols-2 gap-8">
+                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                              {data.beforeImage && (
-                                                 <div className="space-y-2">
-                                                     <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sebelum</p>
-                                                     <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6]">
-                                                         <img src={data.beforeImage} alt="Before" className="w-full h-full object-cover rounded-xl" crossOrigin="anonymous" />
+                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                     <p style={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', color: '#a4bfb7', margin: 0 }}>Kondisi Sebelum</p>
+                                                     <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '2px solid #e9efed', background: '#f8faf9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                         <img src={data.beforeImage} alt="Before" crossOrigin="anonymous" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '10px' }} />
                                                      </div>
                                                  </div>
                                              )}
                                              {data.afterImage && (
-                                                 <div className="space-y-2">
-                                                     <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sesudah</p>
-                                                     <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6]">
-                                                         <img src={data.afterImage} alt="After" className="w-full h-full object-cover rounded-xl" crossOrigin="anonymous" />
+                                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                                     <p style={{ fontSize: '9px', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center', color: '#a4bfb7', margin: 0 }}>Kondisi Sesudah</p>
+                                                     <div style={{ width: '100%', borderRadius: '12px', overflow: 'hidden', border: '2px solid #e9efed', background: '#f8faf9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                                         <img src={data.afterImage} alt="After" crossOrigin="anonymous" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '10px' }} />
                                                      </div>
                                                  </div>
                                              )}
