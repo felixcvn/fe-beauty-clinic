@@ -371,10 +371,14 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const labelClass = "text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2";
 
     const handleRequestClose = () => {
-        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
-        if (confirmClose) {
-            onClose();
-        }
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
     };
 
     return createPortal(

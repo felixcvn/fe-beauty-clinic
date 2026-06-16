@@ -4,9 +4,11 @@ import { X, Calendar, FileText, Send, CalendarDays, CheckCircle2, Upload, Paperc
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
+import ConfirmModal from './ConfirmModal';
 
 const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
     const { showToast } = useToast();
+    const [confirmConfig, setConfirmConfig] = useState(null);
     const [leaveType, setLeaveType] = useState('Sakit');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -71,10 +73,14 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
     };
 
     const handleRequestClose = () => {
-        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
-        if (confirmClose) {
-            onClose();
-        }
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
     };
 
     return createPortal(
@@ -238,6 +244,10 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                         </form>
                     )}
                 </div>
+                <ConfirmModal
+                    config={confirmConfig}
+                    onClose={() => setConfirmConfig(null)}
+                />
             </div>
         </div>
     , document.body);

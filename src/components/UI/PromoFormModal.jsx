@@ -7,9 +7,11 @@ import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import { useMockData } from '../../context/MockDataContext';
 import { Search } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
 
 const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     const { user } = useAuth();
+    const [confirmConfig, setConfirmConfig] = useState(null);
     const { products, treatments } = useMockData();
     const isSupervisorTreatment = user?.role === ROLES.SUPERVISOR_TREATMENT;
     const isSupervisorProduk = user?.role === ROLES.SUPERVISOR_PRODUK;
@@ -59,10 +61,14 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     };
 
     const handleRequestClose = () => {
-        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
-        if (confirmClose) {
-            onClose();
-        }
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
     };
 
     return createPortal(
@@ -268,6 +274,10 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                         </button>
                     </form>
                 </div>
+                <ConfirmModal
+                    config={confirmConfig}
+                    onClose={() => setConfirmConfig(null)}
+                />
             </div>
         </div>,
         document.body

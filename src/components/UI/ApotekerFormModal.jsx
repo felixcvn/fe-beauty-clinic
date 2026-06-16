@@ -3,12 +3,15 @@ import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Package, Beaker } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI } from '../../services/api';
+import ConfirmModal from './ConfirmModal';
 
 /**
  * Modal formulir khusus untuk Apoteker dan Gudang Farmasi.
  * Menangani penambahan/pengeditan bahan treatment, bahan medis, bahan infus, dan barang apotek.
  */
 const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
+
+    const [confirmConfig, setConfirmConfig] = useState(null);
 
     // State untuk menyimpan data input formulir
     const [formState, setFormState] = useState({
@@ -168,10 +171,14 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         .join(' ');
 
     const handleRequestClose = () => {
-        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
-        if (confirmClose) {
-            onClose();
-        }
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
     };
 
     return createPortal(
@@ -300,6 +307,10 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </button>
                     </form>
                 </div>
+                <ConfirmModal
+                    config={confirmConfig}
+                    onClose={() => setConfirmConfig(null)}
+                />
             </div>
         </div>,
         document.body

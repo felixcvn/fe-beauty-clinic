@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Clock, MapPin, AlertTriangle, MessageSquare, Send } from 'lucide-react';
 import { formatDuration } from '../../utils/shiftConfig';
+import ConfirmModal from './ConfirmModal';
 
 /**
  * OvertimeNoteModal
@@ -12,6 +13,7 @@ import { formatDuration } from '../../utils/shiftConfig';
 const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeName }) => {
     const [notes, setNotes] = useState('');
     const [error, setError] = useState('');
+    const [confirmConfig, setConfirmConfig] = useState(null);
 
     if (!isOpen || !anomalyData) return null;
 
@@ -43,12 +45,18 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
     };
 
     const handleCloseAttempt = () => {
-        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
-        if (confirmClose) {
-            setNotes('');
-            setError('');
-            onClose();
-        }
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: () => {
+                setNotes('');
+                setError('');
+                onClose();
+            }
+        });
     };
 
     return createPortal(
@@ -196,6 +204,10 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
                         Kirim ke HRD
                     </button>
                 </div>
+                <ConfirmModal
+                    config={confirmConfig}
+                    onClose={() => setConfirmConfig(null)}
+                />
             </div>
         </div>,
         document.body
