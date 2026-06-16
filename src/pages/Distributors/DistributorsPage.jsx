@@ -4,6 +4,7 @@ import { Search, Plus, User, Edit3, Briefcase, X, CheckCircle2, PlusCircle, Wall
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { distributorAPI } from '../../services/api';
+import CustomSelect from '../../components/UI/CustomSelect';
 
 const DistributorsPage = () => {
     const { showToast } = useToast();
@@ -416,13 +417,13 @@ const DistributorsPage = () => {
             {/* ── Modal: Tambah Deposit (Lead Finance only) ───────────────────────── */}
             {isDepositModalOpen && createPortal(
                 <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30" onClick={handleCloseDeposit}>
-                    <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up" onClick={(e) => e.stopPropagation()}>
+                    <div className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-visible animate-fade-in-up" onClick={(e) => e.stopPropagation()}>
                         <button type="button" onClick={handleCloseDeposit} className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm">
                             <X className="w-5 h-5" />
                         </button>
 
                         {/* Header modal deposit */}
-                        <div className="relative p-8 pb-6 bg-primary overflow-hidden shrink-0">
+                        <div className="relative p-8 pb-6 bg-primary rounded-t-[2.5rem] overflow-hidden shrink-0">
                             <div className="absolute inset-0 opacity-10 z-0">
                                 <div className="absolute top-0 left-0 w-full h-full animate-[pulse_4s_infinite]" style={{ background: 'radial-gradient(circle, #E5D5B0 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                             </div>
@@ -448,24 +449,22 @@ const DistributorsPage = () => {
                                     <p className="text-lg font-black text-primary">{formatCurrency(selectedData.Sisa_Deposit)}</p>
                                 </div>
                             ) : (
-                                /* Dropdown pilihan distributor jika dibuka secara global */
                                 <div className="mb-6 space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Pilih Distributor <span className="text-red-500">*</span></label>
-                                    <select
+                                    <CustomSelect
+                                        options={distributors.map(d => ({
+                                            value: String(d.id),
+                                            label: `${d.Nama_Distributor} (${formatCurrency(d.Sisa_Deposit)})`
+                                        }))}
                                         value={selectedDistributorId}
-                                        onChange={e => {
-                                            setSelectedDistributorId(e.target.value);
+                                        onChange={(val) => {
+                                            setSelectedDistributorId(val);
                                             setDepositError('');
                                         }}
-                                        className={inputClass(depositError && !selectedDistributorId)}
-                                    >
-                                        <option value="">-- Pilih Mitra Distributor --</option>
-                                        {distributors.map(d => (
-                                            <option key={d.id} value={d.id}>
-                                                {d.Nama_Distributor} ({formatCurrency(d.Sisa_Deposit)})
-                                            </option>
-                                        ))}
-                                    </select>
+                                        placeholder="-- Pilih Mitra Distributor --"
+                                        searchable={true}
+                                    />
+                                    {depositError && !selectedDistributorId && <p className="text-xs text-red-500 font-medium mt-1 ml-1">{depositError}</p>}
                                 </div>
                             )}
 
