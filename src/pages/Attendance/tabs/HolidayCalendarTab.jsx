@@ -227,8 +227,9 @@ const HolidayCalendarTab = () => {
 
         // Header days
         const header = dayNames.map((day, idx) => (
-            <div key={`head-${idx}`} className="py-4 text-center text-[10px] font-black uppercase tracking-widest border-b border-r border-primary/10 text-primary/80 bg-primary/[0.02]">
-                {day}
+            <div key={`head-${idx}`} className="py-2.5 md:py-4 text-center text-[9px] md:text-[10px] font-black uppercase tracking-widest border-b border-r border-primary/10 text-primary/80 bg-primary/[0.02]">
+                <span className="hidden md:inline">{day}</span>
+                <span className="inline md:hidden">{day.substring(0, 3)}</span>
             </div>
         ));
         grid.push(...header);
@@ -241,7 +242,7 @@ const HolidayCalendarTab = () => {
 
             if (i < firstDay) {
                 grid.push(
-                    <div key={`prev-${i}`} className={`min-h-[120px] p-3 text-primary/20 font-medium text-sm bg-gray-50/50 ${borderClasses}`}>
+                    <div key={`prev-${i}`} className={`min-h-[60px] md:min-h-[120px] p-2 md:p-3 text-primary/20 font-medium text-xs md:text-sm bg-gray-50/50 ${borderClasses}`}>
                         {prevMonthDays - firstDay + i + 1}
                     </div>
                 );
@@ -261,19 +262,26 @@ const HolidayCalendarTab = () => {
                 });
 
                 grid.push(
-                    <div key={`curr-${i}`} className={`min-h-[120px] p-3 hover:bg-primary/[0.02] transition-colors relative group ${borderClasses}`}>
-                        <span className={`font-bold text-sm ${isSunday || dayHolidays.length > 0 ? 'text-red-500' : 'text-primary'}`}>
+                    <div key={`curr-${i}`} className={`min-h-[60px] md:min-h-[120px] p-2 md:p-3 hover:bg-primary/[0.02] transition-colors relative group ${borderClasses}`}>
+                        <span className={`font-bold text-xs md:text-sm ${isSunday || dayHolidays.length > 0 ? 'text-red-500' : 'text-primary'}`}>
                             {dayCounter}
                         </span>
-                        <div className="mt-2 space-y-1.5">
+                        <div className="mt-1 md:mt-2 space-y-1 md:space-y-1.5 flex flex-col items-center md:items-stretch">
                             {dayHolidays.map((h, idx) => (
-                                <div 
-                                    key={idx} 
-                                    title={h.description ? `${h.name}: ${h.description}` : h.name}
-                                    className={`text-xs font-medium p-2.5 rounded-xl leading-relaxed shadow-sm ${h.type === 'Libur Nasional' ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}`}
-                                >
-                                    {h.name}
-                                </div>
+                                <React.Fragment key={idx}>
+                                    {/* Desktop view: full label */}
+                                    <div 
+                                        title={h.description ? `${h.name}: ${h.description}` : h.name}
+                                        className={`hidden md:block text-[10px] md:text-xs font-medium p-1.5 md:p-2.5 rounded-lg md:rounded-xl leading-relaxed shadow-sm ${h.type === 'Libur Nasional' ? 'bg-red-600 text-white' : 'bg-gray-600 text-white'}`}
+                                    >
+                                        {h.name}
+                                    </div>
+                                    {/* Mobile view: small dot indicator */}
+                                    <div 
+                                        title={h.name}
+                                        className={`block md:hidden w-1.5 h-1.5 rounded-full ${h.type === 'Libur Nasional' ? 'bg-red-500' : 'bg-gray-500'}`}
+                                    />
+                                </React.Fragment>
                             ))}
                         </div>
                     </div>
@@ -281,7 +289,7 @@ const HolidayCalendarTab = () => {
                 dayCounter++;
             } else {
                 grid.push(
-                    <div key={`next-${i}`} className={`min-h-[120px] p-3 text-primary/20 font-medium text-sm bg-gray-50/50 ${borderClasses}`}>
+                    <div key={`next-${i}`} className={`min-h-[60px] md:min-h-[120px] p-2 md:p-3 text-primary/20 font-medium text-xs md:text-sm bg-gray-50/50 ${borderClasses}`}>
                         {nextMonthCounter++}
                     </div>
                 );

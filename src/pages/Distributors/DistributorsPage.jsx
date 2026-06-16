@@ -14,8 +14,8 @@ const DistributorsPage = () => {
 
     // Deteksi role
     const role = user?.role?.toLowerCase().trim();
-    const isLeadFinance = role === 'lead finance';
-    const isManajerMarketing = role === 'manajer marketing of sales';
+    const isLeadFinance = role === 'lead finance' || role === 'super admin';
+    const isManajerMarketing = role === 'manajer marketing of sales' || role === 'super admin';
 
     const fetchDistributors = async () => {
         const res = await distributorAPI.getAll(user?.token);
@@ -202,38 +202,46 @@ const DistributorsPage = () => {
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
 
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6">
                 <div>
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Data Distributor</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola data mitra distributor</p>
                 </div>
-                {/* Manajer Marketing of Sales bisa tambah distributor baru */}
-                {isManajerMarketing && (
-                    <button
-                        onClick={() => handleOpenForm()}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                    >
-                        <Plus className="w-4 h-4" />
-                        <span>Tambah Distributor</span>
-                    </button>
-                )}
-                {/* Lead Finance dialihkan menjadi tambah deposit */}
-                {isLeadFinance && (
-                    <button
-                        onClick={() => handleOpenTopDeposit()}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                    >
-                        <PlusCircle className="w-4 h-4" />
-                        <span>Tambah Deposit</span>
-                    </button>
-                )}
+                <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                    {/* Manajer Marketing of Sales bisa tambah distributor baru */}
+                    {isManajerMarketing && (
+                        <button
+                            onClick={() => handleOpenForm()}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Tambah Distributor</span>
+                        </button>
+                    )}
+                    {/* Lead Finance dialihkan menjadi tambah deposit */}
+                    {isLeadFinance && (
+                        <button
+                            onClick={() => handleOpenTopDeposit()}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <PlusCircle className="w-4 h-4" />
+                            <span>Tambah Deposit</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Role info badge */}
-            {isManajerMarketing && (
+            {(isManajerMarketing || isLeadFinance) && (
                 <div className="flex items-center gap-3 px-5 py-3 rounded-2xl bg-amber-50 border border-amber-200 w-fit">
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                    <p className="text-xs font-black text-amber-700 uppercase tracking-widest">Mode: Kelola Distributor (Tambah & Edit Data Diri)</p>
+                    <p className="text-xs font-black text-amber-700 uppercase tracking-widest">
+                        {role === 'super admin'
+                            ? 'Mode: Kelola Distributor & Deposit (Akses Penuh)'
+                            : isManajerMarketing
+                                ? 'Mode: Kelola Distributor (Tambah & Edit Data Diri)'
+                                : 'Mode: Kelola Deposit'}
+                    </p>
                 </div>
             )}
 
