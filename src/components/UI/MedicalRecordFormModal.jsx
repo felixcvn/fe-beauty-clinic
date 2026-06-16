@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Activity, Stethoscope, FileText, Package, FlaskConical, Pill, User, ArrowRight, ArrowLeft, Heart, History, ListChecks } from 'lucide-react';
+import { X, CheckCircle2, Check, Activity, Stethoscope, FileText, Package, FlaskConical, Pill, User, ArrowRight, ArrowLeft, Heart, History, ListChecks } from 'lucide-react';
 import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import CustomDatePicker from './CustomDatePicker';
@@ -671,13 +671,13 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                 Kembali
                                             </button>
                                             <button
-                                                type="submit"
-                                                disabled={isSubmitting}
-                                                className="flex-[2] flex items-center justify-center gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                <CheckCircle2 className="w-4 h-4" />
-                                                {isSubmitting ? 'Menyimpan...' : (mode === 'edit' ? 'Update Rekam Medis' : 'Simpan Rekam Medis')}
-                                            </button>
+                                                 type="submit"
+                                                 disabled={isSubmitting}
+                                                 className="flex-[2] flex items-center justify-center gap-0 sm:gap-2 bg-primary text-secondary py-4 rounded-2xl hover:bg-primary/90 hover:scale-[1.02] active:scale-95 transition-all duration-300 font-black text-[10px] sm:text-xs uppercase tracking-widest shadow-xl shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                             >
+                                                 <CheckCircle2 className="hidden sm:block w-4 h-4" />
+                                                 {isSubmitting ? 'Menyimpan...' : (mode === 'edit' ? 'Update Rekam Medis' : 'Simpan Rekam Medis')}
+                                             </button>
                                         </div>
                                     </div>
                                 )}
