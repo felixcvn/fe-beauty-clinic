@@ -80,12 +80,24 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
         Keterangan: ''
     });
 
-    // Compute booked timeslots for the selected Tanggal_reservasi
-    const bookedTimesForSelectedDate = React.useMemo(() => {
-        if (!bookings || !formData.Tanggal_reservasi) return [];
-        return bookings
-            .filter(b => b && b.Tanggal_reservasi === formData.Tanggal_reservasi && String(b.id) !== String(initialData?.id))
-            .map(b => b.Jam_reservasi ? String(b.Jam_reservasi).substring(0, 5) : '');
+    // Kapasitas maks per slot
+    const MAX_SLOT_CAPACITY = 3;
+
+    // Hitung jumlah booking per jam untuk tanggal yang dipilih
+    const bookingCountByTime = React.useMemo(() => {
+        if (!bookings || !formData.Tanggal_reservasi) return {};
+        const counts = {};
+        bookings
+            .filter(b => b
+                && b.Tanggal_reservasi === formData.Tanggal_reservasi
+                && String(b.id) !== String(initialData?.id)
+                && b.status !== 'Batal'  // exclude cancelled
+            )
+            .forEach(b => {
+                const time = b.Jam_reservasi ? String(b.Jam_reservasi).substring(0, 5) : '';
+                if (time) counts[time] = (counts[time] || 0) + 1;
+            });
+        return counts;
     }, [bookings, formData.Tanggal_reservasi, initialData]);
 
     // Cek apakah slot sudah lewat dari waktu sekarang (hanya berlaku jika tanggal = hari ini)
@@ -288,8 +300,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
         if (!formData.Tanggal_reservasi) newErrors.Tanggal_reservasi = 'Tanggal wajib diisi';
         if (!formData.Jam_reservasi) newErrors.Jam_reservasi = 'Jam wajib diisi';
         
-        if (formData.Jam_reservasi && bookedTimesForSelectedDate.includes(formData.Jam_reservasi.substring(0, 5))) {
-            newErrors.Jam_reservasi = 'Jam tersebut sudah penuh terisi untuk tanggal terpilih';
+        if (formData.Jam_reservasi && (bookingCountByTime[formData.Jam_reservasi.substring(0, 5)] || 0) >= MAX_SLOT_CAPACITY) {
+            newErrors.Jam_reservasi = 'Jam tersebut sudah penuh untuk tanggal terpilih';
         }
         
         if (isNewPatient) {
@@ -516,9 +528,11 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 bg-white p-5 rounded-[2rem] border border-primary/5 shadow-sm">
                                         {availableSlots.map((slot) => {
                                             const isSelected = formData.Jam_reservasi && formData.Jam_reservasi.substring(0, 5) === slot.time;
-                                            const isBooked = bookedTimesForSelectedDate.includes(slot.time);
+                                            const slotCount = bookingCountByTime[slot.time] || 0;
+                                            const isFull = slotCount >= MAX_SLOT_CAPACITY;
+                                            const isPartial = slotCount > 0 && slotCount < MAX_SLOT_CAPACITY;
                                             const isPast = !isSelected && isSlotPast(slot.time);
-                                            const isActive = (slot.active && !isBooked && !isPast) || isSelected;
+                                            const isActive = (slot.active && !isFull && !isPast) || isSelected;
                                             
                                             return (
                                                 <button
@@ -529,28 +543,42 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                                     className={`py-3 px-2 rounded-xl font-black text-xs tracking-tight transition-all duration-200 text-center border active:scale-95 flex flex-col items-center justify-center gap-1 ${
                                                         isSelected
                                                             ? 'bg-primary text-secondary border-primary shadow-lg shadow-primary/20 hover:scale-[1.02]'
-                                                            : isBooked
+                                                            : isFull
                                                                 ? 'bg-rose-50/30 text-rose-500/80 border-rose-100/30 cursor-not-allowed opacity-70'
                                                                 : isPast
                                                                     ? 'bg-gray-50/80 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
-                                                                    : isActive
-                                                                        ? 'bg-white text-primary border-primary/5 hover:bg-primary/[0.02] hover:border-primary/20 hover:scale-[1.02]'
-                                                                        : 'bg-gray-50 text-gray-300 border-gray-100/50 cursor-not-allowed opacity-40'
+                                                                    : isPartial
+                                                                        ? 'bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:scale-[1.02]'
+                                                                        : isActive
+                                                                            ? 'bg-white text-primary border-primary/5 hover:bg-primary/[0.02] hover:border-primary/20 hover:scale-[1.02]'
+                                                                            : 'bg-gray-50 text-gray-300 border-gray-100/50 cursor-not-allowed opacity-40'
                                                     }`}
                                                 >
                                                     <span className="text-xs font-black tracking-tight">{slot.time}</span>
                                                     <span className={`text-[7px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded ${
                                                         isSelected
                                                             ? 'bg-secondary text-primary'
-                                                            : isBooked
+                                                            : isFull
                                                                 ? 'bg-rose-50 text-rose-600'
                                                                 : isPast
                                                                     ? 'bg-gray-100 text-gray-400'
-                                                                    : isActive
-                                                                        ? 'bg-emerald-50 text-emerald-700'
-                                                                        : 'bg-gray-100 text-gray-400'
+                                                                    : isPartial
+                                                                        ? 'bg-amber-100 text-amber-700'
+                                                                        : isActive
+                                                                            ? 'bg-emerald-50 text-emerald-700'
+                                                                            : 'bg-gray-100 text-gray-400'
                                                     }`}>
-                                                        {isSelected ? 'Pilih' : isBooked ? 'Penuh' : isPast ? 'Lewat' : isActive ? 'Buka' : 'Tutup'}
+                                                        {isSelected
+                                                            ? 'Pilih'
+                                                            : isFull
+                                                                ? 'Penuh'
+                                                                : isPast
+                                                                    ? 'Lewat'
+                                                                    : isPartial
+                                                                        ? `${slotCount}/${MAX_SLOT_CAPACITY}`
+                                                                        : isActive
+                                                                            ? 'Buka'
+                                                                            : 'Tutup'}
                                                     </span>
                                                 </button>
                                             );
