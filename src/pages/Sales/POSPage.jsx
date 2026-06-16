@@ -66,12 +66,18 @@ const POSPage = () => {
                 if (resPatients.success && resPatients.data) {
                     const responseData = resPatients.data.data || resPatients.data;
                     const patientArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                    customers = [...customers, ...patientArray.map(p => ({
-                        id: String(p.id),
-                        name: p.Nama_pasien || p.nama_pasien || p.name || 'Unknown Patient',
-                        phone: p.no_Telp || p.no_telp || p.phone || '-',
-                        isDistributor: false
-                    }))];
+                    customers = [...customers, ...patientArray.map(p => {
+                        const kecName = p.kec?.name || '';
+                        const formattedName = kecName 
+                            ? `${p.Nama_pasien || p.nama_pasien || p.name || 'Unknown Patient'} - ${kecName}` 
+                            : (p.Nama_pasien || p.nama_pasien || p.name || 'Unknown Patient');
+                        return {
+                            id: String(p.id),
+                            name: formattedName,
+                            phone: p.no_Telp || p.no_telp || p.phone || '-',
+                            isDistributor: false
+                        };
+                    })];
                 }
                 
                 if (resDistributors && resDistributors.success && resDistributors.data) {
@@ -183,9 +189,17 @@ const POSPage = () => {
     };
 
     const addToCart = (product) => {
+        if (product.stock <= 0) {
+            showToast('Stok produk ini sedang kosong!', 'error');
+            return;
+        }
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
+                if (existing.quantity >= product.stock) {
+                    showToast(`Batas maksimal stok tersedia dicapai (${product.stock})!`, 'error');
+                    return prev;
+                }
                 return prev.map(item => item.id === product.id
                     ? { ...item, quantity: item.quantity + 1 }
                     : item
@@ -196,11 +210,17 @@ const POSPage = () => {
     };
 
     const updateQuantity = (id, delta) => {
-        setCart(prev => prev.map(item =>
-            item.id === id
-                ? { ...item, quantity: Math.max(1, item.quantity + delta) }
-                : item
-        ));
+        setCart(prev => prev.map(item => {
+            if (item.id === id) {
+                const newQty = item.quantity + delta;
+                if (newQty > item.stock) {
+                    showToast(`Batas maksimal stok tersedia dicapai (${item.stock})!`, 'error');
+                    return item;
+                }
+                return { ...item, quantity: Math.max(1, newQty) };
+            }
+            return item;
+        }));
     };
 
     const removeFromCart = (id) => {
@@ -267,6 +287,7 @@ const POSPage = () => {
             tanggal_transaksi: new Date().toISOString().split('T')[0],
             catatan_pesanan: '',
             status: isOnlyTreatments ? 'Selesai' : 'Pending',
+            metode_pembayaran: paymentMethod,
             details: cart.map(item => ({
                 item_type: item.category === 'Treatment' ? 'Treatment' : (item.category === 'Racikan' ? 'StokRacikan' : 'StokProduk'),
                 item_id: String(item.id).replace(/[^0-9]/g, '') || 1, // Jika ID mock seperti PRD-001, ambil angkanya saja
@@ -495,42 +516,58 @@ const POSPage = () => {
                     ) : (
                         /* Product Grid */
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
-                            {filteredProducts.map(product => (
-                                <button
-                                    key={product.id}
-                                    onClick={() => addToCart(product)}
-                                    className="p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 hover:bg-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full"
-                                >
-                                    <div>
-                                        <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-secondary/20 flex items-center justify-center mb-4 shadow-sm relative mx-auto overflow-hidden">
-                                            <span className="text-2xl md:text-3xl font-semibold text-primary tracking-tighter group-hover:scale-110 transition-transform duration-500">
-                                                {product.name.split(' ').filter(n => n).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
-                                            </span>
-                                            <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-white/90 backdrop-blur-sm border border-primary/5 text-[9px] md:text-[10px] font-semibold text-primary uppercase tracking-tighter shadow-sm">
-                                                {product.stock}
+                            {filteredProducts.map(product => {
+                                const isOutOfStock = product.stock <= 0;
+                                return (
+                                    <button
+                                        key={product.id}
+                                        onClick={() => addToCart(product)}
+                                        disabled={isOutOfStock}
+                                        className={`p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 transition-all duration-300 text-left group flex flex-col justify-between h-full ${
+                                            isOutOfStock 
+                                                ? 'opacity-50 cursor-not-allowed border-gray-200' 
+                                                : 'hover:bg-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1'
+                                        }`}
+                                    >
+                                        <div className="w-full">
+                                            <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-secondary/20 flex items-center justify-center mb-4 shadow-sm relative mx-auto overflow-hidden">
+                                                <span className="text-2xl md:text-3xl font-semibold text-primary tracking-tighter group-hover:scale-110 transition-transform duration-500">
+                                                    {product.name.split(' ').filter(n => n).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
+                                                </span>
+                                                <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg border text-[9px] md:text-[10px] font-semibold uppercase tracking-tighter shadow-sm ${
+                                                    isOutOfStock
+                                                        ? 'bg-red-50 text-red-500 border-red-200'
+                                                        : 'bg-white/90 text-primary border-primary/5'
+                                                }`}>
+                                                    {product.stock}
+                                                </div>
                                             </div>
+                                            <h4 className="text-sm md:text-[15px] font-semibold text-primary leading-tight mb-1 line-clamp-2 text-center">{product.name}</h4>
+                                            <p className="text-[9px] md:text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-3 text-center">{product.category}</p>
                                         </div>
-                                        <h4 className="text-sm md:text-[15px] font-semibold text-primary leading-tight mb-1 line-clamp-2 text-center">{product.name}</h4>
-                                        <p className="text-[9px] md:text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-3 text-center">{product.category}</p>
-                                    </div>
-                                    <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5">
-                                        <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {getProductPrice(product).toLocaleString('id-ID')}</span>
-                                        <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
-                                            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5 w-full">
+                                            <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {getProductPrice(product).toLocaleString('id-ID')}</span>
+                                            {isOutOfStock ? (
+                                                <span className="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg border border-red-100">Habis</span>
+                                            ) : (
+                                                <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+                                                    <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                                                </div>
+                                            )}
                                         </div>
-                                    </div>
-                                </button>
-                            ))}
+                                    </button>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
             </div>
 
             {/* Right Side: Unified Cart & Summary (E-commerce Style) */}
-            <div className="w-full xl:w-[420px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
+            <div className="w-full xl:w-[480px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
 
                 {/* 1. Transaction Info Section (Top - Fixed) */}
-                <div className="p-5 md:p-6 bg-secondary/10 border-b border-primary/5 space-y-4">
+                <div className="p-4 md:p-5 bg-secondary/10 border-b border-primary/5 space-y-3.5">
                     <div className="flex items-center gap-3">
                         <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary relative">
                             <ShoppingCart className="w-5 h-5" />
@@ -541,19 +578,19 @@ const POSPage = () => {
                     {/* Customer Selection */}
                     <div className="relative">
                         {selectedCustomer ? (
-                            <div className="flex flex-col gap-2 animate-fade-in">
-                                <div className="p-3.5 rounded-2xl bg-white border border-primary/10 flex items-center justify-between shadow-sm">
+                            <div className="flex flex-col gap-2.5 animate-fade-in">
+                                <div className="p-2.5 px-4 rounded-2xl bg-white border border-primary/10 flex items-center justify-between shadow-sm">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-9 h-9 rounded-xl bg-primary text-secondary flex items-center justify-center font-black text-[10px]">
+                                        <div className="w-8 h-8 rounded-lg bg-primary text-secondary flex items-center justify-center font-black text-[9px] shrink-0">
                                             {selectedCustomer.name.split(' ').map(n => n[0]).join('')}
                                         </div>
                                         <div>
-                                            <p className="text-sm font-semibold text-primary tracking-tight">{selectedCustomer.name}</p>
+                                            <p className="text-sm font-semibold text-primary tracking-tight leading-tight">{selectedCustomer.name}</p>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => { setSelectedCustomer(null); setIsMember(false); setHasFetchedRecord(false); setDetectedRacikan(null); setRacikanSent(false); setCart([]); }}
-                                        className="p-2 text-primary/20 hover:text-red-500 transition-all"
+                                        className="p-1.5 text-primary/20 hover:text-red-500 transition-all rounded-lg hover:bg-red-50"
                                     >
                                         <X className="w-4 h-4" />
                                     </button>
@@ -563,33 +600,29 @@ const POSPage = () => {
                                     <button
                                         onClick={handleFetchMedicalRecord}
                                         disabled={isFetchingRecord}
-                                        className="w-full p-3 flex items-center justify-center gap-2 bg-secondary/10 text-primary border border-primary/10 border-dashed rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="w-full py-2.5 px-4 flex items-center justify-center gap-2 bg-secondary/10 text-primary border border-primary/10 border-dashed rounded-xl hover:bg-primary/5 hover:border-primary/20 transition-all group disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
                                         {isFetchingRecord ? (
-                                            <Loader2 className="w-4 h-4 text-primary animate-spin" />
+                                            <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
                                         ) : (
-                                            <FileText className="w-4 h-4 text-primary/40 group-hover:text-primary transition-colors" />
+                                            <FileText className="w-3.5 h-3.5 text-primary/40 group-hover:text-primary transition-colors" />
                                         )}
-                                        <span className="text-[9px] font-black uppercase tracking-widest">
+                                        <span className="text-[8px] font-black uppercase tracking-widest">
                                             {isFetchingRecord ? 'Menarik Data...' : 'Tarik Data Rekam Medis (Opsional)'}
                                         </span>
                                     </button>
                                 )}
-
-
-
-
                             </div>
                         ) : (
                             <div className="relative group">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary/30 group-focus-within:text-primary transition-colors" />
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="Cari customer..."
                                     value={customerSearch}
                                     onChange={(e) => { setCustomerSearch(e.target.value); setIsCustomerDropdownOpen(true); }}
                                     onFocus={() => setIsCustomerDropdownOpen(true)}
-                                    className="w-full pl-11 pr-6 py-3 rounded-xl bg-white border border-primary/10 outline-none text-[10px] font-bold text-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                                    className="w-full pl-11 pr-6 py-3.5 rounded-xl bg-white border border-primary/10 outline-none text-sm font-bold text-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm placeholder:text-sm placeholder:text-primary/40"
                                 />
                                 {isCustomerDropdownOpen && (
                                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden max-h-[160px] overflow-y-auto scrollbar-hide animate-fade-in">
@@ -622,10 +655,10 @@ const POSPage = () => {
                                 value={promoInput}
                                 onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setIsPromoDropdownOpen(true); }}
                                 onFocus={() => setIsPromoDropdownOpen(true)}
-                                className="w-full pl-11 pr-6 py-3 rounded-xl bg-white border border-primary/10 outline-none text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                                className="w-full pl-11 pr-6 py-2.5 rounded-xl bg-white border border-primary/10 outline-none text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                             />
                         </div>
-                        <button onClick={() => handleApplyPromo()} className="px-5 py-3 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
+                        <button onClick={() => handleApplyPromo()} className="px-5 py-2.5 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
                             Pakai
                         </button>
                         {isPromoDropdownOpen && promoInput && (
@@ -647,6 +680,37 @@ const POSPage = () => {
                                 ))}
                             </div>
                         )}
+                    </div>
+
+                    {/* Metode Pembayaran (Sleek Segmented Inline Card) */}
+                    <div className="flex items-center justify-between bg-white border border-primary/10 rounded-2xl p-1.5 shadow-sm">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2.5">Metode</span>
+                        <div className="flex bg-secondary/35 rounded-xl p-0.5 shrink-0">
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('Tunai')}
+                                className={`px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+                                    paymentMethod === 'Tunai'
+                                        ? 'bg-primary text-secondary shadow-sm'
+                                        : 'text-primary/60 hover:text-primary'
+                                }`}
+                            >
+                                <Banknote className="w-3.5 h-3.5" />
+                                Tunai
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setPaymentMethod('Non Tunai')}
+                                className={`px-4 py-2 rounded-lg font-black text-[9px] uppercase tracking-wider flex items-center gap-1.5 transition-all ${
+                                    paymentMethod === 'Non Tunai'
+                                        ? 'bg-primary text-secondary shadow-sm'
+                                        : 'text-primary/60 hover:text-primary'
+                                }`}
+                            >
+                                <CreditCard className="w-3.5 h-3.5" />
+                                Non Tunai
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -686,7 +750,7 @@ const POSPage = () => {
                 </div>
 
                 {/* 3. Totals & Checkout (Bottom - Fixed) */}
-                <div className="p-6 bg-white border-t border-primary/5 space-y-5 shrink-0">
+                <div className="p-4 md:p-5 bg-white border-t border-primary/5 space-y-4 shrink-0">
                     <div className="space-y-2 pt-2">
                         <div className="flex justify-between text-primary/40 font-bold text-[9px] uppercase tracking-widest px-1">
                             <span>Subtotal</span>

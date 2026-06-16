@@ -21,7 +21,8 @@ const SalesPage = () => {
         setIsLoading(true);
         const res = await transaksiAPI.getAll(user?.token);
         if (res.success) {
-            const formatted = res.data.map(t => {
+            const sortedData = [...res.data].sort((a, b) => new Date(b.created_at.replace(/Z$/, '')) - new Date(a.created_at.replace(/Z$/, '')));
+            const formatted = sortedData.map(t => {
                 const totalKeseluruhan = Number(t.total_keseluruhan || 0);
                 const totalWithPpn = totalKeseluruhan;
                 return {

@@ -229,7 +229,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                 <div className="flex justify-between items-center text-[10px] font-bold">
                                     <span className="text-primary/30 uppercase tracking-widest">Jam Transaksi</span>
                                     <span className="text-primary font-black tracking-tight bg-secondary/30 px-3 py-1 rounded-lg text-sm">
-                                        {transaction.raw?.created_at ? new Date(transaction.raw.created_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : '14:30 WIB'}
+                                        {transaction.raw?.created_at ? new Date(transaction.raw.created_at.replace(/Z$/, '')).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB' : '14:30 WIB'}
                                     </span>
                                 </div>
                             </div>
@@ -355,9 +355,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                     </div>
 
                     {/* Footer Info Metadata */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30 px-2">
+                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30 px-2">
                         <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2"><CreditCard className="w-3 h-3 text-primary/20" /> Metode: <span className="text-primary font-black opacity-80">Tunai</span></div>
+                            <div className="flex items-center gap-2"><CreditCard className="w-3 h-3 text-primary/20" /> Metode: <span className="text-primary font-black opacity-80">{transaction.raw?.metode_pembayaran || 'Tunai'}</span></div>
                             <div className="flex items-center gap-2"><Clock className="w-3 h-3 text-primary/20" /> Kasir: <span className="text-primary font-black opacity-80 uppercase">{transaction.raw?.karyawan?.NamaLengkap_karyawan || transaction.raw?.karyawan?.nama_lengkap || transaction.raw?.karyawan?.name || 'Admin'}</span></div>
                         </div>
                     </div>
