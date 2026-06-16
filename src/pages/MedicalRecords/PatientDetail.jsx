@@ -83,9 +83,11 @@ const PatientDetail = () => {
                     const patientRecords = recordsArray
                         .filter(r => String(r.data_pasien_id || r.pasien_id) === String(id))
                         .sort((a, b) => {
-                            const dateA = new Date(a.tanggal_kunjungan || a.tanggal || a.created_at || 0);
-                            const dateB = new Date(b.tanggal_kunjungan || b.tanggal || b.created_at || 0);
-                            return dateB - dateA;
+                            const dateA = new Date(a.created_at || a.tanggal_kunjungan || a.tanggal || 0);
+                            const dateB = new Date(b.created_at || b.tanggal_kunjungan || b.tanggal || 0);
+                            // Jika tanggal sama, gunakan id sebagai tiebreaker (id lebih besar = lebih baru)
+                            if (dateB - dateA !== 0) return dateB - dateA;
+                            return Number(b.id) - Number(a.id);
                         });
                     setMedicalRecords(patientRecords);
                 }
