@@ -188,7 +188,6 @@ const SalesPage = () => {
                                 <th className="px-4 py-3 text-primary/80 whitespace-nowrap">Total</th>
                                 <th className="px-4 py-3 text-center text-primary/80">Status</th>
                                 <th className="px-4 py-3 text-primary/80">Tanggal</th>
-                                <th className="px-4 py-3 text-center text-primary/80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
@@ -220,17 +219,6 @@ const SalesPage = () => {
                                     </td>
                                     <td className="px-4 py-2">
                                         <span className="text-sm font-medium text-primary/80">{sale.date}</span>
-                                    </td>
-                                    <td className="px-4 py-2 text-center">
-                                        <button 
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleOpenDetail(sale);
-                                            }}
-                                            className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300 active:scale-90"
-                                        >
-                                            <MoreHorizontal className="w-5 h-5" />
-                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -273,15 +261,9 @@ const SalesPage = () => {
                             <div className="flex gap-3">
                                 <button 
                                     onClick={() => handleOpenDetail(sale)}
-                                    className="flex-1 py-3 text-[9px] font-black text-primary/40 uppercase tracking-widest border border-primary/5 rounded-xl hover:bg-white transition-all"
+                                    className="w-full py-3 text-[9px] font-black text-primary/40 uppercase tracking-widest border border-primary/5 rounded-xl hover:bg-white transition-all"
                                 >
                                     Detail Invoice
-                                </button>
-                                <button 
-                                    onClick={() => handleOpenDetail(sale)}
-                                    className="p-3 text-primary/40 hover:text-primary transition-all rounded-xl border border-primary/5 hover:bg-white"
-                                >
-                                    <MoreHorizontal className="w-4 h-4" />
                                 </button>
                             </div>
                         </div>

@@ -150,7 +150,7 @@ const WarehouseTransactionsPage = () => {
                 </div>
 
                 {isLoading ? (
-                    <TableSkeleton rows={10} columns={7} />
+                    <TableSkeleton rows={10} columns={6} />
                 ) : (
                     <>
                         <div className="hidden lg:block overflow-x-auto scrollbar-hide">
@@ -163,7 +163,6 @@ const WarehouseTransactionsPage = () => {
                                         <th className="px-4 py-3 text-primary/80 whitespace-nowrap">Total</th>
                                         <th className="px-4 py-3 text-center text-primary/80">Status</th>
                                         <th className="px-4 py-3 text-primary/80">Tanggal</th>
-                                        <th className="px-4 py-3 text-center text-primary/80">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
@@ -195,17 +194,6 @@ const WarehouseTransactionsPage = () => {
                                             </td>
                                             <td className="px-4 py-2">
                                                 <span className="text-sm font-medium text-primary/80">{sale.date}</span>
-                                            </td>
-                                            <td className="px-4 py-2 text-center">
-                                                <button 
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        handleOpenDetail(sale);
-                                                    }}
-                                                    className="p-2 rounded-xl text-primary/20 hover:text-primary hover:bg-white transition-all duration-300 active:scale-90"
-                                                >
-                                                    <MoreHorizontal className="w-5 h-5" />
-                                                </button>
                                             </td>
                                         </tr>
                                     ))}

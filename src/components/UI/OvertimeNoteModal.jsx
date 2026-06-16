@@ -42,16 +42,19 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
         setNotes('');
     };
 
-    const handleClose = () => {
-        setNotes('');
-        setError('');
-        onClose();
+    const handleCloseAttempt = () => {
+        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
+        if (confirmClose) {
+            setNotes('');
+            setError('');
+            onClose();
+        }
     };
 
     return createPortal(
         <div
             className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40"
-            onClick={handleClose}
+            onClick={handleCloseAttempt}
         >
             <div
                 className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
@@ -63,7 +66,7 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
                         <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '18px 18px' }} />
                     </div>
                     <button
-                        onClick={handleClose}
+                        onClick={handleCloseAttempt}
                         className="absolute top-4 right-4 p-2 rounded-xl bg-white/20 text-white hover:bg-white/40 transition-all z-10"
                     >
                         <X className="w-4 h-4" />
@@ -180,7 +183,7 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
                 {/* Footer Actions */}
                 <div className="p-5 border-t border-primary/5 flex gap-3 shrink-0 bg-gray-50/30">
                     <button
-                        onClick={handleClose}
+                        onClick={handleCloseAttempt}
                         className="flex-1 py-3.5 rounded-2xl border border-primary/10 text-primary/60 font-black text-[10px] uppercase tracking-widest hover:bg-gray-50 transition-all active:scale-95"
                     >
                         Batal

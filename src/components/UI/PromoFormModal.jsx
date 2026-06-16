@@ -58,10 +58,17 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
         onSave(formState);
     };
 
+    const handleRequestClose = () => {
+        const confirmClose = window.confirm("Apakah Anda yakin ingin menutup form? Perubahan yang belum disimpan akan hilang.");
+        if (confirmClose) {
+            onClose();
+        }
+    };
+
     return createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/30"
-            onClick={onClose} // Klik background gelap untuk tutup
+            onClick={handleRequestClose} // Klik background gelap untuk tutup
         >
             <div 
                 className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
@@ -72,7 +79,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        onClose();
+                        handleRequestClose();
                     }}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
                 >
