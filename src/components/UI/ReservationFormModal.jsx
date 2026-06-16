@@ -88,6 +88,17 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
             .map(b => b.Jam_reservasi ? String(b.Jam_reservasi).substring(0, 5) : '');
     }, [bookings, formData.Tanggal_reservasi, initialData]);
 
+    // Cek apakah slot sudah lewat dari waktu sekarang (hanya berlaku jika tanggal = hari ini)
+    const isSlotPast = React.useCallback((slotTime) => {
+        const today = new Date().toISOString().split('T')[0];
+        if (formData.Tanggal_reservasi !== today) return false;
+        const now = new Date();
+        const [slotHour, slotMin] = slotTime.split(':').map(Number);
+        const slotDate = new Date();
+        slotDate.setHours(slotHour, slotMin, 0, 0);
+        return now >= slotDate;
+    }, [formData.Tanggal_reservasi]);
+
     const [loading, setLoading] = useState({
         patients: false,
         staff: false,
@@ -506,7 +517,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                         {availableSlots.map((slot) => {
                                             const isSelected = formData.Jam_reservasi && formData.Jam_reservasi.substring(0, 5) === slot.time;
                                             const isBooked = bookedTimesForSelectedDate.includes(slot.time);
-                                            const isActive = (slot.active && !isBooked) || isSelected;
+                                            const isPast = !isSelected && isSlotPast(slot.time);
+                                            const isActive = (slot.active && !isBooked && !isPast) || isSelected;
                                             
                                             return (
                                                 <button
@@ -519,9 +531,11 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                                             ? 'bg-primary text-secondary border-primary shadow-lg shadow-primary/20 hover:scale-[1.02]'
                                                             : isBooked
                                                                 ? 'bg-rose-50/30 text-rose-500/80 border-rose-100/30 cursor-not-allowed opacity-70'
-                                                                : isActive
-                                                                    ? 'bg-white text-primary border-primary/5 hover:bg-primary/[0.02] hover:border-primary/20 hover:scale-[1.02]'
-                                                                    : 'bg-gray-50 text-gray-300 border-gray-100/50 cursor-not-allowed opacity-40'
+                                                                : isPast
+                                                                    ? 'bg-gray-50/80 text-gray-300 border-gray-100 cursor-not-allowed opacity-50'
+                                                                    : isActive
+                                                                        ? 'bg-white text-primary border-primary/5 hover:bg-primary/[0.02] hover:border-primary/20 hover:scale-[1.02]'
+                                                                        : 'bg-gray-50 text-gray-300 border-gray-100/50 cursor-not-allowed opacity-40'
                                                     }`}
                                                 >
                                                     <span className="text-xs font-black tracking-tight">{slot.time}</span>
@@ -530,11 +544,13 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                                             ? 'bg-secondary text-primary'
                                                             : isBooked
                                                                 ? 'bg-rose-50 text-rose-600'
-                                                                : isActive
-                                                                    ? 'bg-emerald-50 text-emerald-700'
-                                                                    : 'bg-gray-100 text-gray-400'
+                                                                : isPast
+                                                                    ? 'bg-gray-100 text-gray-400'
+                                                                    : isActive
+                                                                        ? 'bg-emerald-50 text-emerald-700'
+                                                                        : 'bg-gray-100 text-gray-400'
                                                     }`}>
-                                                        {isSelected ? 'Pilih' : isBooked ? 'Penuh' : isActive ? 'Buka' : 'Tutup'}
+                                                        {isSelected ? 'Pilih' : isBooked ? 'Penuh' : isPast ? 'Lewat' : isActive ? 'Buka' : 'Tutup'}
                                                     </span>
                                                 </button>
                                             );
