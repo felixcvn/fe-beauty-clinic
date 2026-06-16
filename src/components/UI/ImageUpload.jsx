@@ -64,7 +64,8 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 className={`
-                    relative w-full aspect-square rounded-xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 overflow-hidden group
+                    relative w-full rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 overflow-hidden group
+                    ${preview ? 'aspect-square' : 'min-h-[190px] py-6'}
                     ${isDragging
                         ? 'border-primary bg-primary/5'
                         : 'border-secondary-dark/40 hover:border-primary/50 bg-white'
@@ -83,27 +84,27 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
                         </button>
                     </>
                 ) : (
-                    <div className="flex flex-col items-center justify-center p-4">
-                        <div className="flex gap-4">
+                    <div className="flex flex-col items-center justify-center p-4 w-full">
+                        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full justify-center px-4">
                             <button
                                 type="button"
                                 onClick={() => cameraInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-4 w-28 h-28 rounded-2xl border border-primary/10 bg-primary/5 hover:bg-primary/10 hover:border-primary/20 text-primary transition-all duration-300 group/btn shadow-sm"
+                                className="flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-0 p-3 sm:p-4 w-full sm:w-28 h-auto sm:h-28 rounded-2xl border border-primary/10 bg-primary/5 hover:bg-primary/10 hover:border-primary/20 text-primary transition-all duration-300 group/btn shadow-sm"
                             >
-                                <Camera className="w-6 h-6 mb-2 text-primary/60 group-hover/btn:scale-110 group-hover/btn:text-primary transition-all" />
-                                <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">Ambil Foto</span>
+                                <Camera className="w-5 h-5 sm:w-6 sm:h-6 sm:mb-2 text-primary/60 group-hover/btn:scale-110 group-hover/btn:text-primary transition-all shrink-0" />
+                                <span className="text-[10px] font-black uppercase tracking-wider text-center leading-tight">Ambil Foto</span>
                             </button>
 
                             <button
                                 type="button"
                                 onClick={() => galleryInputRef.current?.click()}
-                                className="flex flex-col items-center justify-center p-4 w-28 h-28 rounded-2xl border border-primary/10 bg-primary/5 hover:bg-primary/10 hover:border-primary/20 text-primary transition-all duration-300 group/btn shadow-sm"
+                                className="flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-0 p-3 sm:p-4 w-full sm:w-28 h-auto sm:h-28 rounded-2xl border border-primary/10 bg-primary/5 hover:bg-primary/10 hover:border-primary/20 text-primary transition-all duration-300 group/btn shadow-sm"
                             >
-                                <Upload className="w-6 h-6 mb-2 text-primary/60 group-hover/btn:scale-110 group-hover/btn:text-primary transition-all" />
-                                <span className="text-[9px] font-black uppercase tracking-wider text-center leading-tight">Buka Galeri</span>
+                                <Upload className="w-5 h-5 sm:w-6 sm:h-6 sm:mb-2 text-primary/60 group-hover/btn:scale-110 group-hover/btn:text-primary transition-all shrink-0" />
+                                <span className="text-[10px] font-black uppercase tracking-wider text-center leading-tight">Buka Galeri</span>
                             </button>
                         </div>
-                        <p className="text-[9px] font-black text-primary/30 uppercase tracking-[0.2em] text-center mt-4">Atau drag foto ke sini</p>
+                        <p className="text-[9px] font-black text-primary/30 uppercase tracking-[0.2em] text-center mt-4 hidden sm:block">Atau drag foto ke sini</p>
                     </div>
                 )}
 

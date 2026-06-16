@@ -61,8 +61,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [diinginkanLainnya, setDiinginkanLainnya] = useState('');
     const [tensi, setTensi] = useState('');
     const [keluhanPasien, setKeluhanPasien] = useState('');
-    const [riwayatKesehatan, setRiwayatKesehatan] = useState([]);
-    const [riwayatKesehatanLainnya, setRiwayatKesehatanLainnya] = useState('');
+    const [riwayatKesehatan, setRiwayatKesehatan] = useState('');
 
     // Procedure Step 2 fields
     const [selectedTreatments, setSelectedTreatments] = useState([]);
@@ -116,34 +115,21 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 setKeluhanPasien(initialData.keluhan_pasien || '');
                 
                 const rawRiwayat = initialData.riwayat_penyakit || initialData.riwayat_kesehatan || '';
-                const predefinedRiwayat = ['Kanker', 'Keloid', 'HIV / AIDS', 'Stroke', 'Epilepsi', 'Diabetes'];
-                
-                let parsedRiwayat = [];
-
                 if (Array.isArray(rawRiwayat)) {
-                    parsedRiwayat = rawRiwayat;
+                    setRiwayatKesehatan(rawRiwayat.join(', '));
                 } else if (typeof rawRiwayat === 'string') {
                     if (rawRiwayat.startsWith('[')) {
                         try {
-                            parsedRiwayat = JSON.parse(rawRiwayat);
+                            const parsed = JSON.parse(rawRiwayat);
+                            setRiwayatKesehatan(Array.isArray(parsed) ? parsed.join(', ') : rawRiwayat);
                         } catch (e) {
-                            parsedRiwayat = rawRiwayat.split(',').map(s => s.trim()).filter(Boolean);
+                            setRiwayatKesehatan(rawRiwayat);
                         }
                     } else {
-                        parsedRiwayat = rawRiwayat.split(',').map(s => s.trim()).filter(Boolean);
+                        setRiwayatKesehatan(rawRiwayat);
                     }
-                }
-
-                // Separate predefined from custom (Lainnya)
-                const knownItems = parsedRiwayat.filter(item => predefinedRiwayat.includes(item));
-                const unknownItems = parsedRiwayat.filter(item => !predefinedRiwayat.includes(item));
-                
-                if (unknownItems.length > 0) {
-                    setRiwayatKesehatan([...knownItems, 'Lainnya']);
-                    setRiwayatKesehatanLainnya(unknownItems.join(', '));
                 } else {
-                    setRiwayatKesehatan(knownItems);
-                    setRiwayatKesehatanLainnya('');
+                    setRiwayatKesehatan(rawRiwayat || '');
                 }
 
                 setPerawatanSebelumnya(initialData.perawatan_diklinik_sebelumnya || initialData.perawatan_sebelumnya || '');
@@ -196,8 +182,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 setDiinginkanLainnya('');
                 setTensi('');
                 setKeluhanPasien('');
-                setRiwayatKesehatan([]);
-                setRiwayatKesehatanLainnya('');
+                setRiwayatKesehatan('');
 
                 setSelectedTreatments([]);
                 setDiagnosis('');
@@ -304,10 +289,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                     formData.append('tanggal_kunjungan', date);
                     formData.append('tekanan_darah', tensi);
                     
-                    const riwayatStr = riwayatKesehatan.includes('Lainnya') 
-                        ? [...riwayatKesehatan.filter(r => r !== 'Lainnya'), riwayatKesehatanLainnya].filter(Boolean).join(', ')
-                        : riwayatKesehatan.join(', ');
-                    formData.append('riwayat_penyakit', riwayatStr);
+                    formData.append('riwayat_penyakit', riwayatKesehatan);
                     
                     formData.append('keluhan_pasien', keluhanPasien);
                     
@@ -499,35 +481,16 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                             />
                                         </div>
 
-                                        {/* Conditions checkboxes */}
+                                        {/* Riwayat Penyakit Input */}
                                         <div>
                                             <label className={labelClass}>Riwayat Penyakit</label>
-                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-y-4 gap-x-2">
-                                                {['Kanker', 'Keloid', 'HIV / AIDS', 'Stroke', 'Epilepsi', 'Diabetes', 'Lainnya'].map((condition) => (
-                                                    <button
-                                                        key={condition}
-                                                        type="button"
-                                                        onClick={() => toggleItem(riwayatKesehatan, setRiwayatKesehatan, condition)}
-                                                        className={`flex items-center gap-3 p-3 rounded-2xl border transition-all text-left ${riwayatKesehatan.includes(condition) ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-primary/5 bg-white hover:border-primary/20'}`}
-                                                    >
-                                                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${riwayatKesehatan.includes(condition) ? 'bg-primary border-primary' : 'border-primary/10'}`}>
-                                                            {riwayatKesehatan.includes(condition) && <CheckCircle2 className="w-3 h-3 text-secondary" />}
-                                                        </div>
-                                                        <span className={`text-[10px] font-black uppercase tracking-tighter ${riwayatKesehatan.includes(condition) ? 'text-primary' : 'text-primary/40'}`}>
-                                                            {condition}
-                                                        </span>
-                                                    </button>
-                                                ))}
-                                            </div>
-                                            {riwayatKesehatan.includes('Lainnya') && (
-                                                <input
-                                                    type="text"
-                                                    value={riwayatKesehatanLainnya}
-                                                    onChange={(e) => setRiwayatKesehatanLainnya(e.target.value)}
-                                                    placeholder="Sebutkan riwayat kesehatan lainnya..."
-                                                    className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-bold text-primary shadow-sm placeholder:text-primary/20 animate-fade-in mt-4"
-                                                />
-                                            )}
+                                            <input
+                                                type="text"
+                                                value={riwayatKesehatan}
+                                                onChange={(e) => setRiwayatKesehatan(e.target.value)}
+                                                placeholder="Contoh: Keloid, Asma, Diabetes, Alergi Parasetamol, dsb..."
+                                                className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary shadow-sm placeholder:text-primary/20"
+                                            />
                                         </div>
 
                                         {/* Keluhan Pasien */}
@@ -683,7 +646,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                                 <Activity className="w-4 h-4 text-primary/30" />
                                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Dokumentasi Foto</h4>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                                 <ImageUpload 
                                                     label="Sebelum" 
                                                     onImageChange={setBeforeImage} 
