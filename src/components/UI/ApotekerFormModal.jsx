@@ -73,14 +73,30 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 if (apiCall) {
                     apiCall.then(res => {
                         if (res.success && res.data) {
-                            const nextCode = res.data.next_number || res.data.next_number || res.data.nextNumber || res.data.next_code || (typeof res.data === 'string' ? res.data : '');
-                            setFormState(prev => ({ ...prev, id: nextCode }));
+                            const data = res.data;
+                            // Cek semua kemungkinan key dari berbagai endpoint backend
+                            const nextCode = 
+                                data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment ||
+                                data.next_number || data.nextNumber || data.next_code ||
+                                (typeof data === 'string' ? data : '');
+                            if (nextCode) setFormState(prev => ({ ...prev, id: nextCode }));
                         }
                     });
                 }
             }
         }
     }, [isOpen, initialData, type]);
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -190,14 +206,6 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRequestClose(); }}
-                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
-                >
-                    <X className="w-5 h-5" />
-                </button>
-
                 {/* Header Section */}
                 <div className="relative p-8 pb-6 bg-primary overflow-hidden shrink-0">
                     <div className="absolute inset-0 opacity-10">
@@ -218,6 +226,14 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                         </div>
                     </div>
                 </div>
+
+                <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRequestClose(); }}
+                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
+                >
+                    <X className="w-5 h-5" />
+                </button>
 
                 {/* Form Section */}
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">

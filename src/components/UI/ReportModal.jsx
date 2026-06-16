@@ -176,16 +176,16 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
                                              {data.beforeImage && (
                                                  <div className="space-y-2">
                                                      <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sebelum</p>
-                                                     <div className="rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6] flex items-center justify-center p-2">
-                                                         <img src={data.beforeImage} alt="Before" className="w-full max-h-[300px] object-contain rounded-xl" crossOrigin="anonymous" />
+                                                     <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6]">
+                                                         <img src={data.beforeImage} alt="Before" className="w-full h-full object-cover rounded-xl" crossOrigin="anonymous" />
                                                      </div>
                                                  </div>
                                              )}
                                              {data.afterImage && (
                                                  <div className="space-y-2">
                                                      <p className="text-[9px] font-black uppercase tracking-widest text-center text-[#a4bfb7]">Kondisi Sesudah</p>
-                                                     <div className="rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6] flex items-center justify-center p-2">
-                                                         <img src={data.afterImage} alt="After" className="w-full max-h-[300px] object-contain rounded-xl" crossOrigin="anonymous" />
+                                                     <div className="aspect-square rounded-2xl overflow-hidden border-2 border-[#f4f7f6] shadow-sm bg-[#f4f7f6]">
+                                                         <img src={data.afterImage} alt="After" className="w-full h-full object-cover rounded-xl" crossOrigin="anonymous" />
                                                      </div>
                                                  </div>
                                              )}

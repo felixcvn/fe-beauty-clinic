@@ -22,19 +22,51 @@ const SalesPage = () => {
         const res = await transaksiAPI.getAll(user?.token);
         if (res.success) {
             const sortedData = [...res.data].sort((a, b) => new Date(b.created_at.replace(/Z$/, '')) - new Date(a.created_at.replace(/Z$/, '')));
-            const formatted = sortedData.map(t => {
-                const totalKeseluruhan = Number(t.total_keseluruhan || 0);
-                const totalWithPpn = totalKeseluruhan;
-                return {
-                    id: t.order_id || `INV-${t.id}`,
-                    customer: t.pasien ? t.pasien.Nama_pasien : (t.nama_pasien_distributor || 'Umum'),
-                    product: t.details && t.details.length > 0 ? t.details.map(d => d.nama_item).join(', ') : 'Layanan Kesehatan',
-                    amount: `Rp ${totalWithPpn.toLocaleString('id-ID')}`,
-                    status: t.status || 'Selesai',
-                    date: t.tanggal_transaksi || t.created_at.split('T')[0],
-                    raw: t // simpan raw data untuk detail
-                };
+            
+            // Group by order_id
+            const groups = {};
+            sortedData.forEach(t => {
+                const orderId = t.order_id || `INV-${t.id}`;
+                if (!groups[orderId]) {
+                    groups[orderId] = {
+                        id: orderId,
+                        customer: t.pasien ? t.pasien.Nama_pasien : (t.nama_pasien_distributor || 'Umum'),
+                        products: [],
+                        amount: 0,
+                        status: t.status || 'Selesai',
+                        date: t.tanggal_transaksi || t.created_at.split('T')[0],
+                        transactions: []
+                    };
+                }
+                
+                groups[orderId].transactions.push(t);
+                groups[orderId].amount += Number(t.total_keseluruhan || 0);
+                
+                // If any transaction in the group is Pending/Menunggu, status is Pending/Menunggu
+                if (t.status === 'Pending' || t.status === 'Menunggu') {
+                    groups[orderId].status = t.status;
+                }
+                
+                if (t.details && t.details.length > 0) {
+                    t.details.forEach(d => {
+                        if (!groups[orderId].products.includes(d.nama_item)) {
+                            groups[orderId].products.push(d.nama_item);
+                        }
+                    });
+                }
             });
+
+            const formatted = Object.values(groups).map(g => ({
+                id: g.id,
+                customer: g.customer,
+                product: g.products.length > 0 ? g.products.join(', ') : 'Layanan Kesehatan',
+                amount: `Rp ${g.amount.toLocaleString('id-ID')}`,
+                status: g.status,
+                date: g.date,
+                raw: g.transactions[0], // fallback compatibility
+                transactions: g.transactions // full array
+            }));
+
             setRecentSales(formatted);
         }
         setIsLoading(false);

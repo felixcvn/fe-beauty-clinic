@@ -4,17 +4,30 @@ import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, 
 import { useAuth } from '../../context/AuthContext';
 import { transaksiAPI, stokProdukAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import ConfirmModal from './ConfirmModal';
 
 const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess }) => {
     const { user } = useAuth();
     const { showToast } = useToast();
 
     const isGudang = (user?.role?.toLowerCase() === 'gudang umum' || user?.role?.toLowerCase() === 'super admin') && transaction?.status === 'Pending';
-    
     const [editableItems, setEditableItems] = React.useState([]);
     const [products, setProducts] = React.useState([]);
     const [alamat, setAlamat] = React.useState('');
     const [initialAlamat, setInitialAlamat] = React.useState('');
+    const [groupedTxList, setGroupedTxList] = React.useState([]);
+    const [confirmConfig, setConfirmConfig] = React.useState(null);
+
+    const handleRequestClose = () => {
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Detail Transaksi?',
+            message: 'Apakah Anda yakin ingin menutup detail transaksi ini? Perubahan yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: onClose
+        });
+    };
 
     React.useEffect(() => {
         if (isGudang && user?.token) {
@@ -28,6 +41,9 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
     React.useEffect(() => {
         if (isOpen && transaction) {
+            const txList = transaction.transactions || [transaction.raw || transaction];
+            setGroupedTxList(txList);
+
             const initialItems = transaction.raw?.details ? transaction.raw.details.map(d => ({
                 id: d.id,
                 item_id: d.itemable_id,
@@ -46,6 +62,68 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
             setInitialAlamat(initialAddr);
         }
     }, [isOpen, transaction]);
+
+    const printInvoice = (tx) => {
+        const LINE_WIDTH = 32;
+
+        const centerText = (text) => {
+            if (text.length >= LINE_WIDTH) return text.substring(0, LINE_WIDTH);
+            const padLeft = Math.floor((LINE_WIDTH - text.length) / 2);
+            const padRight = LINE_WIDTH - text.length - padLeft;
+            return ' '.repeat(padLeft) + text + ' '.repeat(padRight);
+        };
+
+        const leftRightText = (left, right) => {
+            const spaces = LINE_WIDTH - left.length - right.length;
+            if (spaces > 0) {
+                return left + ' '.repeat(spaces) + right;
+            } else {
+                return left.substring(0, LINE_WIDTH - right.length - 1) + ' ' + right;
+            }
+        };
+
+        const line = '-'.repeat(LINE_WIDTH);
+
+        let receiptText = '';
+        
+        // Header
+        receiptText += centerText('KLINIK KECANTIKAN') + '\n';
+        receiptText += centerText('PERSONAL BEAUTY') + '\n';
+        receiptText += centerText('Jl. Raya Jember No.1') + '\n';
+        receiptText += centerText('Telp: 0812-3456-7890') + '\n';
+        receiptText += line + '\n';
+
+        // Info
+        receiptText += `FAKTUR : ${tx.no_faktur || tx.no_resi || 'INV-' + tx.id}\n`;
+        receiptText += `ORDER  : ${tx.order_id || transaction.id}\n`;
+        receiptText += `TGL    : ${tx.tanggal_transaksi || tx.created_at?.split('T')[0] || '-'}\n`;
+        const customer = tx.pasien ? tx.pasien.Nama_pasien : (tx.nama_pasien_distributor || 'Umum');
+        receiptText += `CUST   : ${customer.substring(0, 20)}\n`;
+        const cashierName = tx.karyawan?.NamaLengkap_karyawan || tx.karyawan?.nama_lengkap || tx.karyawan?.name || 'ADMIN';
+        receiptText += `KASIR  : ${cashierName.toUpperCase()}\n`;
+        receiptText += line + '\n';
+
+        // Items
+        const txDetails = tx.details || [];
+        txDetails.forEach(item => {
+            receiptText += leftRightText(item.nama_item.substring(0, 18), `${item.qty}x`) + '\n';
+            receiptText += leftRightText('', `Rp ${Number(item.harga).toLocaleString('id-ID')}`) + '\n';
+        });
+
+        receiptText += line + '\n';
+        const total = Number(tx.total_keseluruhan || 0);
+        receiptText += leftRightText('TOTAL', `Rp ${total.toLocaleString('id-ID')}`) + '\n';
+        receiptText += line + '\n';
+        
+        // Footer
+        receiptText += centerText('Terima Kasih Atas') + '\n';
+        receiptText += centerText('Kunjungan Anda') + '\n';
+        receiptText += '\n\n';
+        
+        console.log("===== FORMAT PRINTER THERMAL (58mm) =====");
+        console.log(receiptText);
+        alert(`Cetak Struk Faktur ${tx.no_faktur || tx.no_resi || tx.id}:\n\n` + receiptText);
+    };
 
     if (!isOpen || !transaction) return null;
 
@@ -88,14 +166,14 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
     const getStatusStyle = (status) => {
         switch (status) {
             case 'Selesai': return 'bg-green-100/20 text-white border-green-200/50';
+            case 'Pending':
             case 'Menunggu': return 'bg-yellow-100/20 text-yellow-700 border-yellow-200/50';
             case 'Cancelled': return 'bg-red-100/20 text-red-700 border-red-200/50';
             default: return 'bg-gray-100/20 text-gray-700 border-gray-200/50';
         }
     };
 
-    const generateThermalReceipt = () => {
-        // Asumsi Lebar Kertas 58mm = 32 Karakter per baris
+    const printCombinedReceipt = (txList) => {
         const LINE_WIDTH = 32;
 
         const centerText = (text) => {
@@ -115,6 +193,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         };
 
         const line = '-'.repeat(LINE_WIDTH);
+        const doubleLine = '='.repeat(LINE_WIDTH);
 
         let receiptText = '';
         
@@ -126,42 +205,51 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         receiptText += line + '\n';
 
         // Info
-        receiptText += `ID   : ${transaction.id}\n`;
-        receiptText += `TGL  : ${transaction.date}\n`;
-        // Nama pasien
-        const customer = transaction.customer ? transaction.customer.substring(0, 20) : 'Umum';
-        receiptText += `CUST  : ${customer}\n`;
-        const cashierName = transaction.raw?.karyawan?.NamaLengkap_karyawan || transaction.raw?.karyawan?.nama_lengkap || transaction.raw?.karyawan?.name || 'ADMIN';
-        receiptText += `KASIR: ${cashierName.toUpperCase()}\n`;
+        const primaryTx = txList[0] || transaction.raw || transaction;
+        receiptText += `ORDER  : ${primaryTx.order_id || transaction.id}\n`;
+        receiptText += `TGL    : ${primaryTx.tanggal_transaksi || primaryTx.created_at?.split('T')[0] || '-'}\n`;
+        const customer = primaryTx.pasien ? primaryTx.pasien.Nama_pasien : (primaryTx.nama_pasien_distributor || 'Umum');
+        receiptText += `CUST   : ${customer.substring(0, 20)}\n`;
+        const cashierName = primaryTx.karyawan?.NamaLengkap_karyawan || primaryTx.karyawan?.nama_lengkap || primaryTx.karyawan?.name || 'ADMIN';
+        receiptText += `KASIR  : ${cashierName.toUpperCase()}\n`;
         receiptText += line + '\n';
 
         // Items
-        items.forEach(item => {
-            receiptText += leftRightText(item.name.substring(0, 18), `${item.qty}x`) + '\n';
-            receiptText += leftRightText('', item.price) + '\n';
+        const grandTotal = txList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0);
+        txList.forEach(tx => {
+            const details = tx.details || [];
+            details.forEach(item => {
+                receiptText += leftRightText(item.nama_item.substring(0, 18), `${item.qty}x`) + '\n';
+                receiptText += leftRightText('', `Rp ${Number(item.harga).toLocaleString('id-ID')}`) + '\n';
+            });
         });
 
-        receiptText += line + '\n';
-        receiptText += leftRightText('Subtotal', `Rp ${subtotal.toLocaleString('id-ID')}`) + '\n';
-
-        receiptText += line + '\n';
-        receiptText += leftRightText('TOTAL', `Rp ${finalTotal.toLocaleString('id-ID')}`) + '\n';
-        receiptText += line + '\n';
+        receiptText += doubleLine + '\n';
+        receiptText += leftRightText('TOTAL BELANJA', `Rp ${grandTotal.toLocaleString('id-ID')}`) + '\n';
+        receiptText += doubleLine + '\n';
         
         // Footer
         receiptText += centerText('Terima Kasih Atas') + '\n';
         receiptText += centerText('Kunjungan Anda') + '\n';
-        receiptText += '\n\n'; // Feed paper
+        receiptText += '\n\n';
         
-        console.log("===== FORMAT PRINTER THERMAL (58mm) =====");
+        console.log("===== FORMAT PRINTER THERMAL GABUNGAN =====");
         console.log(receiptText);
-        alert("Konversi teks Thermal Printer siap dikirim ke Bluetooth:\n\n" + receiptText);
+        alert("Cetak Struk Gabungan Customer:\n\n" + receiptText);
+    };
+
+    const generateThermalReceipt = () => {
+        if (groupedTxList.length > 0) {
+            printCombinedReceipt(groupedTxList);
+        } else {
+            printInvoice(transaction.raw || transaction);
+        }
     };
 
     return createPortal(
         <div 
             className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 transition-opacity animate-fade-in"
-            onClick={onClose}
+            onClick={handleRequestClose}
         >
             <div 
                 className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
@@ -169,7 +257,8 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
             >
                 {/* Floating Close Button */}
                 <button
-                    onClick={onClose}
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleRequestClose(); }}
                     className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/10 backdrop-blur-md text-white hover:bg-white/20 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm border border-white/10"
                 >
                     <X className="w-5 h-5" />
@@ -255,83 +344,149 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                         )}
                     </div>
 
-                    {/* Items Table */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
-                            <Package className="w-3 h-3 text-primary/40" /> Daftar Layanan & Stok
-                        </div>
-                        <div className="rounded-[2rem] border border-primary/5 overflow-hidden shadow-sm bg-white">
-                            <table className="w-full text-left">
-                                <thead className="bg-secondary/10 text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
-                                    <tr>
-                                        <th className="px-8 py-5">Sublayanan / Stok</th>
-                                        <th className="px-8 py-5 text-center">Qty</th>
-                                        <th className="px-8 py-5 text-right">Harga</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-primary/5 font-bold">
-                                    {editableItems.map((item, idx) => (
-                                        <tr key={item.id || idx} className="text-xs text-primary group hover:bg-secondary/10 transition-colors">
-                                            <td className="px-8 py-5 font-black uppercase tracking-tight">
-                                                {isGudang && item.item_type === 'App\\Models\\StokProduk' ? (
-                                                    <select 
-                                                        value={item.item_id || ''}
-                                                        onChange={(e) => handleProductChange(item.id, e.target.value)}
-                                                        className="w-full max-w-[200px] bg-primary/5 border border-primary/10 rounded-lg p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
-                                                    >
-                                                        <option value="" disabled>Pilih Produk</option>
-                                                        {products.map(p => (
-                                                            <option key={p.id} value={p.id}>{p.Nama_produk}</option>
-                                                        ))}
-                                                    </select>
-                                                ) : (
-                                                    item.name
-                                                )}
-                                            </td>
-                                            <td className="px-8 py-5 text-center">
-                                                {isGudang ? (
-                                                    <div className="flex items-center justify-center gap-2">
-                                                        <button 
-                                                            onClick={() => handleQtyChange(item.id, -1)}
-                                                            className="w-6 h-6 rounded-md bg-primary/5 hover:bg-primary/10 text-primary flex items-center justify-center transition-colors">
-                                                            <Minus className="w-3 h-3" />
-                                                        </button>
-                                                        <span className="w-8 text-center font-black text-sm">{item.qty}</span>
-                                                        <button 
-                                                            onClick={() => handleQtyChange(item.id, 1)}
-                                                            className="w-6 h-6 rounded-md bg-primary/5 hover:bg-primary/10 text-primary flex items-center justify-center transition-colors">
-                                                            <Plus className="w-3 h-3" />
-                                                        </button>
-                                                    </div>
-                                                ) : (
-                                                    <span className="inline-block px-3 py-1 rounded-lg bg-primary/5 text-primary/80 font-black text-sm">{item.qty}x</span>
-                                                )}
-                                            </td>
-                                            <td className="px-8 py-5 text-right font-black italic text-sm">
-                                                <div className="flex items-center justify-end gap-4">
-                                                    <span>{`Rp ${(item.rawPrice * item.qty).toLocaleString('id-ID')}`}</span>
-                                                    {isGudang && (
-                                                        <button 
-                                                            onClick={() => handleRemoveItem(item.id)}
-                                                            className="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
-                                                            <Trash2 className="w-4 h-4" />
-                                                        </button>
+                    {/* Items Table / Invoices List */}
+                    {groupedTxList.length > 1 ? (
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
+                                <Package className="w-3 h-3 text-primary/40" /> Rincian Faktur Transaksi ({groupedTxList.length})
+                            </div>
+                            {groupedTxList.map((tx, txIdx) => {
+                                const details = tx.details || [];
+                                const totalTx = Number(tx.total_keseluruhan || 0);
+                                return (
+                                    <div key={tx.id || txIdx} className="p-6 rounded-[2rem] border border-primary/5 bg-white shadow-sm space-y-4">
+                                        <div className="flex justify-between items-center pb-3 border-b border-primary/5">
+                                            <div>
+                                                <span className="inline-block px-2.5 py-1 text-[8px] font-black uppercase tracking-wider bg-primary/10 text-primary rounded-lg border border-primary/5 mb-1.5">
+                                                    Faktur {tx.tipe_transaksi || 'Layanan'}
+                                                </span>
+                                                <p className="text-xs font-black text-primary tracking-tight leading-none">
+                                                    No. Faktur: {tx.no_faktur || tx.no_resi || `INV-${tx.id}`}
+                                                </p>
+                                            </div>
+                                            <button 
+                                                onClick={() => printInvoice(tx)}
+                                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/5 text-primary hover:bg-primary/10 transition-all font-black text-[9px] uppercase tracking-wider border border-primary/5 shadow-sm active:scale-95"
+                                            >
+                                                <Printer className="w-3.5 h-3.5" />
+                                                Cetak Faktur
+                                            </button>
+                                        </div>
+                                        <div className="overflow-x-auto scrollbar-hide">
+                                            <table className="w-full text-left font-bold text-xs text-primary">
+                                                <thead>
+                                                    <tr className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
+                                                        <th className="py-2">Item</th>
+                                                        <th className="py-2 text-center">Qty</th>
+                                                        <th className="py-2 text-right">Harga</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-primary/5">
+                                                    {details.map((d, dIdx) => (
+                                                        <tr key={d.id || dIdx} className="hover:bg-secondary/5 transition-colors">
+                                                            <td className="py-3 font-semibold uppercase tracking-tight">{d.nama_item}</td>
+                                                            <td className="py-3 text-center">
+                                                                <span className="inline-block px-2 py-0.5 rounded bg-primary/5 text-primary/80 font-black text-[10px]">{d.qty}x</span>
+                                                            </td>
+                                                            <td className="py-3 text-right">Rp {Number(d.harga * d.qty).toLocaleString('id-ID')}</td>
+                                                        </tr>
+                                                    ))}
+                                                    {details.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="3" className="py-4 text-center text-primary/30 text-[10px] font-bold uppercase tracking-widest">
+                                                                Tidak ada item
+                                                            </td>
+                                                        </tr>
                                                     )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                    {editableItems.length === 0 && (
-                                        <tr>
-                                            <td colSpan="3" className="px-8 py-10 text-center text-primary/40 font-bold text-sm">
-                                                Semua item telah dihapus dari pesanan ini
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div className="flex justify-between items-center pt-3 border-t border-primary/5 text-xs">
+                                            <span className="font-bold text-primary/40 uppercase tracking-widest text-[9px]">Total Faktur</span>
+                                            <span className="font-black text-primary">Rp {totalTx.toLocaleString('id-ID')}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
                         </div>
-                    </div>
+                    ) : (
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
+                                <Package className="w-3 h-3 text-primary/40" /> Daftar Layanan & Stok
+                            </div>
+                            <div className="rounded-[2rem] border border-primary/5 overflow-hidden shadow-sm bg-white">
+                                <table className="w-full text-left">
+                                    <thead className="bg-secondary/10 text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
+                                        <tr>
+                                            <th className="px-8 py-5">Sublayanan / Stok</th>
+                                            <th className="px-8 py-5 text-center">Qty</th>
+                                            <th className="px-8 py-5 text-right">Harga</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-primary/5 font-bold">
+                                        {editableItems.map((item, idx) => (
+                                            <tr key={item.id || idx} className="text-xs text-primary group hover:bg-secondary/10 transition-colors">
+                                                <td className="px-8 py-5 font-black uppercase tracking-tight">
+                                                    {isGudang && item.item_type === 'App\\Models\\StokProduk' ? (
+                                                        <select 
+                                                            value={item.item_id || ''}
+                                                            onChange={(e) => handleProductChange(item.id, e.target.value)}
+                                                            className="w-full max-w-[200px] bg-primary/5 border border-primary/10 rounded-lg p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
+                                                        >
+                                                            <option value="" disabled>Pilih Produk</option>
+                                                            {products.map(p => (
+                                                                <option key={p.id} value={p.id}>{p.Nama_produk}</option>
+                                                            ))}
+                                                        </select>
+                                                    ) : (
+                                                        item.name
+                                                    )}
+                                                </td>
+                                                <td className="px-8 py-5 text-center">
+                                                    {isGudang ? (
+                                                        <div className="flex items-center justify-center gap-2">
+                                                            <button 
+                                                                onClick={() => handleQtyChange(item.id, -1)}
+                                                                className="w-6 h-6 rounded-md bg-primary/5 hover:bg-primary/10 text-primary flex items-center justify-center transition-colors font-bold">
+                                                                -
+                                                            </button>
+                                                            <span className="w-8 text-center font-black text-sm">{item.qty}</span>
+                                                            <button 
+                                                                onClick={() => handleQtyChange(item.id, 1)}
+                                                                className="w-6 h-6 rounded-md bg-primary/5 hover:bg-primary/10 text-primary flex items-center justify-center transition-colors font-bold">
+                                                                +
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <span className="inline-block px-3 py-1 rounded-lg bg-primary/5 text-primary/80 font-black text-sm">{item.qty}x</span>
+                                                    )}
+                                                </td>
+                                                <td className="px-8 py-5 text-right font-black italic text-sm">
+                                                    <div className="flex items-center justify-end gap-4">
+                                                        <span>{`Rp ${(item.rawPrice * item.qty).toLocaleString('id-ID')}`}</span>
+                                                        {isGudang && (
+                                                            <button 
+                                                                onClick={() => handleRemoveItem(item.id)}
+                                                                className="w-7 h-7 rounded-lg bg-red-50 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100">
+                                                                <Trash2 className="w-4 h-4" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {editableItems.length === 0 && (
+                                            <tr>
+                                                <td colSpan="3" className="px-8 py-10 text-center text-primary/40 font-bold text-sm">
+                                                    Semua item telah dihapus dari pesanan ini
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Summary Card */}
                     <div className="bg-primary p-9 rounded-[2.5rem] text-secondary shadow-2xl shadow-primary/30 relative overflow-hidden group">
@@ -341,21 +496,21 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                         <div className="relative z-10 space-y-5">
                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
                                 <span className="opacity-50">Subtotal</span>
-                                <span className="text-sm italic">Rp {subtotal.toLocaleString('id-ID')}</span>
+                                <span className="text-sm italic">Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0) : subtotal).toLocaleString('id-ID')}</span>
                              </div>
 
                              <div className="h-px bg-white/10 my-6" />
                              <div className="flex justify-between items-center">
                                 <div className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Total Tagihan</div>
                                 <div className="text-3xl font-black tracking-tighter italic text-secondary-light">
-                                    Rp {finalTotal.toLocaleString('id-ID')}
+                                    Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0) : finalTotal).toLocaleString('id-ID')}
                                 </div>
                              </div>
                         </div>
                     </div>
 
                     {/* Footer Info Metadata */}
-                        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30 px-2">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-black uppercase tracking-[0.2em] text-primary/30 px-2">
                         <div className="flex items-center gap-6">
                             <div className="flex items-center gap-2"><CreditCard className="w-3 h-3 text-primary/20" /> Metode: <span className="text-primary font-black opacity-80">{transaction.raw?.metode_pembayaran || 'Tunai'}</span></div>
                             <div className="flex items-center gap-2"><Clock className="w-3 h-3 text-primary/20" /> Kasir: <span className="text-primary font-black opacity-80 uppercase">{transaction.raw?.karyawan?.NamaLengkap_karyawan || transaction.raw?.karyawan?.nama_lengkap || transaction.raw?.karyawan?.name || 'Admin'}</span></div>
@@ -407,9 +562,13 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                             className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
                         >
                             <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            <span>Cetak Struk Resmi</span>
+                            <span>Cetak Semua Struk</span>
                         </button>
                     )}
+                    <ConfirmModal
+                        config={confirmConfig}
+                        onClose={() => setConfirmConfig(null)}
+                    />
                 </div>
             </div>
         </div>,

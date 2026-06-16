@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Beaker, Package, AlertTriangle, Activity, RefreshCw, Calendar, TrendingUp, ClipboardList, Wand2, Coins, CheckCircle, FileText, FlaskConical, X } from 'lucide-react';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
@@ -6,6 +7,7 @@ import { useToast } from '../../context/ToastContext';
 import { useMockData } from '../../context/MockDataContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI } from '../../services/api';
+import ConfirmModal from '../../components/UI/ConfirmModal';
 
 const ApotekerDashboard = () => {
     const { user } = useAuth();
@@ -19,6 +21,7 @@ const ApotekerDashboard = () => {
     const [racikanPrice, setRacikanPrice] = useState('');
     const [racikanStock, setRacikanStock] = useState('1');
     const [isSubmittingRacikan, setIsSubmittingRacikan] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState(null);
     
     const [stats, setStats] = useState({
         totalMaterials: 0,
@@ -94,11 +97,33 @@ const ApotekerDashboard = () => {
         fetchDashboardData();
     }, []);
 
+    useEffect(() => {
+        if (selectedRequest) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [selectedRequest]);
+
     const handleProcessRequest = (req) => {
         setSelectedRequest(req);
         setRacikanName(`Racikan - ${req.patientName}`);
         setRacikanPrice('');
         setRacikanStock('1');
+    };
+
+    const handleRequestClose = () => {
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: () => setSelectedRequest(null)
+        });
     };
 
     const handleSaveRacikan = (e) => {
@@ -299,21 +324,12 @@ const ApotekerDashboard = () => {
             </div>
 
             {/* Modal Pemrosesan & Harga Racikan */}
-            {selectedRequest && (
-                <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/40 animate-fade-in" onClick={() => setSelectedRequest(null)}>
+            {selectedRequest && createPortal(
+                <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/30 animate-fade-in" onClick={handleRequestClose}>
                     <div 
-                        className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                        className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {/* Close button */}
-                        <button
-                            type="button"
-                            onClick={() => setSelectedRequest(null)}
-                            className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-10"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-
                         <div className="relative p-8 pb-6 bg-amber-600 overflow-hidden text-white">
                             <div className="absolute inset-0 opacity-10">
                                 <div className="absolute top-0 left-0 w-full h-full animate-[pulse_4s_infinite]" style={{ background: 'radial-gradient(circle, #FFF 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
@@ -329,7 +345,16 @@ const ApotekerDashboard = () => {
                             </div>
                         </div>
 
-                        <form onSubmit={handleSaveRacikan} className="p-8 space-y-6">
+                        {/* Close button */}
+                        <button
+                            type="button"
+                            onClick={handleRequestClose}
+                            className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-10"
+                        >
+                            <X className="w-4 h-4" />
+                        </button>
+
+                        <form onSubmit={handleSaveRacikan} className="p-8 space-y-6 overflow-y-auto scrollbar-hide flex-1">
                             <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-800 text-xs leading-relaxed space-y-1">
                                 <p className="font-bold uppercase tracking-wider text-[8px] text-amber-600">RESEP DOKTER ({selectedRequest.dokterName}):</p>
                                 <p className="font-semibold italic">"{selectedRequest.racikanText}"</p>
@@ -383,7 +408,12 @@ const ApotekerDashboard = () => {
                         </form>
                     </div>
                 </div>
-            )}
+            , document.body)}
+
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>
     );
 };

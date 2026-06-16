@@ -108,14 +108,29 @@ const POSPage = () => {
                 if (resRacikans && resRacikans.success && resRacikans.data) {
                     const responseData = resRacikans.data.data || resRacikans.data;
                     const racikanArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                    setApiRacikans(racikanArray.map(r => ({
-                        id: r.id ? `RCK-${r.id}` : String(r.id || ''),
-                        name: r.nama_obat_racik || r.name || 'Racikan Tanpa Nama',
-                        category: 'Racikan',
-                        price: Number(r.harga || r.price || 0),
-                        stock: 99, // Racikan stock is virtual/calculated
-                        image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=200&h=200&auto=format&fit=crop'
-                    })));
+                    
+                    let savedStocks = {};
+                    try {
+                        const raw = localStorage.getItem('racikan_stocks');
+                        if (raw) savedStocks = JSON.parse(raw);
+                    } catch (e) {}
+
+                    setApiRacikans(racikanArray.map(r => {
+                        const cleanId = String(r.id);
+                        const prefId = `RCK-${r.id}`;
+                        let stockValue = 10; // Default fallback
+                        if (savedStocks[prefId] !== undefined) stockValue = savedStocks[prefId];
+                        else if (savedStocks[cleanId] !== undefined) stockValue = savedStocks[cleanId];
+
+                        return {
+                            id: prefId,
+                            name: r.nama_obat_racik || r.name || 'Racikan Tanpa Nama',
+                            category: 'Racikan',
+                            price: Number(r.harga || r.price || 0),
+                            stock: stockValue,
+                            image: 'https://images.unsplash.com/photo-1631549916768-4119b2e5f926?q=80&w=200&h=200&auto=format&fit=crop'
+                        };
+                    }));
                 }
             } catch (error) {
                 console.error('[POSPage] Error loading real data:', error);
@@ -176,10 +191,13 @@ const POSPage = () => {
         return [...activeProductsList, ...activeTreatmentsList, ...apiRacikans];
     }, [activeProductsList, activeTreatmentsList, apiRacikans]);
 
-    const filteredProducts = allProducts.filter(p =>
-        (activeCategory === 'Semua' || p.category === activeCategory) &&
-        p.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredProducts = allProducts.filter(p => {
+        if (p.category === 'Racikan' && p.stock <= 0) {
+            return false;
+        }
+        return (activeCategory === 'Semua' || p.category === activeCategory) &&
+            p.name.toLowerCase().includes(searchTerm.toLowerCase());
+    });
 
     const getProductPrice = (item) => {
         if (selectedCustomer?.isDistributor && item.harga_distributor) {
@@ -299,6 +317,24 @@ const POSPage = () => {
         
         if (res.success) {
             showToast('Transaksi Berhasil Disimpan!', 'success');
+            
+            // Decrement racikan stocks in localStorage
+            let savedStocks = {};
+            try {
+                const raw = localStorage.getItem('racikan_stocks');
+                if (raw) savedStocks = JSON.parse(raw);
+            } catch (e) {}
+            
+            cart.forEach(item => {
+                if (item.category === 'Racikan') {
+                    const cleanId = String(item.id).replace('RCK-', '');
+                    const currentStock = savedStocks[cleanId] !== undefined ? savedStocks[cleanId] : 10;
+                    savedStocks[cleanId] = Math.max(0, currentStock - item.quantity);
+                    savedStocks[`RCK-${cleanId}`] = savedStocks[cleanId];
+                }
+            });
+            localStorage.setItem('racikan_stocks', JSON.stringify(savedStocks));
+
             setCart([]);
             setSelectedCustomer(null);
             setHasFetchedRecord(false);
@@ -336,8 +372,8 @@ const POSPage = () => {
 
                         // 1. Deteksi resep racikan manual
                         const racText = latestRecord.racikan || '';
-                        const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.status === 'Pending');
-                        const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.status === 'Selesai');
+                        const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.racikanText === racText && r.status === 'Pending');
+                        const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer.id) && r.racikanText === racText && r.status === 'Selesai');
 
                         if (isProcessed) {
                             // Jika sudah berstatus 'Selesai' (telah diberi harga oleh apoteker), jangan munculkan banner resep racikan lagi
@@ -431,15 +467,16 @@ const POSPage = () => {
         });
         setCart(newCartItems);
 
-        const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.status === 'Pending');
-        const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.status === 'Selesai');
+        const simRacText = "Cream Malam Retinol 0.1% + Moisturizer Oat";
+        const isAlreadySent = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.racikanText === simRacText && r.status === 'Pending');
+        const isProcessed = antreanRacikan?.some(r => String(r.patientId) === String(selectedCustomer?.id) && r.racikanText === simRacText && r.status === 'Selesai');
 
         if (isProcessed) {
             // Jika sudah diproses apoteker, banner tidak dimunculkan lagi
             setDetectedRacikan(null);
             setRacikanSent(false);
         } else {
-            setDetectedRacikan("Cream Malam Retinol 0.1% + Moisturizer Oat");
+            setDetectedRacikan(simRacText);
             setRacikanSent(isAlreadySent);
         }
 
@@ -564,7 +601,7 @@ const POSPage = () => {
             </div>
 
             {/* Right Side: Unified Cart & Summary (E-commerce Style) */}
-            <div className="w-full xl:w-[480px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
+            <div className="w-full xl:w-[540px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
 
                 {/* 1. Transaction Info Section (Top - Fixed) */}
                 <div className="p-4 md:p-5 bg-secondary/10 border-b border-primary/5 space-y-3.5">

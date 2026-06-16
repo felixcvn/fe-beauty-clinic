@@ -77,9 +77,12 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                         apiToUse.getNextCode(token).then(res => {
                             if (res.success && res.data) {
                                 const data = res.data;
+                                // Cek semua kemungkinan key dari berbagai endpoint backend
                                 const nextCode = 
-                                    (data.data && typeof data.data === 'object' ? (data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
-                                    data.next_number || data.nextNumber || data.next_code || data.data || 
+                                    data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment ||
+                                    (data.data && typeof data.data === 'object' ? (data.data.Kode_Produk || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                                    data.next_number || data.nextNumber || data.next_code ||
+                                    (typeof data.data === 'string' ? data.data : null) ||
                                     (typeof data === 'string' ? data : '');
                                 
                                 if (nextCode) setFormState(prev => ({ ...prev, id: nextCode }));
@@ -90,6 +93,17 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
             }
         }
     }, [isOpen, initialData, type]);
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = '';
+        }
+        return () => {
+            document.body.style.overflow = '';
+        };
+    }, [isOpen]);
 
     if (!isOpen) return null;
 
@@ -163,9 +177,12 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                 apiToUse.getNextCode(token).then(res => {
                     if (res.success && res.data) {
                         const data = res.data;
+                        // Cek semua kemungkinan key dari berbagai endpoint backend
                         const nextCode = 
-                            (data.data && typeof data.data === 'object' ? (data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
-                            data.next_number || data.nextNumber || data.next_code || data.data || 
+                            data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment ||
+                            (data.data && typeof data.data === 'object' ? (data.data.Kode_Produk || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                            data.next_number || data.nextNumber || data.next_code ||
+                            (typeof data.data === 'string' ? data.data : null) ||
                             (typeof data === 'string' ? data : '');
                         
                         if (nextCode) setFormState(current => ({ ...current, id: nextCode }));
@@ -223,14 +240,6 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                 className="relative w-full max-w-md bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
             >
-                <button
-                    type="button"
-                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseAttempt(); }}
-                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
-                >
-                    <X className="w-5 h-5" />
-                </button>
-
                 {/* Header Section */}
                 <div className="relative p-8 pb-6 bg-primary overflow-hidden shrink-0">
                     <div className="absolute inset-0 opacity-10">
@@ -252,6 +261,14 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                     </div>
                 </div>
 
+                <button
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleCloseAttempt(); }}
+                    className="absolute top-6 right-6 p-2.5 rounded-2xl bg-white/20 backdrop-blur-md text-white hover:bg-white/40 hover:scale-105 active:scale-95 transition-all z-[60] shadow-sm"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+
                 {/* Form Section */}
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -261,9 +278,9 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                 type="text"
                                 value={formState.id}
                                 onChange={(e) => handleChange('id', e.target.value)}
-                                className={`${getDynamicInputClass('id')} ${!initialData?.uid ? 'bg-white text-primary' : 'bg-gray-100 text-primary/60 cursor-not-allowed'}`}
+                                className={`${getDynamicInputClass('id')} bg-gray-100 text-primary/60 cursor-not-allowed`}
                                 placeholder="Memuat kode otomatis..."
-                                readOnly={!initialData?.uid}
+                                readOnly
                             />
                             {errors.id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.id}</p>}
                         </div>

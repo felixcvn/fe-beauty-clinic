@@ -46,15 +46,29 @@ export const MockDataProvider = ({ children }) => {
             try {
                 const res = await stokRacikanAPI.getAll(token);
                 if (res.success && Array.isArray(res.data)) {
-                    setRacikans(res.data.map(r => ({
-                        id: String(r.id),
-                        name: r.nama_obat_racik || 'Racikan Tanpa Nama',
-                        category: 'Racikan',
-                        price: Number(r.harga || 0),
-                        stock: 10, // Kuantitas virtual default di POS
-                        minStock: 5,
-                        image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
-                    })));
+                    let savedStocks = {};
+                    try {
+                        const raw = localStorage.getItem('racikan_stocks');
+                        if (raw) savedStocks = JSON.parse(raw);
+                    } catch (e) {}
+
+                    setRacikans(res.data.map(r => {
+                        const cleanId = String(r.id);
+                        const prefId = `RCK-${r.id}`;
+                        let stockValue = 10; // Default fallback
+                        if (savedStocks[prefId] !== undefined) stockValue = savedStocks[prefId];
+                        else if (savedStocks[cleanId] !== undefined) stockValue = savedStocks[cleanId];
+
+                        return {
+                            id: String(r.id),
+                            name: r.nama_obat_racik || 'Racikan Tanpa Nama',
+                            category: 'Racikan',
+                            price: Number(r.harga || 0),
+                            stock: stockValue,
+                            minStock: 5,
+                            image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
+                        };
+                    }));
                 }
             } catch (error) {
                 console.error('[MockDataContext] Error fetching real racikans:', error);
@@ -169,8 +183,9 @@ export const MockDataProvider = ({ children }) => {
                     price: Number(customProduct.price)
                 });
                 if (res.success && res.data) {
+                    const realId = res.data.data?.id || res.data.id;
                     const newProduct = {
-                        id: String(res.data.id || `RCK-${String(racikans.length + 1).padStart(3, '0')}`),
+                        id: String(realId || `RCK-${String(racikans.length + 1).padStart(3, '0')}`),
                         name: customProduct.name,
                         category: 'Racikan',
                         price: Number(customProduct.price),
@@ -178,6 +193,16 @@ export const MockDataProvider = ({ children }) => {
                         minStock: 5,
                         image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
                     };
+
+                    let savedStocks = {};
+                    try {
+                        const raw = localStorage.getItem('racikan_stocks');
+                        if (raw) savedStocks = JSON.parse(raw);
+                    } catch (e) {}
+                    savedStocks[newProduct.id] = Number(customProduct.stock || 1);
+                    savedStocks[`RCK-${newProduct.id}`] = Number(customProduct.stock || 1);
+                    localStorage.setItem('racikan_stocks', JSON.stringify(savedStocks));
+
                     setRacikans(prev => [...prev, newProduct]);
                 } else {
                     console.error('[MockDataContext] Gagal menyimpan ke backend:', res.message);
@@ -190,6 +215,15 @@ export const MockDataProvider = ({ children }) => {
                         minStock: 5,
                         image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
                     };
+
+                    let savedStocks = {};
+                    try {
+                        const raw = localStorage.getItem('racikan_stocks');
+                        if (raw) savedStocks = JSON.parse(raw);
+                    } catch (e) {}
+                    savedStocks[newProduct.id] = Number(customProduct.stock || 1);
+                    localStorage.setItem('racikan_stocks', JSON.stringify(savedStocks));
+
                     setRacikans(prev => [...prev, newProduct]);
                 }
             } catch (error) {
@@ -206,6 +240,15 @@ export const MockDataProvider = ({ children }) => {
                 minStock: 5,
                 image: 'https://images.unsplash.com/photo-1556228578-0d85b1af4d78?q=80&w=200&h=200&auto=format&fit=crop'
             };
+
+            let savedStocks = {};
+            try {
+                const raw = localStorage.getItem('racikan_stocks');
+                if (raw) savedStocks = JSON.parse(raw);
+            } catch (e) {}
+            savedStocks[newProduct.id] = Number(customProduct.stock || 1);
+            localStorage.setItem('racikan_stocks', JSON.stringify(savedStocks));
+
             setRacikans(prev => [...prev, newProduct]);
         }
 
