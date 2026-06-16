@@ -500,7 +500,7 @@ const AttendancePage = () => {
                         <p className="text-primary/40 font-bold text-sm">Pantau kehadiran dan kedisiplinan seluruh karyawan klinik</p>
                     </div>
                     <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-                        {user?.role === 'HRD' && (
+                        {(user?.role === 'HRD' || user?.role === 'Super Admin') && (
                             <button onClick={() => navigate('/attendance/settings')} className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white text-primary border-2 border-primary/10 px-6 py-4 rounded-2xl hover:bg-primary/5 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-sm">
                                 <Settings className="w-4 h-4 text-primary/60" />
                                 <span>Pengaturan</span>
