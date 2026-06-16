@@ -50,7 +50,7 @@ const InfoRow = ({ icon: Icon, label, field, type = 'text', isEditing, form, han
                     />
                 )
             ) : (
-                <p className="text-sm font-semibold text-primary truncate">{form[field] || <span className="text-primary/30 italic">Not set</span>}</p>
+                <p className="text-sm font-semibold text-primary truncate">{form[field] || <span className="text-primary/30 italic">Belum diatur</span>}</p>
             )}
         </div>
     </div>
@@ -151,7 +151,7 @@ const ProfilePage = () => {
                                 className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-bold text-xs shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300"
                             >
                                 <CheckIcon className="w-4 h-4" />
-                                Save Changes
+                                Simpan Perubahan
                             </button>
                         </>
                     ) : (
@@ -160,7 +160,7 @@ const ProfilePage = () => {
                             className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-xl font-semibold text-xs shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300"
                         >
                             <PencilSquareIcon className="w-4 h-4" />
-                            Edit Profile
+                            Edit Profil
                         </button>
                     )}
                 </div>
@@ -210,15 +210,15 @@ const ProfilePage = () => {
 
                 {/* Right: Info Card */}
                 <div className="lg:col-span-2 bg-white rounded-[2rem] border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8">
-                    <h4 className="text-lg font-black text-primary tracking-tight mb-2">Personal Information</h4>
-                    <p className="text-xs font-bold text-primary/30 mb-6">Your contact details and workplace information</p>
+                    <h4 className="text-lg font-black text-primary tracking-tight mb-2">Informasi Pribadi</h4>
+                    <p className="text-xs font-bold text-primary/30 mb-6">Detail kontak dan informasi tempat kerja Anda</p>
 
                     <div className="divide-y divide-primary/5">
-                        <InfoRow icon={EnvelopeIcon} label="Email Address" field="email" type="email" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
-                        <InfoRow icon={PhoneIcon} label="Phone Number" field="phone" type="tel" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
-                        <InfoRow icon={BriefcaseIcon} label="Position / Title" field="position" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} readOnly={true} />
-                        <InfoRow icon={CalendarDaysIcon} label="Join Date" field="joinDate" type="date" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
-                        <InfoRow icon={MapPinIcon} label="Address" field="address" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={EnvelopeIcon} label="Alamat Email" field="email" type="email" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={PhoneIcon} label="Nomor Telepon" field="phone" type="tel" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={BriefcaseIcon} label="Posisi / Jabatan" field="position" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} readOnly={true} />
+                        <InfoRow icon={CalendarDaysIcon} label="Tanggal Bergabung" field="joinDate" type="date" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
+                        <InfoRow icon={MapPinIcon} label="Alamat" field="address" isEditing={isEditing} form={form} handleChange={handleChange} setForm={setForm} />
                     </div>
                 </div>
             </div>
