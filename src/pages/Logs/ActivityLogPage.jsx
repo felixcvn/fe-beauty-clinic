@@ -52,6 +52,9 @@ const ActivityLogPage = () => {
         if (type.includes('DELETE') || type.includes('HAPUS')) {
             return 'bg-red-50 text-red-600 border border-red-100';
         }
+        if (type.includes('LOGIN') || type.includes('LOGOUT')) {
+            return 'bg-violet-50 text-violet-600 border border-violet-100';
+        }
         return 'bg-amber-50 text-amber-600 border border-amber-100';
     };
 

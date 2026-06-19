@@ -103,8 +103,15 @@ const ProfilePage = () => {
             header: 'Simpan Profil?',
             message: 'Yakin ingin menyimpan perubahan profil Anda?',
             acceptLabel: 'Ya, Simpan',
-            onAccept: () => {
-                if (updateProfile) updateProfile(form);
+            onAccept: async () => {
+                if (updateProfile) {
+                    const res = await updateProfile(form);
+                    if (res && !res.success) {
+                        showToast(res.message || 'Gagal memperbarui profil', 'error');
+                        return;
+                    }
+                    showToast('Profil Anda berhasil diperbarui!', 'success');
+                }
                 setIsEditing(false);
             }
         });

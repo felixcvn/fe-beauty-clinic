@@ -164,11 +164,25 @@ export const AuthProvider = ({ children }) => {
         localStorage.removeItem('token');
     };
 
-    // ── Update profil lokal ──────────────────────────────────────────────────
-    const updateProfile = (profileData) => {
+    // ── Update profil lokal & backend ────────────────────────────────────────
+    const updateProfile = async (profileData) => {
+        if (user?.source === 'api' && user?.id) {
+            const mappedData = {
+                name: profileData.name,
+                email: profileData.email,
+                phone: profileData.phone,
+                alamat: profileData.address,
+                tanggal_bergabung: profileData.joinDate,
+            };
+            const result = await karyawanAPI.update(user.token, user.id, mappedData);
+            if (!result.success) {
+                return result;
+            }
+        }
         const updated = { ...user, ...profileData };
         setUser(updated);
         localStorage.setItem('user', JSON.stringify(updated));
+        return { success: true };
     };
 
     return (
