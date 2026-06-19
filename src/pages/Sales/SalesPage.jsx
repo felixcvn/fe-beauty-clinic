@@ -293,7 +293,7 @@ const SalesPage = () => {
                             <div className="flex gap-3">
                                 <button 
                                     onClick={() => handleOpenDetail(sale)}
-                                    className="w-full py-3 text-[9px] font-black text-primary/40 uppercase tracking-widest border border-primary/5 rounded-xl hover:bg-white transition-all"
+                                    className="w-full py-3 text-[10px] font-black text-primary/70 uppercase tracking-widest border border-primary/15 bg-primary/5 hover:bg-primary/10 rounded-xl transition-all shadow-sm"
                                 >
                                     Detail Invoice
                                 </button>

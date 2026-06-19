@@ -19,6 +19,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
         stock: '',
         minStock: '',
         bahan_ids: [],
+        bahan_items: [], // Array of { id, quantity }
         package_treatment_ids: [],
         id: '',
         isPackage: false,
@@ -37,6 +38,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                     ...initialData,
                     priceDistributor: initialData.priceDistributor || '',
                     bahan_ids: initialData.bahan_ids || [],
+                    bahan_items: initialData.bahan_items || (initialData.bahan_ids ? initialData.bahan_ids.map(id => ({ id, quantity: 1 })) : []),
                     package_treatment_ids: initialData.package_treatment_ids || [],
                     isPackage: initialData.isPackage || false,
                     packageCount: initialData.packageCount || '',
@@ -53,6 +55,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                     stock: '',
                     minStock: '',
                     bahan_ids: [],
+                    bahan_items: [],
                     package_treatment_ids: [],
                     id: '',
                     isPackage: false,
@@ -138,6 +141,12 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                 }
                 if (!formState.package_treatment_ids || formState.package_treatment_ids.length === 0) {
                     newErrors.package_treatment_ids = "Pilih minimal satu treatment dalam paket";
+                } else if (formState.packageCount && formState.package_treatment_ids.length !== Number(formState.packageCount)) {
+                    newErrors.package_treatment_ids = `Jumlah treatment yang dipilih (${formState.package_treatment_ids.length}) harus sama dengan jumlah sesi (${formState.packageCount})`;
+                }
+            } else {
+                if (!formState.bahan_items || formState.bahan_items.length === 0) {
+                    newErrors.bahan_items = "Pilih minimal satu bahan untuk treatment";
                 }
             }
         }
@@ -205,7 +214,8 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
 
     const materialOptions = apiMaterials.map(m => ({
         value: m.uid,
-        label: `${m.name} (${m.stock} unit)`
+        label: `${m.name} (${m.stock} unit)`,
+        disabled: Number(m.stock) <= 0 && !(formState.bahan_ids && formState.bahan_ids.some(id => Number(id) === Number(m.uid)))
     }));
     
     const treatmentOptions = apiTreatments.map(t => ({
@@ -427,17 +437,62 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                     )}
                                 </div>
 
-                                <div className="relative z-[30]">
-                                    <CustomMultiSelect
-                                        label="Bahan yang digunakan"
-                                        placeholder="Pilih bahan..."
-                                        values={formState.bahan_ids}
-                                        onChange={(val) => handleChange('bahan_ids', val)}
-                                        options={materialOptions}
-                                        searchable={true}
-                                    />
-                                    <p className="text-[9px] font-bold text-primary/30 mt-2 px-1">Pilih satu atau lebih bahan yang dihabiskan dalam sesi treatment ini.</p>
-                                </div>
+                                {!formState.isPackage && (
+                                    <>
+                                        <div className="relative z-[30]">
+                                            <CustomMultiSelect
+                                                label="Bahan yang digunakan"
+                                                placeholder="Pilih bahan..."
+                                                values={formState.bahan_items.map(i => i.id)}
+                                                onChange={(ids) => {
+                                                    const newItems = ids.map(id => {
+                                                        const existing = formState.bahan_items.find(i => Number(i.id) === Number(id));
+                                                        return existing || { id, quantity: 1 };
+                                                    });
+                                                    setFormState(prev => ({
+                                                        ...prev,
+                                                        bahan_items: newItems,
+                                                        bahan_ids: ids
+                                                    }));
+                                                }}
+                                                options={materialOptions}
+                                                searchable={true}
+                                            />
+                                            {errors.bahan_items && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.bahan_items}</p>}
+                                            <p className="text-[9px] font-bold text-primary/30 mt-2 px-1">Pilih satu atau lebih bahan yang dihabiskan dalam sesi treatment ini.</p>
+                                        </div>
+
+                                        {formState.bahan_items.length > 0 && (
+                                            <div className="space-y-3 bg-white p-4 rounded-2xl border border-primary/5 shadow-sm">
+                                                <label className={labelClassName}>Daftar Bahan & Jumlah (Pcs)</label>
+                                                {formState.bahan_items.map((item, index) => {
+                                                    return (
+                                                        <div key={item.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-primary/5">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-xs font-bold text-primary truncate">{apiMaterials.find(m => Number(m.uid) === Number(item.id))?.name || item.id}</p>
+                                                            </div>
+                                                            <div className="w-24">
+                                                                <input
+                                                                    type="number"
+                                                                    min="1"
+                                                                    value={item.quantity}
+                                                                    onChange={(e) => {
+                                                                        const val = e.target.value === '' ? '' : Number(e.target.value);
+                                                                        const updatedItems = [...formState.bahan_items];
+                                                                        updatedItems[index].quantity = val;
+                                                                        setFormState(prev => ({ ...prev, bahan_items: updatedItems }));
+                                                                    }}
+                                                                    className="w-full px-2 py-1.5 rounded-lg bg-white border border-primary/10 text-xs font-bold text-center"
+                                                                    placeholder="Jumlah"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+                                    </>
+                                )}
                             </>
                         )}
 
@@ -465,7 +520,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                                 </div>
                             )}
                             
-                            {(user?.role === ROLES.MANAJER_MARKETING_SALES || user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.OWNER) ? (
+                            {(user?.role === ROLES.MANAJER_MARKETING_SALES || user?.role === ROLES.SUPER_ADMIN || user?.role === ROLES.OWNER) && type !== 'treatment' ? (
                                 <div className="grid grid-cols-2 gap-4 col-span-2">
                                     <div className="relative z-[22]">
                                         <label className={labelClassName}>Harga Normal (Rp)</label>

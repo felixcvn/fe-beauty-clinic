@@ -108,24 +108,33 @@ const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder 
                     {filteredOptions.length > 0 ? (
                         filteredOptions.map((option, index) => {
                             const isSelected = values.some(v => String(v) === String(option.value));
+                            const isDisabled = option.disabled;
                             return (
                                 <button
                                     key={index}
                                     type="button"
                                     onClick={(e) => {
                                         e.preventDefault();
+                                        if (isDisabled) return;
                                         handleSelect(option.value);
                                     }}
-                                    className={`w-full flex items-center justify-between px-5 py-3.5 text-left transition-all duration-200 hover:bg-primary/5 group ${
+                                    disabled={isDisabled}
+                                    className={`w-full flex items-center justify-between px-5 py-3.5 text-left transition-all duration-200 ${
+                                        isDisabled 
+                                            ? 'opacity-40 cursor-not-allowed bg-gray-50/50' 
+                                            : 'hover:bg-primary/5 group'
+                                    } ${
                                         isSelected ? 'bg-primary/5' : ''
                                     }`}
                                 >
-                                    <span className={`font-bold text-sm group-hover:text-primary transition-colors ${
-                                        isSelected ? 'text-primary' : 'text-primary/60'
-                                    }`}>
+                                    <span className={`font-bold text-sm ${
+                                        isDisabled 
+                                            ? 'text-gray-400' 
+                                            : isSelected ? 'text-primary' : 'text-primary/60 group-hover:text-primary'
+                                    } transition-colors`}>
                                         {option.label}
                                     </span>
-                                    {isSelected && (
+                                    {isSelected && !isDisabled && (
                                         <Check className="w-5 h-5 text-primary animate-fade-in" />
                                     )}
                                 </button>

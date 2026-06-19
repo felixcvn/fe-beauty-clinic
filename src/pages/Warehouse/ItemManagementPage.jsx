@@ -133,6 +133,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                     isPackage: Boolean(item.is_paket || item.is_package),
                     packageCount: Number(item.jumlah_sesi || item.packageCount || 0),
                     bahan_ids: item.bahan ? item.bahan.map(b => b.bahan_id) : (item.bahan_ids || []),
+                    bahan_items: item.bahan ? item.bahan.map(b => ({ id: b.bahan_id, quantity: Number(b.Jumlah || 1) })) : [],
                     package_treatment_ids: item.package_treatment_ids || []
                 }));
                 allTreatments = mappedTreatments;

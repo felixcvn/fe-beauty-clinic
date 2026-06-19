@@ -100,7 +100,7 @@ const POSPage = () => {
                         name: t.Nama_treatment || t.Nama_Treatment || t.nama_treatment || t.name || 'Treatment Tanpa Nama',
                         category: 'Treatment',
                         price: Number(t.Harga || t.harga || t.price || 0),
-                        stock: t.Jumlah_sesi || 99, // default virtual sessions
+                        stock: t.status === 'Non Available' ? 0 : (t.Jumlah_sesi || 99), // Disable/out of stock if any material is missing
                         image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop'
                     })));
                 }
@@ -585,7 +585,9 @@ const POSPage = () => {
                                         <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5 w-full">
                                             <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {getProductPrice(product).toLocaleString('id-ID')}</span>
                                             {isOutOfStock ? (
-                                                <span className="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg border border-red-100">Habis</span>
+                                                <span className="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg border border-red-100">
+                                                    {product.category === 'Treatment' ? 'Tidak Tersedia' : 'Kosong'}
+                                                </span>
                                             ) : (
                                                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
                                                     <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
@@ -682,42 +684,7 @@ const POSPage = () => {
                         )}
                     </div>
 
-                    {/* Promo Selection */}
-                    <div className="flex gap-2 relative">
-                        <div className="relative flex-1 group">
-                            <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary/30 group-focus-within:text-primary transition-colors" />
-                            <input
-                                type="text"
-                                placeholder="Kode Promo?"
-                                value={promoInput}
-                                onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setIsPromoDropdownOpen(true); }}
-                                onFocus={() => setIsPromoDropdownOpen(true)}
-                                className="w-full pl-11 pr-6 py-2.5 rounded-xl bg-white border border-primary/10 outline-none text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
-                            />
-                        </div>
-                        <button onClick={() => handleApplyPromo()} className="px-5 py-2.5 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
-                            Pakai
-                        </button>
-                        {isPromoDropdownOpen && promoInput && (
-                            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/10 shadow-2xl z-50 overflow-hidden animate-fade-in divide-y divide-primary/5">
-                                {getActivePromos().map(promo => (
-                                    <button
-                                        key={promo.code}
-                                        onClick={() => handleApplyPromo(promo.code)}
-                                        className="w-full p-3 text-left hover:bg-secondary/20 transition-all group flex justify-between items-center"
-                                    >
-                                        <div>
-                                            <div className="text-[10px] font-black text-primary group-hover:translate-x-1 transition-transform">{promo.code}</div>
-                                            <div className="text-[8px] font-bold text-primary/40 leading-tight mt-0.5">{promo.name}</div>
-                                        </div>
-                                        <div className="text-[10px] font-black text-green-500">
-                                            {promo.type === 'Persen' ? `${promo.value}%` : `Rp ${promo.value.toLocaleString('id-ID')}`}
-                                        </div>
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+
 
                     {/* Metode Pembayaran (Sleek Segmented Inline Card) */}
                     <div className="flex items-center justify-between bg-white border border-primary/10 rounded-2xl p-1.5 shadow-sm">
