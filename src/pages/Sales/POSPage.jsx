@@ -571,13 +571,15 @@ const POSPage = () => {
                                                 <span className="text-2xl md:text-3xl font-semibold text-primary tracking-tighter group-hover:scale-110 transition-transform duration-500">
                                                     {product.name.split(' ').filter(n => n).slice(0, 2).map(n => n[0]).join('').toUpperCase()}
                                                 </span>
-                                                <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg border text-[9px] md:text-[10px] font-semibold uppercase tracking-tighter shadow-sm ${
-                                                    isOutOfStock
-                                                        ? 'bg-red-50 text-red-500 border-red-200'
-                                                        : 'bg-white/90 text-primary border-primary/5'
-                                                }`}>
-                                                    {product.stock}
-                                                </div>
+                                                {product.category !== 'Treatment' && (
+                                                    <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg border text-[9px] md:text-[10px] font-semibold uppercase tracking-tighter shadow-sm ${
+                                                        isOutOfStock
+                                                            ? 'bg-red-50 text-red-500 border-red-200'
+                                                            : 'bg-white/90 text-primary border-primary/5'
+                                                    }`}>
+                                                        {product.stock}
+                                                    </div>
+                                                )}
                                             </div>
                                             <h4 className="text-sm md:text-[15px] font-semibold text-primary leading-tight mb-1 line-clamp-2 text-center">{product.name}</h4>
                                             <p className="text-[9px] md:text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-3 text-center">{product.category}</p>

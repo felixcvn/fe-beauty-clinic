@@ -165,11 +165,11 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
     const getStatusStyle = (status) => {
         switch (status) {
-            case 'Selesai': return 'bg-green-100/20 text-white border-green-200/50';
+            case 'Selesai': return 'bg-white/20 text-white border-white/50';
             case 'Pending':
-            case 'Menunggu': return 'bg-yellow-100/20 text-yellow-700 border-yellow-200/50';
-            case 'Cancelled': return 'bg-red-100/20 text-red-700 border-red-200/50';
-            default: return 'bg-gray-100/20 text-gray-700 border-gray-200/50';
+            case 'Menunggu': return 'bg-white/15 text-white border-white/40';
+            case 'Cancelled': return 'bg-white/10 text-white border-white/30';
+            default: return 'bg-white/10 text-white border-white/30';
         }
     };
 

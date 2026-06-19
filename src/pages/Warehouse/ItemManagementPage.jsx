@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import ConfirmModal from '../../components/UI/ConfirmModal';
-import { stokProdukAPI, paketBundlingsAPI, treatmentAPI, bahanTreatmentAPI } from '../../services/api';
+import { stokProdukAPI, paketBundlingsAPI, treatmentAPI, bahanTreatmentAPI, paketTreatmentAPI } from '../../services/api';
 import { exportToExcel } from '../../utils/excelExport';
 
 
@@ -67,11 +67,12 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
         const token = localStorage.getItem('token');
         
         try {
-            // Fetch dari keempat endpoint secara paralel
-            const [stokRes, bundleRes, treatmentRes, bahanRes] = await Promise.all([
+            // Fetch dari kelima endpoint secara paralel
+            const [stokRes, bundleRes, treatmentRes, paketRes, bahanRes] = await Promise.all([
                 stokProdukAPI.getAll(token),
                 paketBundlingsAPI.getAll(token),
                 treatmentAPI.getAll(token),
+                paketTreatmentAPI.getAll(token),
                 bahanTreatmentAPI.getAll(token)
             ]);
 
@@ -130,13 +131,32 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                     name: item.Nama_treatment || item.nama_treatment || item.name,
                     category: item.Kategori || item.kategori || item.category || 'Treatment',
                     price: Number(item.Harga || item.harga || item.price || 0),
-                    isPackage: Boolean(item.is_paket || item.is_package),
-                    packageCount: Number(item.jumlah_sesi || item.packageCount || 0),
+                    isPackage: false,
+                    packageCount: 0,
                     bahan_ids: item.bahan ? item.bahan.map(b => b.bahan_id) : (item.bahan_ids || []),
                     bahan_items: item.bahan ? item.bahan.map(b => ({ id: b.bahan_id, quantity: Number(b.Jumlah || 1) })) : [],
-                    package_treatment_ids: item.package_treatment_ids || []
+                    package_treatment_ids: []
                 }));
-                allTreatments = mappedTreatments;
+                allTreatments = [...allTreatments, ...mappedTreatments];
+            }
+
+            // Map data paket treatment
+            if (paketRes.success) {
+                const rawPaketData = paketRes.data?.data || paketRes.data || [];
+                const mappedPaket = (Array.isArray(rawPaketData) ? rawPaketData : []).map(item => ({
+                    uid: item.id,
+                    id: item.Kode_paket || item.id,
+                    name: item.Nama_paket || '',
+                    category: 'Treatment',
+                    price: Number(item.Harga_paket || 0),
+                    isPackage: true,
+                    packageCount: Array.isArray(item.treatments) ? item.treatments.length : 0,
+                    bahan_ids: [],
+                    bahan_items: [],
+                    package_treatment_ids: Array.isArray(item.treatments) ? item.treatments.map(t => t.id) : [],
+                    description: item.Deskripsi || ''
+                }));
+                allTreatments = [...allTreatments, ...mappedPaket];
             }
             
             setApiTreatments(allTreatments);
@@ -159,7 +179,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
             
             setApiMaterials(allMaterials);
 
-            if (!stokRes.success && !bundleRes.success && !treatmentRes.success && !bahanRes.success) {
+            if (!stokRes.success && !bundleRes.success && !treatmentRes.success && !paketRes.success && !bahanRes.success) {
                 showToast('Gagal memuat data dari server', 'error');
             }
         } catch (error) {
@@ -347,7 +367,7 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                     }
                 } else if (item._type === 'treatment') {
                     const token = localStorage.getItem('token');
-                    const res = await treatmentAPI.delete(token, item.uid);
+                    const res = await treatmentAPI.delete(token, item.uid, item.isPackage);
                     if (res.success) {
                         showToast('Treatment berhasil dihapus', 'success');
                         fetchProducts();

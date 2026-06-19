@@ -870,6 +870,14 @@ export const bahanTreatmentAPI = {
             if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
             return { success: false, message: json.message || 'Gagal mengupdate data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-treatment/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
 
@@ -920,6 +928,14 @@ export const bahanMedisAPI = {
             if (response.ok) return { success: true, data: json };
             if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
             return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-medis/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
@@ -972,6 +988,14 @@ export const bahanInfusAPI = {
             if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
             return { success: false, message: json.message || 'Gagal mengupdate data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-bahan-infus/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
 
@@ -1022,6 +1046,14 @@ export const barangApotekAPI = {
             if (response.ok) return { success: true, data: json };
             if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
             return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/stok-barang-apotek/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus data' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
@@ -1258,9 +1290,10 @@ export const treatmentAPI = {
             return { success: false, message: json.message || 'Gagal mengambil data treatment' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
-    getNextCode: async (token) => {
+    getNextCode: async (token, isPackage = false) => {
         try {
-            const response = await fetch(`${BASE_URL}/treatment/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const endpoint = isPackage ? '/paket-treatment/next-number' : '/treatment/next-number';
+            const response = await fetch(`${BASE_URL}${endpoint}`, { method: 'GET', headers: getHeaders(token) });
             const json = await response.json();
             if (response.ok) return { success: true, data: json.data || json };
             return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
@@ -1268,6 +1301,23 @@ export const treatmentAPI = {
     },
     create: async (token, data) => {
         try {
+            if (data.isPackage) {
+                const payload = {
+                    Nama_paket: data.name,
+                    Deskripsi: data.description || '',
+                    Harga_paket: data.price || 0,
+                    treatments: (data.package_treatment_ids || []).map(id => ({
+                        treatment_id: Number(id),
+                        Jumlah: 1
+                    }))
+                };
+                const response = await fetch(`${BASE_URL}/paket-treatment`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+                const json = await response.json();
+                if (response.ok) return { success: true, data: json };
+                if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+                return { success: false, message: json.message || 'Gagal menambah paket treatment' };
+            }
+
             const payload = {
                 id: data.id,
                 kode_treatment: data.id,
@@ -1283,19 +1333,19 @@ export const treatmentAPI = {
                 price: data.price || 0,
                 harga: data.price || 0,
                 Harga: data.price || 0,
-                is_package: data.isPackage ? 1 : 0,
-                is_paket: data.isPackage ? 1 : 0,
-                Is_paket: data.isPackage ? 1 : 0,
-                packageCount: data.packageCount || null,
-                Jumlah_sesi: data.packageCount || null,
+                is_package: 0,
+                is_paket: 0,
+                Is_paket: 0,
+                packageCount: null,
+                Jumlah_sesi: null,
                 bahan_ids: data.bahan_ids || [],
                 bahan: data.bahan_items ? data.bahan_items.map(item => ({ bahan_id: item.id, bahan_type: 'StokBahanTreatment', Jumlah: item.quantity })) : (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
                 Bahan: data.bahan_items ? data.bahan_items.map(item => ({ bahan_id: item.id, bahan_type: 'StokBahanTreatment', Jumlah: item.quantity })) : (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
-                package_treatment_ids: data.package_treatment_ids || [],
-                treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
-                treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
-                Treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
-                Treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id }))
+                package_treatment_ids: [],
+                treatment: [],
+                treatments: [],
+                Treatment: [],
+                Treatments: []
             };
             const response = await fetch(`${BASE_URL}/treatment`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
             const json = await response.json();
@@ -1306,6 +1356,24 @@ export const treatmentAPI = {
     },
     update: async (token, id, data) => {
         try {
+            if (data.isPackage) {
+                const payload = {
+                    _method: 'PUT',
+                    Nama_paket: data.name,
+                    Deskripsi: data.description || '',
+                    Harga_paket: data.price || 0,
+                    treatments: (data.package_treatment_ids || []).map(tId => ({
+                        treatment_id: Number(tId),
+                        Jumlah: 1
+                    }))
+                };
+                const response = await fetch(`${BASE_URL}/paket-treatment/${id}`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+                const json = await response.json();
+                if (response.ok) return { success: true, data: json };
+                if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+                return { success: false, message: json.message || 'Gagal mengupdate paket treatment' };
+            }
+
             const payload = {
                 _method: 'PUT',
                 id: data.id,
@@ -1322,19 +1390,19 @@ export const treatmentAPI = {
                 price: data.price || 0,
                 harga: data.price || 0,
                 Harga: data.price || 0,
-                is_package: data.isPackage ? 1 : 0,
-                is_paket: data.isPackage ? 1 : 0,
-                Is_paket: data.isPackage ? 1 : 0,
-                packageCount: data.packageCount || null,
-                Jumlah_sesi: data.packageCount || null,
+                is_package: 0,
+                is_paket: 0,
+                Is_paket: 0,
+                packageCount: null,
+                Jumlah_sesi: null,
                 bahan_ids: data.bahan_ids || [],
                 bahan: data.bahan_items ? data.bahan_items.map(item => ({ bahan_id: item.id, bahan_type: 'StokBahanTreatment', Jumlah: item.quantity })) : (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
                 Bahan: data.bahan_items ? data.bahan_items.map(item => ({ bahan_id: item.id, bahan_type: 'StokBahanTreatment', Jumlah: item.quantity })) : (data.bahan_ids || []).map(id => ({ bahan_id: id, bahan_type: 'StokBahanTreatment', Jumlah: 1 })),
-                package_treatment_ids: data.package_treatment_ids || [],
-                treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
-                treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
-                Treatment: (data.package_treatment_ids || []).map(id => ({ treatment_id: id })),
-                Treatments: (data.package_treatment_ids || []).map(id => ({ treatment_id: id }))
+                package_treatment_ids: [],
+                treatment: [],
+                treatments: [],
+                Treatment: [],
+                Treatments: []
             };
             const response = await fetch(`${BASE_URL}/treatment/${id}`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
             const json = await response.json();
@@ -1343,15 +1411,81 @@ export const treatmentAPI = {
             return { success: false, message: json.message || 'Gagal mengupdate treatment' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
-    delete: async (token, id) => {
+    delete: async (token, id, isPackage = false) => {
         try {
-            const response = await fetch(`${BASE_URL}/treatment/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            const endpoint = isPackage ? `/paket-treatment/${id}` : `/treatment/${id}`;
+            const response = await fetch(`${BASE_URL}${endpoint}`, { method: 'DELETE', headers: getHeaders(token) });
             if (response.ok) return { success: true };
             const json = await response.json();
             return { success: false, message: json.message || 'Gagal menghapus treatment' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
+
+export const paketTreatmentAPI = {
+    getAll: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/paket-treatment`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    getNextCode: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/paket-treatment/next-number`, { method: 'GET', headers: getHeaders(token) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil kode otomatis' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const payload = {
+                Nama_paket: data.name,
+                Deskripsi: data.description || '',
+                Harga_paket: data.price || 0,
+                treatments: (data.package_treatment_ids || []).map(id => ({
+                    treatment_id: Number(id),
+                    Jumlah: 1
+                }))
+            };
+            const response = await fetch(`${BASE_URL}/paket-treatment`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal menambah data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const payload = {
+                _method: 'PUT',
+                Nama_paket: data.name,
+                Deskripsi: data.description || '',
+                Harga_paket: data.price || 0,
+                treatments: (data.package_treatment_ids || []).map(tId => ({
+                    treatment_id: Number(tId),
+                    Jumlah: 1
+                }))
+            };
+            const response = await fetch(`${BASE_URL}/paket-treatment/${id}`, { method: 'POST', headers: getHeaders(token), body: JSON.stringify(payload) });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json };
+            if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
+            return { success: false, message: json.message || 'Gagal mengupdate data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/paket-treatment/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus data' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
 /* ─────────────────────────────────────────────────────────────
    Activity Logs API
 ───────────────────────────────────────────────────────────── */

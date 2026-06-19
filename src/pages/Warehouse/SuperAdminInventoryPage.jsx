@@ -8,7 +8,7 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import { createPortal } from 'react-dom';
 import ConfirmModal from '../../components/UI/ConfirmModal';
-import { stokProdukAPI, paketBundlingsAPI } from '../../services/api';
+import { stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI } from '../../services/api';
 import { exportToExcel } from '../../utils/excelExport';
 
 
@@ -26,6 +26,10 @@ const SuperAdminInventoryPage = () => {
 
     // Data produk dari backend
     const [productsFromAPI, setProductsFromAPI] = useState([]);
+    const [materialsFromAPI, setMaterialsFromAPI] = useState([]);
+    const [medicalsFromAPI, setMedicalsFromAPI] = useState([]);
+    const [infusionsFromAPI, setInfusionsFromAPI] = useState([]);
+    const [apotekItemsFromAPI, setApotekItemsFromAPI] = useState([]);
 
     // Filter state: 'all', 'product', 'treatment', 'racikan', 'material', 'medical', 'infusion', 'apotekItem'
     const [activeFilter, setActiveFilter] = useState('all');
@@ -43,7 +47,7 @@ const SuperAdminInventoryPage = () => {
     const [isExportDropdownOpen, setIsExportDropdownOpen] = useState(false);
 
     /**
-     * Mengambil daftar produk dari server menggunakan API stokProduk
+     * Mengambil daftar produk dan seluruh bahan dari server
      * dan memetakan datanya ke format yang digunakan di UI.
      */
     const fetchProducts = async () => {
@@ -51,10 +55,14 @@ const SuperAdminInventoryPage = () => {
         const token = localStorage.getItem('token');
         
         try {
-            // Fetch dari kedua endpoint secara paralel
-            const [stokRes, bundleRes] = await Promise.all([
+            // Fetch dari seluruh endpoint secara paralel
+            const [stokRes, bundleRes, materialsRes, medicalsRes, infusionsRes, apotekRes] = await Promise.all([
                 stokProdukAPI.getAll(token),
-                paketBundlingsAPI.getAll(token)
+                paketBundlingsAPI.getAll(token),
+                bahanTreatmentAPI.getAll(token),
+                bahanMedisAPI.getAll(token),
+                bahanInfusAPI.getAll(token),
+                barangApotekAPI.getAll(token)
             ]);
 
             let allProducts = [];
@@ -101,6 +109,55 @@ const SuperAdminInventoryPage = () => {
 
             setProductsFromAPI(allProducts);
 
+            // Map data bahan treatment
+            if (materialsRes.success && Array.isArray(materialsRes.data)) {
+                setMaterialsFromAPI(materialsRes.data.map(item => ({
+                    uid: item.id,
+                    id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                    name: item.Nama_produk || '',
+                    category: item.Kategori || '',
+                    price: Number(item.Harga || 0),
+                    stock: Number(item.Stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || 0)
+                })));
+            }
+
+            // Map data bahan medis
+            if (medicalsRes.success && Array.isArray(medicalsRes.data)) {
+                setMedicalsFromAPI(medicalsRes.data.map(item => ({
+                    uid: item.id,
+                    id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                    name: item.Nama_bahan_medis || '',
+                    category: item.Kategori || '',
+                    stock: Number(item.Stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || 0)
+                })));
+            }
+
+            // Map data bahan infus
+            if (infusionsRes.success && Array.isArray(infusionsRes.data)) {
+                setInfusionsFromAPI(infusionsRes.data.map(item => ({
+                    uid: item.id,
+                    id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                    name: item.Nama_bahan_infus || '',
+                    category: item.Kategori || '',
+                    stock: Number(item.Stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || 0)
+                })));
+            }
+
+            // Map data barang apotek
+            if (apotekRes.success && Array.isArray(apotekRes.data)) {
+                setApotekItemsFromAPI(apotekRes.data.map(item => ({
+                    uid: item.id,
+                    id: String(item.Kode_Produk || item.Kode || item.kode || item.kodeProduk || item.id || ''),
+                    name: item.Nama_barang_apotek || '',
+                    category: item.Kategori || '',
+                    stock: Number(item.Stok || 0),
+                    minStock: Number(item.Batas_minimal_stok || 0)
+                })));
+            }
+
             if (!stokRes.success && !bundleRes.success) {
                 showToast('Gagal memuat data dari server', 'error');
             }
@@ -119,11 +176,11 @@ const SuperAdminInventoryPage = () => {
     // Combine data
     const allItems = useMemo(() => [
         ...productsFromAPI.map(p => ({ ...p, _type: 'product' })),
-        ...materials.map(m => ({ ...m, _type: 'material' })),
-        ...medicals.map(m => ({ ...m, _type: 'medical' })),
-        ...infusions.map(i => ({ ...i, _type: 'infusion' })),
-        ...apotekItems.map(a => ({ ...a, _type: 'apotekItem' }))
-    ], [productsFromAPI, materials, medicals, infusions, apotekItems]);
+        ...materialsFromAPI.map(m => ({ ...m, _type: 'material' })),
+        ...medicalsFromAPI.map(m => ({ ...m, _type: 'medical' })),
+        ...infusionsFromAPI.map(i => ({ ...i, _type: 'infusion' })),
+        ...apotekItemsFromAPI.map(a => ({ ...a, _type: 'apotekItem' }))
+    ], [productsFromAPI, materialsFromAPI, medicalsFromAPI, infusionsFromAPI, apotekItemsFromAPI]);
 
     // Apply filters
     const currentData = useMemo(() =>
@@ -223,21 +280,37 @@ const SuperAdminInventoryPage = () => {
                     else addRacikan(data);
                     showToast('Data berhasil disimpan', 'success');
                 } else if (modalType === 'material') {
-                    if (editingItem) updateMaterial(data);
-                    else addMaterial(data);
-                    showToast('Data berhasil disimpan', 'success');
+                    const res = isEdit ? await bahanTreatmentAPI.update(token, editingItem.uid, data) : await bahanTreatmentAPI.create(token, data);
+                    if (res.success) {
+                        showToast(`Bahan treatment berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menyimpan bahan treatment', 'error');
+                    }
                 } else if (modalType === 'medical') {
-                    if (editingItem) updateMedical(data);
-                    else addMedical(data);
-                    showToast('Data berhasil disimpan', 'success');
+                    const res = isEdit ? await bahanMedisAPI.update(token, editingItem.uid, data) : await bahanMedisAPI.create(token, data);
+                    if (res.success) {
+                        showToast(`Bahan medis berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menyimpan bahan medis', 'error');
+                    }
                 } else if (modalType === 'infusion') {
-                    if (editingItem) updateInfusion(data);
-                    else addInfusion(data);
-                    showToast('Data berhasil disimpan', 'success');
+                    const res = isEdit ? await bahanInfusAPI.update(token, editingItem.uid, data) : await bahanInfusAPI.create(token, data);
+                    if (res.success) {
+                        showToast(`Bahan infus berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menyimpan bahan infus', 'error');
+                    }
                 } else if (modalType === 'apotekItem') {
-                    if (editingItem) updateApotekItem(data);
-                    else addApotekItem(data);
-                    showToast('Data berhasil disimpan', 'success');
+                    const res = isEdit ? await barangApotekAPI.update(token, editingItem.uid, data) : await barangApotekAPI.create(token, data);
+                    if (res.success) {
+                        showToast(`Barang apotek berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`, 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menyimpan barang apotek', 'error');
+                    }
                 }
                 
                 setIsWarehouseModalOpen(false);
@@ -266,10 +339,42 @@ const SuperAdminInventoryPage = () => {
                 }
                 else if (item._type === 'treatment') { deleteTreatment(item.id); showToast('Data berhasil dihapus', 'success'); }
                 else if (item._type === 'racikan') { deleteRacikan(item.id); showToast('Data berhasil dihapus', 'success'); }
-                else if (item._type === 'material') { deleteMaterial(item.id); showToast('Data berhasil dihapus', 'success'); }
-                else if (item._type === 'medical') { deleteMedical(item.id); showToast('Data berhasil dihapus', 'success'); }
-                else if (item._type === 'infusion') { deleteInfusion(item.id); showToast('Data berhasil dihapus', 'success'); }
-                else if (item._type === 'apotekItem') { deleteApotekItem(item.id); showToast('Data berhasil dihapus', 'success'); }
+                else if (item._type === 'material') {
+                    const res = await bahanTreatmentAPI.delete(token, item.uid);
+                    if (res.success) {
+                        showToast('Bahan treatment berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus bahan treatment', 'error');
+                    }
+                }
+                else if (item._type === 'medical') {
+                    const res = await bahanMedisAPI.delete(token, item.uid);
+                    if (res.success) {
+                        showToast('Bahan medis berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus bahan medis', 'error');
+                    }
+                }
+                else if (item._type === 'infusion') {
+                    const res = await bahanInfusAPI.delete(token, item.uid);
+                    if (res.success) {
+                        showToast('Bahan infus berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus bahan infus', 'error');
+                    }
+                }
+                else if (item._type === 'apotekItem') {
+                    const res = await barangApotekAPI.delete(token, item.uid);
+                    if (res.success) {
+                        showToast('Barang apotek berhasil dihapus', 'success');
+                        fetchProducts();
+                    } else {
+                        showToast(res.message || 'Gagal menghapus barang apotek', 'error');
+                    }
+                }
             }
         });
     };

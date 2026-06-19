@@ -77,13 +77,14 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
                     }
                     
                     if (apiToUse) {
-                        apiToUse.getNextCode(token).then(res => {
+                        const isPkg = initialData ? (initialData.isPackage || (type === 'treatment' && formState.isPackage)) : (type === 'treatment' ? formState.isPackage : false);
+                        apiToUse.getNextCode(token, isPkg).then(res => {
                             if (res.success && res.data) {
                                 const data = res.data;
                                 // Cek semua kemungkinan key dari berbagai endpoint backend
                                 const nextCode = 
-                                    data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment ||
-                                    (data.data && typeof data.data === 'object' ? (data.data.Kode_Produk || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                                    data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment || data.Kode_treatment || data.Kode_paket ||
+                                    (data.data && typeof data.data === 'object' ? (data.data.Kode_Produk || data.data.Kode_treatment || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
                                     data.next_number || data.nextNumber || data.next_code ||
                                     (typeof data.data === 'string' ? data.data : null) ||
                                     (typeof data === 'string' ? data : '');
@@ -167,36 +168,51 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
             const newState = { ...prev, [field]: value };
             
             // Jika toggle isPackage berubah pada mode TAMBAH
-            if (field === 'isPackage' && !initialData?.uid && type === 'product') {
+            if (field === 'isPackage' && !initialData?.uid) {
                 const token = localStorage.getItem('token');
-                const apiToUse = value ? paketBundlingsAPI : stokProdukAPI;
-                
-                if (value) {
-                    // Set kategori Paket, stok 0 dan ambil kode paket otomatis
-                    setFormState(current => ({ 
-                        ...current, 
-                        category: 'Paket',
-                        stock: 0,
-                        minStock: 0
-                    }));
-                } else {
-                    setFormState(current => ({ ...current, category: '' }));
-                }
-
-                apiToUse.getNextCode(token).then(res => {
-                    if (res.success && res.data) {
-                        const data = res.data;
-                        // Cek semua kemungkinan key dari berbagai endpoint backend
-                        const nextCode = 
-                            data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment ||
-                            (data.data && typeof data.data === 'object' ? (data.data.Kode_Produk || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
-                            data.next_number || data.nextNumber || data.next_code ||
-                            (typeof data.data === 'string' ? data.data : null) ||
-                            (typeof data === 'string' ? data : '');
-                        
-                        if (nextCode) setFormState(current => ({ ...current, id: nextCode }));
+                if (type === 'product') {
+                    const apiToUse = value ? paketBundlingsAPI : stokProdukAPI;
+                    
+                    if (value) {
+                        // Set kategori Paket, stok 0 dan ambil kode paket otomatis
+                        setFormState(current => ({ 
+                            ...current, 
+                            category: 'Paket',
+                            stock: 0,
+                            minStock: 0
+                        }));
+                    } else {
+                        setFormState(current => ({ ...current, category: '' }));
                     }
-                });
+
+                    apiToUse.getNextCode(token).then(res => {
+                        if (res.success && res.data) {
+                            const data = res.data;
+                            // Cek semua kemungkinan key dari berbagai endpoint backend
+                            const nextCode = 
+                                data.Kode_Produk || data.Kode_Paket || data.Kode_Treatment ||
+                                (data.data && typeof data.data === 'object' ? (data.data.Kode_Produk || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                                data.next_number || data.nextNumber || data.next_code ||
+                                (typeof data.data === 'string' ? data.data : null) ||
+                                (typeof data === 'string' ? data : '');
+                            
+                            if (nextCode) setFormState(current => ({ ...current, id: nextCode }));
+                        }
+                    });
+                } else if (type === 'treatment') {
+                    treatmentAPI.getNextCode(token, value).then(res => {
+                        if (res.success && res.data) {
+                            const data = res.data;
+                            const nextCode = 
+                                data.Kode_treatment || data.Kode_paket || data.next_number || data.nextNumber || data.next_code ||
+                                (data.data && typeof data.data === 'object' ? (data.data.Kode_treatment || data.data.next_number || data.data.nextNumber || data.data.next_code || data.data.data) : null) ||
+                                (typeof data.data === 'string' ? data.data : null) ||
+                                (typeof data === 'string' ? data : '');
+                            
+                            if (nextCode) setFormState(current => ({ ...current, id: nextCode }));
+                        }
+                    });
+                }
             }
             
             return newState;
