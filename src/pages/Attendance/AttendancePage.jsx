@@ -688,9 +688,6 @@ const AttendancePage = () => {
                                             <tr key={record.id} onClick={() => handleOpenDetail(record)} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors cursor-pointer">
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-xl bg-secondary shadow-sm flex items-center justify-center text-primary font-medium text-xs border border-primary/5 shrink-0">
-                                                            {record.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                        </div>
                                                         <div>
                                                             <div className="font-medium text-primary text-sm tracking-tight">{record.name}</div>
                                                             <div className="text-[10px] text-primary/40 font-bold uppercase tracking-widest mt-0.5">
@@ -754,9 +751,6 @@ const AttendancePage = () => {
                                     <div key={record.id} onClick={() => handleOpenDetail(record)} className="p-5 sm:p-6 space-y-4 hover:bg-secondary/10 transition-all cursor-pointer group animate-fade-in">
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary font-black text-xs border border-primary/5 group-hover:scale-110 transition-transform">
-                                                    {record.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                </div>
                                                 <div>
                                                     <h4 className="text-sm font-black text-primary tracking-tight group-hover:text-teal-600 transition-colors">{record.name}</h4>
                                                     <div className="flex flex-wrap items-center gap-1.5 mt-0.5">
@@ -865,9 +859,6 @@ const AttendancePage = () => {
                                     <tr key={req.id} onClick={() => { setSelectedLeaveRequest(req); setIsApprovalModalOpen(true); }} className="border-b border-primary/5 last:border-0 hover:bg-secondary/5 transition-colors cursor-pointer">
                                         <td className="px-4 py-2">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-xs font-medium text-primary shadow-sm border border-primary/5">
-                                                    {(req.staffName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                </div>
                                                 <div>
                                                     <p className="text-sm font-medium text-primary tracking-tight">{req.staffName}</p>
                                                     <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-0.5">{req.role}</p>
@@ -916,7 +907,6 @@ const AttendancePage = () => {
                             <div key={req.id} onClick={() => { setSelectedLeaveRequest(req); setIsApprovalModalOpen(true); }} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
                                 <div className="flex justify-between items-start">
                                     <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary border border-primary/5">{(req.staffName || 'U').split(' ').map(n => n[0]).join('')}</div>
                                         <div>
                                             <p className="text-sm font-black text-primary tracking-tight">{req.staffName}</p>
                                             <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{req.role}</p>
@@ -1012,9 +1002,6 @@ const AttendancePage = () => {
                                             <tr key={req.id} onClick={() => { setSelectedOvertimeReq(req); setIsOvertimeApprovalOpen(true); }} className="border-b border-primary/5 last:border-0 hover:bg-secondary/5 transition-colors cursor-pointer">
                                                 <td className="px-4 py-2">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-xl bg-primary/5 flex items-center justify-center text-xs font-medium text-primary shadow-sm border border-primary/5 shrink-0">
-                                                            {(req.staffName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                        </div>
                                                         <div>
                                                             <p className="text-sm font-medium text-primary tracking-tight">{req.staffName}</p>
                                                             <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest mt-0.5">{req.role}</p>
@@ -1079,9 +1066,6 @@ const AttendancePage = () => {
                                     <div key={req.id} onClick={() => { setSelectedOvertimeReq(req); setIsOvertimeApprovalOpen(true); }} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer">
                                         <div className="flex justify-between items-start">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-[11px] font-black text-primary border border-primary/5">
-                                                    {(req.staffName || 'U').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                                                </div>
                                                 <div>
                                                     <p className="text-sm font-black text-primary tracking-tight">{req.staffName}</p>
                                                     <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{req.role}</p>

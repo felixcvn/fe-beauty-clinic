@@ -69,9 +69,6 @@ const HRDashboard = () => {
                         <div className="space-y-4">
                             {leaveRequests.filter(r => r.status === 'Menunggu').slice(0, 3).map((item, index) => (
                                 <div key={index} className="flex items-center gap-5 p-5 bg-gray-50/50 hover:bg-violet-50/50 rounded-3xl transition-all border border-transparent hover:border-violet-100 group">
-                                    <div className="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-primary border border-primary/5 font-black text-xs">
-                                        {item.staffName.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                                    </div>
                                     <div className="flex-1">
                                         <h4 className="font-bold text-primary text-sm">{item.staffName}</h4>
                                         <p className="text-[10px] text-primary/40 font-black uppercase tracking-widest">{item.type} • {item.startDate}</p>

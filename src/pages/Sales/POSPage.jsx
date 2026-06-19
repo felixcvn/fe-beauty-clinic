@@ -6,7 +6,7 @@ import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
-import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI, stokRacikanAPI, distributorAPI } from '../../services/api';
+import { stokProdukAPI, pasienAPI, rekamMedisAPI, treatmentAPI, transaksiAPI, stokRacikanAPI, distributorAPI, paketTreatmentAPI } from '../../services/api';
 
 const POSPage = () => {
     const navigate = useNavigate();
@@ -40,10 +40,11 @@ const POSPage = () => {
             }
             setIsFetchingData(true);
             try {
-                const [resProducts, resPatients, resTreatments, resRacikans, resDistributors] = await Promise.all([
+                const [resProducts, resPatients, resTreatments, resPakets, resRacikans, resDistributors] = await Promise.all([
                     stokProdukAPI.getAll(user.token),
                     pasienAPI.getAll(user.token, 1, 'per_page=100'),
                     treatmentAPI.getAll(user.token),
+                    paketTreatmentAPI.getAll(user.token),
                     stokRacikanAPI.getAll(user.token),
                     distributorAPI.getAll(user.token)
                 ]);
@@ -92,18 +93,35 @@ const POSPage = () => {
                 }
                 setApiPatients(customers);
 
+                let treatmentsList = [];
                 if (resTreatments.success && resTreatments.data) {
                     const responseData = resTreatments.data.data || resTreatments.data;
                     const treatmentArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                    setApiTreatments(treatmentArray.map(t => ({
+                    treatmentsList = [...treatmentsList, ...treatmentArray.map(t => ({
                         id: t.id ? `TRT-${t.id}` : String(t.kode_treatment || ''),
                         name: t.Nama_treatment || t.Nama_Treatment || t.nama_treatment || t.name || 'Treatment Tanpa Nama',
                         category: 'Treatment',
                         price: Number(t.Harga || t.harga || t.price || 0),
                         stock: t.status === 'Non Available' ? 0 : (t.max_stok !== undefined ? Number(t.max_stok) : 99),
-                        image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop'
-                    })));
+                        image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop',
+                        isPackage: false
+                    }))];
                 }
+
+                if (resPakets && resPakets.success && resPakets.data) {
+                    const responseData = resPakets.data.data || resPakets.data;
+                    const paketArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                    treatmentsList = [...treatmentsList, ...paketArray.map(p => ({
+                        id: p.id ? `PTR-${p.id}` : String(p.Kode_paket || ''),
+                        name: p.Nama_paket || p.name || 'Paket Tanpa Nama',
+                        category: 'Treatment',
+                        price: Number(p.Harga_paket || p.harga || p.price || 0),
+                        stock: p.status === 'Non Available' ? 0 : (p.max_stok !== undefined ? Number(p.max_stok) : 99),
+                        image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop',
+                        isPackage: true
+                    }))];
+                }
+                setApiTreatments(treatmentsList);
 
                 if (resRacikans && resRacikans.success && resRacikans.data) {
                     const responseData = resRacikans.data.data || resRacikans.data;
@@ -208,14 +226,20 @@ const POSPage = () => {
 
     const addToCart = (product) => {
         if (product.stock <= 0) {
-            showToast('Stok produk ini sedang kosong!', 'error');
+            const emptyMsg = product.category === 'Treatment'
+                ? 'Bahan untuk treatment ini sedang habis di gudang!'
+                : 'Stok produk ini sedang kosong!';
+            showToast(emptyMsg, 'error');
             return;
         }
         setCart(prev => {
             const existing = prev.find(item => item.id === product.id);
             if (existing) {
                 if (existing.quantity >= product.stock) {
-                    showToast(`Batas maksimal stok tersedia dicapai (${product.stock})!`, 'error');
+                    const limitMsg = product.category === 'Treatment'
+                        ? `Batas maksimal sesi treatment tercapai (${product.stock} sesi) berdasarkan sisa stok bahan!`
+                        : `Stok tidak mencukupi! Batas maksimal pembelian produk ini adalah ${product.stock} pcs.`;
+                    showToast(limitMsg, 'error');
                     return prev;
                 }
                 return prev.map(item => item.id === product.id
@@ -232,7 +256,10 @@ const POSPage = () => {
             if (item.id === id) {
                 const newQty = item.quantity + delta;
                 if (newQty > item.stock) {
-                    showToast(`Batas maksimal stok tersedia dicapai (${item.stock})!`, 'error');
+                    const limitMsg = item.category === 'Treatment'
+                        ? `Batas maksimal sesi treatment tercapai (${item.stock} sesi) berdasarkan sisa stok bahan!`
+                        : `Stok tidak mencukupi! Batas maksimal pembelian produk ini adalah ${item.stock} pcs.`;
+                    showToast(limitMsg, 'error');
                     return item;
                 }
                 return { ...item, quantity: Math.max(1, newQty) };
@@ -307,7 +334,7 @@ const POSPage = () => {
             status: isOnlyTreatments ? 'Selesai' : 'Pending',
             metode_pembayaran: paymentMethod,
             details: cart.map(item => ({
-                item_type: item.category === 'Treatment' ? 'Treatment' : (item.category === 'Racikan' ? 'StokRacikan' : 'StokProduk'),
+                item_type: item.category === 'Treatment' ? (item.isPackage ? 'PaketTreatment' : 'Treatment') : (item.category === 'Racikan' ? 'StokRacikan' : 'StokProduk'),
                 item_id: String(item.id).replace(/[^0-9]/g, '') || 1, // Jika ID mock seperti PRD-001, ambil angkanya saja
                 qty: item.quantity
             }))
@@ -685,9 +712,6 @@ const POSPage = () => {
                             </div>
                         )}
                     </div>
-
-
-
                     {/* Metode Pembayaran (Sleek Segmented Inline Card) */}
                     <div className="flex items-center justify-between bg-white border border-primary/10 rounded-2xl p-1.5 shadow-sm">
                         <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-2.5">Metode</span>

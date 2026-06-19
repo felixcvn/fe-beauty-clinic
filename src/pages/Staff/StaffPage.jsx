@@ -419,9 +419,6 @@ const StaffPage = () => {
                                         >
                                             <td className="px-6 py-3.5">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-[11px] font-black text-secondary shadow-md shadow-primary/20 flex-shrink-0">
-                                                        {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                                                    </div>
                                                     <span className="text-sm font-semibold text-primary tracking-tight">{staff.name}</span>
                                                 </div>
                                             </td>
@@ -478,9 +475,6 @@ const StaffPage = () => {
                                 <div key={staff.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer" onClick={() => handleOpenDetail(staff)}>
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-xs font-black text-secondary shadow-lg shadow-primary/20">
-                                                {staff.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
-                                            </div>
                                             <div>
                                                 <h4 className="text-sm font-black text-primary tracking-tight">{staff.name}</h4>
                                                 <p className="text-[10px] font-bold text-primary/30 uppercase tracking-widest">{staff.kode_karyawan || staff.id}</p>

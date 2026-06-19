@@ -145,9 +145,6 @@ const ActivityLogPage = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center border border-primary/10 shrink-0 text-[10px] font-black text-primary">
-                                                        {initials}
-                                                    </div>
                                                     <div>
                                                         <p className="text-sm font-bold text-primary tracking-tight leading-tight">{userName}</p>
                                                         <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mt-0.5">{userRole}</p>
@@ -203,9 +200,6 @@ const ActivityLogPage = () => {
                                 <div key={log.id} className="p-5 space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center border border-primary/10 shrink-0 text-[10px] font-black text-primary">
-                                                {initials}
-                                            </div>
                                             <div>
                                                 <p className="text-sm font-bold text-primary tracking-tight leading-tight">{userName}</p>
                                                 <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest mt-0.5">{userRole}</p>

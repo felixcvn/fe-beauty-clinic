@@ -93,9 +93,6 @@ const OvertimeApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, s
 
                     {/* Info Karyawan */}
                     <div className="flex items-center gap-3 p-4 rounded-2xl bg-gray-50 border border-primary/5">
-                        <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-xs font-black text-primary border border-primary/5 shrink-0">
-                            {staffName?.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
-                        </div>
                         <div>
                             <p className="text-sm font-black text-primary tracking-tight">{staffName}</p>
                             <p className="text-[10px] font-bold text-primary/40 uppercase tracking-widest">{role}</p>
