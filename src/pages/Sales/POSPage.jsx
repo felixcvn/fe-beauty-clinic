@@ -100,7 +100,7 @@ const POSPage = () => {
                         name: t.Nama_treatment || t.Nama_Treatment || t.nama_treatment || t.name || 'Treatment Tanpa Nama',
                         category: 'Treatment',
                         price: Number(t.Harga || t.harga || t.price || 0),
-                        stock: t.status === 'Non Available' ? 0 : (t.Jumlah_sesi || 99), // Disable/out of stock if any material is missing
+                        stock: t.status === 'Non Available' ? 0 : (t.max_stok !== undefined ? Number(t.max_stok) : 99),
                         image: 'https://images.unsplash.com/photo-1570172619991-8079603683a3?q=80&w=200&h=200&auto=format&fit=crop'
                     })));
                 }
