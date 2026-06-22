@@ -10,6 +10,7 @@ import StaffDetailModal from '../../components/UI/StaffDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import ConfirmModal from '../../components/UI/ConfirmModal';
+import Pagination from '../../components/UI/Pagination';
 
 // ── Helper: Konversi data karyawan dari backend ke format UI ──────────────────
 const formatTitleCase = (str) => {
@@ -541,28 +542,7 @@ const StaffPage = () => {
                             : `Menampilkan ${totalCount === 0 ? 0 : indexOfFirstItem + 1} hingga ${Math.min(indexOfLastItem, totalCount)} dari ${totalCount} data`
                         }
                     </span>
-                    <div className="flex gap-3 w-full sm:w-auto">
-                        <button
-                            onClick={() => {
-                                const prev = currentPage - 1;
-                                setCurrentPage(prev);
-                            }}
-                            disabled={currentPage === 1}
-                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all disabled:opacity-30 active:scale-95 shadow-sm"
-                        >
-                            Sebelumnya
-                        </button>
-                        <button
-                            onClick={() => {
-                                const next = currentPage + 1;
-                                setCurrentPage(next);
-                            }}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all disabled:opacity-30 active:scale-95 shadow-sm"
-                        >
-                            Selanjutnya
-                        </button>
-                    </div>
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                 </div>
             </div>
         </div>

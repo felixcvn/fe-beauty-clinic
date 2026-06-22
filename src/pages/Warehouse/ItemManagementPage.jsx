@@ -11,6 +11,7 @@ import { ROLES } from '../../utils/rbac';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 import { stokProdukAPI, paketBundlingsAPI, treatmentAPI, bahanTreatmentAPI, paketTreatmentAPI } from '../../services/api';
 import { exportToExcel } from '../../utils/excelExport';
+import Pagination from '../../components/UI/Pagination';
 
 
 /**
@@ -944,22 +945,9 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
                     </>
                 )}
 
-                <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
+                <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-secondary/5">
                     <span>Menampilkan {filteredData.length === 0 ? 0 : indexOfFirstItem + 1} hingga {Math.min(indexOfLastItem, filteredData.length)} dari {filteredData.length} data</span>
-                    <div className="flex gap-3 w-full sm:w-auto">
-                        <button
-                            onClick={handlePrevPage}
-                            disabled={currentPage === 1}
-                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
-                        >
-                            Sebelumnya
-                        </button>
-                        <button
-                            onClick={handleNextPage}
-                            disabled={currentPage === totalPages || totalPages === 0}
-                            className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm"
-                        >Selanjutnya</button>
-                    </div>
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
                 </div>
             </div>
 

@@ -7,6 +7,7 @@ import CustomSelect from '../../components/UI/CustomSelect';
 import MedicalRecordFormModal from '../../components/UI/MedicalRecordFormModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
+import Pagination from '../../components/UI/Pagination';
 
 const PatientList = () => {
     const { patients } = useMockData();
@@ -15,6 +16,8 @@ const PatientList = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [records, setRecords] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     React.useEffect(() => {
         const fetchRecords = async () => {
@@ -56,6 +59,16 @@ const PatientList = () => {
             const pId = record.data_pasien_id || record.pasien_id;
             return index === self.findIndex((r) => (r.data_pasien_id || r.pasien_id) === pId);
         });
+
+    // Reset pagination to first page when search query changes
+    React.useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    const indexOfLastRecord = currentPage * itemsPerPage;
+    const indexOfFirstRecord = indexOfLastRecord - itemsPerPage;
+    const currentRecords = filteredRecords.slice(indexOfFirstRecord, indexOfLastRecord);
+    const totalPages = Math.ceil(filteredRecords.length / itemsPerPage);
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -109,7 +122,7 @@ const PatientList = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-primary/5">
-                            {filteredRecords.map((record) => {
+                            {currentRecords.map((record) => {
                                 const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || 'Unknown';
                                 const patientId = record.data_pasien_id || record.pasien_id;
                                 
@@ -159,7 +172,7 @@ const PatientList = () => {
 
                 {/* Mobile Card View */}
                 <div className="lg:hidden divide-y divide-primary/5">
-                    {filteredRecords.map((record) => {
+                    {currentRecords.map((record) => {
                         const patientName = record.pasien?.Nama_pasien || record.pasien?.nama_pasien || record.nama_pasien || 'Unknown';
                         const patientId = record.data_pasien_id || record.pasien_id;
 
@@ -203,11 +216,8 @@ const PatientList = () => {
                 )}
 
                 <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
-                    <span>Menampilkan {filteredRecords.length} dari {records.length} data</span>
-                    <div className="flex gap-3 w-full sm:w-auto">
-                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
-                        <button className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-primary hover:text-secondary transition-all duration-500 active:scale-95 shadow-sm">Selanjutnya</button>
-                    </div>
+                    <span>Menampilkan {filteredRecords.length === 0 ? 0 : indexOfFirstRecord + 1} hingga {Math.min(indexOfLastRecord, filteredRecords.length)} dari {filteredRecords.length} data</span>
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} className="pt-0 w-full sm:w-auto" />
                 </div>
             </div>
         </div>

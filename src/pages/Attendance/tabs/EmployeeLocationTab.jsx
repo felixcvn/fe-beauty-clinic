@@ -8,6 +8,7 @@ import { useToast } from '../../../context/ToastContext';
 import CustomSelect from '../../../components/UI/CustomSelect';
 import TableSkeleton from '../../../components/UI/TableSkeleton';
 import EmptyState from '../../../components/UI/EmptyState';
+import Pagination from '../../../components/UI/Pagination';
 
 // Helper for title case and API mapping
 const formatTitleCase = (str) => {
@@ -353,33 +354,15 @@ const EmployeeLocationTab = () => {
                 <span>
                     Menampilkan dari total {totalCount} Karyawan
                 </span>
-                <div className="flex items-center gap-2">
-                    <button 
-                        onClick={() => {
-                            const prev = currentPage - 1;
-                            setCurrentPage(prev);
-                            fetchKaryawan(prev);
-                        }}
-                        disabled={currentPage === 1}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-primary/10 hover:bg-primary/5 transition-colors disabled:opacity-30"
-                    >
-                        &lt;
-                    </button>
-                    <button className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-secondary shadow-md shadow-primary/20">
-                        {currentPage}
-                    </button>
-                    <button 
-                        onClick={() => {
-                            const next = currentPage + 1;
-                            setCurrentPage(next);
-                            fetchKaryawan(next);
-                        }}
-                        disabled={currentPage === totalPages || totalPages === 0}
-                        className="w-8 h-8 flex items-center justify-center rounded-lg border border-primary/10 hover:bg-primary/5 transition-colors disabled:opacity-30"
-                    >
-                        &gt;
-                    </button>
-                </div>
+                <Pagination 
+                    currentPage={currentPage} 
+                    totalPages={totalPages} 
+                    onPageChange={(page) => {
+                        setCurrentPage(page);
+                        fetchKaryawan(page);
+                    }}
+                    className="pt-0 w-full sm:w-auto"
+                />
             </div>
 
             <EmployeeSettingsModal 

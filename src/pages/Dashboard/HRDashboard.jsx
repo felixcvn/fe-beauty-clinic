@@ -45,11 +45,12 @@ const HRDashboard = () => {
                 const mapped = dataArray.map(item => ({
                     id: item.id,
                     staffName: item.Nama_Karyawan || 'Karyawan',
+                    role: item.karyawan?.Jabatan || item.Jabatan || '-',
                     type: item.Jenis_Cuti || 'Cuti',
                     startDate: item.Tanggal_Mulai,
                     endDate: item.Tanggal_Selesai,
                     reason: item.Alasan,
-                    status: item.Status_pengajuan === 'PENDING' ? 'Menunggu' : (item.Status_pengajuan === 'DISETUJUI' ? 'Disetujui' : 'Ditolak')
+                    status: item.Status_pengajuan === 'PENDING' ? 'Menunggu HRD' : (item.Status_pengajuan === 'DISETUJUI' ? 'Disetujui' : 'Ditolak')
                 }));
                 setLeaveRequests(mapped);
             }
@@ -223,10 +224,10 @@ const HRDashboard = () => {
                     </div>
 
                     <div className="space-y-4">
-                        {leaveRequests.filter(r => r.status === 'Menunggu').slice(0, 3).map((item, index) => (
+                        {leaveRequests.filter(r => r.status === 'Menunggu HRD' || r.status === 'Menunggu').slice(0, 3).map((item, index) => (
                             <div 
                                 key={index} 
-                                onClick={() => navigate('/attendance')}
+                                onClick={() => navigate('/attendance', { state: { openLeaveApprovalData: item, activeTab: 'leave' } })}
                                 className="flex items-center gap-5 p-5 bg-gray-50/50 hover:bg-violet-50/50 rounded-3xl transition-all border border-transparent hover:border-violet-100 group cursor-pointer"
                             >
                                 <div className="flex-1">

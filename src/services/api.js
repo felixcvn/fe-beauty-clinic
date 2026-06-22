@@ -10,7 +10,7 @@ export const STORAGE_URL = '/storage';
 // Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
 const getHeaders = (token = null) => {
     const headers = {
-        'Content-Type': 'application/json', 
+        'Content-Type': 'application/json',
         'Accept': 'application/json',
         'ngrok-skip-browser-warning': 'true',
     };
@@ -1514,7 +1514,7 @@ export const laporanPenjualanAPI = {
             if (params.start_date) queryParams.append('start_date', params.start_date);
             if (params.end_date) queryParams.append('end_date', params.end_date);
             if (params.search) queryParams.append('search', params.search);
-            
+
             const response = await fetch(`${BASE_URL}/laporan-penjualan?${queryParams.toString()}`, {
                 method: 'GET',
                 headers: getHeaders(token),
@@ -1621,7 +1621,7 @@ export const absensiAPI = {
             const queryParams = new URLSearchParams();
             if (params.search) queryParams.append('search', params.search);
             if (params.tanggal) queryParams.append('tanggal', params.tanggal);
-            
+
             const response = await fetch(`${BASE_URL}/absensi?${queryParams.toString()}`, {
                 method: 'GET',
                 headers: getHeaders(token),
@@ -1651,7 +1651,7 @@ export const absensiAPI = {
     create: async (token, data) => {
         try {
             const formData = new FormData();
-            
+
             // Convert base64 to File object if needed
             if (typeof data.gambar === 'string' && data.gambar.startsWith('data:image')) {
                 const arr = data.gambar.split(',');
@@ -1659,10 +1659,10 @@ export const absensiAPI = {
                 const bstr = atob(arr[1]);
                 let n = bstr.length;
                 const u8arr = new Uint8Array(n);
-                while(n--){
+                while (n--) {
                     u8arr[n] = bstr.charCodeAt(n);
                 }
-                const file = new File([u8arr], 'absensi_scan.jpg', {type: mime});
+                const file = new File([u8arr], 'absensi_scan.jpg', { type: mime });
                 formData.append('gambar', file);
             } else if (data.gambar) {
                 formData.append('gambar', data.gambar);
@@ -1727,8 +1727,8 @@ export const cutiAPI = {
     review: async (token, id, status_pengajuan) => {
         try {
             const payload = { status_pengajuan };
-            const response = await fetch(`${BASE_URL}/pengajuan-cuti/${id}/review`, { 
-                method: 'POST', 
+            const response = await fetch(`${BASE_URL}/pengajuan-cuti/${id}/review`, {
+                method: 'POST',
                 headers: getHeaders(token),
                 body: JSON.stringify(payload)
             });
@@ -1752,10 +1752,10 @@ export const cutiAPI = {
                 const bstr = atob(arr[1]);
                 let n = bstr.length;
                 const u8arr = new Uint8Array(n);
-                while(n--){
+                while (n--) {
                     u8arr[n] = bstr.charCodeAt(n);
                 }
-                const file = new File([u8arr], 'bukti_cuti.jpg', {type: mime});
+                const file = new File([u8arr], 'bukti_cuti.jpg', { type: mime });
                 formData.append('gambar_bukti_cuti', file);
             } else if (data.gambar_bukti_cuti) {
                 formData.append('gambar_bukti_cuti', data.gambar_bukti_cuti);
@@ -1803,8 +1803,8 @@ export const lemburAPI = {
     review: async (token, id, status_pengajuan) => {
         try {
             const payload = { status_pengajuan };
-            const response = await fetch(`${BASE_URL}/pengajuan-lembur/${id}/review`, { 
-                method: 'POST', 
+            const response = await fetch(`${BASE_URL}/pengajuan-lembur/${id}/review`, {
+                method: 'POST',
                 headers: getHeaders(token),
                 body: JSON.stringify(payload)
             });
@@ -1935,7 +1935,7 @@ export const distributorAPI = {
     },
     update: async (token, id, data) => {
         try {
-            const payload = { 
+            const payload = {
                 nama_distributor: data.Nama_Distributor,
                 tanggal_lahir: data.Tanggal_Lahir,
                 alamat: data.Alamat,
@@ -1943,7 +1943,7 @@ export const distributorAPI = {
                 email: data.Email,
                 deposit_masuk: data.Deposit_masuk,
                 distributor: 'Pusat',
-                _method: 'PUT' 
+                _method: 'PUT'
             };
             const response = await fetch(`${BASE_URL}/distributor/${id}`, {
                 method: 'POST',

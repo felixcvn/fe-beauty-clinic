@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
     CalendarDays, Clock, UserCheck, UserMinus, Search, Filter,
     MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera,
@@ -15,24 +15,26 @@ import OvertimeApprovalModal from '../../components/UI/OvertimeApprovalModal';
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
-import { absensiAPI, cutiAPI, lemburAPI, settingsAPI } from '../../services/api';
+import { absensiAPI, cutiAPI, lemburAPI, settingsAPI, STORAGE_URL } from '../../services/api';
 import { getActiveShift, timeToMinutes } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
 import EmptyState from '../../components/UI/EmptyState';
 import { exportAttendanceToExcel } from '../../utils/excelExport';
+import Pagination from '../../components/UI/Pagination';
 
 
 const AttendancePage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
 
 
     // ─── Global States ─────────────────────────────────────────────────────────
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState('attendance');
+    const [activeTab, setActiveTab] = useState(() => location.state?.activeTab || 'attendance');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
@@ -45,6 +47,9 @@ const AttendancePage = () => {
         localStorage.setItem('isRamadhanMode', isRamadhan);
     }, [isRamadhan]);
     const [isLoading, setIsLoading] = useState(true);
+
+
+
 
     // Simulate loading
     useEffect(() => {
@@ -151,6 +156,18 @@ const AttendancePage = () => {
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [overtimeRequests, setOvertimeRequests] = useState([]);
 
+    // If navigated from HR Dashboard with a specific leave item, open modal directly
+    const processedNavState = useRef(false);
+    useEffect(() => {
+        if (processedNavState.current) return;
+        const passedData = location.state?.openLeaveApprovalData;
+        if (passedData) {
+            processedNavState.current = true;
+            setSelectedLeaveRequest(passedData);
+            setIsApprovalModalOpen(true);
+        }
+    });
+
     const fetchAttendanceData = async () => {
         setIsLoading(true);
         try {
@@ -167,7 +184,8 @@ const AttendancePage = () => {
                         checkOut: item.Jam_Keluar ? item.Jam_Keluar.substring(0, 5) : '--:--',
                         status: item.Status === 'Tepat Waktu' ? 'Hadir' : (item.Status || 'Alpa'),
                         date: item.Tanggal || new Date().toISOString().split('T')[0],
-                        photoIn: null, photoOut: null
+                        photoIn: item.gambar_masuk ? `${STORAGE_URL}/${item.gambar_masuk}` : null,
+                        photoOut: item.gambar_keluar ? `${STORAGE_URL}/${item.gambar_keluar}` : null
                     }));
                     setStaffAttendance(mapped);
                 }
@@ -877,10 +895,7 @@ const AttendancePage = () => {
                         {/* Pagination */}
                         <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                             <span>Menampilkan {finalAttendance.length === 0 ? 0 : idxFirstAttendance + 1} hingga {Math.min(idxLastAttendance, finalAttendance.length)} dari {finalAttendance.length} data</span>
-                            <div className="flex gap-3 w-full sm:w-auto">
-                                <button onClick={() => setAttendancePage(p => Math.max(1, p - 1))} disabled={attendancePage === 1} className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
-                                <button onClick={() => setAttendancePage(p => Math.min(totalAttendancePages, p + 1))} disabled={attendancePage === totalAttendancePages || totalAttendancePages === 0} className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm">Selanjutnya</button>
-                            </div>
+                            <Pagination currentPage={attendancePage} totalPages={totalAttendancePages} onPageChange={setAttendancePage} className="pt-0 w-full sm:w-auto" />
                         </div>
                     </div>
                 </div>
@@ -994,10 +1009,7 @@ const AttendancePage = () => {
                     {/* Pagination */}
                     <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                         <span>Menampilkan {filteredLeave.length === 0 ? 0 : idxFirstLeave + 1} hingga {Math.min(idxLastLeave, filteredLeave.length)} dari {filteredLeave.length} data</span>
-                        <div className="flex gap-3 w-full sm:w-auto">
-                            <button onClick={() => setLeavePage(p => Math.max(1, p - 1))} disabled={leavePage === 1} className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
-                            <button onClick={() => setLeavePage(p => Math.min(totalLeavePages, p + 1))} disabled={leavePage === totalLeavePages || totalLeavePages === 0} className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm">Selanjutnya</button>
-                        </div>
+                        <Pagination currentPage={leavePage} totalPages={totalLeavePages} onPageChange={setLeavePage} className="pt-0 w-full sm:w-auto" />
                     </div>
                 </div>
             )}
@@ -1163,10 +1175,7 @@ const AttendancePage = () => {
                         {/* Pagination */}
                         <div className="p-6 md:p-8 border-t border-primary/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5">
                             <span>Menampilkan {filteredOvertime.length === 0 ? 0 : idxFirstOvertime + 1} hingga {Math.min(idxLastOvertime, filteredOvertime.length)} dari {filteredOvertime.length} data</span>
-                            <div className="flex gap-3 w-full sm:w-auto">
-                                <button onClick={() => setOvertimePage(p => Math.max(1, p - 1))} disabled={overtimePage === 1} className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl border border-primary/10 bg-white hover:bg-gray-50 text-primary transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm">Sebelumnya</button>
-                                <button onClick={() => setOvertimePage(p => Math.min(totalOvertimePages, p + 1))} disabled={overtimePage === totalOvertimePages || totalOvertimePages === 0} className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl bg-primary text-secondary hover:bg-primary/90 transition-all duration-300 disabled:opacity-30 active:scale-95 shadow-sm">Selanjutnya</button>
-                            </div>
+                            <Pagination currentPage={overtimePage} totalPages={totalOvertimePages} onPageChange={setOvertimePage} className="pt-0 w-full sm:w-auto" />
                         </div>
                     </div>
                 </div>
