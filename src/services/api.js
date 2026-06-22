@@ -1676,6 +1676,20 @@ export const absensiAPI = {
             console.error('[API] Create absensi error:', error);
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
+    },
+    getLatenessTrend: async (token) => {
+        try {
+            const response = await fetch(`${BASE_URL}/absensi/lateness-trend`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data tren keterlambatan' };
+        } catch (error) {
+            console.error('[API] Get lateness trend error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
     }
 };
 
