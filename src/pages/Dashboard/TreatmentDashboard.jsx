@@ -1,16 +1,40 @@
-import React from 'react';
-import { Sparkles, Scissors, Clock, TrendingUp, Calendar, CheckCircle2, AlertCircle, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Scissors, Clock, TrendingUp, Calendar, CheckCircle2, AlertCircle, ArrowRight, Percent, Zap } from 'lucide-react';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
+import api from '../../services/api';
 
 const TreatmentDashboard = () => {
     const { user } = useAuth();
     const { bookings, treatments } = useMockData();
+    const [realMaterials, setRealMaterials] = useState([]);
+
+    useEffect(() => {
+        const fetchMaterials = async () => {
+            if (user?.token) {
+                try {
+                    const res = await api.bahanTreatmentAPI.getAll(user.token);
+                    if (res.success) {
+                        setRealMaterials(res.data || []);
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch materials:', error);
+                }
+            }
+        };
+        fetchMaterials();
+    }, [user?.token]);
 
     // Stats
     const totalTreatments = treatments.length;
     const todaySessions = bookings.slice(0, 6);
+    
+    const lowStockMaterials = realMaterials.filter(m => {
+        const stock = parseInt(m.Stok) || 0;
+        const minStock = parseInt(m.Batas_minimal_stok) || 5;
+        return stock <= minStock;
+    });
 
     return (
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12">
@@ -47,18 +71,18 @@ const TreatmentDashboard = () => {
                     icon={Scissors}
                 />
                 <StatsCard
-                    title="Rata-rata Durasi"
-                    value="45m"
-                    change="Efisiensi"
+                    title="Promo yang Berlaku"
+                    value="5"
+                    change="Kampanye Aktif"
                     trend="up"
-                    icon={Clock}
+                    icon={Percent}
                 />
                 <StatsCard
-                    title="Pendapatan Sesi"
-                    value="Rp 8.2M"
-                    change="+5.4%"
+                    title="Promo Dadakan"
+                    value="2"
+                    change="Penawaran Terbatas"
                     trend="up"
-                    icon={TrendingUp}
+                    icon={Zap}
                 />
             </div>
 
@@ -80,11 +104,7 @@ const TreatmentDashboard = () => {
                                     <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-secondary shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
                                         <span className="text-xs font-black">{item.time}</span>
                                     </div>
-                                    <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest ${
-                                        index % 2 === 0 ? 'bg-emerald-50 text-emerald-600' : 'bg-blue-50 text-blue-600'
-                                    }`}>
-                                        {index % 2 === 0 ? 'Ruangan A1' : 'Ruangan B3'}
-                                    </span>
+
                                 </div>
                                 <h4 className="font-black text-primary text-base tracking-tight mb-1">{item.treatment}</h4>
                                 <p className="text-xs text-primary/40 font-bold mb-4 italic">Pasien: {item.name}</p>
@@ -108,20 +128,28 @@ const TreatmentDashboard = () => {
                             <h4 className="text-primary text-sm font-black uppercase tracking-widest">Peringatan Bahan</h4>
                         </div>
                         <div className="space-y-5">
-                            <div className="p-4 rounded-2xl bg-red-50 border border-red-100 flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs font-black text-primary">Kapas Steril</p>
-                                    <p className="text-[10px] text-red-500 font-bold uppercase tracking-widest">Stok Kritis: 2 Roll</p>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-red-300" />
-                            </div>
-                            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-100 flex items-center justify-between">
-                                <div>
-                                    <p className="text-xs font-black text-primary">Alkohol 70%</p>
-                                    <p className="text-[10px] text-amber-600 font-bold uppercase tracking-widest">Stok Rendah: 1 Galon</p>
-                                </div>
-                                <ArrowRight className="w-4 h-4 text-amber-300" />
-                            </div>
+                            {lowStockMaterials.length > 0 ? (
+                                lowStockMaterials.map(m => {
+                                    const stock = parseInt(m.Stok) || 0;
+                                    const isEmpty = stock === 0;
+                                    const bgClass = isEmpty ? 'bg-red-50 border-red-100' : 'bg-amber-50 border-amber-100';
+                                    const textClass = isEmpty ? 'text-red-500' : 'text-amber-600';
+                                    const arrowClass = isEmpty ? 'text-red-300' : 'text-amber-300';
+                                    const statusText = isEmpty ? 'Stok Habis' : 'Stok Kritis';
+                                    
+                                    return (
+                                        <div key={m.id} className={`p-4 rounded-2xl ${bgClass} border flex items-center justify-between`}>
+                                            <div>
+                                                <p className="text-xs font-black text-primary">{m.Nama_produk}</p>
+                                                <p className={`text-[10px] ${textClass} font-bold uppercase tracking-widest`}>{statusText}: {stock} Unit</p>
+                                            </div>
+                                            <ArrowRight className={`w-4 h-4 ${arrowClass}`} />
+                                        </div>
+                                    );
+                                })
+                            ) : (
+                                <p className="text-xs text-primary/40 font-bold italic">Semua stok bahan aman.</p>
+                            )}
                         </div>
                     </div>
 

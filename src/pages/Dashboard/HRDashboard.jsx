@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus, Clock, CalendarX, ArrowRight, CheckCircle, XCircle, Calendar } from 'lucide-react';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
@@ -22,6 +23,7 @@ const getHolidayLabel = (dateStr, suffix = " Lagi") => {
 const HRDashboard = () => {
     const { user } = useAuth();
     const { showToast } = useToast();
+    const navigate = useNavigate();
 
     const [leaveRequests, setLeaveRequests] = useState([]);
     const [todayAttendance, setTodayAttendance] = useState([]);
@@ -222,27 +224,18 @@ const HRDashboard = () => {
 
                     <div className="space-y-4">
                         {leaveRequests.filter(r => r.status === 'Menunggu').slice(0, 3).map((item, index) => (
-                            <div key={index} className="flex items-center gap-5 p-5 bg-gray-50/50 hover:bg-violet-50/50 rounded-3xl transition-all border border-transparent hover:border-violet-100 group">
+                            <div 
+                                key={index} 
+                                onClick={() => navigate('/attendance')}
+                                className="flex items-center gap-5 p-5 bg-gray-50/50 hover:bg-violet-50/50 rounded-3xl transition-all border border-transparent hover:border-violet-100 group cursor-pointer"
+                            >
                                 <div className="flex-1">
                                     <h4 className="font-bold text-primary text-sm">{item.staffName}</h4>
                                     <p className="text-[10px] text-primary/40 font-black uppercase tracking-widest">{item.type} • {item.startDate} s/d {item.endDate}</p>
                                     {item.reason && <p className="text-xs text-primary/60 mt-1 italic">"{item.reason}"</p>}
                                 </div>
                                 <div className="flex gap-2">
-                                    <button 
-                                        onClick={() => handleReviewLeave(item.id, 'Disetujui')}
-                                        className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all shadow-sm"
-                                        title="Setujui"
-                                    >
-                                        <CheckCircle className="w-4 h-4" />
-                                    </button>
-                                    <button 
-                                        onClick={() => handleReviewLeave(item.id, 'Ditolak')}
-                                        className="p-2.5 rounded-xl bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                                        title="Tolak"
-                                    >
-                                        <XCircle className="w-4 h-4" />
-                                    </button>
+                                    <ArrowRight className="w-5 h-5 text-violet-300 group-hover:text-violet-500 transition-colors" />
                                 </div>
                             </div>
                         ))}
