@@ -13,6 +13,12 @@ const parseDateOnly = (dateStr) => {
     return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10), 0, 0, 0, 0);
 };
 
+const getHolidayLabel = (dateStr, suffix = " Lagi") => {
+    const diff = Math.ceil((parseDateOnly(dateStr) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24));
+    if (diff === 0) return "Hari Ini";
+    return `${diff} Hari${suffix}`;
+};
+
 const HRDashboard = () => {
     const { user } = useAuth();
     const { showToast } = useToast();
@@ -265,7 +271,7 @@ const HRDashboard = () => {
                                         {parseDateOnly(upcomingHolidays[0].date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}
                                     </p>
                                     <div className="py-2.5 px-5 rounded-2xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest inline-block shadow-lg shadow-amber-500/20">
-                                        {Math.ceil((parseDateOnly(upcomingHolidays[0].date) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24))} Hari Lagi
+                                        {getHolidayLabel(upcomingHolidays[0].date)}
                                     </div>
                                 </div>
 
@@ -279,7 +285,7 @@ const HRDashboard = () => {
                                             </p>
                                         </div>
                                         <span className="text-xs font-black text-amber-600 bg-amber-500/10 px-3 py-1.5 rounded-lg shrink-0">
-                                            {Math.ceil((parseDateOnly(h.date) - new Date().setHours(0,0,0,0)) / (1000 * 60 * 60 * 24))} Hari
+                                            {getHolidayLabel(h.date, "")}
                                         </span>
                                     </div>
                                 ))}

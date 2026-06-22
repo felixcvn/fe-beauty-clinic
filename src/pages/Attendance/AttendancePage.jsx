@@ -16,7 +16,7 @@ import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { absensiAPI, cutiAPI, lemburAPI, settingsAPI } from '../../services/api';
-import { getActiveShift } from '../../utils/shiftConfig';
+import { getActiveShift, timeToMinutes } from '../../utils/shiftConfig';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
 import EmptyState from '../../components/UI/EmptyState';
@@ -36,7 +36,14 @@ const AttendancePage = () => {
     const [statusFilter, setStatusFilter] = useState('Semua Status');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
-    const [isRamadhan, setIsRamadhan] = useState(false);
+    const [isRamadhan, setIsRamadhan] = useState(() => {
+        const saved = localStorage.getItem('isRamadhanMode');
+        return saved === 'true';
+    });
+
+    useEffect(() => {
+        localStorage.setItem('isRamadhanMode', isRamadhan);
+    }, [isRamadhan]);
     const [isLoading, setIsLoading] = useState(true);
 
     // Simulate loading
@@ -168,17 +175,20 @@ const AttendancePage = () => {
                 const res = await cutiAPI.getAll(user?.token);
                 if (res.success && res.data) {
                     const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
-                    const mapped = dataArray.map(item => ({
-                        id: item.id,
-                        staffName: item.karyawan?.nama_lengkap || item.Nama_Karyawan || 'Karyawan',
-                        role: item.karyawan?.Jabatan || item.Jabatan || '-',
-                        type: item.jenis_cuti || 'Cuti',
-                        startDate: item.tanggal_mulai,
-                        endDate: item.tanggal_selesai,
-                        reason: item.alasan,
-                        attachment: item.gambar_bukti_cuti,
-                        status: item.status_pengajuan === 'DISETUJUI' ? 'Disetujui' : (item.status_pengajuan === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
-                    }));
+                    const mapped = dataArray.map(item => {
+                        const statusRaw = item.Status_pengajuan || item.status_pengajuan;
+                        return {
+                            id: item.id,
+                            staffName: item.Nama_Karyawan || item.karyawan?.nama_lengkap || 'Karyawan',
+                            role: item.karyawan?.Jabatan || item.Jabatan || '-',
+                            type: item.Jenis_Cuti || item.jenis_cuti || 'Cuti',
+                            startDate: item.Tanggal_Mulai || item.tanggal_mulai,
+                            endDate: item.Tanggal_Selesai || item.tanggal_selesai,
+                            reason: item.Alasan || item.alasan,
+                            attachment: item.gambar_bukti_cuti,
+                            status: statusRaw === 'DISETUJUI' ? 'Disetujui' : (statusRaw === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
+                        };
+                    });
                     setLeaveRequests(mapped);
                 }
             } else if (activeTab === 'overtime') {
@@ -228,6 +238,21 @@ const AttendancePage = () => {
         if (!hasCheckedIn) {
             handleOpenScan('in');
         } else if (!hasCheckedOut) {
+            // Check if it's time for checkout
+            const activeShift = getActiveShift(myShift, isRamadhan);
+            const now = new Date();
+            const currentHours = now.getHours().toString().padStart(2, '0');
+            const currentMinutes = now.getMinutes().toString().padStart(2, '0');
+            const currentTimeStr = `${currentHours}:${currentMinutes}`;
+            
+            const actualMins = timeToMinutes(currentTimeStr);
+            const scheduledOutMins = timeToMinutes(activeShift.checkOut);
+
+            if (actualMins < scheduledOutMins) {
+                showToast(`Gagal absen: Belum waktunya pulang. Checkout mulai ${activeShift.checkOut}`, 'warning');
+                return;
+            }
+
             handleOpenScan('out', myAttendance.id);
         } else {
             showToast('Anda sudah menyelesaikan absensi hari ini.', 'info');
@@ -406,8 +431,46 @@ const AttendancePage = () => {
         let title = '';
         let filename = '';
 
+        showToast('Menyiapkan file Excel...', 'info');
+
         if (activeTab === 'attendance') {
-            dataToExport = finalAttendance;
+            const startObj = startDate ? new Date(startDate) : new Date();
+            const endObj = endDate ? new Date(endDate) : startObj;
+            
+            let startYear = startObj.getFullYear();
+            let startMonth = startObj.getMonth();
+            const endYear = endObj.getFullYear();
+            const endMonth = endObj.getMonth();
+            
+            const monthsToFetch = [];
+            while (startYear < endYear || (startYear === endYear && startMonth <= endMonth)) {
+                monthsToFetch.push({
+                    bulan: (startMonth + 1).toString().padStart(2, '0'),
+                    tahun: startYear
+                });
+                startMonth++;
+                if (startMonth > 11) {
+                    startMonth = 0;
+                    startYear++;
+                }
+            }
+
+            try {
+                const results = [];
+                for (const m of monthsToFetch) {
+                    const res = await absensiAPI.getRekapBulanan(user?.token, m.bulan, m.tahun);
+                    if (res.success) {
+                        results.push(res.data);
+                    } else {
+                        showToast(`Gagal mengambil rekap bulan ${m.bulan}/${m.tahun}`, 'error');
+                        return;
+                    }
+                }
+                dataToExport = results; // Array of recap objects
+            } catch (error) {
+                showToast('Terjadi kesalahan saat mengambil rekap bulanan', 'error');
+                return;
+            }
             title = 'Laporan Kehadiran Karyawan';
             filename = 'laporan_kehadiran';
         } else if (activeTab === 'leave') {
@@ -420,8 +483,7 @@ const AttendancePage = () => {
             filename = 'laporan_lembur';
         }
 
-        showToast('Menyiapkan file Excel...', 'info');
-        
+
         try {
             await exportAttendanceToExcel(dataToExport, activeTab, title, filename);
             showToast('Laporan berhasil diexport ke format Excel', 'success');
@@ -851,7 +913,6 @@ const AttendancePage = () => {
                                     <th className="px-4 py-3 text-primary/80">Durasi Tanggal</th>
                                     <th className="px-4 py-3 text-primary/80">Alasan</th>
                                     <th className="px-4 py-3 text-primary/80">Status</th>
-                                    {canApproveLeave && <th className="px-4 py-3 text-center text-primary/80">Aksi</th>}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-primary/5">
@@ -877,13 +938,6 @@ const AttendancePage = () => {
                                                 {req.status}
                                             </span>
                                         </td>
-                                        {canApproveLeave && (
-                                            <td className="px-4 py-2 text-center">
-                                                <button onClick={(e) => { e.stopPropagation(); setSelectedLeaveRequest(req); setIsApprovalModalOpen(true); }} className="p-2 rounded-xl text-primary/40 hover:bg-white hover:text-primary transition-all shadow-sm active:scale-90">
-                                                    <Edit3 className="w-4 h-4 mx-auto" />
-                                                </button>
-                                            </td>
-                                        )}
                                     </tr>
                                 ))}
                                 {filteredLeave.length === 0 && (

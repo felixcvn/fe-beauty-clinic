@@ -1634,6 +1634,20 @@ export const absensiAPI = {
             return { success: false, message: 'Tidak dapat terhubung ke server.' };
         }
     },
+    getRekapBulanan: async (token, bulan, tahun) => {
+        try {
+            const response = await fetch(`${BASE_URL}/absensi/rekap?bulan=${bulan}&tahun=${tahun}`, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil rekap absensi' };
+        } catch (error) {
+            console.error('[API] Get rekap absensi error:', error);
+            return { success: false, message: 'Tidak dapat terhubung ke server.' };
+        }
+    },
     create: async (token, data) => {
         try {
             const formData = new FormData();
