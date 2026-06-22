@@ -6,21 +6,40 @@ import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import ConfirmModal from './ConfirmModal';
 
+const getTodayString = () => {
+    const d = new Date();
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+};
+
 const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
     const { showToast } = useToast();
     const [confirmConfig, setConfirmConfig] = useState(null);
-    const [leaveType, setLeaveType] = useState('Sakit');
+    const [leaveType, setLeaveType] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [reason, setReason] = useState('');
     const [attachmentBase64, setAttachmentBase64] = useState(null);
     const [attachmentName, setAttachmentName] = useState(null);
     const [isSubmitted, setIsSubmitted] = useState(false);
+    
+    const todayStr = getTodayString();
 
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        if (!leaveType) {
+            showToast('Harap pilih jenis cuti/izin!', 'error');
+            return;
+        }
         
         if (!startDate || !endDate || !reason) {
             showToast('Harap lengkapi semua form!', 'error');
@@ -60,7 +79,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
             if (success) {
                 setIsSubmitted(true);
                 // Reset form for next time
-                setLeaveType('Sakit');
+                setLeaveType('');
                 setStartDate('');
                 setEndDate('');
                 setReason('');
@@ -148,12 +167,10 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                 <CustomSelect 
                                     value={leaveType}
                                     onChange={setLeaveType}
+                                    placeholder="Pilih jenis cuti/izin..."
                                     options={[
                                         { value: 'Sakit', label: 'Sakit' },
-                                        { value: 'Cuti Tahunan', label: 'Cuti Tahunan' },
-                                        { value: 'Cuti Menikah', label: 'Cuti Menikah' },
-                                        { value: 'Cuti Melahirkan', label: 'Cuti Melahirkan' },
-                                        { value: 'Izin Lainnya', label: 'Izin Lainnya' }
+                                        { value: 'Cuti', label: 'Cuti' }
                                     ]}
                                 />
                             </div>
@@ -164,12 +181,14 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                     value={startDate}
                                     onChange={setStartDate}
                                     className="w-full"
+                                    minDate={todayStr}
                                 />
                                 <CustomDatePicker
                                     label="Tanggal Selesai"
                                     value={endDate}
                                     onChange={setEndDate}
                                     className="w-full"
+                                    minDate={startDate || todayStr}
                                 />
                             </div>
 

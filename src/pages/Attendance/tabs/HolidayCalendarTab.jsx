@@ -8,6 +8,18 @@ import { useToast } from '../../../context/ToastContext';
 import CustomSelect from '../../../components/UI/CustomSelect';
 import CustomDatePicker from '../../../components/UI/CustomDatePicker';
 
+const getTodayString = () => {
+    const d = new Date();
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+};
+
 const HolidayModal = ({ isOpen, onClose, onSave }) => {
     const { showToast } = useToast();
     const [name, setName] = useState('');
@@ -15,6 +27,8 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
     const [endDate, setEndDate] = useState('');
     const [type, setType] = useState('Libur Nasional');
     const [description, setDescription] = useState('');
+    
+    const todayStr = getTodayString();
 
     useEffect(() => {
         if (isOpen) {
@@ -101,11 +115,13 @@ const HolidayModal = ({ isOpen, onClose, onSave }) => {
                                 label="Tanggal Mulai"
                                 value={startDate}
                                 onChange={handleStartDateChange}
+                                minDate={todayStr}
                             />
                             <CustomDatePicker
                                 label="Tanggal Selesai"
                                 value={endDate}
                                 onChange={setEndDate}
+                                minDate={startDate || todayStr}
                             />
                         </div>
 

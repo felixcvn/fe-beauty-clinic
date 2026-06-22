@@ -9,6 +9,7 @@ const CustomDatePicker = ({
     icon: Icon = CalendarIcon,
     required = false,
     className = '',
+    minDate, // YYYY-MM-DD string
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [viewMode, setViewMode] = useState('days'); // 'days', 'months', 'years'
@@ -165,10 +166,13 @@ const CustomDatePicker = ({
 
                                 if (!day) return <div key={`empty-${index}`} className="w-full h-7" />;
 
+                                const isDisabled = minDate && dateString && dateString < minDate;
+
                                 return (
                                     <button
                                         key={`day-${day}`}
                                         type="button"
+                                        disabled={isDisabled}
                                         onClick={() => handleDateSelect(day)}
                                         className={`w-full h-7 flex items-center justify-center rounded-md text-[10px] font-bold transition-all duration-200 ${
                                             isSelected 
@@ -176,7 +180,7 @@ const CustomDatePicker = ({
                                                 : isToday
                                                     ? 'bg-primary/5 text-primary border border-primary/10 hover:bg-primary/10'
                                                     : 'text-primary/70 hover:bg-secondary hover:text-primary'
-                                        }`}
+                                        } disabled:opacity-20 disabled:cursor-not-allowed`}
                                     >
                                         {day}
                                     </button>

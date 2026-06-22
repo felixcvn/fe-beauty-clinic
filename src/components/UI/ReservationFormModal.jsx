@@ -7,6 +7,19 @@ import { pasienAPI, karyawanAPI, treatmentAPI, paketBundlingsAPI, reservasiAPI }
 import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import ConfirmModal from './ConfirmModal';
+import CustomDatePicker from './CustomDatePicker';
+
+const getTodayString = () => {
+    const d = new Date();
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+};
 
 
 const DEFAULT_SLOTS = [
@@ -36,6 +49,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
     const { showToast } = useToast();
 
     const isEditMode = !!initialData;
+    const todayStr = getTodayString();
 
     const [availableSlots, setAvailableSlots] = useState([]);
 
@@ -514,12 +528,11 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                             </div>
                             <div className="space-y-6">
                                 <div className="space-y-1">
-                                    <label className={labelClass}>Tanggal Reservasi</label>
-                                    <input
-                                        type="date"
-                                        className={`${inputClass} ${errors.Tanggal_reservasi ? 'border-red-400' : ''}`}
+                                    <CustomDatePicker
+                                        label="Tanggal Reservasi"
                                         value={formData.Tanggal_reservasi}
-                                        onChange={(e) => setFormData({ ...formData, Tanggal_reservasi: e.target.value })}
+                                        onChange={(val) => setFormData({ ...formData, Tanggal_reservasi: val })}
+                                        minDate={todayStr}
                                     />
                                     {errors.Tanggal_reservasi && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.Tanggal_reservasi}</p>}
                                 </div>

@@ -9,6 +9,7 @@ import CustomSelect from '../../../components/UI/CustomSelect';
 import TableSkeleton from '../../../components/UI/TableSkeleton';
 import EmptyState from '../../../components/UI/EmptyState';
 import Pagination from '../../../components/UI/Pagination';
+import CustomDatePicker from '../../../components/UI/CustomDatePicker';
 
 // Helper for title case and API mapping
 const formatTitleCase = (str) => {
@@ -51,12 +52,25 @@ const mapKaryawanFromAPI = (k) => {
     };
 };
 
+const getTodayString = () => {
+    const d = new Date();
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+};
+
 const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
     const { showToast } = useToast();
     const [tanggal, setTanggal] = useState('');
     const [shift, setShift] = useState('');
     const [lokasiAbsen, setLokasiAbsen] = useState('Di Kantor');
     const [keterangan, setKeterangan] = useState('');
+    const todayStr = getTodayString();
 
     // eslint-disable-next-line react-hooks/set-state-in-effect
     useEffect(() => {
@@ -133,13 +147,12 @@ const EmployeeSettingsModal = ({ isOpen, onClose, employee, onSave }) => {
                     <form onSubmit={handleSubmit} className="space-y-6">
                         
                         <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Tanggal</label>
-                            <input 
-                                type="date"
-                                value={tanggal}
-                                onChange={(e) => setTanggal(e.target.value)}
-                                className="w-full p-4 rounded-2xl border border-primary/5 bg-white text-sm font-medium text-primary outline-none focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
-                            />
+                             <CustomDatePicker
+                                 label="Tanggal"
+                                 value={tanggal}
+                                 onChange={setTanggal}
+                                 minDate={todayStr}
+                             />
                         </div>
 
                         <div className="space-y-2">

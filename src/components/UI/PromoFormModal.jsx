@@ -9,12 +9,25 @@ import { useMockData } from '../../context/MockDataContext';
 import { Search } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
+const getTodayString = () => {
+    const d = new Date();
+    let month = '' + (d.getMonth() + 1);
+    let day = '' + d.getDate();
+    const year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [year, month, day].join('-');
+};
+
 const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
     const { user } = useAuth();
     const [confirmConfig, setConfirmConfig] = useState(null);
     const { products, treatments } = useMockData();
     const isSupervisorTreatment = user?.role === ROLES.SUPERVISOR_TREATMENT;
     const isSupervisorProduk = user?.role === ROLES.SUPERVISOR_PRODUK;
+    const todayStr = getTodayString();
 
     const [formState, setFormState] = useState({
         name: '',
@@ -198,12 +211,14 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 value={formState.startDate}
                                 onChange={(val) => setFormState({ ...formState, startDate: val })}
                                 className="w-full"
+                                minDate={todayStr}
                             />
                             <CustomDatePicker
                                 label="Berakhir"
                                 value={formState.endDate}
                                 onChange={(val) => setFormState({ ...formState, endDate: val })}
                                 className="w-full"
+                                minDate={formState.startDate || todayStr}
                             />
                         </div>
 
