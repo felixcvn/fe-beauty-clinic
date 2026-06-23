@@ -175,6 +175,42 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
                                              "{data.notes || 'Tidak ada catatan medis tambahan untuk sesi ini.'}"
                                          </div>
                                      </div>
+
+                                     {(() => {
+                                         const getProductsStr = () => {
+                                             if (data.reseps && data.reseps.length > 0) {
+                                                 return data.reseps.map(r => r.stok_produk?.Nama_produk || r.Nama_produk || r.name || 'Produk').join(', ');
+                                             }
+                                             if (data.produks && data.produks.length > 0) {
+                                                 return data.produks.map(r => r.stok_produk?.Nama_produk || r.Nama_produk || r.name || 'Produk').join(', ');
+                                             }
+                                             return '';
+                                         };
+                                         const productsStr = getProductsStr();
+                                         const racikanStr = data.racikan || '';
+
+                                         if (!productsStr && !racikanStr) return null;
+
+                                         return (
+                                             <div className="space-y-4 pt-6 border-t border-[#e9efed]">
+                                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-[#a4bfb7]">Rekomendasi Produk & Racikan</h4>
+                                                 <div className="bg-[#f8faf9] p-6 rounded-2xl border border-[#e9efed] space-y-4">
+                                                     {productsStr && (
+                                                         <div>
+                                                             <h5 className="text-[9px] font-black uppercase tracking-widest text-[#779e93] mb-1">Produk / Obat</h5>
+                                                             <p className="text-sm font-bold text-[#1B4D3E]">{productsStr}</p>
+                                                         </div>
+                                                     )}
+                                                     {racikanStr && (
+                                                         <div>
+                                                             <h5 className="text-[9px] font-black uppercase tracking-widest text-[#779e93] mb-1">Resep Racikan</h5>
+                                                             <p className="text-sm font-medium italic text-[#1B4D3E]">"{racikanStr}"</p>
+                                                         </div>
+                                                     )}
+                                                 </div>
+                                             </div>
+                                         );
+                                     })()}
                                  </div>
                              </div>
 

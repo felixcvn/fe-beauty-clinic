@@ -212,10 +212,20 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
 
     // Filter berdasarkan kategori (activeFilter) dan kata kunci pencarian (searchTerm)
     const currentData = activeFilter === 'all' ? allItems : allItems.filter(item => item._type === activeFilter);
-    const filteredData = currentData.filter(item =>
+    let filteredData = currentData.filter(item =>
         item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.id.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (user?.role === ROLES.MANAJER_MARKETING_SALES) {
+        filteredData.sort((a, b) => {
+            const aIsNew = a.price === 0 || a.priceDistributor === 0;
+            const bIsNew = b.price === 0 || b.priceDistributor === 0;
+            if (aIsNew && !bIsNew) return -1;
+            if (!aIsNew && bIsNew) return 1;
+            return 0;
+        });
+    }
 
     const handleExport = async (exportType) => {
         const dataToExport = exportType === 'all' ? allItems : filteredData;

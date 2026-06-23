@@ -34,10 +34,14 @@ export default defineConfig(({ command }) => ({
       '/api': {
         target: 'https://many-ways-strive.loca.lt/',
         changeOrigin: true,
-        secure: false
+        secure: false,
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+          'Bypass-Tunnel-Reminder': 'true'
+        }
       },
       '/storage': {
-        target: 'https://many-ways-strive.loca.lt/',
+        target: 'http://127.0.0.1:8000',
         changeOrigin: true,
         secure: false
       }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Beaker, Package, AlertTriangle, Activity, RefreshCw, Calendar, TrendingUp, ClipboardList, Wand2, Coins, CheckCircle, FileText, FlaskConical, X } from 'lucide-react';
 import StatsCard from '../Dashboard/StatsCard';
@@ -22,6 +22,8 @@ const ApotekerDashboard = () => {
     const [racikanStock, setRacikanStock] = useState('1');
     const [isSubmittingRacikan, setIsSubmittingRacikan] = useState(false);
     const [confirmConfig, setConfirmConfig] = useState(null);
+    const [errors, setErrors] = useState({});
+    const formRef = useRef(null);
     
     const [stats, setStats] = useState({
         totalMaterials: 0,
@@ -128,15 +130,25 @@ const ApotekerDashboard = () => {
 
     const handleSaveRacikan = (e) => {
         e.preventDefault();
-        if (!racikanName.trim()) {
-            showToast('Nama racikan wajib diisi!', 'error');
-            return;
-        }
-        if (!racikanPrice || Number(racikanPrice) <= 0) {
-            showToast('Harga racikan harus lebih dari 0!', 'error');
+        
+        const newErrors = {};
+        if (!racikanName.trim()) newErrors.racikanName = 'Nama obat racikan wajib diisi';
+        if (!racikanPrice || Number(racikanPrice) <= 0) newErrors.racikanPrice = 'Harga jual wajib diisi dan harus lebih dari 0';
+        if (!racikanStock || Number(racikanStock) <= 0) newErrors.racikanStock = 'Jumlah stok wajib diisi dan harus lebih dari 0';
+
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            showToast('Mohon lengkapi semua field yang wajib diisi', 'error');
+            setTimeout(() => {
+                const firstErrorElement = formRef.current?.querySelector('.border-red-500');
+                if (firstErrorElement) {
+                    firstErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
             return;
         }
 
+        setErrors({});
         setIsSubmittingRacikan(true);
         // Simulasi submit/saving
         setTimeout(() => {
@@ -354,7 +366,7 @@ const ApotekerDashboard = () => {
                             <X className="w-4 h-4" />
                         </button>
 
-                        <form onSubmit={handleSaveRacikan} className="p-8 space-y-6 overflow-y-auto scrollbar-hide flex-1">
+                        <form ref={formRef} noValidate onSubmit={handleSaveRacikan} className="p-8 space-y-6 overflow-y-auto scrollbar-hide flex-1">
                             <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 text-amber-800 text-xs leading-relaxed space-y-1">
                                 <p className="font-bold uppercase tracking-wider text-[8px] text-amber-600">RESEP DOKTER ({selectedRequest.dokterName}):</p>
                                 <p className="font-semibold italic">"{selectedRequest.racikanText}"</p>
@@ -365,11 +377,15 @@ const ApotekerDashboard = () => {
                                 <input
                                     type="text"
                                     value={racikanName}
-                                    onChange={(e) => setRacikanName(e.target.value)}
+                                    onChange={(e) => { setRacikanName(e.target.value); if (errors.racikanName) setErrors({...errors, racikanName: null}); }}
                                     placeholder="Contoh: Racikan Cream Budi"
-                                    className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
-                                    required
+                                    className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 border outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm ${
+                                        errors.racikanName 
+                                            ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' 
+                                            : 'border-primary/5 focus:ring-amber-500/10 focus:border-amber-500'
+                                    }`}
                                 />
+                                {errors.racikanName && <p className="text-red-500 text-[10px] font-bold mt-1.5 ml-1">{errors.racikanName}</p>}
                             </div>
 
                             <div className="grid grid-cols-2 gap-4">
@@ -378,22 +394,30 @@ const ApotekerDashboard = () => {
                                     <input
                                         type="number"
                                         value={racikanPrice}
-                                        onChange={(e) => setRacikanPrice(e.target.value)}
+                                        onChange={(e) => { setRacikanPrice(e.target.value); if (errors.racikanPrice) setErrors({...errors, racikanPrice: null}); }}
                                         placeholder="85000"
-                                        className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
-                                        required
+                                        className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 border outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm ${
+                                            errors.racikanPrice 
+                                                ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' 
+                                                : 'border-primary/5 focus:ring-amber-500/10 focus:border-amber-500'
+                                        }`}
                                     />
+                                    {errors.racikanPrice && <p className="text-red-500 text-[10px] font-bold mt-1.5 ml-1">{errors.racikanPrice}</p>}
                                 </div>
                                 <div>
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1 block mb-2">Jumlah Stok</label>
                                     <input
                                         type="number"
                                         value={racikanStock}
-                                        onChange={(e) => setRacikanStock(e.target.value)}
+                                        onChange={(e) => { setRacikanStock(e.target.value); if (errors.racikanStock) setErrors({...errors, racikanStock: null}); }}
                                         placeholder="1"
-                                        className="w-full px-4 py-3.5 rounded-2xl bg-gray-50 border border-primary/5 outline-none text-primary font-bold text-sm focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all shadow-sm"
-                                        required
+                                        className={`w-full px-4 py-3.5 rounded-2xl bg-gray-50 border outline-none text-primary font-bold text-sm focus:ring-4 transition-all shadow-sm ${
+                                            errors.racikanStock 
+                                                ? 'border-red-500 focus:ring-red-500/10 focus:border-red-500' 
+                                                : 'border-primary/5 focus:ring-amber-500/10 focus:border-amber-500'
+                                        }`}
                                     />
+                                    {errors.racikanStock && <p className="text-red-500 text-[10px] font-bold mt-1.5 ml-1">{errors.racikanStock}</p>}
                                 </div>
                             </div>
 
