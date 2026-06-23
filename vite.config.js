@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig(({ command }) => ({
   plugins: [react()],
-  base: command === 'serve' ? '/' : (process.env.VITE_BASE_PATH || '/personalb-react-app/'),
+  base: '/',
 
   build: {
     rollupOptions: {
@@ -15,13 +15,13 @@ export default defineConfig(({ command }) => ({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           // Icon library — besar, pisahkan agar tidak masuk main chunk
           'icons': ['lucide-react'],
-          // UI library (PrimeReact jika digunakan)
-          'ui-vendor': ['primereact'],
+          // Document & PDF/Excel libraries
+          'doc-vendor': ['exceljs', 'jspdf', 'html2canvas']
         }
       }
     },
     // Tampilkan warning jika ada chunk > 500KB
-    chunkSizeWarningLimit: 500,
+    chunkSizeWarningLimit: 1600,
   },
 
   server: {
