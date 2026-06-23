@@ -32,20 +32,14 @@ export default defineConfig(({ command }) => ({
     },
     proxy: {
       '/api': {
-        target: 'https://composite-footprint-overarch.ngrok-free.dev',
+        target: 'https://many-ways-strive.loca.lt/',
         changeOrigin: true,
-        secure: false,
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
+        secure: false
       },
       '/storage': {
-        target: 'https://composite-footprint-overarch.ngrok-free.dev',
+        target: 'https://many-ways-strive.loca.lt/',
         changeOrigin: true,
-        secure: false,
-        headers: {
-          'ngrok-skip-browser-warning': 'true'
-        }
+        secure: false
       }
     }
   }

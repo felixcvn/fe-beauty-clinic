@@ -1,13 +1,13 @@
 /* eslint-disable no-unused-vars */
 /**
  * API Service Layer
- * Menghubungkan frontend ke backend Laravel via ngrok
+ * Menghubungkan frontend ke backend Laravel via Cloudflare Tunnel
  */
 
-const BASE_URL = 'https://composite-footprint-overarch.ngrok-free.dev/api';
+const BASE_URL = (import.meta.env.VITE_API_URL || 'https://many-ways-strive.loca.lt/api').trim();
 export const STORAGE_URL = '/storage';
 
-// Default headers - wajib ada ngrok-skip-browser-warning agar tidak redirect ke halaman ngrok
+// Default headers
 const getHeaders = (token = null) => {
     const headers = {
         'Content-Type': 'application/json',
