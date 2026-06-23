@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Package, Beaker } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -10,7 +10,7 @@ import ConfirmModal from './ConfirmModal';
  * Menangani penambahan/pengeditan bahan treatment, bahan medis, bahan infus, dan barang apotek.
  */
 const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
-
+    const formRef = useRef(null);
     const [confirmConfig, setConfirmConfig] = useState(null);
 
     // State untuk menyimpan data input formulir
@@ -123,6 +123,14 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
         }
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -237,7 +245,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
 
                 {/* Form Section */}
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className={labelClassName}>Kode {titleType}</label>
                             <input

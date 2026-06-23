@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Package, Activity, Beaker } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -11,6 +11,7 @@ import ConfirmModal from './ConfirmModal';
 
 const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, products = [], apiTreatments = [], apiMaterials = [] }) => {
     const { user } = useAuth();
+    const formRef = useRef(null);
     const [formState, setFormState] = useState({
         name: '',
         category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
@@ -153,6 +154,14 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
         }
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -297,7 +306,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
 
                 {/* Form Section */}
                 <div className="p-8 border-t-[0.5px] border-primary/5 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                         <div className="relative z-[60]">
                             <label className={labelClassName}>Kode {type === 'product' ? 'Stok' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment'}</label>
                             <input

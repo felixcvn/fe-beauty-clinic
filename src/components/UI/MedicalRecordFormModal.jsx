@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, Check, Activity, Stethoscope, FileText, Package, FlaskConical, Pill, User, ArrowRight, ArrowLeft, Heart, History, ListChecks } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -73,6 +73,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [afterImage, setAfterImage] = useState(null);
     const [errors, setErrors] = useState({});
     const [confirmConfig, setConfirmConfig] = useState(null);
+    const formRef = useRef(null);
 
     const [apiPatients, setApiPatients] = useState([]);
     const [apiStaff, setApiStaff] = useState([]);
@@ -248,6 +249,14 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
         if (!patientId && !selectedPatientId) newErrors.patient = 'Pilih pasien terlebih dahulu';
         if (!selectedDoctorId) newErrors.doctor = 'Pilih dokter terlebih dahulu';
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -255,6 +264,14 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
         const newErrors = {};
         if (selectedTreatments.length === 0) newErrors.treatments = 'Pilih minimal satu tipe perawatan';
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -414,7 +431,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                     </div>
 
                     <div className="p-8 overflow-y-auto scrollbar-hide flex-1">
-                        <form onSubmit={handleSubmit} className="space-y-8 min-h-full flex flex-col">
+                        <form ref={formRef} onSubmit={handleSubmit} className="space-y-8 min-h-full flex flex-col">
                             
                             {step === 1 && (
                                 <div className="space-y-8 animate-fade-in flex flex-col flex-1">

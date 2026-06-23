@@ -5,6 +5,7 @@ import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { distributorAPI } from '../../services/api';
 import CustomSelect from '../../components/UI/CustomSelect';
+import CustomDatePicker from '../../components/UI/CustomDatePicker';
 
 const DistributorsPage = () => {
     const { showToast } = useToast();
@@ -367,11 +368,11 @@ const DistributorsPage = () => {
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Tanggal Lahir <span className="text-red-500">*</span></label>
-                                        <input
-                                            type="date"
+                                        <CustomDatePicker
                                             value={formData.Tanggal_Lahir}
-                                            onChange={e => setFormData({ ...formData, Tanggal_Lahir: e.target.value })}
-                                            className={inputClass(formErrors.Tanggal_Lahir)}
+                                            onChange={val => setFormData({ ...formData, Tanggal_Lahir: val })}
+                                            placeholder="Pilih Tanggal Lahir"
+                                            required={true}
                                         />
                                         {formErrors.Tanggal_Lahir && <p className="text-xs text-red-500 font-medium mt-1 ml-1">{formErrors.Tanggal_Lahir}</p>}
                                     </div>

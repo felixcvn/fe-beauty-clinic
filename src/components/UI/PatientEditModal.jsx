@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Mail, Phone, Home } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -137,6 +137,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
 
     const [errors, setErrors] = useState({});
     const [confirmConfig, setConfirmConfig] = useState(null);
+    const formRef = useRef(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -183,6 +184,14 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         if (!formData.kecamatan) newErrors.kecamatan = "Kecamatan wajib dipilih";
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -260,7 +269,7 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                 
                 {/* Body Form */}
                 <div className="p-8 max-h-[70vh] overflow-y-auto scrollbar-hide">
-                    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
+                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6" noValidate>
                         
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>

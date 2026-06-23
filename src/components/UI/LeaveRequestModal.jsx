@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Calendar, FileText, Send, CalendarDays, CheckCircle2, Upload, Paperclip, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
@@ -30,40 +30,45 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
     const [isSubmitted, setIsSubmitted] = useState(false);
     
     const todayStr = getTodayString();
+    const formRef = useRef(null);
+    const [errors, setErrors] = useState({});
 
     if (!isOpen) return null;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!leaveType) {
-            showToast('Harap pilih jenis cuti/izin!', 'error');
-            return;
-        }
-        
-        if (!startDate || !endDate || !reason) {
-            showToast('Harap lengkapi semua form!', 'error');
-            return;
-        }
+        const newErrors = {};
+        if (!leaveType) newErrors.leaveType = 'Pilih jenis cuti/izin terlebih dahulu';
+        if (!startDate) newErrors.startDate = 'Tanggal mulai wajib diisi';
+        if (!endDate) newErrors.endDate = 'Tanggal selesai wajib diisi';
+        if (!reason.trim()) newErrors.reason = 'Alasan wajib diisi';
 
-        const isCuti = leaveType.includes('Cuti');
-        
-        if (isCuti) {
-            const start = new Date(startDate);
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-            
-            const diffTime = start.getTime() - today.getTime();
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
-            if (diffDays < 7) {
-                showToast('Tidak bisa melakukan pengajuan cuti. Minimal pengajuan H-7.', 'error');
-                return;
+        if (leaveType) {
+            const isCuti = leaveType.includes('Cuti');
+            if (isCuti && startDate) {
+                const start = new Date(startDate);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const diffTime = start.getTime() - today.getTime();
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                if (diffDays < 7) {
+                    newErrors.startDate = 'Tidak bisa melakukan pengajuan cuti. Minimal pengajuan H-7.';
+                }
+            }
+            if (leaveType === 'Sakit' && !attachmentBase64) {
+                newErrors.attachment = 'Harap upload surat keterangan sakit!';
             }
         }
 
-        if (leaveType === 'Sakit' && !attachmentBase64) {
-            showToast('Harap upload surat keterangan sakit!', 'error');
+        setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
             return;
         }
 
@@ -85,6 +90,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                 setReason('');
                 setAttachmentBase64(null);
                 setAttachmentName(null);
+                setErrors({});
             }
         } catch (error) {
             console.error(error);
@@ -161,35 +167,42 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                             </button>
                         </div>
                     ) : (
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                        <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Jenis Cuti</label>
                                 <CustomSelect 
                                     value={leaveType}
-                                    onChange={setLeaveType}
+                                    onChange={(val) => { setLeaveType(val); if (errors.leaveType) setErrors(prev => ({ ...prev, leaveType: null })); }}
                                     placeholder="Pilih jenis cuti/izin..."
                                     options={[
                                         { value: 'Sakit', label: 'Sakit' },
                                         { value: 'Cuti', label: 'Cuti' }
                                     ]}
                                 />
+                                {errors.leaveType && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.leaveType}</p>}
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <CustomDatePicker
-                                    label="Tanggal Mulai"
-                                    value={startDate}
-                                    onChange={setStartDate}
-                                    className="w-full"
-                                    minDate={todayStr}
-                                />
-                                <CustomDatePicker
-                                    label="Tanggal Selesai"
-                                    value={endDate}
-                                    onChange={setEndDate}
-                                    className="w-full"
-                                    minDate={startDate || todayStr}
-                                />
+                                <div>
+                                    <CustomDatePicker
+                                        label="Tanggal Mulai"
+                                        value={startDate}
+                                        onChange={(val) => { setStartDate(val); if (errors.startDate) setErrors(prev => ({ ...prev, startDate: null })); }}
+                                        className="w-full"
+                                        minDate={todayStr}
+                                    />
+                                    {errors.startDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.startDate}</p>}
+                                </div>
+                                <div>
+                                    <CustomDatePicker
+                                        label="Tanggal Selesai"
+                                        value={endDate}
+                                        onChange={(val) => { setEndDate(val); if (errors.endDate) setErrors(prev => ({ ...prev, endDate: null })); }}
+                                        className="w-full"
+                                        minDate={startDate || todayStr}
+                                    />
+                                    {errors.endDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.endDate}</p>}
+                                </div>
                             </div>
 
 
@@ -200,12 +213,12 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                     <textarea 
                                         placeholder="Jelaskan alasan pengajuan cuti anda..."
                                         value={reason}
-                                        onChange={(e) => setReason(e.target.value)}
+                                        onChange={(e) => { setReason(e.target.value); if (errors.reason) setErrors(prev => ({ ...prev, reason: null })); }}
                                         rows={3}
-                                        className="w-full pl-10 pr-4 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm resize-none"
+                                        className={`w-full pl-10 pr-4 py-4 rounded-2xl bg-white border ${errors.reason ? 'border-red-400 focus:ring-red-400/20' : 'border-primary/5 focus:ring-primary/5'} outline-none text-primary font-medium text-sm focus:ring-4 transition-all shadow-sm resize-none`}
                                     />
-
                                 </div>
+                                {errors.reason && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.reason}</p>}
                             </div>
 
                             {leaveType === 'Sakit' && (
@@ -225,13 +238,14 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                                     const reader = new FileReader();
                                                     reader.onloadend = () => {
                                                         setAttachmentBase64(reader.result);
+                                                        if (errors.attachment) setErrors(prev => ({ ...prev, attachment: null }));
                                                     };
                                                     reader.readAsDataURL(file);
                                                 }
                                             }}
                                             className="absolute inset-0 opacity-0 cursor-pointer z-10"
                                         />
-                                        <div className={`p-5 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${attachmentName ? 'border-primary bg-primary/5' : 'border-primary/10 bg-secondary/5 group-hover:border-primary/20'}`}>
+                                        <div className={`p-5 rounded-2xl border-2 border-dashed transition-all flex flex-col items-center justify-center gap-3 ${attachmentName ? 'border-primary bg-primary/5' : errors.attachment ? 'border-red-400 bg-red-50/30' : 'border-primary/10 bg-secondary/5 group-hover:border-primary/20'}`}>
                                             {attachmentName ? (
                                                 <>
                                                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -250,6 +264,7 @@ const LeaveRequestModal = ({ isOpen, onClose, onSubmit }) => {
                                             )}
                                         </div>
                                     </div>
+                                    {errors.attachment && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.attachment}</p>}
                                 </div>
                             )}
 

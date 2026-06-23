@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import CustomSelect from './CustomSelect';
@@ -40,6 +40,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
     const [confirmConfig, setConfirmConfig] = useState(null);
+    const formRef = useRef(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -111,6 +112,14 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
         else if (!formState.email.endsWith('@gmail.com')) newErrors.email = "Email harus menggunakan format @gmail.com";
 
         setErrors(newErrors);
+        if (Object.keys(newErrors).length > 0) {
+            setTimeout(() => {
+                const firstErrorEl = formRef.current?.querySelector('.text-red-500');
+                if (firstErrorEl) {
+                    firstErrorEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 50);
+        }
         return Object.keys(newErrors).length === 0;
     };
 
@@ -297,7 +306,7 @@ const StaffFormModal = ({ isOpen, onClose, onSave, initialData, existingStaff = 
                         )}
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
+                    <form ref={formRef} onSubmit={handleSubmit} className="space-y-6 animate-fade-in-up">
 
                         {/* -------------------- STEP 1 -------------------- */}
                         {step === 1 && (
