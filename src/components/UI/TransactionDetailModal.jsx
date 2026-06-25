@@ -277,7 +277,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                         <div>
                             <h3 className="text-2xl font-black text-white tracking-tighter leading-none italic">Detail Transaksi</h3>
                             <div className="flex items-center gap-3 mt-3">
-                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{transaction.id}</span>
+                                <span className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">{groupedTxList[0]?.no_faktur || groupedTxList[0]?.no_resi || transaction.id}</span>
                                 <span className="w-1 h-1 rounded-full bg-white/20" />
                                 <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${getStatusStyle(transaction.status)}`}>
                                     {transaction.status}
