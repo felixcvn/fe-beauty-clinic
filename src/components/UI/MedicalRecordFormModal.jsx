@@ -278,11 +278,21 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const handleNext = () => {
         if (validateStep1()) {
             setStep(2);
+            setTimeout(() => {
+                if (formRef.current && formRef.current.parentElement) {
+                    formRef.current.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, 50);
         }
     };
 
     const handleBack = () => {
         setStep(1);
+        setTimeout(() => {
+            if (formRef.current && formRef.current.parentElement) {
+                formRef.current.parentElement.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, 50);
     };
 
     const handleSubmit = (e) => {
