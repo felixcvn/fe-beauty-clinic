@@ -1,11 +1,58 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
+import { useToast } from '../../context/ToastContext';
+
+const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.7) => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
+
+                if (width > maxWidth) {
+                    height = Math.round((height * maxWidth) / width);
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = Math.round((width * maxHeight) / height);
+                    height = maxHeight;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                canvas.toBlob((blob) => {
+                    if (blob) {
+                        const compressedFile = new File([blob], file.name, {
+                            type: 'image/jpeg',
+                            lastModified: Date.now(),
+                        });
+                        resolve(compressedFile);
+                    } else {
+                        reject(new Error('Canvas to Blob failed'));
+                    }
+                }, 'image/jpeg', quality);
+            };
+            img.onerror = (err) => reject(err);
+        };
+        reader.onerror = (err) => reject(err);
+    });
+};
 
 const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
     const [preview, setPreview] = useState(initialPreview);
     const cameraInputRef = useRef(null);
     const galleryInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [isCompressing, setIsCompressing] = useState(false);
+    const { showToast } = useToast();
 
     React.useEffect(() => {
         if (initialPreview) {
@@ -20,11 +67,39 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
         }
     };
 
-    const handleImage = (file) => {
+    const handleImage = async (file) => {
         if (file.type.startsWith('image/')) {
-            const previewUrl = URL.createObjectURL(file);
-            setPreview(previewUrl);
-            if (onImageChange) onImageChange(file);
+            setIsCompressing(true);
+            try {
+                if (file.size > 15 * 1024 * 1024) {
+                    if (showToast) showToast('File terlalu besar, maksimal 15MB sebelum dikompres!', 'error');
+                    else alert('File terlalu besar, maksimal 15MB sebelum dikompres!');
+                    setIsCompressing(false);
+                    return;
+                }
+
+                const compressedFile = await compressImage(file, 1200, 1200, 0.7);
+                
+                if (compressedFile.size > 2 * 1024 * 1024) {
+                    if (showToast) showToast('Ukuran gambar masih melebihi 2MB setelah dikompres. Silakan pilih gambar lain.', 'error');
+                    else alert('Ukuran gambar masih melebihi 2MB setelah dikompres. Silakan pilih gambar lain.');
+                    setIsCompressing(false);
+                    return;
+                }
+
+                const previewUrl = URL.createObjectURL(compressedFile);
+                setPreview(previewUrl);
+                if (onImageChange) onImageChange(compressedFile);
+            } catch (error) {
+                console.error('Error compressing image:', error);
+                if (showToast) showToast('Gagal memproses gambar.', 'error');
+                else alert('Gagal memproses gambar.');
+            } finally {
+                setIsCompressing(false);
+            }
+        } else {
+            if (showToast) showToast('Format file tidak didukung. Harap pilih gambar.', 'error');
+            else alert('Format file tidak didukung. Harap pilih gambar.');
         }
     };
 
@@ -72,6 +147,11 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
                     }
                 `}
             >
+                {isCompressing && (
+                    <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/70">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    </div>
+                )}
                 {preview ? (
                     <>
                         <img src={preview} alt="Preview" className="w-full h-full object-cover" />
