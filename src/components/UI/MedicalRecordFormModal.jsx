@@ -10,7 +10,7 @@ import ConfirmModal from './ConfirmModal';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
-import { pasienAPI, karyawanAPI, rekamMedisAPI, treatmentAPI, stokProdukAPI, STORAGE_URL } from '../../services/api';
+import { pasienAPI, karyawanAPI, rekamMedisAPI, treatmentAPI, stokProdukAPI, STORAGE_URL, paketTreatmentAPI } from '../../services/api';
 
 const mapPatientFromAPI = (p) => ({
     id: p.id,
@@ -156,7 +156,8 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 }
                 
                 const treatmentsArr = Array.isArray(initialData.treatments) ? initialData.treatments.map(t => t.id || t) : [];
-                setSelectedTreatments(treatmentsArr);
+                const paketTreatmentsArr = Array.isArray(initialData.paketTreatments) ? initialData.paketTreatments.map(t => `paket_${t.id || t}`) : [];
+                setSelectedTreatments([...treatmentsArr, ...paketTreatmentsArr]);
                 
                 setDiagnosis(initialData.diagnosa || '');
                 setNotes(initialData.catatan_tindakan || initialData.catatan || '');
@@ -202,11 +203,12 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                     setHasFetchedData(false);
                     try {
                         // Parallel fetch for speed
-                        const [patientResult, staffResult, treatmentResult, productResult] = await Promise.all([
+                        const [patientResult, staffResult, treatmentResult, productResult, paketResult] = await Promise.all([
                             pasienAPI.getAll(user.token, 1),
                             karyawanAPI.getAll(user.token, 1, 'per_page=100'),
                             treatmentAPI.getAll(user.token),
-                            stokProdukAPI.getAll(user.token)
+                            stokProdukAPI.getAll(user.token),
+                            paketTreatmentAPI.getAll(user.token)
                         ]);
 
                         if (patientResult.success && patientResult.data) {
@@ -221,11 +223,24 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                             setApiStaff(staffArray.map(mapStaffFromAPI));
                         }
 
+                        let treatmentsList = [];
                         if (treatmentResult.success && treatmentResult.data) {
                             const responseData = treatmentResult.data.data || treatmentResult.data;
                             const treatmentArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                            setApiTreatments(treatmentArray.map(mapTreatmentFromAPI));
+                            treatmentsList = [...treatmentsList, ...treatmentArray.map(mapTreatmentFromAPI)];
                         }
+
+                        if (paketResult && paketResult.success && paketResult.data) {
+                            const responseData = paketResult.data.data || paketResult.data;
+                            const paketArray = Array.isArray(responseData) ? responseData : (responseData.data || []);
+                            const mappedPaket = paketArray.map(p => ({
+                                id: `paket_${p.id}`,
+                                name: `${p.Nama_paket || p.nama_paket || p.name} (Paket)`
+                            }));
+                            treatmentsList = [...treatmentsList, ...mappedPaket];
+                        }
+                        
+                        setApiTreatments(treatmentsList);
 
                         if (productResult.success && productResult.data) {
                             const responseData = productResult.data.data || productResult.data;
@@ -336,8 +351,15 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                         formData.append('racikan', racikanText);
                     }
 
-                    selectedTreatments.forEach((id, idx) => {
+                    const normalTreatments = selectedTreatments.filter(id => !String(id).startsWith('paket_'));
+                    const paketTreatments = selectedTreatments.filter(id => String(id).startsWith('paket_')).map(id => String(id).replace('paket_', ''));
+
+                    normalTreatments.forEach((id, idx) => {
                         formData.append(`treatments[${idx}]`, id);
+                    });
+                    
+                    paketTreatments.forEach((id, idx) => {
+                        formData.append(`paket_treatments[${idx}]`, id);
                     });
 
                     selectedProducts.forEach((id, idx) => {
