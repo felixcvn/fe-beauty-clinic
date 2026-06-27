@@ -81,10 +81,11 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
     const [apiProducts, setApiProducts] = useState([]);
     const [isFetchingData, setIsFetchingData] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasFetchedData, setHasFetchedData] = useState(false);
 
 
     // Options mapping
-    const activeStaff = apiStaff.length > 0 ? apiStaff : staff;
+    const activeStaff = hasFetchedData ? apiStaff : staff;
     const doctorOptions = activeStaff
         .filter(s => {
             const div = (s.divisi || '').toLowerCase();
@@ -92,11 +93,11 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
         })
         .map(s => ({ value: s.id, label: s.name }));
     
-    const activePatients = apiPatients.length > 0 ? apiPatients : patients;
+    const activePatients = hasFetchedData ? apiPatients : patients;
     const patientOptions = activePatients.map(p => ({ value: p.id, label: p.name }));
-    const activeTreatments = apiTreatments.length > 0 ? apiTreatments : treatments;
+    const activeTreatments = hasFetchedData ? apiTreatments : treatments;
     const treatmentOptions = activeTreatments.map(t => ({ value: t.id, label: t.name }));
-    const activeProducts = apiProducts.length > 0 ? apiProducts : products;
+    const activeProducts = hasFetchedData ? apiProducts : products;
     const productOptions = activeProducts.map(p => ({ value: p.id, label: `${p.name} (${p.category})` }));
     const racikanOptions = racikans.map(r => ({ value: r.id, label: r.name }));
 
@@ -198,6 +199,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
             if (user?.token) {
                 const fetchData = async () => {
                     setIsFetchingData(true);
+                    setHasFetchedData(false);
                     try {
                         // Parallel fetch for speed
                         const [patientResult, staffResult, treatmentResult, productResult] = await Promise.all([
@@ -234,6 +236,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                         console.error('Error fetching data for MR:', error);
                     } finally {
                         setIsFetchingData(false);
+                        setHasFetchedData(true);
                     }
                 };
                 fetchData();
