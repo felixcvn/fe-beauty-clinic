@@ -6,6 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 import { distributorAPI } from '../../services/api';
 import CustomSelect from '../../components/UI/CustomSelect';
 import CustomDatePicker from '../../components/UI/CustomDatePicker';
+import ConfirmModal from '../../components/UI/ConfirmModal';
 
 const DistributorsPage = () => {
     const { showToast } = useToast();
@@ -37,6 +38,7 @@ const DistributorsPage = () => {
     const [isFormModalOpen, setIsFormModalOpen] = useState(false);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
+    const [confirmConfig, setConfirmConfig] = useState(null);
     const [selectedData, setSelectedData] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
 
@@ -79,8 +81,17 @@ const DistributorsPage = () => {
     };
 
     const handleCloseForm = () => {
-        setIsFormModalOpen(false);
-        setFormErrors({});
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: () => {
+                setIsFormModalOpen(false);
+                setFormErrors({});
+            }
+        });
     };
 
     // ── Handlers: Detail Modal ────────────────────────────────────────────────────
@@ -107,10 +118,19 @@ const DistributorsPage = () => {
     };
 
     const handleCloseDeposit = () => {
-        setIsDepositModalOpen(false);
-        setDepositError('');
-        setDepositAmount('');
-        setSelectedDistributorId('');
+        setConfirmConfig({
+            icon: 'warning',
+            header: 'Tutup Form?',
+            message: 'Apakah Anda yakin ingin menutup form ini? Data deposit yang belum disimpan akan hilang.',
+            acceptLabel: 'Ya, Tutup',
+            rejectLabel: 'Tidak',
+            onAccept: () => {
+                setIsDepositModalOpen(false);
+                setDepositError('');
+                setDepositAmount('');
+                setSelectedDistributorId('');
+            }
+        });
     };
 
     // ── Validation ────────────────────────────────────────────────────────────────
@@ -590,6 +610,11 @@ const DistributorsPage = () => {
                     </div>
                 </div>
                 , document.body)}
+
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>
     );
 };
