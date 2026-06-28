@@ -1,7 +1,9 @@
-import ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
-
 export const exportToExcel = async (data, title, filename) => {
+    // Load heavy libraries dynamically
+    const ExcelJSModule = await import('exceljs');
+    const ExcelJS = ExcelJSModule.default || ExcelJSModule;
+    const { saveAs } = await import('file-saver');
+
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Klinik System';
     workbook.created = new Date();
@@ -120,6 +122,11 @@ export const exportToExcel = async (data, title, filename) => {
 };
 
 export const exportAttendanceToExcel = async (data, activeTab, title, filename) => {
+    // Load heavy libraries dynamically
+    const ExcelJSModule = await import('exceljs');
+    const ExcelJS = ExcelJSModule.default || ExcelJSModule;
+    const { saveAs } = await import('file-saver');
+
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Klinik System';
     workbook.created = new Date();

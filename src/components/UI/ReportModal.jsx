@@ -1,8 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X, FileText, Download, Printer } from 'lucide-react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 
 const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
     const reportRef = useRef(null);
@@ -14,6 +12,12 @@ const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
         setIsDownloading(true);
 
         try {
+            // Load heavy libraries dynamically only when needed
+            const html2canvasModule = await import('html2canvas');
+            const html2canvas = html2canvasModule.default || html2canvasModule;
+            const jsPDFModule = await import('jspdf');
+            const jsPDF = jsPDFModule.default || jsPDFModule.jsPDF || jsPDFModule;
+
             // A4 dimensions in mm
             const pdfWidth = 210;
             const pdfHeight = 297;
