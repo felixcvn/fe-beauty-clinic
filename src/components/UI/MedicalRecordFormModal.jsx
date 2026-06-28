@@ -329,23 +329,23 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                 
                 try {
                     const formData = new FormData();
-                    formData.append('data_pasien_id', patientId || selectedPatientId);
-                    formData.append('dokter_id', selectedDoctorId);
-                    formData.append('tanggal_kunjungan', date);
+                    formData.append('data_pasien_id', patientId || selectedPatientId || '');
+                    formData.append('dokter_id', selectedDoctorId || '');
+                    formData.append('tanggal_kunjungan', date || '');
                     formData.append('tekanan_darah', tensi || '-');
                     
-                    formData.append('riwayat_penyakit', riwayatKesehatan);
+                    formData.append('riwayat_penyakit', riwayatKesehatan || '');
                     
                     formData.append('keluhan_pasien', keluhanPasien || '-');
                     
-                    formData.append('perawatan_diklinik_sebelumnya', perawatanSebelumnya);
+                    formData.append('perawatan_diklinik_sebelumnya', perawatanSebelumnya || '');
 
                     const combinedDiinginkan = diinginkan.includes('Lainnya')
                         ? [...diinginkan.filter(i => i !== 'Lainnya'), diinginkanLainnya].filter(Boolean).join(', ')
                         : diinginkan.join(', ');
-                    formData.append('perawatan_diinginkan', combinedDiinginkan);
-                    formData.append('diagnosa', diagnosis);
-                    formData.append('catatan_tindakan', notes);
+                    formData.append('perawatan_diinginkan', combinedDiinginkan || '');
+                    formData.append('diagnosa', diagnosis || '');
+                    formData.append('catatan_tindakan', notes || '');
 
                     if (racikanText) {
                         formData.append('racikan', racikanText);
