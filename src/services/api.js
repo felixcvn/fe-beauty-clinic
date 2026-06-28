@@ -1170,7 +1170,7 @@ export const rekamMedisAPI = {
             const json = await response.json();
             if (response.ok) return { success: true, data: json };
             if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
-            return { success: false, message: json.message || 'Gagal menambah rekam medis' };
+            return { success: false, message: json.error || json.message || 'Gagal menambah rekam medis' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     },
     update: async (token, id, formData) => {
@@ -1188,7 +1188,7 @@ export const rekamMedisAPI = {
             const json = await response.json();
             if (response.ok) return { success: true, data: json };
             if (response.status === 422 && json.errors) return { success: false, message: Object.values(json.errors).flat()[0] || 'Data tidak valid' };
-            return { success: false, message: json.message || 'Gagal mengupdate rekam medis' };
+            return { success: false, message: json.error || json.message || 'Gagal mengupdate rekam medis' };
         } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
     }
 };
