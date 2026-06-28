@@ -150,8 +150,8 @@ export const exportAttendanceToExcel = async (data, activeTab, title, filename) 
             }
             
             // Add totals
-            headers.push('Total Cuti', 'Total Lembur', 'Total Masuk');
-            columnWidths.push(15, 15, 15);
+            headers.push('Total Cuti', 'Total Lembur', 'Total Masuk', 'Total Sakit', 'Total Izin');
+            columnWidths.push(15, 15, 15, 15, 15);
 
             const bulanName = new Date(tahun, bulan - 1).toLocaleDateString('id-ID', { month: 'long' });
             const sheetName = `Absensi ${bulanName.substring(0,3)} ${tahun}`;
@@ -223,6 +223,8 @@ export const exportAttendanceToExcel = async (data, activeTab, title, filename) 
                 rowData.push(item.summary.total_cuti || 0);
                 rowData.push(item.summary.total_lembur || 0);
                 rowData.push(item.summary.total_masuk || 0);
+                rowData.push(item.summary.total_sakit || 0);
+                rowData.push(item.summary.total_izin || 0);
                 
                 const row = worksheet.addRow(rowData);
                 

@@ -197,8 +197,21 @@ const SuperAdminInventoryPage = () => {
 
     const handleExport = async (exportType) => {
         const dataToExport = exportType === 'all' ? allItems : filteredData;
-        const filename = exportType === 'all' ? 'semua_stok_superadmin' : 'stok_superadmin_terfilter';
-        const title = exportType === 'all' ? 'Laporan Semua Stok (SuperAdmin)' : 'Laporan Stok Terfilter (SuperAdmin)';
+        const filename = exportType === 'all' ? 'semua_stok_superadmin' : `stok_superadmin_${activeFilter}`;
+        
+        let title = 'Laporan Stok Terfilter (SuperAdmin)';
+        if (exportType === 'all') {
+            title = 'Laporan Semua Stok (SuperAdmin)';
+        } else if (activeFilter && activeFilter !== 'all') {
+            const typeNames = {
+                product: 'Produk',
+                material: 'Bahan Treatment',
+                medical: 'Bahan Medis',
+                infusion: 'Bahan Infus',
+                apotekItem: 'Barang Apotek'
+            };
+            title = `Laporan Stok ${typeNames[activeFilter] || 'Terfilter'} (SuperAdmin)`;
+        }
         
         setIsExportDropdownOpen(false);
         showToast('Menyiapkan file Excel...', 'info');

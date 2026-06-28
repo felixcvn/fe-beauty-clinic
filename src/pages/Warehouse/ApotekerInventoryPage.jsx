@@ -153,8 +153,23 @@ const ApotekerInventoryPage = () => {
 
     const handleExport = async (exportType) => {
         const dataToExport = exportType === 'all' ? allItems : filteredData;
-        const filename = exportType === 'all' ? 'semua_stok_apotek' : 'stok_apotek_terfilter';
-        const title = exportType === 'all' ? 'Laporan Semua Stok Apotek' : 'Laporan Stok Apotek Terfilter';
+        const filename = exportType === 'all' ? 'semua_stok_apotek' : `stok_apotek_${activeFilter}`;
+        
+        let title = 'Laporan Stok Apotek';
+        if (exportType === 'all') {
+            title = 'Laporan Semua Stok Apotek';
+        } else if (activeFilter && activeFilter !== 'all') {
+            const typeNames = {
+                product: 'Produk',
+                material: 'Bahan Treatment',
+                medical: 'Bahan Medis',
+                infusion: 'Bahan Infus',
+                apotekItem: 'Barang Apotek'
+            };
+            title = `Laporan Stok Apotek ${typeNames[activeFilter] || 'Terfilter'}`;
+        } else {
+            title = 'Laporan Stok Apotek Terfilter';
+        }
         
         setIsExportDropdownOpen(false);
         showToast('Menyiapkan file Excel...', 'info');

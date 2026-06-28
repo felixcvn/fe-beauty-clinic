@@ -229,8 +229,21 @@ const ItemManagementPage = ({ fixedFilter, fixedTitle }) => {
 
     const handleExport = async (exportType) => {
         const dataToExport = exportType === 'all' ? allItems : filteredData;
-        const filename = exportType === 'all' ? 'semua_stok' : 'stok_terfilter';
-        const title = exportType === 'all' ? 'Laporan Semua Stok' : 'Laporan Stok Terfilter';
+        const filename = exportType === 'all' ? 'semua_stok' : `stok_${activeFilter}`;
+        
+        let title = 'Laporan Stok Terfilter';
+        if (exportType === 'all') {
+            title = 'Laporan Semua Stok';
+        } else if (activeFilter && activeFilter !== 'all') {
+            const typeNames = {
+                product: 'Produk',
+                material: 'Bahan Treatment',
+                medical: 'Bahan Medis',
+                infusion: 'Bahan Infus',
+                apotekItem: 'Barang Apotek'
+            };
+            title = `Laporan Stok ${typeNames[activeFilter] || 'Terfilter'}`;
+        }
         
         setIsExportDropdownOpen(false);
         showToast('Menyiapkan file Excel...', 'info');
