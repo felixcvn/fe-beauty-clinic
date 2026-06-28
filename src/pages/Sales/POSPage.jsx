@@ -579,7 +579,7 @@ const POSPage = () => {
                         <TableSkeleton mode="card" rows={8} />
                     ) : (
                         /* Product Grid */
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
+                        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-6">
                             {filteredProducts.map(product => {
                                 const isOutOfStock = product.stock <= 0;
                                 const price = getProductPrice(product);
@@ -641,7 +641,7 @@ const POSPage = () => {
             </div>
 
             {/* Right Side: Unified Cart & Summary (E-commerce Style) */}
-            <div className="w-full xl:w-[540px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
+            <div id="cart-section" className="w-full xl:w-[540px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
 
                 {/* 1. Transaction Info Section (Top - Fixed) */}
                 <div className="p-4 md:p-5 bg-secondary/10 border-b border-primary/5 space-y-3.5">
@@ -894,6 +894,26 @@ const POSPage = () => {
                 </div>,
                 document.body
             )}
+
+            {/* Floating Cart Button for Mobile */}
+            <div className="fixed bottom-6 right-6 xl:hidden z-40">
+                <button
+                    onClick={() => {
+                        const cartSection = document.getElementById('cart-section');
+                        if (cartSection) {
+                            cartSection.scrollIntoView({ behavior: 'smooth' });
+                        }
+                    }}
+                    className="w-14 h-14 bg-primary text-secondary rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-105 active:scale-95 transition-all relative"
+                >
+                    <ShoppingCart className="w-6 h-6" />
+                    {cart.length > 0 && (
+                        <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                            {cart.length}
+                        </span>
+                    )}
+                </button>
+            </div>
         </div>
     );
 };
