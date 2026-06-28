@@ -896,24 +896,27 @@ const POSPage = () => {
             )}
 
             {/* Floating Cart Button for Mobile */}
-            <div className="fixed bottom-6 right-6 xl:hidden z-40">
-                <button
-                    onClick={() => {
-                        const cartSection = document.getElementById('cart-section');
-                        if (cartSection) {
-                            cartSection.scrollIntoView({ behavior: 'smooth' });
-                        }
-                    }}
-                    className="w-14 h-14 bg-primary text-secondary rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-105 active:scale-95 transition-all relative"
-                >
-                    <ShoppingCart className="w-6 h-6" />
-                    {cart.length > 0 && (
-                        <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-sm">
-                            {cart.length}
-                        </span>
-                    )}
-                </button>
-            </div>
+            {createPortal(
+                <div className="fixed bottom-6 right-6 xl:hidden z-[9000]">
+                    <button
+                        onClick={() => {
+                            const cartSection = document.getElementById('cart-section');
+                            if (cartSection) {
+                                cartSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }}
+                        className="w-14 h-14 bg-primary text-secondary rounded-full flex items-center justify-center shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:scale-105 active:scale-95 transition-all relative"
+                    >
+                        <ShoppingCart className="w-6 h-6" />
+                        {cart.length > 0 && (
+                            <span className="absolute -top-1 -right-1 w-6 h-6 bg-red-500 text-white text-[10px] font-black flex items-center justify-center rounded-full border-2 border-white shadow-sm">
+                                {cart.length}
+                            </span>
+                        )}
+                    </button>
+                </div>,
+                document.body
+            )}
         </div>
     );
 };
