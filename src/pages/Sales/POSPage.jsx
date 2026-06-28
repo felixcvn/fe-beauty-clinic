@@ -582,13 +582,17 @@ const POSPage = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 md:gap-6">
                             {filteredProducts.map(product => {
                                 const isOutOfStock = product.stock <= 0;
+                                const price = getProductPrice(product);
+                                const isPriceNotSet = !price || price <= 0;
+                                const isUnavailable = isOutOfStock || isPriceNotSet;
+                                
                                 return (
                                     <button
                                         key={product.id}
                                         onClick={() => addToCart(product)}
-                                        disabled={isOutOfStock}
+                                        disabled={isUnavailable}
                                         className={`p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 transition-all duration-300 text-left group flex flex-col justify-between h-full ${
-                                            isOutOfStock 
+                                            isUnavailable 
                                                 ? 'opacity-50 cursor-not-allowed border-gray-200' 
                                                 : 'hover:bg-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1'
                                         }`}
@@ -612,10 +616,15 @@ const POSPage = () => {
                                             <p className="text-[9px] md:text-[10px] font-bold text-primary/40 uppercase tracking-widest mb-3 text-center">{product.category}</p>
                                         </div>
                                         <div className="flex items-center justify-between mt-auto pt-4 border-t border-primary/5 w-full">
-                                            <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {getProductPrice(product).toLocaleString('id-ID')}</span>
-                                            {isOutOfStock ? (
+                                            {isPriceNotSet ? (
+                                                <span className="text-[10px] md:text-[11px] font-black text-red-500 tracking-tighter leading-tight">Harga Belum Diset</span>
+                                            ) : (
+                                                <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {price.toLocaleString('id-ID')}</span>
+                                            )}
+                                            
+                                            {isUnavailable ? (
                                                 <span className="text-[8px] md:text-[9px] font-black text-red-500 uppercase tracking-widest px-2 py-1 bg-red-50 rounded-lg border border-red-100">
-                                                    {product.category === 'Treatment' ? 'Tidak Tersedia' : 'Kosong'}
+                                                    {isPriceNotSet ? 'Tidak Tersedia' : (product.category === 'Treatment' ? 'Tidak Tersedia' : 'Kosong')}
                                                 </span>
                                             ) : (
                                                 <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
