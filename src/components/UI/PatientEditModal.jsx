@@ -38,7 +38,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
         kecamatan: '',
         alamat: '',
         email: '',
-        noTelepon: ''
+        noTelepon: '',
+        metodePembayaranMember: 'Tunai'
     });
 
 
@@ -113,7 +114,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     kecamatan: initialData.kecamatan || '',
                     alamat: initialData.alamat || '',
                     email: initialData.email || '',
-                    noTelepon: initialData.noTelepon || initialData.phone || ''
+                    noTelepon: initialData.noTelepon || initialData.phone || '',
+                    metodePembayaranMember: initialData.metodePembayaranMember || 'Tunai'
                 });
             } else {
                 setFormData({
@@ -129,7 +131,8 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                     kecamatan: '',
                     alamat: '',
                     email: '',
-                    noTelepon: ''
+                    noTelepon: '',
+                    metodePembayaranMember: 'Tunai'
                 });
             }
         }
@@ -312,6 +315,27 @@ const PatientEditModal = ({ isOpen, onClose, onSave, initialData }) => {
                                 </div>
                             </div>
                         </div>
+
+                        {formData.tipeMember === 'Member' && (!isEdit || initialData?.tipeMember !== 'Member') && (
+                            <div className="p-5 rounded-2xl bg-amber-500/5 border border-accent-gold/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 animate-fade-in">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-accent-gold uppercase tracking-widest block">Metode Pembayaran (Biaya Registrasi Member)</label>
+                                    <p className="text-[11px] font-medium text-primary/60">
+                                        Pendaftaran/upgrade ke member dikenakan biaya otomatis sebesar <span className="font-bold text-primary">Rp 50.000</span>.
+                                    </p>
+                                </div>
+                                <div className="w-full md:w-64">
+                                    <CustomSelect
+                                        value={formData.metodePembayaranMember}
+                                        onChange={(value) => handleChange('metodePembayaranMember', value)}
+                                        options={[
+                                            { value: 'Tunai', label: 'Tunai' },
+                                            { value: 'Non Tunai', label: 'Non Tunai' }
+                                        ]}
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
