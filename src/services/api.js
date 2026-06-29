@@ -430,7 +430,6 @@ export const pasienAPI = {
                 Alamat: data.alamat || null,
                 KabKota_id: data.kabupatenKota || null,
                 Kec_id: data.kecamatan || null,
-                metode_pembayaran_member: data.metodePembayaranMember || null,
             };
 
             const response = await fetch(`${BASE_URL}/pasien`, {
@@ -486,7 +485,6 @@ export const pasienAPI = {
                 alamat: data.alamat || null,
                 KabKota_id: data.kabupatenKota || null,
                 Kec_id: data.kecamatan || null,
-                metode_pembayaran_member: data.metodePembayaranMember || null,
             };
 
             const response = await fetch(`${BASE_URL}/pasien/${id}`, {
