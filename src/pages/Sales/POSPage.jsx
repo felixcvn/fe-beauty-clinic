@@ -13,23 +13,7 @@ const POSPage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
     const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan } = useMockData();
-    const [apiPatients, setApiPatients] = useState([]);
-    const [apiProducts, setApiProducts] = useState([]);
-    const [apiTreatments, setApiTreatments] = useState([]);
-    const [apiRacikans, setApiRacikans] = useState([]);
-    const [isFetchingData, setIsFetchingData] = useState(false);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [activeCategory, setActiveCategory] = useState('Semua');
-    const [cart, setCart] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [paymentMethod, setPaymentMethod] = useState('Tunai');
-    const [isProcessing, setIsProcessing] = useState(false);
-
-    // Fitur Tarik Rekam Medis
-    const [hasFetchedRecord, setHasFetchedRecord] = useState(false);
-    const [isFetchingRecord, setIsFetchingRecord] = useState(false);
-    const [detectedRacikan, setDetectedRacikan] = useState(null);
-    const [racikanSent, setRacikanSent] = useState(false);
+     
 
     // Fetch real patients, products, and treatments from API
     useEffect(() => {
