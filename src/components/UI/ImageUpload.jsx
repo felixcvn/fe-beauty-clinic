@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import CameraCaptureModal from './CameraCaptureModal';
 
 const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.7) => {
     return new Promise((resolve, reject) => {
@@ -52,6 +53,7 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
     const galleryInputRef = useRef(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isCompressing, setIsCompressing] = useState(false);
+    const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
     const { showToast } = useToast();
 
     React.useEffect(() => {
@@ -168,7 +170,7 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
                         <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full justify-center px-4">
                             <button
                                 type="button"
-                                onClick={() => cameraInputRef.current?.click()}
+                                onClick={() => setIsCameraModalOpen(true)}
                                 className="flex flex-row sm:flex-col items-center justify-center gap-3 sm:gap-0 p-3 sm:p-4 w-full sm:w-28 h-auto sm:h-28 rounded-2xl border border-primary/10 bg-primary/5 hover:bg-primary/10 hover:border-primary/20 text-primary transition-all duration-300 group/btn shadow-sm"
                             >
                                 <Camera className="w-5 h-5 sm:w-6 sm:h-6 sm:mb-2 text-primary/60 group-hover/btn:scale-110 group-hover/btn:text-primary transition-all shrink-0" />
@@ -205,6 +207,15 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
                     className="hidden"
                 />
             </div>
+
+            <CameraCaptureModal
+                isOpen={isCameraModalOpen}
+                onClose={() => setIsCameraModalOpen(false)}
+                onCapture={(file, dataUrl) => {
+                    handleImage(file);
+                }}
+                facingMode="environment"
+            />
         </div>
     );
 };

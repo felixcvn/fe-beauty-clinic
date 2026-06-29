@@ -128,8 +128,8 @@ const ActivityLogPage = () => {
                         <tbody className="divide-y divide-primary/5">
                             {logs.length > 0 ? (
                                 logs.map((log) => {
-                                    const userName = log.user?.NamaLengkap_karyawan || log.user?.Username || 'Sistem';
-                                    const userRole = log.user?.Divisi || 'Sistem';
+                                    const userName = log.karyawan?.NamaLengkap_karyawan || log.karyawan?.Username || log.user?.NamaLengkap_karyawan || log.user?.Username || 'Sistem';
+                                    const userRole = log.karyawan?.Divisi || log.user?.Divisi || 'Sistem';
                                     const initials = userName.substring(0, 2).toUpperCase();
 
                                     return (
@@ -195,8 +195,8 @@ const ActivityLogPage = () => {
                     )}
                     {logs.length > 0 ? (
                         logs.map(log => {
-                            const userName = log.user?.NamaLengkap_karyawan || log.user?.Username || 'Sistem';
-                            const userRole = log.user?.Divisi || 'Sistem';
+                            const userName = log.karyawan?.NamaLengkap_karyawan || log.karyawan?.Username || log.user?.NamaLengkap_karyawan || log.user?.Username || 'Sistem';
+                            const userRole = log.karyawan?.Divisi || log.user?.Divisi || 'Sistem';
                             const initials = userName.substring(0, 2).toUpperCase();
 
                             return (
