@@ -76,7 +76,9 @@ const POSPage = () => {
                             id: String(p.id),
                             name: formattedName,
                             phone: p.no_Telp || p.no_telp || p.phone || '-',
-                            isDistributor: false
+                            isDistributor: false,
+                            needsMemberFee: !!p.needs_member_fee,
+                            isMember: p.Tipe_member === 'Member' || p.Tipe_Member === 'Member'
                         };
                     })];
                 }
@@ -277,7 +279,7 @@ const POSPage = () => {
         , [cart, selectedCustomer]);
 
     // Kalkulasi Harga Akhir
-    const memberDiscount = isMember ? (cartTotal * 0.05) : 0;
+    const memberDiscount = selectedCustomer?.isMember ? (cartTotal * 0.05) : 0;
 
     const calculatePromoDiscount = () => {
         if (!appliedPromo) return 0;
@@ -289,7 +291,7 @@ const POSPage = () => {
     const promoDiscount = calculatePromoDiscount();
 
     const tax = 0;
-    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount));
+    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount)) + (selectedCustomer?.needsMemberFee ? 50000 : 0);
 
     const handleApplyPromo = (codeToApply = promoInput) => {
         if (!codeToApply.trim()) {
@@ -795,6 +797,18 @@ const POSPage = () => {
                             <span>Subtotal</span>
                             <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
                         </div>
+                        {selectedCustomer?.needsMemberFee && (
+                            <div className="flex justify-between text-primary/40 font-bold text-[9px] uppercase tracking-widest px-1">
+                                <span>Biaya Pendaftaran Member</span>
+                                <span>Rp 50.000</span>
+                            </div>
+                        )}
+                        {memberDiscount > 0 && (
+                            <div className="flex justify-between text-green-500 font-bold text-[9px] uppercase tracking-widest px-1">
+                                <span>Diskon Member (5%)</span>
+                                <span>- Rp {memberDiscount.toLocaleString('id-ID')}</span>
+                            </div>
+                        )}
                         {appliedPromo && (
                             <div className="flex justify-between text-green-500 font-bold text-[9px] uppercase tracking-widest px-1">
                                 <span>Promo ({appliedPromo.code})</span>
