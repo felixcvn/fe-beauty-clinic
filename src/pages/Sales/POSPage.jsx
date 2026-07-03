@@ -13,7 +13,23 @@ const POSPage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
     const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan } = useMockData();
-     
+    
+    // States that were missing
+    const [isLoading, setIsLoading] = useState(true);
+    const [isFetchingData, setIsFetchingData] = useState(false);
+    const [apiProducts, setApiProducts] = useState([]);
+    const [apiPatients, setApiPatients] = useState([]);
+    const [apiTreatments, setApiTreatments] = useState([]);
+    const [apiRacikans, setApiRacikans] = useState([]);
+    const [cart, setCart] = useState([]);
+    const [activeCategory, setActiveCategory] = useState('Semua');
+    const [searchTerm, setSearchTerm] = useState('');
+    const [paymentMethod, setPaymentMethod] = useState('Cash');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isFetchingRecord, setIsFetchingRecord] = useState(false);
+    const [hasFetchedRecord, setHasFetchedRecord] = useState(false);
+    const [detectedRacikan, setDetectedRacikan] = useState(null);
+    const [racikanSent, setRacikanSent] = useState(false);
 
     // Fetch real patients, products, and treatments from API
     useEffect(() => {
