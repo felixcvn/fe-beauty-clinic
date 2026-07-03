@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
     Calendar,
     Plus,
@@ -88,11 +89,12 @@ const DEFAULT_SLOTS = [
 ];
 
 const ReservationsPage = () => {
+    const location = useLocation();
     const { user } = useAuth();
     const { showToast } = useToast();
 
     const [bookings, setBookings] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState(location.state?.searchParam || '');
     const [isLoading, setIsLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBooking, setEditingBooking] = useState(null);
@@ -180,6 +182,20 @@ const ReservationsPage = () => {
         };
         fetchReservations();
     }, [user, fetchTrigger]);
+
+    // Buka form edit secara otomatis jika di-redirect dari dashboard
+    useEffect(() => {
+        if (bookings.length > 0 && location.state?.editBookingId) {
+            const targetBooking = bookings.find(b => b.id === location.state.editBookingId);
+            if (targetBooking) {
+                setEditingBooking(targetBooking);
+                setIsModalOpen(true);
+                
+                // Hapus state history agar tidak terus-terusan terbuka saat refresh/fetch ulang
+                window.history.replaceState({}, document.title);
+            }
+        }
+    }, [bookings, location.state?.editBookingId]);
 
     const filteredBookings = useMemo(() => {
         return bookings.filter(booking => {

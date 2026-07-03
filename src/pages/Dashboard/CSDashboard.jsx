@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus, CalendarCheck, ArrowRight, Loader2 } from 'lucide-react';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
@@ -28,6 +29,7 @@ const getTreatmentNames = (booking) => {
 };
 
 const CSDashboard = () => {
+    const navigate = useNavigate();
     const { user } = useAuth();
     const { patients } = useMockData();
     const [reservations, setReservations] = useState([]);
@@ -113,7 +115,10 @@ const CSDashboard = () => {
                         <h3 className="text-xl font-black text-primary tracking-tight italic">Reservasi Terbaru</h3>
                         <span className="text-emerald-500 text-[10px] font-black uppercase tracking-widest mt-1 block">Data Kedatangan Pasien</span>
                     </div>
-                    <button className="text-xs font-black text-primary/40 hover:text-primary transition-colors flex items-center gap-2 uppercase tracking-widest">
+                    <button 
+                        onClick={() => navigate('/reservations')}
+                        className="text-xs font-black text-primary/40 hover:text-primary transition-colors flex items-center gap-2 uppercase tracking-widest cursor-pointer"
+                    >
                         Selengkapnya <ArrowRight className="w-3 h-3" />
                     </button>
                 </div>
@@ -131,7 +136,11 @@ const CSDashboard = () => {
                             const status = item.Status || item.status || 'Pending';
 
                             return (
-                                <div key={item.id || index} className="flex items-center gap-5 p-5 hover:bg-emerald-50/50 rounded-3xl transition-all duration-300 border border-transparent hover:border-emerald-100 group">
+                                <div 
+                                    key={item.id || index} 
+                                    onClick={() => navigate('/reservations', { state: { editBookingId: item.id } })}
+                                    className="flex items-center gap-5 p-5 hover:bg-emerald-50/50 rounded-3xl transition-all duration-300 border border-transparent hover:border-emerald-100 group cursor-pointer"
+                                >
                                     <div className="w-14 h-14 shrink-0 rounded-2xl bg-secondary flex items-center justify-center text-primary border border-primary/5 group-hover:bg-primary group-hover:text-secondary transition-all duration-300 shadow-sm font-black text-sm">
                                         {time}
                                     </div>
