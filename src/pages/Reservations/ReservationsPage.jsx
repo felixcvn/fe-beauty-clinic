@@ -364,8 +364,9 @@ const ReservationsPage = () => {
                                         <th className="px-6 py-4 text-primary/80">Nama Customer</th>
                                         <th className="px-6 py-4 text-primary/80">Layanan</th>
                                         <th className="px-6 py-4 text-primary/80">Pendaftar</th>
-                                        <th className="px-6 py-4 text-primary/80">Keterangan</th>
-                                        <th className="px-6 py-4 text-right text-primary/80">Aksi</th>
+                                        <th className="px-6 py-4 text-primary/80 w-1/4">Keterangan</th>
+                                        <th className="px-6 py-4 text-center text-primary/80 whitespace-nowrap">Status</th>
+                                        <th className="px-6 py-4 text-right text-primary/80 w-24">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-primary/5">
@@ -377,14 +378,14 @@ const ReservationsPage = () => {
                                             return (
                                                 <tr key={booking.id} className="group hover:bg-primary/[0.02] transition-colors cursor-default">
                                                     <td className="px-6 py-4">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="flex items-center gap-1.5 bg-primary/5 px-2.5 py-1.5 rounded-xl text-primary font-black text-xs">
+                                                        <div className="flex flex-col gap-1.5 bg-primary/[0.03] border border-primary/5 px-3 py-2.5 rounded-2xl w-fit">
+                                                            <div className="flex items-center gap-2 text-primary font-black text-xs">
                                                                 <Clock className="w-3.5 h-3.5 text-primary/50" />
-                                                                {booking.Jam_reservasi ? String(booking.Jam_reservasi).substring(0, 5) : '--:--'} WIB
+                                                                <span>{booking.Jam_reservasi ? String(booking.Jam_reservasi).substring(0, 5) : '--:--'} WIB</span>
                                                             </div>
-                                                            <div className="flex items-center gap-1.5 text-primary/60 font-bold text-xs">
+                                                            <div className="flex items-center gap-2 text-primary/60 font-bold text-[10px] uppercase tracking-wider">
                                                                 <Calendar className="w-3.5 h-3.5 text-primary/30" />
-                                                                {formatDate(booking.Tanggal_reservasi)}
+                                                                <span>{formatDate(booking.Tanggal_reservasi)}</span>
                                                             </div>
                                                         </div>
                                                     </td>
@@ -418,6 +419,23 @@ const ReservationsPage = () => {
                                                         <div className="max-w-xs text-primary/60 text-xs font-medium italic line-clamp-2">
                                                             {booking.Keterangan || '-'}
                                                         </div>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-center">
+                                                        <span className={`inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest border ${
+                                                            booking.status === 'Hadir' 
+                                                                ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                                                : booking.status === 'Tidak Datang'
+                                                                    ? 'bg-rose-50 text-rose-600 border-rose-100'
+                                                                    : booking.status === 'Batal'
+                                                                        ? 'bg-gray-100 text-gray-500 border-gray-200'
+                                                                        : 'bg-amber-50 text-amber-600 border-amber-100'
+                                                        }`}>
+                                                            {booking.status === 'Hadir' ? <CheckCircle2 className="w-3.5 h-3.5" /> : null}
+                                                            {booking.status === 'Tidak Datang' ? <XCircle className="w-3.5 h-3.5" /> : null}
+                                                            {booking.status === 'Batal' ? <AlertCircle className="w-3.5 h-3.5" /> : null}
+                                                            {(!booking.status || booking.status === 'Pending') ? <Clock4 className="w-3.5 h-3.5" /> : null}
+                                                            {booking.status || 'Pending'}
+                                                        </span>
                                                     </td>
                                                     <td className="px-6 py-4 text-right">
                                                         <div className="flex justify-end gap-2">
@@ -466,9 +484,20 @@ const ReservationsPage = () => {
                                             </div>
                                             <div>
                                                 <h4 className="font-black text-primary text-sm">{booking.pasien?.Nama_pasien || booking.Nama_pasien}</h4>
-                                                <div className="space-y-0.5 mt-0.5">
+                                                <div className="space-y-1 mt-1">
                                                     <p className="text-xs font-bold text-primary/60">{formatDate(booking.Tanggal_reservasi)}</p>
                                                     <p className="text-[10px] font-bold text-primary/40 flex items-center gap-1"><Phone className="w-3 h-3 text-primary/30" /> {booking.No_Telp || booking.pasien?.no_Telp || booking.pasien?.no_telp || '-'}</p>
+                                                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border ${
+                                                        booking.status === 'Hadir' 
+                                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
+                                                            : booking.status === 'Tidak Datang'
+                                                                ? 'bg-rose-50 text-rose-600 border-rose-100'
+                                                                : booking.status === 'Batal'
+                                                                    ? 'bg-gray-100 text-gray-500 border-gray-200'
+                                                                    : 'bg-amber-50 text-amber-600 border-amber-100'
+                                                    }`}>
+                                                        {booking.status || 'Pending'}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </div>

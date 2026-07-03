@@ -91,7 +91,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
         karyawan_id: '',
         treatment_ids: [],
         paket_treatment_ids: [],
-        Keterangan: ''
+        Keterangan: '',
+        status: 'Pending'
     });
 
     // Kapasitas maks per slot
@@ -283,7 +284,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                 karyawan_id: initialKaryawanId,
                 treatment_ids: initialTreatmentIds,
                 paket_treatment_ids: initialPaketTreatmentIds,
-                Keterangan: initialData.Keterangan || ''
+                Keterangan: initialData.Keterangan || '',
+                status: initialData.status || 'Pending'
             });
             setIsNewPatient(!initialPasienId);
         } else {
@@ -296,7 +298,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                 karyawan_id: '',
                 treatment_ids: [],
                 paket_treatment_ids: [],
-                Keterangan: ''
+                Keterangan: '',
+                status: 'Pending'
             });
             setIsNewPatient(false);
         }
@@ -715,13 +718,32 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                             </div>
                         </div>
 
-                        {/* Catatan */}
+                        {/* Status (Hanya Edit) & Catatan */}
                         <div className="space-y-6">
                             <div className="flex items-center gap-3 border-b border-primary/5 pb-2">
                                 <FileText className="w-4 h-4 text-primary/30" />
-                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Keterangan Tambahan</h4>
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Status & Keterangan Tambahan</h4>
                             </div>
+                            
+                            {isEditMode && (
+                                <div className="space-y-1">
+                                    <label className={labelClass}>Status Reservasi</label>
+                                    <select
+                                        className={`${inputClass} appearance-none cursor-pointer`}
+                                        value={formData.status}
+                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                                        style={{ backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right .5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
+                                    >
+                                        <option value="Pending">Pending</option>
+                                        <option value="Hadir">Hadir</option>
+                                        <option value="Tidak Datang">Tidak Datang</option>
+                                        <option value="Batal">Batal</option>
+                                    </select>
+                                </div>
+                            )}
+
                             <div className="space-y-1">
+                                <label className={labelClass}>Keterangan Tambahan</label>
                                 <textarea
                                     placeholder="Keluhan pasien atau instruksi khusus..."
                                     className={`${inputClass} h-24 resize-none`}
