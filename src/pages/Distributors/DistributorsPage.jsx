@@ -168,29 +168,38 @@ const DistributorsPage = () => {
             return;
         }
 
-        if (isEditing) {
-            // Manajer Marketing of Sales & Lead Finance: update data diri saja
-            const res = await distributorAPI.updateProfile(user?.token, selectedData.id, formData);
-            if (res.success) {
-                showToast('Berhasil, Data Distributor berhasil diperbarui', 'success');
-                fetchDistributors();
-                setIsFormModalOpen(false);
-                setFormErrors({});
-            } else {
-                showToast(res.message || 'Gagal memperbarui', 'error');
+        setConfirmConfig({
+            icon: 'info',
+            header: isEditing ? 'Simpan Perubahan?' : 'Simpan Data Distributor?',
+            message: isEditing ? 'Apakah Anda yakin ingin menyimpan perubahan data distributor ini?' : 'Apakah Anda yakin ingin menyimpan data distributor baru ini?',
+            acceptLabel: 'Ya, Simpan',
+            rejectLabel: 'Batal',
+            onAccept: async () => {
+                if (isEditing) {
+                    // Manajer Marketing of Sales & Lead Finance: update data diri saja
+                    const res = await distributorAPI.updateProfile(user?.token, selectedData.id, formData);
+                    if (res.success) {
+                        showToast('Berhasil, Data Distributor berhasil diperbarui', 'success');
+                        fetchDistributors();
+                        setIsFormModalOpen(false);
+                        setFormErrors({});
+                    } else {
+                        showToast(res.message || 'Gagal memperbarui', 'error');
+                    }
+                } else {
+                    // Tambah distributor baru (hanya Lead Finance, dengan deposit_masuk = 0 dulu)
+                    const res = await distributorAPI.create(user?.token, { ...formData, Deposit_masuk: 0 });
+                    if (res.success) {
+                        showToast('Berhasil, Data Distributor berhasil ditambahkan', 'success');
+                        fetchDistributors();
+                        setIsFormModalOpen(false);
+                        setFormErrors({});
+                    } else {
+                        showToast(res.message || 'Gagal menambahkan', 'error');
+                    }
+                }
             }
-        } else {
-            // Tambah distributor baru (hanya Lead Finance, dengan deposit_masuk = 0 dulu)
-            const res = await distributorAPI.create(user?.token, { ...formData, Deposit_masuk: 0 });
-            if (res.success) {
-                showToast('Berhasil, Data Distributor berhasil ditambahkan', 'success');
-                fetchDistributors();
-                setIsFormModalOpen(false);
-                setFormErrors({});
-            } else {
-                showToast(res.message || 'Gagal menambahkan', 'error');
-            }
-        }
+        });
     };
 
     // ── Save: tambah deposit (Lead Finance only) ───────────────────────────────────
@@ -207,17 +216,27 @@ const DistributorsPage = () => {
             setDepositError('Masukkan nominal deposit yang valid (lebih dari 0)');
             return;
         }
-        const res = await distributorAPI.addDeposit(user?.token, targetDistributor.id, Number(depositAmount));
-        if (res.success) {
-            showToast('Berhasil, Deposit berhasil ditambahkan', 'success');
-            fetchDistributors();
-            setIsDepositModalOpen(false);
-            setDepositError('');
-            setDepositAmount('');
-            setSelectedDistributorId('');
-        } else {
-            showToast(res.message || 'Gagal menambah deposit', 'error');
-        }
+        
+        setConfirmConfig({
+            icon: 'info',
+            header: 'Konfirmasi Tambah Deposit',
+            message: `Apakah Anda yakin ingin menambahkan deposit sebesar ${formatCurrency(depositAmount)} untuk ${targetDistributor.Nama_Distributor}?`,
+            acceptLabel: 'Ya, Tambahkan',
+            rejectLabel: 'Batal',
+            onAccept: async () => {
+                const res = await distributorAPI.addDeposit(user?.token, targetDistributor.id, Number(depositAmount));
+                if (res.success) {
+                    showToast('Berhasil, Deposit berhasil ditambahkan', 'success');
+                    fetchDistributors();
+                    setIsDepositModalOpen(false);
+                    setDepositError('');
+                    setDepositAmount('');
+                    setSelectedDistributorId('');
+                } else {
+                    showToast(res.message || 'Gagal menambah deposit', 'error');
+                }
+            }
+        });
     };
 
     const formatCurrency = (amount) =>
