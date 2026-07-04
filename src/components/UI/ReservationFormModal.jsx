@@ -728,17 +728,18 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                             {isEditMode && (
                                 <div className="space-y-1">
                                     <label className={labelClass}>Status Reservasi</label>
-                                    <select
-                                        className={`${inputClass} appearance-none cursor-pointer`}
-                                        value={formData.status}
-                                        onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                                        style={{ backgroundImage: `url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E")`, backgroundPosition: 'right .5rem center', backgroundRepeat: 'no-repeat', backgroundSize: '1.5em 1.5em', paddingRight: '2.5rem' }}
-                                    >
-                                        <option value="Pending">Pending</option>
-                                        <option value="Hadir">Hadir</option>
-                                        <option value="Tidak Datang">Tidak Datang</option>
-                                        <option value="Batal">Batal</option>
-                                    </select>
+                                    <CustomSelect
+                                        options={[
+                                            { value: 'Pending', label: 'Pending' },
+                                            { value: 'Hadir', label: 'Hadir' },
+                                            { value: 'Tidak Datang', label: 'Tidak Datang' },
+                                            { value: 'Batal', label: 'Batal' }
+                                        ]}
+                                        value={formData.status || 'Pending'}
+                                        onChange={(val) => setFormData({ ...formData, status: val })}
+                                        placeholder="Pilih Status..."
+                                        searchable={false}
+                                    />
                                 </div>
                             )}
 
