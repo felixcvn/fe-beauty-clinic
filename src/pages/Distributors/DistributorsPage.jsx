@@ -163,7 +163,10 @@ const DistributorsPage = () => {
     // ── Save: data diri ────────────────────────────────────────────────────────────
     const handleSave = async (e) => {
         e.preventDefault();
-        if (!validateForm()) return;
+        if (!validateForm()) {
+            showToast('Silakan lengkapi semua field yang masih kosong', 'warning');
+            return;
+        }
 
         if (isEditing) {
             // Manajer Marketing of Sales & Lead Finance: update data diri saja
@@ -171,7 +174,8 @@ const DistributorsPage = () => {
             if (res.success) {
                 showToast('Berhasil, Data Distributor berhasil diperbarui', 'success');
                 fetchDistributors();
-                handleCloseForm();
+                setIsFormModalOpen(false);
+                setFormErrors({});
             } else {
                 showToast(res.message || 'Gagal memperbarui', 'error');
             }
@@ -181,7 +185,8 @@ const DistributorsPage = () => {
             if (res.success) {
                 showToast('Berhasil, Data Distributor berhasil ditambahkan', 'success');
                 fetchDistributors();
-                handleCloseForm();
+                setIsFormModalOpen(false);
+                setFormErrors({});
             } else {
                 showToast(res.message || 'Gagal menambahkan', 'error');
             }
@@ -206,7 +211,10 @@ const DistributorsPage = () => {
         if (res.success) {
             showToast('Berhasil, Deposit berhasil ditambahkan', 'success');
             fetchDistributors();
-            handleCloseDeposit();
+            setIsDepositModalOpen(false);
+            setDepositError('');
+            setDepositAmount('');
+            setSelectedDistributorId('');
         } else {
             showToast(res.message || 'Gagal menambah deposit', 'error');
         }
