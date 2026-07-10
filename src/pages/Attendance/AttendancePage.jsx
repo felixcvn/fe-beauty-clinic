@@ -182,7 +182,9 @@ const AttendancePage = () => {
                         shift: item.Ket_Shift || 'Pagi',
                         checkIn: item.Jam_Masuk ? item.Jam_Masuk.substring(0, 5) : '--:--',
                         checkOut: item.Jam_Keluar ? item.Jam_Keluar.substring(0, 5) : '--:--',
-                        status: item.Status === 'Tepat Waktu' ? 'Hadir' : (item.Status || 'Alpa'),
+                        status: item.Status_Masuk === 'Tepat Waktu' ? 'Hadir' : (item.Status_Masuk || 'Alpa'),
+                        status_masuk: item.Status_Masuk,
+                        status_keluar: item.Status_Keluar,
                         date: item.Tanggal || new Date().toISOString().split('T')[0],
                         photoIn: item.gambar_masuk ? `${STORAGE_URL}/${item.gambar_masuk}` : null,
                         photoOut: item.gambar_keluar ? `${STORAGE_URL}/${item.gambar_keluar}` : null
@@ -217,9 +219,9 @@ const AttendancePage = () => {
                         id: item.id,
                         staffName: item.karyawan?.nama_lengkap || item.Nama_Karyawan || 'Karyawan',
                         role: item.karyawan?.Jabatan || item.Jabatan || '-',
-                        primaryType: item.jenis_lembur || 'Lembur',
-                        notes: item.keterangan || item.alasan,
-                        date: item.tanggal || new Date().toISOString().split('T')[0],
+                        primaryType: item.Status_Absen || item.jenis_lembur || 'Lembur',
+                        notes: item.alasan_keterangan || (item.durasi ? `${item.durasi} menit` : '-'),
+                        date: item.Tanggal || item.tanggal || new Date().toISOString().split('T')[0],
                         status: item.status_pengajuan === 'DISETUJUI' ? 'Disetujui' : (item.status_pengajuan === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
                     }));
                     setOvertimeRequests(mapped);
@@ -640,7 +642,7 @@ const AttendancePage = () => {
                 </button>
                 {isSuperRole && (
                     <button onClick={() => setActiveTab('overtime')} className={`pb-4 text-[10px] md:text-sm font-black uppercase tracking-widest transition-all relative ${activeTab === 'overtime' ? 'text-primary border-b-2 border-primary' : 'text-primary/30 hover:text-primary/60'}`}>
-                        Pengajuan Lembur
+                        Pengajuan Lembur & Terlambat
                         {pendingOvertimeCount > 0 && (
                             <span className="absolute -top-1 -right-3 w-4 h-4 rounded-full bg-red-500 text-white text-[8px] font-black flex items-center justify-center animate-pulse">
                                 {pendingOvertimeCount}

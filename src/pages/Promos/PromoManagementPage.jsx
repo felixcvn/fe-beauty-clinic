@@ -186,24 +186,13 @@ const PromoManagementPage = () => {
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola diskon, voucher, dan penawaran spesial klinik</p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    {(!user?.role || user.role !== ROLES.SUPERVISOR_TREATMENT) && (
-                        <button 
-                            onClick={() => { setEditingPromo(null); setDefaultCategory('Produk'); setIsModalOpen(true); }}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                        >
-                            <Plus className="w-4 h-4" />
-                            <span>Buat Promo Produk</span>
-                        </button>
-                    )}
-                    {(!user?.role || user.role !== ROLES.SUPERVISOR_PRODUK) && (
-                        <button 
-                            onClick={() => { setEditingPromo(null); setDefaultCategory('Treatment'); setIsModalOpen(true); }}
-                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                        >
-                            <Plus className="w-4 h-4" />
-                            <span>Buat Promo Treatment</span>
-                        </button>
-                    )}
+                    <button 
+                        onClick={() => { setEditingPromo(null); setDefaultCategory(null); setIsModalOpen(true); }}
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                    >
+                        <Plus className="w-4 h-4" />
+                        <span>Buat Promo Baru</span>
+                    </button>
                 </div>
             </div>
 
@@ -294,9 +283,6 @@ const PromoManagementPage = () => {
                                                             </button>
                                                         )}
                                                     </span>
-                                                    <span className={`font-black text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-md border border-white/50 ${getStatusStyle(promo.status)}`}>
-                                                        {promo.status}
-                                                    </span>
                                                 </div>
                                                 <div className="font-black text-primary text-sm tracking-tight mb-2 truncate">{promo.name}</div>
                                                 
@@ -306,9 +292,9 @@ const PromoManagementPage = () => {
                                                             Min Belanja: Rp {Number(promo.minOrderAmount).toLocaleString('id-ID')}
                                                         </span>
                                                     ) : promo.promoMode === 'bundle' ? (
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="text-[9px] font-bold text-primary/60">Syarat: {promo.bundleConfig?.buyItems?.join(', ')}</span>
-                                                            <span className="text-[9px] font-bold text-green-600">Benefit: {promo.bundleConfig?.getItems?.map(i => i.id).join(', ')}</span>
+                                                        <div className="flex flex-col gap-1.5">
+                                                            <span className="text-xs font-bold text-primary/60">Syarat: {promo.bundleConfig?.buyItems?.join(', ')}</span>
+                                                            <span className="text-xs font-bold text-green-600">Benefit: {promo.bundleConfig?.getItems?.map(i => i.id).join(', ')}</span>
                                                         </div>
                                                     ) : promo.promoMode === 'specific_item' ? (
                                                         <span className="px-2 py-0.5 bg-blue-50 border border-blue-100 rounded text-[9px] font-bold text-blue-600 whitespace-nowrap">
@@ -316,7 +302,7 @@ const PromoManagementPage = () => {
                                                         </span>
                                                     ) : promo.targetItems && promo.targetItems.length > 0 ? (
                                                         promo.targetItems.map(item => (
-                                                            <span key={item} className="px-2 py-0.5 bg-gray-50 border border-gray-100 rounded text-[9px] font-bold text-gray-500 whitespace-nowrap">
+                                                            <span key={item} className="px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-md text-xs font-bold text-gray-600 whitespace-nowrap shadow-sm">
                                                                 {item}
                                                             </span>
                                                         ))
