@@ -12,7 +12,7 @@ const POSPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { user } = useAuth();
-    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan } = useMockData();
+    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, promos } = useMockData();
     
     // States that were missing
     const [isLoading, setIsLoading] = useState(true);
@@ -170,17 +170,10 @@ const POSPage = () => {
     const [appliedPromo, setAppliedPromo] = useState(null);
     const [isPromoDropdownOpen, setIsPromoDropdownOpen] = useState(false);
 
-    const SYSTEM_PROMOS = [
-        { code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 10, startDate: '2026-03-01', endDate: '2026-04-30', status: 'Aktif' },
-        { code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', status: 'Aktif' },
-        { code: 'VALENTINE20', name: 'Kasih Sayang Diskon', type: 'Persen', value: 20, startDate: '2026-02-10', endDate: '2026-02-20', status: 'Berakhir' },
-        { code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', status: 'Aktif' },
-        { code: 'CANTIK100', name: 'Potongan Facial 100k', type: 'Nominal', value: 100000, startDate: '2026-03-10', endDate: '2026-05-10', status: 'Aktif' },
-    ];
-
     const getActivePromos = () => {
         const today = new Date().toISOString().split('T')[0];
-        return SYSTEM_PROMOS.filter(p => p.status === 'Aktif' && today >= p.startDate && today <= p.endDate);
+        // Use promos from useMockData() instead of hardcoded SYSTEM_PROMOS
+        return (promos || []).filter(p => p.status === 'Aktif' && today >= p.startDate && today <= p.endDate);
     };
 
     // Customer Selection State
@@ -792,6 +785,43 @@ const POSPage = () => {
 
                 {/* 3. Totals & Checkout (Bottom - Fixed) */}
                 <div className="p-4 md:p-5 bg-white border-t border-primary/5 space-y-4 shrink-0">
+                    {/* Promo Input */}
+                    <div className="flex gap-2 relative">
+                        <div className="relative flex-1 group">
+                            <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-primary/30 group-focus-within:text-primary transition-colors" />
+                            <input
+                                type="text"
+                                placeholder="Kode promo?"
+                                value={promoInput}
+                                onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setIsPromoDropdownOpen(true); }}
+                                onFocus={() => setIsPromoDropdownOpen(true)}
+                                className="w-full pl-11 pr-6 py-3 rounded-xl bg-secondary/10 border border-primary/5 outline-none text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                            />
+                        </div>
+                        <button onClick={() => handleApplyPromo()} className="px-5 py-3 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
+                            Pakai
+                        </button>
+                        {isPromoDropdownOpen && promoInput && (
+                            <div className="absolute top-auto bottom-full mb-2 left-0 right-0 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden animate-fade-in max-h-[160px] overflow-y-auto custom-scrollbar">
+                                {getActivePromos().map(promo => (
+                                    <button
+                                        key={promo.code}
+                                        onClick={() => { handleApplyPromo(promo.code); setIsPromoDropdownOpen(false); }}
+                                        className="w-full p-4 text-left hover:bg-secondary/10 border-b border-primary/5 flex justify-between items-center"
+                                    >
+                                        <div>
+                                            <p className="text-[10px] font-black text-primary uppercase tracking-widest">{promo.code}</p>
+                                            <p className="text-[8px] font-bold text-primary/40 uppercase">{promo.name}</p>
+                                        </div>
+                                        <span className="text-[10px] font-black text-green-500">
+                                            {promo.promoMode === 'min_order' ? `Min. ${promo.minOrderAmount?.toLocaleString('id-ID')}` : (promo.promoMode === 'bundle' ? 'Bundle' : (promo.type === 'Persen' ? `${promo.value}%` : `Rp ${promo.value?.toLocaleString('id-ID')}`))}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+
                     <div className="space-y-2 pt-2">
                         <div className="flex justify-between text-primary/40 font-bold text-[9px] uppercase tracking-widest px-1">
                             <span>Subtotal</span>
