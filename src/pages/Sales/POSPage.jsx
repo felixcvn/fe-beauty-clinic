@@ -12,7 +12,7 @@ const POSPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { user } = useAuth();
-    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, promos } = useMockData();
+    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, promos, updatePromo } = useMockData();
     
     // States that were missing
     const [isLoading, setIsLoading] = useState(true);
@@ -293,11 +293,22 @@ const POSPage = () => {
         }
 
         const validPromos = getActivePromos();
-        const found = validPromos.find(p => p.code.toUpperCase() === codeToApply.toUpperCase());
+        let matchedVoucherCode = null;
+        const found = validPromos.find(p => {
+            if (p.isVoucher && p.generatedCodes) {
+                const matchedCode = p.generatedCodes.find(c => c.code.toUpperCase() === codeToApply.toUpperCase() && !c.used);
+                if (matchedCode) {
+                    matchedVoucherCode = matchedCode.code;
+                    return true;
+                }
+                return false;
+            }
+            return p.code && p.code.toUpperCase() === codeToApply.toUpperCase();
+        });
 
         if (found) {
-            setAppliedPromo(found);
-            setPromoInput(found.code);
+            setAppliedPromo({ ...found, appliedVoucherCode: matchedVoucherCode });
+            setPromoInput(matchedVoucherCode || found.code);
             showToast('Promo berhasil diterapkan!', 'success');
         } else {
             showToast('Kode promo tidak valid atau belum aktif/sudah kadaluarsa', 'error');
@@ -357,11 +368,32 @@ const POSPage = () => {
             });
             localStorage.setItem('racikan_stocks', JSON.stringify(savedStocks));
 
+            if (appliedPromo) {
+                if (appliedPromo.isVoucher && appliedPromo.generatedCodes) {
+                    const updatedPromo = { 
+                        ...appliedPromo, 
+                        used: (appliedPromo.used || 0) + 1,
+                        generatedCodes: appliedPromo.generatedCodes.map(c => 
+                            c.code === appliedPromo.appliedVoucherCode ? { ...c, used: true } : c
+                        )
+                    };
+                    updatePromo(updatedPromo);
+                } else {
+                    const updatedPromo = {
+                        ...appliedPromo,
+                        used: (appliedPromo.used || 0) + 1
+                    };
+                    updatePromo(updatedPromo);
+                }
+            }
+
             setCart([]);
             setSelectedCustomer(null);
             setHasFetchedRecord(false);
             setDetectedRacikan(null);
             setRacikanSent(false);
+            setAppliedPromo(null);
+            setPromoInput('');
             navigate('/sales');
         } else {
             showToast(res.message || 'Gagal menyimpan transaksi', 'error');

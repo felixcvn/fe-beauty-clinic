@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom'; // Untuk modal konfirmasi
-import { Search, Plus, Tag, CheckCircle2, XCircle, Edit3, Trash2, AlertTriangle } from 'lucide-react';
+import { Search, Plus, Tag, CheckCircle2, XCircle, Edit3, Trash2, AlertTriangle, Copy } from 'lucide-react';
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import PromoFormModal from '../../components/UI/PromoFormModal';
@@ -115,6 +115,45 @@ const PromoManagementPage = () => {
                 showToast(`Promo ${promo.code} telah dihapus.`, 'success');
             }
         });
+    };
+
+    const handleCopyVouchers = (e, codesText) => {
+        e.stopPropagation();
+        try {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(codesText).then(() => {
+                    showToast('Kode voucher berhasil disalin!', 'success');
+                }).catch(() => {
+                    fallbackCopyTextToClipboard(codesText);
+                });
+            } else {
+                fallbackCopyTextToClipboard(codesText);
+            }
+        } catch (err) {
+            fallbackCopyTextToClipboard(codesText);
+        }
+    };
+
+    const fallbackCopyTextToClipboard = (text) => {
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            const successful = document.execCommand('copy');
+            textArea.remove();
+            if (successful) {
+                showToast('Kode voucher berhasil disalin!', 'success');
+            } else {
+                showToast('Gagal menyalin kode voucher, gunakan browser terbaru', 'error');
+            }
+        } catch (err) {
+            showToast('Gagal menyalin kode voucher', 'error');
+        }
     };
 
 
@@ -240,7 +279,21 @@ const PromoManagementPage = () => {
                                             </div>
                                             <div className="min-w-0">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-black text-blue-600 text-[10px] uppercase tracking-[0.2em] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100/50">{promo.code}</span>
+                                                    <span className="font-black text-blue-600 text-[10px] uppercase tracking-[0.2em] bg-blue-50 px-2 py-0.5 rounded-md border border-blue-100/50 flex items-center">
+                                                        {promo.isVoucher ? `[${promo.generatedCodes?.length || 0} Voucher Fisik]` : promo.code}
+                                                        {promo.isVoucher && (
+                                                            <button 
+                                                                onClick={(e) => {
+                                                                    const codes = promo.generatedCodes.map(c => c.code).join('\n');
+                                                                    handleCopyVouchers(e, codes);
+                                                                }}
+                                                                className="ml-2 p-1 text-blue-600/60 hover:text-blue-600 transition-all hover:bg-blue-100 rounded"
+                                                                title="Copy semua kode voucher"
+                                                            >
+                                                                <Copy className="w-3 h-3" />
+                                                            </button>
+                                                        )}
+                                                    </span>
                                                     <span className={`font-black text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-md border border-white/50 ${getStatusStyle(promo.status)}`}>
                                                         {promo.status}
                                                     </span>
@@ -323,7 +376,21 @@ const PromoManagementPage = () => {
                                         <Tag className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <div className="font-bold text-blue-500 text-sm tracking-tight">{promo.code}</div>
+                                        <div className="font-bold text-blue-500 text-sm tracking-tight flex items-center gap-2">
+                                            {promo.isVoucher ? `[${promo.generatedCodes?.length || 0} Voucher Fisik]` : promo.code}
+                                            {promo.isVoucher && (
+                                                <button 
+                                                    onClick={(e) => {
+                                                        const codes = promo.generatedCodes.map(c => c.code).join('\n');
+                                                        handleCopyVouchers(e, codes);
+                                                    }}
+                                                    className="p-1 text-blue-600/60 hover:text-blue-600 transition-all hover:bg-blue-100 rounded"
+                                                    title="Copy semua kode voucher"
+                                                >
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                </button>
+                                            )}
+                                        </div>
                                         <div className="font-black text-primary text-xs mt-0.5">{promo.name}</div>
                                     </div>
                                 </div>

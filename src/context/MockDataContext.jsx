@@ -550,9 +550,32 @@ export const MockDataProvider = ({ children }) => {
 
 
     // Promo Functions
+    const generateRandomCode = () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let result = '';
+        for (let i = 0; i < 8; i++) {
+            result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return result;
+    };
+
     const addPromo = (promo) => {
         const id = `PRM-${String(promos.length + 1).padStart(3, '0')}`;
-        setPromos(prev => [{ ...promo, id, used: 0, status: 'Aktif' }, ...prev]);
+        let generatedCodes = [];
+        
+        if (promo.isVoucher && promo.voucherCount) {
+            const count = parseInt(promo.voucherCount, 10);
+            if (!isNaN(count) && count > 0) {
+                for (let i = 0; i < count; i++) {
+                    generatedCodes.push({
+                        code: generateRandomCode(),
+                        used: false
+                    });
+                }
+            }
+        }
+
+        setPromos(prev => [{ ...promo, id, used: 0, status: 'Aktif', generatedCodes }, ...prev]);
     };
 
     const updatePromo = (updatedPromo) => {

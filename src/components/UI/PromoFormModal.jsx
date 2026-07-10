@@ -99,7 +99,9 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
         minOrderAmount: '',
         bundleConfig: { buyItems: [], getItems: [] },
         itemDiscounts: [],
-        targetItems: []
+        targetItems: [],
+        isVoucher: false,
+        voucherCount: ''
     });
 
     const [itemSearch, setItemSearch] = useState('');
@@ -125,7 +127,9 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                     minOrderAmount: '',
                     bundleConfig: { buyItems: [], getItems: [] },
                     itemDiscounts: [],
-                    targetItems: []
+                    targetItems: [],
+                    isVoucher: false,
+                    voucherCount: ''
                 });
             }
         }
@@ -235,28 +239,59 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                             </div>
                         )}
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kode Promo</label>
-                                <input 
-                                    required 
-                                    type="text" 
-                                    placeholder="RAMADHAN50" 
-                                    value={formState.code}
-                                    onChange={(e) => setFormState({ ...formState, code: e.target.value.toUpperCase() })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all uppercase shadow-sm" 
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Batas Kuota Penggunaan</label>
-                                <input 
-                                    required 
-                                    type="number" 
-                                    placeholder="Contoh: 100" 
-                                    value={formState.quota}
-                                    onChange={(e) => setFormState({ ...formState, quota: e.target.value })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
-                                />
+                        <div className="space-y-4 border border-primary/10 rounded-2xl p-4 bg-secondary/5">
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <div className="relative flex items-center justify-center">
+                                    <input 
+                                        type="checkbox" 
+                                        className="peer sr-only"
+                                        checked={formState.isVoucher}
+                                        onChange={(e) => setFormState({ ...formState, isVoucher: e.target.checked })}
+                                    />
+                                    <div className="w-5 h-5 border-2 border-primary/20 rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all flex items-center justify-center">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-secondary opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                    </div>
+                                </div>
+                                <span className="text-[11px] font-black uppercase tracking-widest text-primary/70 group-hover:text-primary transition-colors">Jadikan Voucher Fisik (Generate Kode Acak)</span>
+                            </label>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                {!formState.isVoucher ? (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kode Promo</label>
+                                        <input 
+                                            required 
+                                            type="text" 
+                                            placeholder="RAMADHAN50" 
+                                            value={formState.code}
+                                            onChange={(e) => setFormState({ ...formState, code: e.target.value.toUpperCase() })}
+                                            className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all uppercase shadow-sm" 
+                                        />
+                                    </div>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Jumlah Voucher</label>
+                                        <input 
+                                            required 
+                                            type="number" 
+                                            placeholder="Contoh: 10" 
+                                            value={formState.voucherCount}
+                                            onChange={(e) => setFormState({ ...formState, voucherCount: e.target.value })}
+                                            className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                        />
+                                    </div>
+                                )}
+                                <div className="space-y-2">
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">{formState.isVoucher ? "Batas Pemakaian per Voucher" : "Batas Kuota Penggunaan"}</label>
+                                    <input 
+                                        required 
+                                        type="number" 
+                                        placeholder="Contoh: 1" 
+                                        value={formState.quota}
+                                        onChange={(e) => setFormState({ ...formState, quota: e.target.value })}
+                                        className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                    />
+                                </div>
                             </div>
                         </div>
 
