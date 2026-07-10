@@ -21,7 +21,7 @@ const getTodayString = () => {
     return [year, month, day].join('-');
 };
 
-const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
+const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory }) => {
     const { user } = useAuth();
     const [confirmConfig, setConfirmConfig] = useState(null);
     const [apiProducts, setApiProducts] = useState([]);
@@ -120,7 +120,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                     quota: '',
                     startDate: '',
                     endDate: '',
-                    category: isSupervisorTreatment ? 'Treatment' : (isSupervisorProduk ? 'Produk' : 'Treatment'),
+                    category: defaultCategory || (isSupervisorTreatment ? 'Treatment' : (isSupervisorProduk ? 'Produk' : 'Treatment')),
                     promoMode: 'basic',
                     minOrderAmount: '',
                     bundleConfig: { buyItems: [], getItems: [] },
@@ -206,19 +206,6 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                             />
                         </div>
 
-                        {!(isSupervisorTreatment || isSupervisorProduk) && (
-                            <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kategori Promo</label>
-                                <CustomSelect 
-                                    value={formState.category}
-                                    onChange={(val) => setFormState({ ...formState, category: val })}
-                                    options={[
-                                        { value: 'Treatment', label: 'Treatment' },
-                                        { value: 'Produk', label: 'Produk' }
-                                    ]}
-                                />
-                            </div>
-                        )}
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Mode Promo</label>
@@ -360,7 +347,8 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData }) => {
                                                 </div>
                                                 <span className="text-[10px] font-bold text-primary/60">Rp {item.price.toLocaleString('id-ID')}</span>
                                             </div>
-                                        )})}
+                                            )
+                                        })
                                     )}
                                 </div>
                                 

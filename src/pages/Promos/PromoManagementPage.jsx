@@ -30,6 +30,7 @@ const PromoManagementPage = () => {
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPromo, setEditingPromo] = useState(null);
+    const [defaultCategory, setDefaultCategory] = useState(null);
 
     // Confirmation Modal State
     const [confirmConfig, setConfirmConfig] = useState(null);
@@ -126,9 +127,11 @@ const PromoManagementPage = () => {
                 onClose={() => {
                     setIsModalOpen(false);
                     setEditingPromo(null);
+                    setDefaultCategory(null);
                 }}
                 onSave={handleSavePromo}
                 initialData={editingPromo}
+                defaultCategory={defaultCategory}
             />
 
             <ConfirmModal
@@ -143,13 +146,26 @@ const PromoManagementPage = () => {
                     <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Manajemen Promo</h2>
                     <p className="text-primary/40 mt-3 font-bold text-sm">Kelola diskon, voucher, dan penawaran spesial klinik</p>
                 </div>
-                <button 
-                    onClick={() => { setEditingPromo(null); setIsModalOpen(true); }}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-8 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
-                >
-                    <Plus className="w-4 h-4" />
-                    <span>Buat Promo Baru</span>
-                </button>
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    {(!user?.role || user.role !== ROLES.SUPERVISOR_TREATMENT) && (
+                        <button 
+                            onClick={() => { setEditingPromo(null); setDefaultCategory('Produk'); setIsModalOpen(true); }}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Buat Promo Produk</span>
+                        </button>
+                    )}
+                    {(!user?.role || user.role !== ROLES.SUPERVISOR_PRODUK) && (
+                        <button 
+                            onClick={() => { setEditingPromo(null); setDefaultCategory('Treatment'); setIsModalOpen(true); }}
+                            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-primary text-secondary px-6 py-4 rounded-2xl hover:scale-105 active:scale-95 transition-all duration-300 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20"
+                        >
+                            <Plus className="w-4 h-4" />
+                            <span>Buat Promo Treatment</span>
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* Statistik Cards */}
