@@ -232,14 +232,27 @@ const PromoManagementPage = () => {
                                                 <div className="font-black text-primary text-sm tracking-tight mb-2 truncate">{promo.name}</div>
                                                 
                                                 <div className="flex flex-wrap gap-1.5 max-w-md">
-                                                    {promo.targetItems && promo.targetItems.length > 0 ? (
+                                                    {promo.promoMode === 'min_order' ? (
+                                                        <span className="px-2 py-0.5 bg-yellow-50 border border-yellow-100 rounded text-[9px] font-bold text-yellow-600 whitespace-nowrap">
+                                                            Min Belanja: Rp {Number(promo.minOrderAmount).toLocaleString('id-ID')}
+                                                        </span>
+                                                    ) : promo.promoMode === 'bundle' ? (
+                                                        <div className="flex flex-col gap-1">
+                                                            <span className="text-[9px] font-bold text-primary/60">Syarat: {promo.bundleConfig?.buyItems?.join(', ')}</span>
+                                                            <span className="text-[9px] font-bold text-green-600">Benefit: {promo.bundleConfig?.getItems?.map(i => i.id).join(', ')}</span>
+                                                        </div>
+                                                    ) : promo.promoMode === 'specific_item' ? (
+                                                        <span className="px-2 py-0.5 bg-blue-50 border border-blue-100 rounded text-[9px] font-bold text-blue-600 whitespace-nowrap">
+                                                            {promo.itemDiscounts?.length || 0} Item Spesifik
+                                                        </span>
+                                                    ) : promo.targetItems && promo.targetItems.length > 0 ? (
                                                         promo.targetItems.map(item => (
                                                             <span key={item} className="px-2 py-0.5 bg-gray-50 border border-gray-100 rounded text-[9px] font-bold text-gray-500 whitespace-nowrap">
                                                                 {item}
                                                             </span>
                                                         ))
                                                     ) : (
-                                                        <span className="text-[9px] font-bold text-red-400 italic">Belum ada item terpilih</span>
+                                                        <span className="text-[9px] font-bold text-red-400 italic">Berlaku untuk semua</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -247,7 +260,9 @@ const PromoManagementPage = () => {
                                     </td>
                                     <td className="px-4 py-2 text-center">
                                         <span className="font-medium text-primary text-sm">
-                                            {promo.type === 'Persen' ? `${promo.value}%` : `Rp ${Number(promo.value).toLocaleString('id-ID')}`}
+                                            {promo.promoMode === 'specific_item' ? 'Bervariasi' :
+                                             promo.promoMode === 'bundle' ? 'Bundle' :
+                                             (promo.type === 'Persen' ? `${promo.value}%` : `Rp ${Number(promo.value).toLocaleString('id-ID')}`)}
                                         </span>
                                     </td>
                                     <td className="px-4 py-2 text-center">
@@ -305,7 +320,9 @@ const PromoManagementPage = () => {
                                 <div className="space-y-1">
                                     <p className="text-[8px] font-black text-primary/30 uppercase tracking-widest leading-none">Nilai Diskon</p>
                                     <p className="text-sm font-black text-primary">
-                                        {promo.type === 'Persen' ? `${promo.value}%` : `Rp ${Number(promo.value).toLocaleString('id-ID')}`}
+                                        {promo.promoMode === 'specific_item' ? 'Bervariasi' :
+                                         promo.promoMode === 'bundle' ? 'Bundle' :
+                                         (promo.type === 'Persen' ? `${promo.value}%` : `Rp ${Number(promo.value).toLocaleString('id-ID')}`)}
                                     </p>
                                 </div>
                                 <div className="space-y-1">

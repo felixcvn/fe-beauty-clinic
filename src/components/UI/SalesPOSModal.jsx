@@ -2,9 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, Star, Filter } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
+import { useMockData } from '../../context/MockDataContext';
 
 const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
     const { showToast } = useToast();
+    const { promos: contextPromos } = useMockData();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('Semua');
     const [cart, setCart] = useState([]);
@@ -32,12 +34,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
     const [selectedCustomer, setSelectedCustomer] = useState(null);
     const [isCustomerDropdownOpen, setIsCustomerDropdownOpen] = useState(false);
 
-    const SYSTEM_PROMOS = [
-        { code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 10, startDate: '2026-03-01', endDate: '2026-04-30', status: 'Aktif' },
-        { code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', status: 'Aktif' },
-        { code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', status: 'Aktif' },
-        { code: 'CANTIK100', name: 'Potongan Facial 100k', type: 'Nominal', value: 100000, startDate: '2026-03-10', endDate: '2026-05-10', status: 'Aktif' },
-    ];
+    const SYSTEM_PROMOS = contextPromos || [];
 
     const customers = [
         { id: 'PAS-001', name: 'Siti Aminah', phone: '0812-3456-7890' },
@@ -94,9 +91,80 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
     const memberDiscount = isMember ? (cartTotal * 0.05) : 0;
     const promoDiscount = useMemo(() => {
         if (!appliedPromo) return 0;
-        if (appliedPromo.type === 'Persen') return (cartTotal - memberDiscount) * (appliedPromo.value / 100);
-        return appliedPromo.value;
-    }, [appliedPromo, cartTotal, memberDiscount]);
+        
+        let totalDiscount = 0;
+        const mode = appliedPromo.promoMode || 'basic';
+
+        if (mode === 'min_order') {
+            if (cartTotal < Number(appliedPromo.minOrderAmount)) {
+                return 0; // Tidak penuhi syarat
+            }
+            if (appliedPromo.type === 'Persen') totalDiscount = (cartTotal - memberDiscount) * (appliedPromo.value / 100);
+            else totalDiscount = Number(appliedPromo.value);
+        } 
+        else if (mode === 'specific_item') {
+            // Hitung diskon untuk masing-masing item di keranjang
+            cart.forEach(item => {
+                const discountConfig = appliedPromo.itemDiscounts?.find(d => d.id === item.name);
+                if (discountConfig) {
+                    const itemTotal = item.price * item.quantity;
+                    if (discountConfig.type === 'Persen') {
+                        totalDiscount += itemTotal * (Number(discountConfig.value) / 100);
+                    } else {
+                        totalDiscount += Number(discountConfig.value) * item.quantity;
+                    }
+                }
+            });
+        }
+        else if (mode === 'bundle') {
+            // Cek apakah syarat terpenuhi
+            const buyItems = appliedPromo.bundleConfig?.buyItems || [];
+            const getItems = appliedPromo.bundleConfig?.getItems || [];
+            
+            let meetsRequirement = true;
+            if (buyItems.length > 0) {
+                // Semua syarat beli harus ada di cart
+                meetsRequirement = buyItems.every(reqItem => cart.some(cartItem => cartItem.name === reqItem));
+            }
+
+            if (meetsRequirement) {
+                // Berlaku sekali per transaksi
+                cart.forEach(item => {
+                    const benefit = getItems.find(getI => getI.id === item.name);
+                    if (benefit) {
+                        if (benefit.type === 'Persen') {
+                            totalDiscount += item.price * (Number(benefit.value) / 100);
+                        } else {
+                            totalDiscount += Number(benefit.value);
+                        }
+                    }
+                });
+            }
+        }
+        else {
+            // mode === 'basic'
+            const targets = appliedPromo.targetItems || [];
+            if (targets.length === 0) {
+                // Diskon global
+                if (appliedPromo.type === 'Persen') totalDiscount = (cartTotal - memberDiscount) * (appliedPromo.value / 100);
+                else totalDiscount = Number(appliedPromo.value);
+            } else {
+                // Diskon hanya pada item target
+                cart.forEach(item => {
+                    if (targets.includes(item.name)) {
+                        const itemTotal = item.price * item.quantity;
+                        if (appliedPromo.type === 'Persen') {
+                            totalDiscount += itemTotal * (appliedPromo.value / 100);
+                        } else {
+                            totalDiscount += Number(appliedPromo.value) * item.quantity;
+                        }
+                    }
+                });
+            }
+        }
+
+        return Math.min(totalDiscount, cartTotal - memberDiscount);
+    }, [appliedPromo, cartTotal, memberDiscount, cart]);
 
     const tax = 0;
     const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount));
@@ -108,9 +176,14 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
         }
         const found = getActivePromos().find(p => p.code.toUpperCase() === codeToApply.toUpperCase());
         if (found) {
-            setAppliedPromo(found);
-            setPromoInput(found.code);
-            showToast('Promo berhasil diterapkan!', 'success');
+            if (found.promoMode === 'min_order' && cartTotal < Number(found.minOrderAmount)) {
+                showToast(`Promo ${found.code} memerlukan minimal belanja Rp ${Number(found.minOrderAmount).toLocaleString('id-ID')}`, 'error');
+                setAppliedPromo(null);
+            } else {
+                setAppliedPromo(found);
+                setPromoInput(found.code);
+                showToast('Promo berhasil diterapkan!', 'success');
+            }
         } else {
             showToast('Kode promo tidak valid', 'error');
             setAppliedPromo(null);

@@ -13,11 +13,11 @@ export const MockDataProvider = ({ children }) => {
     const [patients, setPatients] = useState([]);
 
     const [promos, setPromos] = useState([
-        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 85, status: 'Aktif', category: 'Treatment', targetItems: ['Laser Therapy Session', 'Chemical Peel'] },
-        { id: 'PRM-002', code: 'NEWGLOW', name: 'Potongan Treatment Glow Up', type: 'Nominal', value: 150000, startDate: '2026-03-15', endDate: '2026-04-15', quota: 50, used: 12, status: 'Aktif', category: 'Treatment', targetItems: ['Skin Rejuvenation Therapy'] },
-        { id: 'PRM-003', code: 'VALENTINE20', name: 'Kasih Sayang Diskon', type: 'Persen', value: 20, startDate: '2026-02-10', endDate: '2026-02-20', quota: 200, used: 200, status: 'Berakhir', category: 'Produk', targetItems: ['Acne Treatment Pack', 'Skin Glow Kit'] },
-        { id: 'PRM-004', code: 'MEMBERBARU', name: 'Welcome New Member', type: 'Nominal', value: 50000, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 320, status: 'Aktif', category: 'Produk', targetItems: ['Sunscreen Gel SPF 50', 'Moisturizer Ceramide'] },
-        { id: 'PRM-005', code: 'LEBARANCERIA', name: 'Promo Lebaran', type: 'Persen', value: 30, startDate: '2026-04-01', endDate: '2026-04-15', quota: 150, used: 0, status: 'Draf', category: 'Treatment', targetItems: ['Facial Whitening'] },
+        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 85, status: 'Aktif', category: 'Treatment', targetItems: ['Laser Therapy Session', 'Chemical Peel'], promoMode: 'basic' },
+        { id: 'PRM-002', code: 'MINBELANJA', name: 'Diskon Belanja 500rb', type: 'Nominal', value: 50000, startDate: '2026-03-15', endDate: '2026-12-31', quota: 50, used: 12, status: 'Aktif', category: 'Produk', targetItems: [], promoMode: 'min_order', minOrderAmount: 500000 },
+        { id: 'PRM-003', code: 'TEBUSMURAH', name: 'Tebus Murah Sunscreen', type: 'Nominal', value: 50000, startDate: '2026-02-10', endDate: '2026-12-31', quota: 200, used: 200, status: 'Berakhir', category: 'Kombinasi', targetItems: [], promoMode: 'bundle', bundleConfig: { buyItems: ['Laser Therapy Session'], getItems: [{ id: 'Sunscreen Gel SPF 50', type: 'Persen', value: 50 }] } },
+        { id: 'PRM-004', code: 'SPESIFIKDISC', name: 'Diskon Tiap Produk Beda', type: 'Persen', value: 0, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 320, status: 'Aktif', category: 'Produk', targetItems: [], promoMode: 'specific_item', itemDiscounts: [{ id: 'Moisturizer Ceramide', type: 'Persen', value: 20 }, { id: 'Acne Treatment Pack', type: 'Nominal', value: 25000 }] },
+        { id: 'PRM-005', code: 'LEBARANCERIA', name: 'Promo Lebaran', type: 'Persen', value: 30, startDate: '2026-04-01', endDate: '2026-04-15', quota: 150, used: 0, status: 'Draf', category: 'Treatment', targetItems: ['Facial Whitening'], promoMode: 'basic' },
     ]);
 
     const [products, setProducts] = useState([]);
