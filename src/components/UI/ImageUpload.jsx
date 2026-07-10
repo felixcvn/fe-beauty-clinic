@@ -3,7 +3,7 @@ import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
 import { useToast } from '../../context/ToastContext';
 import CameraCaptureModal from './CameraCaptureModal';
 
-const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.7) => {
+const compressImage = (file, maxWidth = 2048, maxHeight = 2048, quality = 0.85) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
@@ -31,15 +31,17 @@ const compressImage = (file, maxWidth = 1200, maxHeight = 1200, quality = 0.7) =
 
                 canvas.toBlob((blob) => {
                     if (blob) {
-                        const compressedFile = new File([blob], file.name, {
-                            type: 'image/jpeg',
+                        const originalName = file.name;
+                        const newName = originalName.replace(/\.[^/.]+$/, "") + ".webp";
+                        const compressedFile = new File([blob], newName, {
+                            type: 'image/webp',
                             lastModified: Date.now(),
                         });
                         resolve(compressedFile);
                     } else {
                         reject(new Error('Canvas to Blob failed'));
                     }
-                }, 'image/jpeg', quality);
+                }, 'image/webp', quality);
             };
             img.onerror = (err) => reject(err);
         };
@@ -80,7 +82,9 @@ const ImageUpload = ({ label, onImageChange, initialPreview = null }) => {
                     return;
                 }
 
-                const compressedFile = await compressImage(file, 1200, 1200, 0.7);
+                const compressedFile = await compressImage(file, 2048, 2048, 0.85);
+                
+                console.log(`[Image Compression] Original: ${(file.size / 1024 / 1024).toFixed(2)} MB (${file.type}) => Compressed: ${(compressedFile.size / 1024).toFixed(2)} KB (${compressedFile.type})`);
                 
                 if (compressedFile.size > 2 * 1024 * 1024) {
                     if (showToast) showToast('Ukuran gambar masih melebihi 2MB setelah dikompres. Silakan pilih gambar lain.', 'error');
