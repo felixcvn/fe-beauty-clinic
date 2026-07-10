@@ -212,6 +212,19 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
 
 
                         <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kategori Promo</label>
+                            <CustomSelect 
+                                value={formState.category}
+                                onChange={(val) => setFormState({ ...formState, category: val })}
+                                options={[
+                                    { value: 'Produk', label: 'Produk' },
+                                    { value: 'Treatment', label: 'Treatment' },
+                                    { value: 'Kombinasi', label: 'Kombinasi (Produk & Treatment)' }
+                                ]}
+                            />
+                        </div>
+
+                        <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Mode Promo</label>
                             <CustomSelect 
                                 value={formState.promoMode}
@@ -362,7 +375,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                     (formState.category === 'Treatment' ? apiTreatments : apiProducts)
                                         .filter(item => item.name.toLowerCase().includes(itemSearch.toLowerCase()))
                                         .map(item => {
-                                            const isChecked = formState.targetItems.includes(item.name);
+                                            const isChecked = formState.targetItems.includes(item.id);
                                             return (
                                             <div key={item.id} className={`flex items-center gap-3 p-3 rounded-xl border transition-all group ${isChecked ? 'bg-primary/5 border-primary/20' : 'hover:bg-primary/[0.02] border-transparent hover:border-primary/5'}`}>
                                                 <input 
@@ -371,8 +384,8 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                     checked={isChecked}
                                                     onChange={(e) => {
                                                         const newTargets = e.target.checked 
-                                                            ? [...formState.targetItems, item.name]
-                                                            : formState.targetItems.filter(t => t !== item.name);
+                                                            ? [...formState.targetItems, item.id]
+                                                            : formState.targetItems.filter(t => t !== item.id);
                                                         setFormState({ ...formState, targetItems: newTargets });
                                                     }}
                                                 />
@@ -391,17 +404,19 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                 {formState.promoMode === 'specific_item' && formState.targetItems.length > 0 && (
                                     <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 mt-4 space-y-3">
                                         <p className="text-[10px] font-black text-primary uppercase tracking-widest">Atur Diskon Per Item Terpilih</p>
-                                        {formState.targetItems.map(item => {
-                                            const existingConfig = formState.itemDiscounts?.find(d => d.id === item) || { type: 'Persen', value: 0 };
+                                        {formState.targetItems.map(itemId => {
+                                            const existingConfig = formState.itemDiscounts?.find(d => d.id === itemId) || { type: 'Persen', value: 0 };
+                                            const itemObj = (formState.category === 'Treatment' ? apiTreatments : apiProducts).find(i => i.id === itemId);
+                                            const itemName = itemObj ? itemObj.name : itemId;
                                             return (
-                                                <div key={item} className="flex gap-2 items-center bg-white p-2 rounded-xl border border-primary/5">
-                                                    <div className="flex-1 truncate text-[10px] font-bold px-2">{item}</div>
+                                                <div key={itemId} className="flex gap-2 items-center bg-white p-2 rounded-xl border border-primary/5">
+                                                    <div className="flex-1 truncate text-[10px] font-bold px-2">{itemName}</div>
                                                     <select 
                                                         className="w-24 px-2 py-1.5 rounded-lg bg-secondary/10 text-[10px] font-bold outline-none"
                                                         value={existingConfig.type}
                                                         onChange={(e) => {
-                                                            const newDiscounts = (formState.itemDiscounts || []).filter(d => d.id !== item);
-                                                            setFormState({ ...formState, itemDiscounts: [...newDiscounts, { id: item, type: e.target.value, value: existingConfig.value }] });
+                                                            const newDiscounts = (formState.itemDiscounts || []).filter(d => d.id !== itemId);
+                                                            setFormState({ ...formState, itemDiscounts: [...newDiscounts, { id: itemId, type: e.target.value, value: existingConfig.value }] });
                                                         }}
                                                     >
                                                         <option value="Persen">%</option>
@@ -413,8 +428,8 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                         placeholder="Nilai"
                                                         value={existingConfig.value || ''}
                                                         onChange={(e) => {
-                                                            const newDiscounts = (formState.itemDiscounts || []).filter(d => d.id !== item);
-                                                            setFormState({ ...formState, itemDiscounts: [...newDiscounts, { id: item, type: existingConfig.type, value: e.target.value }] });
+                                                            const newDiscounts = (formState.itemDiscounts || []).filter(d => d.id !== itemId);
+                                                            setFormState({ ...formState, itemDiscounts: [...newDiscounts, { id: itemId, type: existingConfig.type, value: e.target.value }] });
                                                         }}
                                                     />
                                                 </div>
@@ -450,24 +465,27 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                     }
                                                 }}
                                                 options={isLoadingData ? [{ label: 'Memuat data...', value: '' }] : [
-                                                    ...apiTreatments.map(t => ({ label: t.name, value: t.name })),
-                                                    ...apiProducts.map(p => ({ label: p.name, value: p.name }))
+                                                    ...apiTreatments.map(t => ({ label: t.name, value: t.id })),
+                                                    ...apiProducts.map(p => ({ label: p.name, value: p.id }))
                                                 ]}
                                             />
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2 mt-3">
-                                        {formState.bundleConfig?.buyItems?.map(item => (
-                                            <span key={item} className="px-3 py-1.5 bg-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 border border-primary/10">
-                                                {item}
+                                        {formState.bundleConfig?.buyItems?.map(itemId => {
+                                            const itemName = [...apiTreatments, ...apiProducts].find(i => i.id === itemId)?.name || itemId;
+                                            return (
+                                            <span key={itemId} className="px-3 py-1.5 bg-white rounded-xl text-xs font-bold shadow-sm flex items-center gap-2 border border-primary/10">
+                                                {itemName}
                                                 <X className="w-4 h-4 cursor-pointer text-red-500 hover:scale-110 transition-transform" onClick={() => {
                                                     setFormState({
                                                         ...formState,
-                                                        bundleConfig: { ...formState.bundleConfig, buyItems: formState.bundleConfig.buyItems.filter(i => i !== item) }
+                                                        bundleConfig: { ...formState.bundleConfig, buyItems: formState.bundleConfig.buyItems.filter(i => i !== itemId) }
                                                     })
                                                 }} />
                                             </span>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
 

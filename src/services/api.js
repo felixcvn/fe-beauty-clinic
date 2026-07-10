@@ -2049,4 +2049,72 @@ export const dashboardAPI = {
     }
 };
 
-export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI, distributorAPI, dashboardAPI };
+export const promoAPI = {
+    getAll: async (token, filters = {}) => {
+        try {
+            const queryParams = new URLSearchParams(filters).toString();
+            const url = `${BASE_URL}/promos${queryParams ? '?' + queryParams : ''}`;
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: getHeaders(token),
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json.data || json };
+            return { success: false, message: json.message || 'Gagal mengambil data promo' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    create: async (token, data) => {
+        try {
+            const response = await fetch(`${BASE_URL}/promos`, {
+                method: 'POST',
+                headers: { ...getHeaders(token), 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil membuat promo' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal membuat promo' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    update: async (token, id, data) => {
+        try {
+            const response = await fetch(`${BASE_URL}/promos/${id}`, {
+                method: 'PUT',
+                headers: { ...getHeaders(token), 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Berhasil mengupdate promo' };
+            if (response.status === 422 && json.errors) {
+                const firstError = Object.values(json.errors).flat()[0];
+                return { success: false, message: firstError || 'Data tidak valid' };
+            }
+            return { success: false, message: json.message || 'Gagal mengupdate promo' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    delete: async (token, id) => {
+        try {
+            const response = await fetch(`${BASE_URL}/promos/${id}`, { method: 'DELETE', headers: getHeaders(token) });
+            if (response.ok) return { success: true };
+            const json = await response.json();
+            return { success: false, message: json.message || 'Gagal menghapus promo' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    },
+    validate: async (token, data) => {
+        try {
+            const response = await fetch(`${BASE_URL}/promos/validate`, {
+                method: 'POST',
+                headers: { ...getHeaders(token), 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            const json = await response.json();
+            if (response.ok) return { success: true, data: json, message: json.message || 'Promo valid' };
+            return { success: false, message: json.message || 'Kode promo tidak valid' };
+        } catch (error) { return { success: false, message: 'Tidak dapat terhubung ke server.' }; }
+    }
+};
+
+export default { authAPI, karyawanAPI, pasienAPI, wilayahAPI, stokProdukAPI, paketBundlingsAPI, bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI, rekamMedisAPI, treatmentAPI, reservasiAPI, stokRacikanAPI, antreanRacikanAPI, activityLogsAPI, transaksiAPI, absensiAPI, cutiAPI, lemburAPI, absensiConfigAPI, hariLiburAPI, settingsAPI, distributorAPI, dashboardAPI, promoAPI };

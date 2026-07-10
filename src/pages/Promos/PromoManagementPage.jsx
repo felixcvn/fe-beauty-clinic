@@ -8,7 +8,7 @@ import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
-import { useMockData } from '../../context/MockDataContext';
+import { promoAPI } from '../../services/api';
 import ConfirmModal from '../../components/UI/ConfirmModal';
 import Pagination from '../../components/UI/Pagination';
 
@@ -16,15 +16,58 @@ import Pagination from '../../components/UI/Pagination';
 const PromoManagementPage = () => {
     const { showToast } = useToast();
     const { user } = useAuth();
-    const { promos, addPromo, updatePromo, deletePromo } = useMockData();
+    
+    const [promos, setPromos] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState('Semua Status');
     const [isLoading, setIsLoading] = useState(true);
 
-    // Simulate loading
+    const fetchPromos = async () => {
+        setIsLoading(true);
+        try {
+            const res = await promoAPI.getAll(user?.token);
+            if (res.success && res.data) {
+                const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                const mapped = dataArray.map(item => ({
+                    id: item.id,
+                    name: item.nama_promo,
+                    code: item.kode_promo || '',
+                    category: item.kategori,
+                    promoMode: item.mode_promo,
+                    type: item.tipe_diskon ? (item.tipe_diskon === 'persentase' ? 'Persen' : 'Nominal') : 'Persen',
+                    value: item.nilai_diskon || 0,
+                    minOrderAmount: item.min_order_amount || 0,
+                    startDate: item.tanggal_mulai ? item.tanggal_mulai.split('T')[0] : '',
+                    endDate: item.tanggal_selesai ? item.tanggal_selesai.split('T')[0] : '',
+                    isVoucher: item.is_voucher_fisik === 1 || item.is_voucher_fisik === true,
+                    voucherCount: item.vouchers_count || 0,
+                    generatedCodes: item.vouchers ? item.vouchers.map(v => ({ code: v.kode_voucher, is_used: v.is_used })) : [], 
+                    quota: item.kuota_global || '',
+                    used: item.kuota_terpakai || 0,
+                    status: item.status,
+                    targets: item.targets || [],
+                    targetItems: (item.targets || []).map(t => t.item_name || String(t.item_id)),
+                    bundleConfig: {
+                        buyItems: (item.targets || []).filter(t => t.target_type === 'Syarat').map(t => t.item_name || String(t.item_id)),
+                        getItems: (item.targets || []).filter(t => t.target_type === 'Benefit').map(t => t.item_name || String(t.item_id)),
+                    },
+                    itemDiscounts: (item.targets || []).filter(t => t.target_type === 'Spesifik').map(t => ({
+                        id: t.item_name || String(t.item_id),
+                        discountValue: t.nilai_diskon_spesifik || 0
+                    }))
+                }));
+                setPromos(mapped);
+            }
+        } catch (error) {
+            console.error('Failed to fetch promos:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const timer = setTimeout(() => setIsLoading(false), 1200);
-        return () => clearTimeout(timer);
+        fetchPromos();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
     
     // Modal State
@@ -89,16 +132,71 @@ const PromoManagementPage = () => {
                 `Simpan perubahan untuk promo ${formData.code}?` : 
                 `Buat promo baru ${formData.code}?`,
             acceptLabel: isEdit ? 'Ya, Simpan' : 'Ya, Tambahkan',
-            onAccept: () => {
-                if (isEdit) {
-                    updatePromo({ ...editingPromo, ...formData });
+            onAccept: async () => {
+                showToast(isEdit ? 'Menyimpan perubahan...' : 'Membuat promo baru...', 'info');
+                
+                // Map frontend form data to backend payload structure
+                let targets = [];
+                if (formData.promoMode === 'bundle') {
+                    targets = [
+                        ...formData.bundleConfig.buyItems.map(id => ({
+                            target_type: 'Syarat',
+                            item_type: id.startsWith('TRT-') || id.startsWith('PTR-') ? 'Treatment' : 'Produk',
+                            item_id: Number(id.replace(/[^0-9]/g, ''))
+                        })),
+                        ...formData.bundleConfig.getItems.map(id => ({
+                            target_type: 'Benefit',
+                            item_type: id.startsWith('TRT-') || id.startsWith('PTR-') ? 'Treatment' : 'Produk',
+                            item_id: Number(id.replace(/[^0-9]/g, ''))
+                        }))
+                    ];
+                } else if (formData.promoMode === 'specific_item') {
+                    targets = formData.itemDiscounts.map(item => ({
+                        target_type: 'Spesifik',
+                        item_type: item.id.startsWith('TRT-') || item.id.startsWith('PTR-') ? 'Treatment' : 'Produk',
+                        item_id: Number(item.id.replace(/[^0-9]/g, '')),
+                        nilai_diskon_spesifik: Number(item.discountValue)
+                    }));
                 } else {
-                    addPromo(formData);
+                    targets = formData.targetItems.map(id => ({
+                        target_type: 'Target',
+                        item_type: id.startsWith('TRT-') || id.startsWith('PTR-') ? 'Treatment' : 'Produk',
+                        item_id: Number(id.replace(/[^0-9]/g, ''))
+                    }));
+                }
+
+                const payload = {
+                    kategori: formData.category,
+                    nama_promo: formData.name,
+                    mode_promo: formData.promoMode,
+                    tipe_diskon: formData.type.toLowerCase() === 'persen' ? 'persentase' : 'nominal',
+                    nilai_diskon: formData.value ? Number(formData.value) : null,
+                    min_order_amount: formData.minOrderAmount ? Number(formData.minOrderAmount) : null,
+                    tanggal_mulai: formData.startDate,
+                    tanggal_selesai: formData.endDate,
+                    is_voucher_fisik: formData.isVoucher,
+                    kode_promo: formData.isVoucher ? '' : formData.code,
+                    kuota_global: formData.quota ? Number(formData.quota) : null,
+                    status: 'Aktif', // Defaulting to Aktif, backend might override based on date
+                    targets: targets,
+                    jumlah_voucher: formData.isVoucher && formData.voucherCount ? Number(formData.voucherCount) : null
+                };
+
+                let res;
+                if (isEdit) {
+                    res = await promoAPI.update(user?.token, editingPromo.id, payload);
+                } else {
+                    res = await promoAPI.create(user?.token, payload);
                 }
                 
-                showToast(isEdit ? 'Promo berhasil diperbarui!' : 'Promo baru berhasil ditambahkan!', 'success');
-                setIsModalOpen(false);
-                setEditingPromo(null);
+                if (res.success) {
+                    showToast(res.message, 'success');
+                    fetchPromos();
+                    setIsModalOpen(false);
+                    setEditingPromo(null);
+                } else {
+                    showToast(res.message, 'error');
+                }
             }
         });
     };
@@ -110,9 +208,15 @@ const PromoManagementPage = () => {
             header: 'Hapus Promo',
             message: `Tindakan ini permanen. Yakin ingin menghapus promo ${promo.code}?`,
             acceptLabel: 'Ya, Hapus',
-            onAccept: () => {
-                deletePromo(promo.id);
-                showToast(`Promo ${promo.code} telah dihapus.`, 'success');
+            onAccept: async () => {
+                showToast('Menghapus promo...', 'info');
+                const res = await promoAPI.delete(user?.token, promo.id);
+                if (res.success) {
+                    showToast(`Promo ${promo.code || promo.name} telah dihapus.`, 'success');
+                    fetchPromos();
+                } else {
+                    showToast(res.message, 'error');
+                }
             }
         });
     };
