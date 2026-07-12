@@ -37,11 +37,15 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
             if (!user?.token) return;
             setIsLoadingData(true);
             try {
-                const [resProducts, resTreatments, resPakets] = await Promise.all([
+                const results = await Promise.allSettled([
                     stokProdukAPI.getAll(user.token),
                     treatmentAPI.getAll(user.token),
                     paketTreatmentAPI.getAll(user.token)
                 ]);
+
+                const resProducts = results[0].status === 'fulfilled' ? results[0].value : { success: false };
+                const resTreatments = results[1].status === 'fulfilled' ? results[1].value : { success: false };
+                const resPakets = results[2].status === 'fulfilled' ? results[2].value : { success: false };
 
                 if (resProducts.success && resProducts.data) {
                     const responseData = resProducts.data.data || resProducts.data;
