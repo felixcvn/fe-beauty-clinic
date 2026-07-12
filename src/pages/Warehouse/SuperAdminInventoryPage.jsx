@@ -575,12 +575,14 @@ const SuperAdminInventoryPage = () => {
                                             </>
                                         ) : (
                                             <>
-                                                {/* Hapus Tipe untuk bahan medis, infus, dan treatment */}
-                                                {!['material', 'medical', 'infusion'].includes(activeFilter) && (
+                                                {/* Hapus Tipe untuk bahan medis, infus, treatment, dan barang apotek */}
+                                                {!['material', 'medical', 'infusion', 'apotekItem'].includes(activeFilter) && (
                                                     <th className="px-4 py-3 text-primary/80">Tipe</th>
                                                 )}
                                                 <th className="px-4 py-3 text-primary/80">Nama</th>
-                                                <th className="px-4 py-3 text-primary/80">Harga</th>
+                                                {!['material', 'medical', 'infusion', 'apotekItem'].includes(activeFilter) && (
+                                                    <th className="px-4 py-3 text-primary/80">Harga</th>
+                                                )}
                                             </>
                                         )}
                                         <th className="px-4 py-3 text-primary/80">Stok</th>
@@ -616,7 +618,7 @@ const SuperAdminInventoryPage = () => {
                                                 </>
                                             ) : (
                                                 <>
-                                                    {!['material', 'medical', 'infusion'].includes(activeFilter) && (
+                                                    {!['material', 'medical', 'infusion', 'apotekItem'].includes(activeFilter) && (
                                                         <td className="px-4 py-2">
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-primary/40 bg-primary/5 px-2 py-1 rounded-md">
                                                                 {item._type === 'product' ? 'produk' : 
@@ -628,9 +630,11 @@ const SuperAdminInventoryPage = () => {
                                                         </td>
                                                     )}
                                                     <td className="px-4 py-2 text-sm font-medium text-primary tracking-tight">{item.name}</td>
-                                                    <td className="px-4 py-2 text-sm font-medium text-primary/80">
-                                                        {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
-                                                    </td>
+                                                    {!['material', 'medical', 'infusion', 'apotekItem'].includes(activeFilter) && (
+                                                        <td className="px-4 py-2 text-sm font-medium text-primary/80">
+                                                            {item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}
+                                                        </td>
+                                                    )}
                                                 </>
                                             )}
 
@@ -700,12 +704,14 @@ const SuperAdminInventoryPage = () => {
                                                 <p className="text-xs font-medium text-gray-700">{item.category}</p>
                                             </div>
                                         )}
-                                        <div className="flex-1 p-3">
-                                            <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-                                                {activeFilter === 'product' ? 'Hrg Normal' : 'Harga'}
-                                            </p>
-                                            <p className="text-xs font-medium text-gray-700">{item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}</p>
-                                        </div>
+                                        {!['material', 'medical', 'infusion', 'apotekItem'].includes(activeFilter) && (
+                                            <div className="flex-1 p-3">
+                                                <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+                                                    {activeFilter === 'product' ? 'Hrg Normal' : 'Harga'}
+                                                </p>
+                                                <p className="text-xs font-medium text-gray-700">{item.price ? `Rp ${item.price.toLocaleString('id-ID')}` : '-'}</p>
+                                            </div>
+                                        )}
                                         {activeFilter === 'product' && (
                                             <div className="flex-1 p-3">
                                                 <p className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mb-1">Harga Dist.</p>

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { stokRacikanAPI, antreanRacikanAPI } from '../services/api';
+import { stokRacikanAPI, antreanRacikanAPI, promoAPI } from '../services/api';
 
 const MockDataContext = createContext();
 
@@ -12,13 +12,52 @@ export const MockDataProvider = ({ children }) => {
 
     const [patients, setPatients] = useState([]);
 
-    const [promos, setPromos] = useState([
-        { id: 'PRM-001', code: 'RAMADHAN50', name: 'Diskon Spesial Ramadhan', type: 'Persen', value: 50, startDate: '2026-03-01', endDate: '2026-03-30', quota: 100, used: 85, status: 'Aktif', category: 'Treatment', targetItems: ['Laser Therapy Session', 'Chemical Peel'], promoMode: 'basic' },
-        { id: 'PRM-002', code: 'MINBELANJA', name: 'Diskon Belanja 500rb', type: 'Nominal', value: 50000, startDate: '2026-03-15', endDate: '2026-12-31', quota: 50, used: 12, status: 'Aktif', category: 'Produk', targetItems: [], promoMode: 'min_order', minOrderAmount: 500000 },
-        { id: 'PRM-003', code: 'TEBUSMURAH', name: 'Tebus Murah Sunscreen', type: 'Nominal', value: 50000, startDate: '2026-02-10', endDate: '2026-12-31', quota: 200, used: 200, status: 'Berakhir', category: 'Kombinasi', targetItems: [], promoMode: 'bundle', bundleConfig: { buyItems: ['Laser Therapy Session'], getItems: [{ id: 'Sunscreen Gel SPF 50', type: 'Persen', value: 50 }] } },
-        { id: 'PRM-004', code: 'SPESIFIKDISC', name: 'Diskon Tiap Produk Beda', type: 'Persen', value: 0, startDate: '2026-01-01', endDate: '2026-12-31', quota: 999, used: 320, status: 'Aktif', category: 'Produk', targetItems: [], promoMode: 'specific_item', itemDiscounts: [{ id: 'Moisturizer Ceramide', type: 'Persen', value: 20 }, { id: 'Acne Treatment Pack', type: 'Nominal', value: 25000 }] },
-        { id: 'PRM-005', code: 'LEBARANCERIA', name: 'Promo Lebaran', type: 'Persen', value: 30, startDate: '2026-04-01', endDate: '2026-04-15', quota: 150, used: 0, status: 'Draf', category: 'Treatment', targetItems: ['Facial Whitening'], promoMode: 'basic' },
-    ]);
+    const [promos, setPromos] = useState([]);
+
+    useEffect(() => {
+        const loadRealPromos = async () => {
+            const token = localStorage.getItem('token');
+            if (!token) return;
+            try {
+                const res = await promoAPI.getAll(token);
+                if (res.success && res.data) {
+                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                    const mapped = dataArray.map(item => ({
+                        id: item.id,
+                        name: item.nama_promo,
+                        code: item.kode_promo || '',
+                        category: item.kategori,
+                        promoMode: item.mode_promo,
+                        type: item.tipe_diskon ? (item.tipe_diskon === 'persentase' ? 'Persen' : 'Nominal') : 'Persen',
+                        value: item.nilai_diskon || 0,
+                        minOrderAmount: item.min_order_amount || 0,
+                        startDate: item.tanggal_mulai ? item.tanggal_mulai.split('T')[0] : '',
+                        endDate: item.tanggal_selesai ? item.tanggal_selesai.split('T')[0] : '',
+                        isVoucher: item.is_voucher_fisik === 1 || item.is_voucher_fisik === true,
+                        voucherCount: item.vouchers_count || 0,
+                        generatedCodes: item.vouchers ? item.vouchers.map(v => ({ code: v.kode_voucher, is_used: v.is_used })) : [], 
+                        quota: item.kuota_global || '',
+                        used: item.kuota_terpakai || 0,
+                        status: item.status,
+                        targets: item.targets || [],
+                        targetItems: (item.targets || []).map(t => t.item_name || String(t.item_id)),
+                        bundleConfig: {
+                            buyItems: (item.targets || []).filter(t => t.target_type === 'Syarat').map(t => t.item_name || String(t.item_id)),
+                            getItems: (item.targets || []).filter(t => t.target_type === 'Benefit').map(t => t.item_name || String(t.item_id)),
+                        },
+                        itemDiscounts: (item.targets || []).filter(t => t.target_type === 'Spesifik').map(t => ({
+                            id: t.item_name || String(t.item_id),
+                            discountValue: t.nilai_diskon_spesifik || 0
+                        }))
+                    }));
+                    setPromos(mapped);
+                }
+            } catch (error) {
+                console.error('[MockDataContext] Error fetching real promos:', error);
+            }
+        };
+        loadRealPromos();
+    }, []);
 
     const [products, setProducts] = useState([]);
 

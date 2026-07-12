@@ -609,21 +609,44 @@ const POSPage = () => {
                         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-6">
                             {filteredProducts.map(product => {
                                 const isOutOfStock = product.stock <= 0;
-                                const price = getProductPrice(product);
-                                const isPriceNotSet = !price || price <= 0;
+                                const basePrice = getProductPrice(product);
+                                const isPriceNotSet = !basePrice || basePrice <= 0;
                                 const isUnavailable = isOutOfStock || isPriceNotSet;
+                                
+                                let finalPrice = basePrice;
+                                let isDiscounted = false;
+
+                                const activeBasicPromo = getActivePromos().find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(product.id) || p.targetItems?.includes(product.name)));
+                                const promoToUse = (appliedPromo && (appliedPromo.promoMode === 'basic' || !appliedPromo.promoMode)) ? appliedPromo : activeBasicPromo;
+
+                                if (promoToUse && !isUnavailable) {
+                                    const targets = promoToUse.targetItems || [];
+                                    if (targets.length === 0 || targets.includes(product.id) || targets.includes(product.name)) {
+                                        if (promoToUse.type === 'Persen') {
+                                            finalPrice = basePrice - (basePrice * (promoToUse.value / 100));
+                                        } else {
+                                            finalPrice = Math.max(0, basePrice - Number(promoToUse.value));
+                                        }
+                                        isDiscounted = true;
+                                    }
+                                }
                                 
                                 return (
                                     <button
                                         key={product.id}
                                         onClick={() => addToCart(product)}
                                         disabled={isUnavailable}
-                                        className={`p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 transition-all duration-300 text-left group flex flex-col justify-between h-full ${
+                                        className={`p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 transition-all duration-300 text-left group flex flex-col justify-between h-full relative ${
                                             isUnavailable 
                                                 ? 'opacity-50 cursor-not-allowed border-gray-200' 
                                                 : 'hover:bg-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1'
                                         }`}
                                     >
+                                        {isDiscounted && (
+                                            <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">
+                                                Promo
+                                            </div>
+                                        )}
                                         <div className="w-full">
                                             <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl bg-secondary/20 flex items-center justify-center mb-4 shadow-sm relative mx-auto overflow-hidden">
                                                 <span className="text-2xl md:text-3xl font-semibold text-primary tracking-tighter group-hover:scale-110 transition-transform duration-500">
@@ -646,7 +669,12 @@ const POSPage = () => {
                                             {isPriceNotSet ? (
                                                 <span className="text-[10px] md:text-[11px] font-black text-red-500 tracking-tighter leading-tight">Harga Belum Diset</span>
                                             ) : (
-                                                <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {price.toLocaleString('id-ID')}</span>
+                                                <div className="flex flex-col">
+                                                    {isDiscounted && (
+                                                        <span className="text-[9px] md:text-[10px] text-primary/40 line-through decoration-red-500/50 decoration-2">Rp {basePrice.toLocaleString('id-ID')}</span>
+                                                    )}
+                                                    <span className="text-xs md:text-sm font-black text-primary tracking-tighter">Rp {finalPrice.toLocaleString('id-ID')}</span>
+                                                </div>
                                             )}
                                             
                                             {isUnavailable ? (
@@ -654,7 +682,7 @@ const POSPage = () => {
                                                     {isPriceNotSet ? 'Tidak Tersedia' : (product.category === 'Treatment' ? 'Tidak Tersedia' : 'Kosong')}
                                                 </span>
                                             ) : (
-                                                <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+                                                <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg md:rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20 shrink-0">
                                                     <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                                 </div>
                                             )}
@@ -833,9 +861,9 @@ const POSPage = () => {
                         <button onClick={() => handleApplyPromo()} className="px-5 py-3 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
                             Pakai
                         </button>
-                        {isPromoDropdownOpen && promoInput && (
+                        {isPromoDropdownOpen && (
                             <div className="absolute top-auto bottom-full mb-2 left-0 right-0 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden animate-fade-in max-h-[160px] overflow-y-auto custom-scrollbar">
-                                {getActivePromos().map(promo => (
+                                {getActivePromos().filter(p => p.code.toLowerCase().includes(promoInput.toLowerCase()) || p.name.toLowerCase().includes(promoInput.toLowerCase())).map(promo => (
                                     <button
                                         key={promo.code}
                                         onClick={() => { handleApplyPromo(promo.code); setIsPromoDropdownOpen(false); }}

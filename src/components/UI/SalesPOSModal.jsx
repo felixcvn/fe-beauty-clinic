@@ -264,12 +264,37 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
 
                         {/* Product Grid */}
                         <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4">
-                            {filteredProducts.map(product => (
+                            {filteredProducts.map(product => {
+                                let finalPrice = product.price;
+                                let isDiscounted = false;
+
+                                // Gunakan promo basic yang diterapkan, atau cari otomatis promo basic yang sedang aktif
+                                const activeBasicPromo = getActivePromos().find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(product.id) || p.targetItems?.includes(product.name)));
+                                const promoToUse = (appliedPromo && (appliedPromo.promoMode === 'basic' || !appliedPromo.promoMode)) ? appliedPromo : activeBasicPromo;
+
+                                if (promoToUse) {
+                                    const targets = promoToUse.targetItems || [];
+                                    if (targets.length === 0 || targets.includes(product.id) || targets.includes(product.name)) {
+                                        if (promoToUse.type === 'Persen') {
+                                            finalPrice = product.price - (product.price * (promoToUse.value / 100));
+                                        } else {
+                                            finalPrice = Math.max(0, product.price - Number(promoToUse.value));
+                                        }
+                                        isDiscounted = true;
+                                    }
+                                }
+
+                                return (
                                 <button
                                     key={product.id}
                                     onClick={() => addToCart(product)}
-                                    className="p-4 rounded-3xl bg-secondary/10 border border-primary/5 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full"
+                                    className="p-4 rounded-3xl bg-secondary/10 border border-primary/5 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full relative"
                                 >
+                                    {isDiscounted && (
+                                        <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">
+                                            Promo
+                                        </div>
+                                    )}
                                     <div>
                                         <div className="aspect-square rounded-2xl bg-white overflow-hidden mb-4 shadow-sm relative">
                                             <img src={product.image} alt={product.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
@@ -281,13 +306,19 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                         <p className="text-[8px] md:text-[9px] font-bold text-primary/50 uppercase tracking-widest mb-3">{product.category}</p>
                                     </div>
                                     <div className="flex items-center justify-between mt-auto">
-                                        <span className="text-xs font-black text-primary tracking-tighter">Rp {product.price.toLocaleString('id-ID')}</span>
-                                        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20">
+                                        <div className="flex flex-col">
+                                            {isDiscounted && (
+                                                <span className="text-[9px] text-primary/40 line-through decoration-red-500/50 decoration-2">Rp {product.price.toLocaleString('id-ID')}</span>
+                                            )}
+                                            <span className="text-xs font-black text-primary tracking-tighter">Rp {finalPrice.toLocaleString('id-ID')}</span>
+                                        </div>
+                                        <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center text-secondary group-hover:scale-110 transition-transform shadow-lg shadow-primary/20 shrink-0">
                                             <Plus className="w-4 h-4" />
                                         </div>
                                     </div>
                                 </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
@@ -365,9 +396,9 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                             <button onClick={() => handleApplyPromo()} className="px-5 py-3 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
                                 Pakai
                             </button>
-                            {isPromoDropdownOpen && promoInput && (
-                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden animate-fade-in">
-                                    {getActivePromos().map(promo => (
+                            {isPromoDropdownOpen && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden animate-fade-in max-h-[160px] overflow-y-auto custom-scrollbar">
+                                    {getActivePromos().filter(p => p.code.toLowerCase().includes(promoInput.toLowerCase()) || p.name.toLowerCase().includes(promoInput.toLowerCase())).map(promo => (
                                         <button
                                             key={promo.code}
                                             onClick={() => handleApplyPromo(promo.code)}
