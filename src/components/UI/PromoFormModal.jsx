@@ -265,13 +265,13 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                         onChange={(e) => setFormState({ ...formState, isVoucher: e.target.checked })}
                                     />
                                     <div className="w-5 h-5 border-2 border-primary/20 rounded-md peer-checked:bg-primary peer-checked:border-primary transition-all flex items-center justify-center">
-                                        <CheckCircle2 className="w-3.5 h-3.5 text-secondary opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                        <CheckCircle2 className={`w-3.5 h-3.5 text-white transition-opacity duration-200 ${formState.isVoucher ? 'opacity-100' : 'opacity-0'}`} />
                                     </div>
                                 </div>
                                 <span className="text-[11px] font-black uppercase tracking-widest text-primary/70 group-hover:text-primary transition-colors">Jadikan Voucher Fisik (Generate Kode Acak)</span>
                             </label>
 
-                            <div className="grid grid-cols-2 gap-4">
+                            <div className="grid grid-cols-2 gap-4 items-end">
                                 {!formState.isVoucher ? (
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kode Promo</label>
@@ -298,7 +298,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                     </div>
                                 )}
                                 <div className="space-y-2">
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">{formState.isVoucher ? "Batas Pemakaian per Voucher" : "Batas Kuota Penggunaan"}</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">{formState.isVoucher ? "Batas Pemakaian Voucher" : "Batas Kuota Penggunaan"}</label>
                                     <input 
                                         required 
                                         type="number" 
