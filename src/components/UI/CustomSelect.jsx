@@ -79,7 +79,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
                         </div>
                     )}
 
-                    <div className="max-h-[250px] overflow-y-auto scrollbar-hide py-2">
+                    <div className="max-h-[250px] overflow-y-auto scrollbar-hide pt-2 pb-4">
                         {filteredOptions.length > 0 ? (
                             filteredOptions.map((option, index) => {
                                 const isSelected = option.value === value;

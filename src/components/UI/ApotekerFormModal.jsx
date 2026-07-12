@@ -157,6 +157,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                 { value: 'Masker', label: 'Masker' },
                 { value: 'Peeling', label: 'Peeling' },
                 { value: 'Alat', label: 'Alat' },
+                { value: 'Lainnya', label: 'Lainnya' },
             ];
         }
         if (type === 'medical') {
@@ -273,6 +274,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                                     value={formState.category}
                                     onChange={(value) => handleChange('category', value)}
                                     options={getCategoryOptions()}
+                                    searchable={true}
                                 />
                                 {errors.category && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.category}</p>}
                             </div>
