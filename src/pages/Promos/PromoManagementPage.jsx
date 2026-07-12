@@ -4,6 +4,7 @@ import { Search, Plus, Tag, CheckCircle2, XCircle, Edit3, Trash2, AlertTriangle,
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import PromoFormModal from '../../components/UI/PromoFormModal';
+import PromoDetailModal from '../../components/UI/PromoDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
@@ -73,6 +74,7 @@ const PromoManagementPage = () => {
     // Modal State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingPromo, setEditingPromo] = useState(null);
+    const [detailPromo, setDetailPromo] = useState(null);
     const [defaultCategory, setDefaultCategory] = useState(null);
 
     // Confirmation Modal State
@@ -277,6 +279,12 @@ const PromoManagementPage = () => {
                 defaultCategory={defaultCategory}
             />
 
+            <PromoDetailModal 
+                isOpen={!!detailPromo}
+                promo={detailPromo}
+                onClose={() => setDetailPromo(null)}
+            />
+
             <ConfirmModal
                 config={confirmConfig}
                 onClose={() => setConfirmConfig(null)}
@@ -364,7 +372,11 @@ const PromoManagementPage = () => {
                         </thead>
                         <tbody className="divide-y divide-primary/5">
                             {currentPromos.map((promo) => (
-                                <tr key={promo.id} className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors">
+                                <tr 
+                                    key={promo.id} 
+                                    className="border-b border-primary/5 last:border-0 hover:bg-primary/[0.02] transition-colors cursor-pointer"
+                                    onClick={() => setDetailPromo(promo)}
+                                >
                                     <td className="px-4 py-4">
                                         <div className="flex items-start gap-4">
                                             <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary shrink-0 border border-primary/10">
@@ -442,10 +454,10 @@ const PromoManagementPage = () => {
                                     </td>
                                     <td className="px-4 py-2 text-right">
                                         <div className="flex justify-end gap-1">
-                                            <button onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit">
+                                            <button onClick={(e) => { e.stopPropagation(); setEditingPromo(promo); setIsModalOpen(true); }} className="p-2.5 rounded-xl bg-white border border-primary/10 text-primary/50 hover:text-primary hover:border-primary/20 hover:shadow-md transition-all active:scale-95" title="Edit">
                                                 <Edit3 className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => handleOpenDelete(promo)} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus">
+                                            <button onClick={(e) => { e.stopPropagation(); handleOpenDelete(promo); }} className="p-2.5 rounded-xl bg-red-50 border border-red-100 text-red-400 hover:text-red-500 hover:bg-red-100 hover:shadow-md transition-all active:scale-95" title="Hapus">
                                                 <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -459,7 +471,11 @@ const PromoManagementPage = () => {
                 {/* Mobile Card View */}
                 <div className="lg:hidden divide-y divide-primary/5">
                     {currentPromos.map((promo) => (
-                        <div key={promo.id} className="p-6 space-y-4 hover:bg-gray-50 transition-colors">
+                        <div 
+                            key={promo.id} 
+                            className="p-6 space-y-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                            onClick={() => setDetailPromo(promo)}
+                        >
                             <div className="flex justify-between items-start">
                                 <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-xl bg-accent-gold/10 flex items-center justify-center text-accent-gold border border-accent-gold/20 shrink-0">
@@ -512,13 +528,13 @@ const PromoManagementPage = () => {
 
                             <div className="flex gap-3 mt-4">
                                 <button
-                                    onClick={() => { setEditingPromo(promo); setIsModalOpen(true); }}
+                                    onClick={(e) => { e.stopPropagation(); setEditingPromo(promo); setIsModalOpen(true); }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-white border border-primary/10 rounded-xl text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary hover:text-white transition-all active:scale-95 shadow-sm"
                                 >
                                     <Edit3 className="w-3.5 h-3.5" /> Edit
                                 </button>
                                 <button
-                                    onClick={() => handleOpenDelete(promo)}
+                                    onClick={(e) => { e.stopPropagation(); handleOpenDelete(promo); }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3 bg-red-50 border border-red-100 rounded-xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all active:scale-95 shadow-sm"
                                 >
                                     <Trash2 className="w-3.5 h-3.5" /> Hapus

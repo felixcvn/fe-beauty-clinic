@@ -98,8 +98,8 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
         quota: '',
         startDate: '',
         endDate: '',
-        category: 'Treatment',
-        promoMode: 'basic',
+        category: '',
+        promoMode: '',
         minOrderAmount: '',
         bundleConfig: { buyItems: [], getItems: [] },
         itemDiscounts: [],
@@ -126,8 +126,8 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                     quota: '',
                     startDate: '',
                     endDate: '',
-                    category: defaultCategory || (isSupervisorTreatment ? 'Treatment' : (isSupervisorProduk ? 'Produk' : 'Treatment')),
-                    promoMode: 'basic',
+                    category: '',
+                    promoMode: '',
                     minOrderAmount: '',
                     bundleConfig: { buyItems: [], getItems: [] },
                     itemDiscounts: [],
@@ -236,8 +236,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                 options={[
                                     { value: 'basic', label: 'Basic (Diskon Global/Item)' },
                                     { value: 'min_order', label: 'Minimum Belanja' },
-                                    { value: 'bundle', label: 'Tebus Murah / Bundle' },
-                                    { value: 'specific_item', label: 'Diskon Spesifik Tiap Item' }
+                                    { value: 'bundle', label: 'Tebus Murah / Bundle' }
                                 ]}
                             />
                         </div>
@@ -404,43 +403,6 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                     )}
                                 </div>
                                 
-                                {/* Specific Item Discount Form */}
-                                {formState.promoMode === 'specific_item' && formState.targetItems.length > 0 && (
-                                    <div className="p-4 bg-primary/5 rounded-2xl border border-primary/10 mt-4 space-y-3">
-                                        <p className="text-[10px] font-black text-primary uppercase tracking-widest">Atur Diskon Per Item Terpilih</p>
-                                        {formState.targetItems.map(itemId => {
-                                            const existingConfig = formState.itemDiscounts?.find(d => d.id === itemId) || { type: 'Persen', value: 0 };
-                                            const itemObj = (formState.category === 'Treatment' ? apiTreatments : apiProducts).find(i => i.id === itemId);
-                                            const itemName = itemObj ? itemObj.name : itemId;
-                                            return (
-                                                <div key={itemId} className="flex gap-2 items-center bg-white p-2 rounded-xl border border-primary/5">
-                                                    <div className="flex-1 truncate text-[10px] font-bold px-2">{itemName}</div>
-                                                    <select 
-                                                        className="w-24 px-2 py-1.5 rounded-lg bg-secondary/10 text-[10px] font-bold outline-none"
-                                                        value={existingConfig.type}
-                                                        onChange={(e) => {
-                                                            const newDiscounts = (formState.itemDiscounts || []).filter(d => d.id !== itemId);
-                                                            setFormState({ ...formState, itemDiscounts: [...newDiscounts, { id: itemId, type: e.target.value, value: existingConfig.value }] });
-                                                        }}
-                                                    >
-                                                        <option value="Persen">%</option>
-                                                        <option value="Nominal">Rp</option>
-                                                    </select>
-                                                    <input 
-                                                        type="number"
-                                                        className="w-24 px-2 py-1.5 rounded-lg bg-secondary/10 text-[10px] font-bold outline-none"
-                                                        placeholder="Nilai"
-                                                        value={existingConfig.value || ''}
-                                                        onChange={(e) => {
-                                                            const newDiscounts = (formState.itemDiscounts || []).filter(d => d.id !== itemId);
-                                                            setFormState({ ...formState, itemDiscounts: [...newDiscounts, { id: itemId, type: existingConfig.type, value: e.target.value }] });
-                                                        }}
-                                                    />
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                )}
                             </div>
                         )}
 

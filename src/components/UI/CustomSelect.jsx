@@ -7,8 +7,6 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
     const [searchTerm, setSearchTerm] = useState('');
     const selectRef = useRef(null);
     const dropdownRef = useRef(null);
-    const [dropdownStyles, setDropdownStyles] = useState({ position: 'fixed', opacity: 0, pointerEvents: 'none' });
-
     // Close when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -22,37 +20,6 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
-    const updatePosition = () => {
-        if (isOpen && selectRef.current) {
-            const rect = selectRef.current.getBoundingClientRect();
-            // Calculate absolute position based on viewport
-            setDropdownStyles({
-                position: 'fixed',
-                top: direction === 'down' ? rect.bottom + 8 : 'auto',
-                bottom: direction === 'up' ? window.innerHeight - rect.top + 8 : 'auto',
-                left: rect.left,
-                width: rect.width,
-                zIndex: 999999,
-                opacity: 1,
-                pointerEvents: 'auto'
-            });
-        }
-    };
-
-    useLayoutEffect(() => {
-        if (isOpen) {
-            updatePosition();
-            window.addEventListener('resize', updatePosition);
-            window.addEventListener('scroll', updatePosition, true);
-        } else {
-            setDropdownStyles(prev => ({ ...prev, opacity: 0, pointerEvents: 'none' }));
-        }
-        return () => {
-            window.removeEventListener('resize', updatePosition);
-            window.removeEventListener('scroll', updatePosition, true);
-        };
-    }, [isOpen, direction]);
 
     const selectedOption = options.find(opt => opt.value === value) || null;
 
@@ -88,12 +55,11 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
                 <ChevronDown className={`w-5 h-5 text-primary/40 shrink-0 ml-2 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Dropdown Menu using Portal */}
-            {isOpen && createPortal(
+            {/* Dropdown Menu */}
+            {isOpen && (
                 <div 
                     ref={dropdownRef}
-                    style={dropdownStyles}
-                    className={`bg-white border border-primary/10 rounded-[1.5rem] shadow-[0_20px_50px_rgba(0,0,0,0.15)] overflow-hidden transition-all duration-200`}
+                    className={`absolute ${direction === 'up' ? 'bottom-full mb-2' : 'top-full mt-2'} left-0 w-full bg-white border border-primary/10 rounded-[1.5rem] shadow-2xl overflow-hidden transition-all duration-200 z-[999]`}
                 >
                     {/* Search Bar */}
                     {searchable && (
@@ -143,8 +109,7 @@ const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih sa
                             </div>
                         )}
                     </div>
-                </div>,
-                document.body
+                </div>
             )}
 
             {/* Hidden native input for required validation */}
