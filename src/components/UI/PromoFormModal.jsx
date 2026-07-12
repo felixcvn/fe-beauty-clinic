@@ -109,9 +109,11 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
     });
 
     const [itemSearch, setItemSearch] = useState('');
+    const [errors, setErrors] = useState({});
 
     useEffect(() => {
         if (isOpen) {
+            setErrors({});
             if (initialData) {
                 setFormState({
                     ...initialData,
@@ -143,6 +145,38 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        
+        const newErrors = {};
+        if (!formState.name) newErrors.name = 'Nama promo wajib diisi';
+        if (!formState.category) newErrors.category = 'Kategori promo wajib dipilih';
+        if (!formState.promoMode) newErrors.promoMode = 'Mode promo wajib dipilih';
+        if (formState.promoMode === 'min_order' && !formState.minOrderAmount) newErrors.minOrderAmount = 'Minimal belanja wajib diisi';
+        
+        if (formState.isVoucher) {
+            if (!formState.voucherCount) newErrors.voucherCount = 'Jumlah voucher wajib diisi';
+        } else {
+            if (!formState.code) newErrors.code = 'Kode promo wajib diisi';
+        }
+        
+        if (!formState.quota) newErrors.quota = 'Kuota wajib diisi';
+        
+        if (['basic', 'min_order'].includes(formState.promoMode)) {
+            if (!formState.value) newErrors.value = 'Nilai diskon wajib diisi';
+        }
+        
+        if (!formState.startDate) newErrors.startDate = 'Tanggal mulai wajib diisi';
+        if (!formState.endDate) newErrors.endDate = 'Tanggal berakhir wajib diisi';
+        
+        if (formState.promoMode === 'bundle') {
+            if (!formState.bundleConfig?.buyItems?.length) newErrors.bundleBuy = 'Syarat item wajib diisi';
+            if (!formState.bundleConfig?.getItems?.length) newErrors.bundleGet = 'Benefit wajib diisi';
+        }
+        
+        if (Object.keys(newErrors).length > 0) {
+            setErrors(newErrors);
+            return;
+        }
+
         onSave(formState);
     };
 
@@ -201,17 +235,17 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                 
                 {/* Body / Form */}
                 <div className="p-8 max-h-[70vh] overflow-y-auto">
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-6" noValidate>
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Nama Promo</label>
                             <input 
-                                required 
                                 type="text" 
                                 placeholder="Contoh: Diskon Ramadhan" 
                                 value={formState.name}
-                                onChange={(e) => setFormState({ ...formState, name: e.target.value })}
-                                className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                onChange={(e) => { setFormState({ ...formState, name: e.target.value }); setErrors({ ...errors, name: null }); }}
+                                className={`w-full px-5 py-4 rounded-2xl bg-secondary/20 border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm ${errors.name ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 
                             />
+                            {errors.name && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.name}</p>}
                         </div>
 
 
@@ -219,39 +253,41 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kategori Promo</label>
                             <CustomSelect 
                                 value={formState.category}
-                                onChange={(val) => setFormState({ ...formState, category: val })}
+                                onChange={(val) => { setFormState({ ...formState, category: val }); setErrors({ ...errors, category: null }); }}
                                 options={[
                                     { value: 'Produk', label: 'Produk' },
                                     { value: 'Treatment', label: 'Treatment' },
                                     { value: 'Kombinasi', label: 'Kombinasi (Produk & Treatment)' }
                                 ]}
                             />
+                            {errors.category && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.category}</p>}
                         </div>
 
                         <div className="space-y-2">
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Mode Promo</label>
                             <CustomSelect 
                                 value={formState.promoMode}
-                                onChange={(val) => setFormState({ ...formState, promoMode: val, category: val === 'bundle' ? 'Kombinasi' : formState.category })}
+                                onChange={(val) => { setFormState({ ...formState, promoMode: val, category: val === 'bundle' ? 'Kombinasi' : formState.category }); setErrors({ ...errors, promoMode: null }); }}
                                 options={[
                                     { value: 'basic', label: 'Basic (Diskon Global/Item)' },
                                     { value: 'min_order', label: 'Minimum Belanja' },
                                     { value: 'bundle', label: 'Tebus Murah / Bundle' }
                                 ]}
                             />
+                            {errors.promoMode && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.promoMode}</p>}
                         </div>
 
                         {formState.promoMode === 'min_order' && (
                             <div className="space-y-2">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Minimal Belanja (Rp)</label>
                                 <input 
-                                    required 
                                     type="number" 
                                     placeholder="Contoh: 500000" 
                                     value={formState.minOrderAmount}
-                                    onChange={(e) => setFormState({ ...formState, minOrderAmount: e.target.value })}
-                                    className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                    onChange={(e) => { setFormState({ ...formState, minOrderAmount: e.target.value }); setErrors({ ...errors, minOrderAmount: null }); }}
+                                    className={`w-full px-5 py-4 rounded-2xl bg-secondary/20 border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm ${errors.minOrderAmount ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 
                                 />
+                                {errors.minOrderAmount && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.minOrderAmount}</p>}
                             </div>
                         )}
 
@@ -276,37 +312,37 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Kode Promo</label>
                                         <input 
-                                            required 
                                             type="text" 
                                             placeholder="RAMADHAN50" 
                                             value={formState.code}
-                                            onChange={(e) => setFormState({ ...formState, code: e.target.value.toUpperCase() })}
-                                            className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all uppercase shadow-sm" 
+                                            onChange={(e) => { setFormState({ ...formState, code: e.target.value.toUpperCase() }); setErrors({ ...errors, code: null }); }}
+                                            className={`w-full px-5 py-4 rounded-2xl bg-white border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all uppercase shadow-sm ${errors.code ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 
                                         />
+                                        {errors.code && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.code}</p>}
                                     </div>
                                 ) : (
                                     <div className="space-y-2">
                                         <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Jumlah Voucher</label>
                                         <input 
-                                            required 
                                             type="number" 
                                             placeholder="Contoh: 10" 
                                             value={formState.voucherCount}
-                                            onChange={(e) => setFormState({ ...formState, voucherCount: e.target.value })}
-                                            className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                            onChange={(e) => { setFormState({ ...formState, voucherCount: e.target.value }); setErrors({ ...errors, voucherCount: null }); }}
+                                            className={`w-full px-5 py-4 rounded-2xl bg-white border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm ${errors.voucherCount ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 
                                         />
+                                        {errors.voucherCount && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.voucherCount}</p>}
                                     </div>
                                 )}
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">{formState.isVoucher ? "Batas Pemakaian Voucher" : "Batas Kuota Penggunaan"}</label>
                                     <input 
-                                        required 
                                         type="number" 
                                         placeholder="Contoh: 1" 
                                         value={formState.quota}
-                                        onChange={(e) => setFormState({ ...formState, quota: e.target.value })}
-                                        className="w-full px-5 py-4 rounded-2xl bg-white border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                        onChange={(e) => { setFormState({ ...formState, quota: e.target.value }); setErrors({ ...errors, quota: null }); }}
+                                        className={`w-full px-5 py-4 rounded-2xl bg-white border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm ${errors.quota ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 
                                     />
+                                    {errors.quota && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.quota}</p>}
                                 </div>
                             </div>
                         </div>
@@ -327,32 +363,38 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                 <div className="space-y-2">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Nilai Diskon</label>
                                     <input 
-                                        required 
                                         type="number" 
                                         placeholder={formState.type === 'Persen' ? 'Contoh: 50' : 'Contoh: 50000'}
                                         value={formState.value}
-                                        onChange={(e) => setFormState({ ...formState, value: e.target.value })}
-                                        className="w-full px-5 py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm" 
+                                        onChange={(e) => { setFormState({ ...formState, value: e.target.value }); setErrors({ ...errors, value: null }); }}
+                                        className={`w-full px-5 py-4 rounded-2xl bg-secondary/20 border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm ${errors.value ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 
                                     />
+                                    {errors.value && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.value}</p>}
                                 </div>
                             </div>
                         )}
 
                         <div className="grid grid-cols-2 gap-4">
-                            <CustomDatePicker
-                                label="Mulai Berlaku"
-                                value={formState.startDate}
-                                onChange={(val) => setFormState({ ...formState, startDate: val })}
-                                className="w-full"
-                                minDate={todayStr}
-                            />
-                            <CustomDatePicker
-                                label="Berakhir"
-                                value={formState.endDate}
-                                onChange={(val) => setFormState({ ...formState, endDate: val })}
-                                className="w-full"
-                                minDate={formState.startDate || todayStr}
-                            />
+                            <div>
+                                <CustomDatePicker
+                                    label="Mulai Berlaku"
+                                    value={formState.startDate}
+                                    onChange={(val) => { setFormState({ ...formState, startDate: val }); setErrors({ ...errors, startDate: null }); }}
+                                    className="w-full"
+                                    minDate={todayStr}
+                                />
+                                {errors.startDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.startDate}</p>}
+                            </div>
+                            <div>
+                                <CustomDatePicker
+                                    label="Berakhir"
+                                    value={formState.endDate}
+                                    onChange={(val) => { setFormState({ ...formState, endDate: val }); setErrors({ ...errors, endDate: null }); }}
+                                    className="w-full"
+                                    minDate={formState.startDate || todayStr}
+                                />
+                                {errors.endDate && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.endDate}</p>}
+                            </div>
                         </div>
 
                         {/* Item Selection Section (only for non-bundle) */}
@@ -428,6 +470,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                                 buyItems: [...(formState.bundleConfig?.buyItems || []), val]
                                                             }
                                                         });
+                                                        setErrors({ ...errors, bundleBuy: null });
                                                     }
                                                 }}
                                                 options={isLoadingData ? [{ label: 'Memuat data...', value: '' }] : [
@@ -435,6 +478,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                     ...apiProducts.map(p => ({ label: p.name, value: p.id }))
                                                 ]}
                                             />
+                                            {errors.bundleBuy && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.bundleBuy}</p>}
                                         </div>
                                     </div>
                                     <div className="flex flex-wrap gap-2 mt-3">
@@ -484,10 +528,12 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                         getItems: [...(formState.bundleConfig?.getItems || []), { id: val, type: 'Persen', value: 0 }]
                                                     }
                                                 });
+                                                setErrors({ ...errors, bundleGet: null });
                                                 window.tempBenefitVal = ""; // reset
                                             }
                                         }}>Tambah</button>
                                     </div>
+                                    {errors.bundleGet && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.bundleGet}</p>}
                                     <div className="space-y-3 mt-4">
                                         {formState.bundleConfig?.getItems?.map(item => (
                                             <div key={item.id} className="flex gap-3 items-center bg-white p-3 rounded-2xl border border-primary/5 shadow-sm">

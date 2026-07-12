@@ -49,7 +49,6 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     category: initialData.category || '',
                     stock: initialData.stock !== undefined ? initialData.stock : '',
                     minStock: initialData.minStock !== undefined ? initialData.minStock : '',
-                    price: initialData.price !== undefined ? initialData.price : '',
                     id: initialData.id || ''
                 });
             } else {
@@ -58,7 +57,6 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                     category: '',
                     stock: '',
                     minStock: '',
-                    price: '',
                     id: ''
                 });
 
@@ -117,10 +115,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
             newErrors.category = "Kategori wajib diisi";
         }
 
-        // Validasi harga khusus untuk tipe material
-        if (type === 'material' && (formState.price === '' || formState.price === null || formState.price === undefined)) {
-            newErrors.price = "Harga wajib diisi";
-        }
+        // Harga dihilangkan untuk tipe material berdasarkan instruksi
 
         setErrors(newErrors);
         if (Object.keys(newErrors).length > 0) {
@@ -283,19 +278,7 @@ const ApotekerFormModal = ({ isOpen, onClose, onSave, initialData, type }) => {
                             </div>
                         )}
 
-                        {type === 'material' && (
-                            <div>
-                                <label className={labelClassName}>Harga (Rp)</label>
-                                <input
-                                    type="number"
-                                    value={formState.price}
-                                    onChange={(e) => handleChange('price', e.target.value === '' ? '' : Number(e.target.value))}
-                                    className={getDynamicInputClass('price')}
-                                    placeholder="Contoh: 50000"
-                                />
-                                {errors.price && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.price}</p>}
-                            </div>
-                        )}
+
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
