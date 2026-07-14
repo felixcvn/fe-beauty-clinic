@@ -14,48 +14,49 @@ export const MockDataProvider = ({ children }) => {
 
     const [promos, setPromos] = useState([]);
 
-    useEffect(() => {
-        const loadRealPromos = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) return;
-            try {
-                const res = await promoAPI.getAll(token);
-                if (res.success && res.data) {
-                    const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
-                    const mapped = dataArray.map(item => ({
-                        id: item.id,
-                        name: item.nama_promo,
-                        code: item.kode_promo || '',
-                        category: item.kategori,
-                        promoMode: item.mode_promo,
-                        type: item.tipe_diskon ? (item.tipe_diskon === 'persentase' ? 'Persen' : 'Nominal') : 'Persen',
-                        value: item.nilai_diskon || 0,
-                        minOrderAmount: item.min_order_amount || 0,
-                        startDate: item.tanggal_mulai ? item.tanggal_mulai.split('T')[0] : '',
-                        endDate: item.tanggal_selesai ? item.tanggal_selesai.split('T')[0] : '',
-                        isVoucher: item.is_voucher_fisik === 1 || item.is_voucher_fisik === true,
-                        voucherCount: item.vouchers_count || 0,
-                        generatedCodes: item.vouchers ? item.vouchers.map(v => ({ code: v.kode_voucher, is_used: v.is_used })) : [], 
-                        quota: item.kuota_global || '',
-                        used: item.kuota_terpakai || 0,
-                        status: item.status,
-                        targets: item.targets || [],
-                        targetItems: (item.targets || []).map(t => t.item_name || String(t.item_id)),
-                        bundleConfig: {
-                            buyItems: (item.targets || []).filter(t => t.target_type === 'Syarat').map(t => t.item_name || String(t.item_id)),
-                            getItems: (item.targets || []).filter(t => t.target_type === 'Benefit').map(t => t.item_name || String(t.item_id)),
-                        },
-                        itemDiscounts: (item.targets || []).filter(t => t.target_type === 'Spesifik').map(t => ({
-                            id: t.item_name || String(t.item_id),
-                            discountValue: t.nilai_diskon_spesifik || 0
-                        }))
-                    }));
-                    setPromos(mapped);
-                }
-            } catch (error) {
-                console.error('[MockDataContext] Error fetching real promos:', error);
+    const loadRealPromos = async () => {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        try {
+            const res = await promoAPI.getAll(token);
+            if (res.success && res.data) {
+                const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                const mapped = dataArray.map(item => ({
+                    id: item.id,
+                    name: item.nama_promo,
+                    code: item.kode_promo || '',
+                    category: item.kategori,
+                    promoMode: item.mode_promo,
+                    type: item.tipe_diskon ? (item.tipe_diskon === 'persentase' ? 'Persen' : 'Nominal') : 'Persen',
+                    value: item.nilai_diskon || 0,
+                    minOrderAmount: item.min_order_amount || 0,
+                    startDate: item.tanggal_mulai ? item.tanggal_mulai.substring(0, 10) : '',
+                    endDate: item.tanggal_selesai ? item.tanggal_selesai.substring(0, 10) : '',
+                    isVoucher: item.is_voucher_fisik === 1 || item.is_voucher_fisik === true,
+                    voucherCount: item.vouchers_count || 0,
+                    generatedCodes: item.vouchers ? item.vouchers.map(v => ({ code: v.kode_voucher, used: v.is_used })) : [], 
+                    quota: item.kuota_global || '',
+                    used: item.kuota_terpakai || 0,
+                    status: item.status,
+                    targets: item.targets || [],
+                    targetItems: (item.targets || []).map(t => t.item_name || String(t.item_id)),
+                    bundleConfig: {
+                        buyItems: (item.targets || []).filter(t => t.target_type === 'Syarat').map(t => t.item_name || String(t.item_id)),
+                        getItems: (item.targets || []).filter(t => t.target_type === 'Benefit').map(t => t.item_name || String(t.item_id)),
+                    },
+                    itemDiscounts: (item.targets || []).filter(t => t.target_type === 'Spesifik').map(t => ({
+                        id: t.item_name || String(t.item_id),
+                        discountValue: t.nilai_diskon_spesifik || 0
+                    }))
+                }));
+                setPromos(mapped);
             }
-        };
+        } catch (error) {
+            console.error('[MockDataContext] Error fetching real promos:', error);
+        }
+    };
+
+    useEffect(() => {
         loadRealPromos();
     }, []);
 
@@ -637,7 +638,7 @@ export const MockDataProvider = ({ children }) => {
             apotekItems, addApotekItem, updateApotekItem, deleteApotekItem,
             staff, addStaff, updateStaff, deleteStaff,
             bookings, addBooking, updateBooking, deleteBooking,
-            promos, addPromo, updatePromo, deletePromo,
+            promos, addPromo, updatePromo, deletePromo, loadRealPromos,
             slotAvailability, updateSlotAvailability,
             leaveRequests, updateLeaveStatus, addLeaveRequest,
             overtimeRequests, updateOvertimeStatus, addOvertimeRequest,

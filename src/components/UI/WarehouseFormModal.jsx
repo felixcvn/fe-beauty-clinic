@@ -14,7 +14,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
     const formRef = useRef(null);
     const [formState, setFormState] = useState({
         name: '',
-        category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
+        category: type === 'product' ? 'Skincare' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
         price: '',
         priceDistributor: '',
         stock: '',
@@ -50,7 +50,7 @@ const WarehouseFormModal = ({ isOpen, onClose, onSave, initialData, type, produc
             } else {
                 setFormState({
                     name: '',
-                    category: type === 'product' ? 'Obat' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
+                    category: type === 'product' ? 'Skincare' : type === 'racikan' ? 'Racikan' : type === 'material' ? 'Bahan' : 'Treatment',
                     price: '',
                     priceDistributor: '',
                     stock: '',

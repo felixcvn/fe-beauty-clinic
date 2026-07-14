@@ -6,12 +6,18 @@ import { useMockData } from '../../context/MockDataContext';
 
 const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
     const { showToast } = useToast();
-    const { promos: contextPromos } = useMockData();
+    const { promos: contextPromos, loadRealPromos } = useMockData();
     const [searchTerm, setSearchTerm] = useState('');
     const [activeCategory, setActiveCategory] = useState('Semua');
     const [cart, setCart] = useState([]);
     const [paymentMethod, setPaymentMethod] = useState('Tunai');
     const [isProcessing, setIsProcessing] = useState(false);
+
+    React.useEffect(() => {
+        if (isOpen && loadRealPromos) {
+            loadRealPromos();
+        }
+    }, [isOpen]);
 
     const categories = ['Semua', 'Obat', 'Treatment', 'Skincare'];
 
@@ -45,14 +51,56 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
     ];
 
     const getActivePromos = () => {
-        const today = new Date().toISOString().split('T')[0];
-        return SYSTEM_PROMOS.filter(p => p.status === 'Aktif' && today >= p.startDate && today <= p.endDate);
+        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+        const today = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+        return SYSTEM_PROMOS.filter(p => p.status?.toLowerCase() === 'aktif' && today >= p.startDate && today <= p.endDate);
     };
 
     const filteredCustomers = customers.filter(c =>
         c.name.toLowerCase().includes(customerSearch.toLowerCase()) ||
         c.id.toLowerCase().includes(customerSearch.toLowerCase())
     );
+
+    const getProductPrice = (item) => {
+        if (selectedCustomer?.isDistributor && item.harga_distributor) {
+            return item.harga_distributor;
+        }
+        return item.price;
+    };
+
+    const getDiscountedPrice = (item) => {
+        const basePrice = getProductPrice(item);
+        let finalPrice = basePrice;
+        let appliedPromoForItem = null;
+
+        const validPromos = getActivePromos();
+        let specificPromo = validPromos.find(p => p.promoMode === 'specific_item' && p.itemDiscounts?.find(d => d.id === item.name || d.id === item.id));
+        let basicPromo = validPromos.find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(item.id) || p.targetItems?.includes(item.name)));
+
+        const promoToUse = (appliedPromo && (appliedPromo.promoMode === 'basic' || appliedPromo.promoMode === 'specific_item' || !appliedPromo.promoMode)) ? appliedPromo : (specificPromo || basicPromo);
+
+        if (promoToUse) {
+            if (promoToUse.promoMode === 'specific_item') {
+                const discountConfig = promoToUse.itemDiscounts?.find(d => d.id === item.name || d.id === item.id);
+                if (discountConfig) {
+                    finalPrice = Math.max(0, basePrice - Number(discountConfig.discountValue));
+                    appliedPromoForItem = promoToUse;
+                }
+            } else {
+                const targets = promoToUse.targetItems || [];
+                if (targets.length === 0 || targets.includes(item.id) || targets.includes(item.name)) {
+                    if (promoToUse.type === 'Persen') {
+                        finalPrice = basePrice - (basePrice * (promoToUse.value / 100));
+                    } else {
+                        finalPrice = Math.max(0, basePrice - Number(promoToUse.value));
+                    }
+                    appliedPromoForItem = promoToUse;
+                }
+            }
+        }
+        
+        return { finalPrice: Math.max(0, finalPrice), originalPrice: basePrice, promo: appliedPromoForItem };
+    };
 
     const filteredProducts = products.filter(p =>
         (activeCategory === 'Semua' || p.category === activeCategory) &&
@@ -84,90 +132,32 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
         setCart(prev => prev.filter(item => item.id !== id));
     };
 
-    const cartTotal = useMemo(() =>
-        cart.reduce((sum, item) => sum + (item.price * item.quantity), 0)
+    const cartTotal = React.useMemo(() =>
+        cart.reduce((sum, item) => sum + (getProductPrice(item) * item.quantity), 0)
         , [cart]);
 
+    const totalItemDiscount = React.useMemo(() => {
+        return cart.reduce((sum, item) => {
+            const { originalPrice, finalPrice } = getDiscountedPrice(item);
+            return sum + ((originalPrice - finalPrice) * item.quantity);
+        }, 0);
+    }, [cart, selectedCustomer, appliedPromo, contextPromos]);
+
     const memberDiscount = isMember ? (cartTotal * 0.05) : 0;
-    const promoDiscount = useMemo(() => {
+
+    const calculatePromoDiscount = () => {
         if (!appliedPromo) return 0;
-        
-        let totalDiscount = 0;
-        const mode = appliedPromo.promoMode || 'basic';
-
-        if (mode === 'min_order') {
-            if (cartTotal < Number(appliedPromo.minOrderAmount)) {
-                return 0; // Tidak penuhi syarat
-            }
-            if (appliedPromo.type === 'Persen') totalDiscount = (cartTotal - memberDiscount) * (appliedPromo.value / 100);
-            else totalDiscount = Number(appliedPromo.value);
-        } 
-        else if (mode === 'specific_item') {
-            // Hitung diskon untuk masing-masing item di keranjang
-            cart.forEach(item => {
-                const discountConfig = appliedPromo.itemDiscounts?.find(d => d.id === item.name);
-                if (discountConfig) {
-                    const itemTotal = item.price * item.quantity;
-                    if (discountConfig.type === 'Persen') {
-                        totalDiscount += itemTotal * (Number(discountConfig.value) / 100);
-                    } else {
-                        totalDiscount += Number(discountConfig.value) * item.quantity;
-                    }
-                }
-            });
+        if (appliedPromo.promoMode === 'basic' || appliedPromo.promoMode === 'specific_item' || !appliedPromo.promoMode) {
+            return 0; // Sudah dihandle oleh per-item discount
         }
-        else if (mode === 'bundle') {
-            // Cek apakah syarat terpenuhi
-            const buyItems = appliedPromo.bundleConfig?.buyItems || [];
-            const getItems = appliedPromo.bundleConfig?.getItems || [];
-            
-            let meetsRequirement = true;
-            if (buyItems.length > 0) {
-                // Semua syarat beli harus ada di cart
-                meetsRequirement = buyItems.every(reqItem => cart.some(cartItem => cartItem.name === reqItem));
-            }
-
-            if (meetsRequirement) {
-                // Berlaku sekali per transaksi
-                cart.forEach(item => {
-                    const benefit = getItems.find(getI => getI.id === item.name);
-                    if (benefit) {
-                        if (benefit.type === 'Persen') {
-                            totalDiscount += item.price * (Number(benefit.value) / 100);
-                        } else {
-                            totalDiscount += Number(benefit.value);
-                        }
-                    }
-                });
-            }
+        if (appliedPromo.type === 'Persen') {
+            return (cartTotal - memberDiscount) * (appliedPromo.value / 100);
         }
-        else {
-            // mode === 'basic'
-            const targets = appliedPromo.targetItems || [];
-            if (targets.length === 0) {
-                // Diskon global
-                if (appliedPromo.type === 'Persen') totalDiscount = (cartTotal - memberDiscount) * (appliedPromo.value / 100);
-                else totalDiscount = Number(appliedPromo.value);
-            } else {
-                // Diskon hanya pada item target
-                cart.forEach(item => {
-                    if (targets.includes(item.name)) {
-                        const itemTotal = item.price * item.quantity;
-                        if (appliedPromo.type === 'Persen') {
-                            totalDiscount += itemTotal * (appliedPromo.value / 100);
-                        } else {
-                            totalDiscount += Number(appliedPromo.value) * item.quantity;
-                        }
-                    }
-                });
-            }
-        }
+        return appliedPromo.value;
+    };
+    const promoDiscount = calculatePromoDiscount();
 
-        return Math.min(totalDiscount, cartTotal - memberDiscount);
-    }, [appliedPromo, cartTotal, memberDiscount, cart]);
-
-    const tax = 0;
-    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount));
+    const finalTotal = Math.max(0, cartTotal - memberDiscount - totalItemDiscount - promoDiscount);
 
     const handleApplyPromo = (codeToApply = promoInput) => {
         if (!codeToApply.trim()) {
@@ -265,24 +255,8 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                         {/* Product Grid */}
                         <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-4">
                             {filteredProducts.map(product => {
-                                let finalPrice = product.price;
-                                let isDiscounted = false;
-
-                                // Gunakan promo basic yang diterapkan, atau cari otomatis promo basic yang sedang aktif
-                                const activeBasicPromo = getActivePromos().find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(product.id) || p.targetItems?.includes(product.name)));
-                                const promoToUse = (appliedPromo && (appliedPromo.promoMode === 'basic' || !appliedPromo.promoMode)) ? appliedPromo : activeBasicPromo;
-
-                                if (promoToUse) {
-                                    const targets = promoToUse.targetItems || [];
-                                    if (targets.length === 0 || targets.includes(product.id) || targets.includes(product.name)) {
-                                        if (promoToUse.type === 'Persen') {
-                                            finalPrice = product.price - (product.price * (promoToUse.value / 100));
-                                        } else {
-                                            finalPrice = Math.max(0, product.price - Number(promoToUse.value));
-                                        }
-                                        isDiscounted = true;
-                                    }
-                                }
+                                const { finalPrice, originalPrice } = getDiscountedPrice(product);
+                                const isDiscounted = finalPrice < originalPrice;
 
                                 return (
                                 <button
@@ -308,7 +282,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                     <div className="flex items-center justify-between mt-auto">
                                         <div className="flex flex-col">
                                             {isDiscounted && (
-                                                <span className="text-[9px] text-primary/40 line-through decoration-red-500/50 decoration-2">Rp {product.price.toLocaleString('id-ID')}</span>
+                                                <span className="text-[9px] text-primary/40 line-through decoration-red-500/50 decoration-2">Rp {originalPrice.toLocaleString('id-ID')}</span>
                                             )}
                                             <span className="text-xs font-black text-primary tracking-tighter">Rp {finalPrice.toLocaleString('id-ID')}</span>
                                         </div>
@@ -398,7 +372,10 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                             </button>
                             {isPromoDropdownOpen && (
                                 <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden animate-fade-in max-h-[160px] overflow-y-auto custom-scrollbar">
-                                    {getActivePromos().filter(p => p.code.toLowerCase().includes(promoInput.toLowerCase()) || p.name.toLowerCase().includes(promoInput.toLowerCase())).map(promo => (
+                                    {getActivePromos()
+                                        .filter(p => p.isVoucher || p.promoMode === 'min_order' || p.promoMode === 'bundle')
+                                        .filter(p => p.code.toLowerCase().includes(promoInput.toLowerCase()) || p.name.toLowerCase().includes(promoInput.toLowerCase()))
+                                        .map(promo => (
                                         <button
                                             key={promo.code}
                                             onClick={() => handleApplyPromo(promo.code)}
@@ -442,13 +419,18 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                                 <Trash2 className="w-3 h-3" />
                                             </button>
                                         </div>
-                                        <div className="flex justify-between items-center mt-1.5">
-                                            <div className="flex items-center gap-2.5 bg-secondary/30 rounded-lg px-2 py-0.5">
-                                                <button onClick={() => updateQuantity(item.id, -1)} className="p-0.5 hover:bg-white rounded transition-all"><Minus className="w-2.5 h-2.5 text-primary/40" /></button>
-                                                <span className="text-[9px] font-black text-primary">{item.quantity}</span>
-                                                <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:bg-white rounded transition-all"><Plus className="w-2.5 h-2.5 text-primary/40" /></button>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2 bg-secondary/30 rounded-xl px-2 py-0.5 border border-primary/5">
+                                                <button onClick={() => updateQuantity(item.id, -1)} className="p-1 hover:bg-white rounded transition-all group-hover:text-primary"><Minus className="w-2.5 h-2.5 text-primary/40" /></button>
+                                                <span className="text-[10px] font-black text-primary">{item.quantity}</span>
+                                                <button onClick={() => updateQuantity(item.id, 1)} className="p-1 hover:bg-white rounded transition-all group-hover:text-primary"><Plus className="w-2.5 h-2.5 text-primary/40" /></button>
                                             </div>
-                                            <span className="text-[10px] font-black text-primary tracking-tighter">Rp {(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                                            <div className="flex flex-col items-end">
+                                                {getDiscountedPrice(item).finalPrice < getDiscountedPrice(item).originalPrice && (
+                                                    <span className="text-[9px] text-red-400/60 line-through">Rp {(getDiscountedPrice(item).originalPrice * item.quantity).toLocaleString('id-ID')}</span>
+                                                )}
+                                                <span className="text-xs font-black text-primary tracking-tighter">Rp {(getDiscountedPrice(item).finalPrice * item.quantity).toLocaleString('id-ID')}</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -458,19 +440,30 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
 
                     {/* 3. Totals & Checkout (Bottom - Fixed) */}
                     <div className="p-6 md:p-8 bg-white border-t border-primary/5 space-y-5 shrink-0">
-                        <div className="space-y-2.5 border-b border-primary/5 pb-5">
-                            <div className="flex justify-between text-primary/40 font-bold text-[9px] uppercase tracking-[0.2em]">
+                        <div className="space-y-2 pt-4">
+                            <div className="flex justify-between text-primary/40 font-bold text-[10px] uppercase tracking-widest">
                                 <span>Subtotal</span>
                                 <span>Rp {cartTotal.toLocaleString('id-ID')}</span>
                             </div>
-                            {appliedPromo && (
-                                <div className="flex justify-between text-green-500 font-bold text-[9px] uppercase tracking-[0.2em]">
-                                    <span>Promo ({appliedPromo.code})</span>
+                            {memberDiscount > 0 && (
+                                <div className="flex justify-between text-green-500 font-bold text-[10px] uppercase tracking-widest">
+                                    <span>Diskon Member (5%)</span>
+                                    <span>- Rp {memberDiscount.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
+                            {totalItemDiscount > 0 && (
+                                <div className="flex justify-between text-green-500 font-bold text-[10px] uppercase tracking-widest">
+                                    <span>Diskon Promo Item</span>
+                                    <span>- Rp {totalItemDiscount.toLocaleString('id-ID')}</span>
+                                </div>
+                            )}
+                            {appliedPromo && promoDiscount > 0 && (
+                                <div className="flex justify-between text-green-500 font-bold text-[10px] uppercase tracking-widest">
+                                    <span>Promo Global ({appliedPromo.code})</span>
                                     <span>- Rp {promoDiscount.toLocaleString('id-ID')}</span>
                                 </div>
                             )}
-
-                            <div className="flex justify-between items-center pt-2">
+                            <div className="flex justify-between items-center pt-4 border-t border-primary/5 mt-2">
                                 <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em]">Total Bayar</span>
                                 <span className="text-2xl font-black text-primary tracking-tighter">Rp {finalTotal.toLocaleString('id-ID')}</span>
                             </div>

@@ -12,7 +12,7 @@ const POSPage = () => {
     const navigate = useNavigate();
     const { showToast } = useToast();
     const { user } = useAuth();
-    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, promos, updatePromo } = useMockData();
+    const { racikans, addAntreanRacikan, antreanRacikan, resetAntreanRacikan, promos, updatePromo, loadRealPromos } = useMockData();
     
     // States that were missing
     const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +22,14 @@ const POSPage = () => {
     const [apiTreatments, setApiTreatments] = useState([]);
     const [apiRacikans, setApiRacikans] = useState([]);
     const [cart, setCart] = useState([]);
+
+    // Fetch promos fresh on mount
+    useEffect(() => {
+        if (loadRealPromos) {
+            loadRealPromos();
+        }
+    }, []);
+
     const [activeCategory, setActiveCategory] = useState('Semua');
     const [searchTerm, setSearchTerm] = useState('');
     const [paymentMethod, setPaymentMethod] = useState('Cash');
@@ -171,9 +179,9 @@ const POSPage = () => {
     const [isPromoDropdownOpen, setIsPromoDropdownOpen] = useState(false);
 
     const getActivePromos = () => {
-        const today = new Date().toISOString().split('T')[0];
-        // Use promos from useMockData() instead of hardcoded SYSTEM_PROMOS
-        return (promos || []).filter(p => p.status === 'Aktif' && today >= p.startDate && today <= p.endDate);
+        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+        const today = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+        return (promos || []).filter(p => p.status?.toLowerCase() === 'aktif' && today >= p.startDate && today <= p.endDate);
     };
 
     // Customer Selection State
@@ -217,6 +225,40 @@ const POSPage = () => {
             return item.harga_distributor;
         }
         return item.price;
+    };
+
+    const getDiscountedPrice = (item) => {
+        const basePrice = getProductPrice(item);
+        let finalPrice = basePrice;
+        let appliedPromoForItem = null;
+
+        const validPromos = getActivePromos();
+        let specificPromo = validPromos.find(p => p.promoMode === 'specific_item' && p.itemDiscounts?.find(d => d.id === item.name || d.id === item.id));
+        let basicPromo = validPromos.find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(item.id) || p.targetItems?.includes(item.name)));
+
+        const promoToUse = (appliedPromo && (appliedPromo.promoMode === 'basic' || appliedPromo.promoMode === 'specific_item' || !appliedPromo.promoMode)) ? appliedPromo : (specificPromo || basicPromo);
+
+        if (promoToUse) {
+            if (promoToUse.promoMode === 'specific_item') {
+                const discountConfig = promoToUse.itemDiscounts?.find(d => d.id === item.name || d.id === item.id);
+                if (discountConfig) {
+                    finalPrice = Math.max(0, basePrice - Number(discountConfig.discountValue));
+                    appliedPromoForItem = promoToUse;
+                }
+            } else {
+                const targets = promoToUse.targetItems || [];
+                if (targets.length === 0 || targets.includes(item.id) || targets.includes(item.name)) {
+                    if (promoToUse.type === 'Persen') {
+                        finalPrice = basePrice - (basePrice * (promoToUse.value / 100));
+                    } else {
+                        finalPrice = Math.max(0, basePrice - Number(promoToUse.value));
+                    }
+                    appliedPromoForItem = promoToUse;
+                }
+            }
+        }
+        
+        return { finalPrice: Math.max(0, finalPrice), originalPrice: basePrice, promo: appliedPromoForItem };
     };
 
     const addToCart = (product) => {
@@ -271,11 +313,21 @@ const POSPage = () => {
         cart.reduce((sum, item) => sum + (getProductPrice(item) * item.quantity), 0)
         , [cart, selectedCustomer]);
 
+    const totalItemDiscount = useMemo(() => {
+        return cart.reduce((sum, item) => {
+            const { originalPrice, finalPrice } = getDiscountedPrice(item);
+            return sum + ((originalPrice - finalPrice) * item.quantity);
+        }, 0);
+    }, [cart, selectedCustomer, appliedPromo, promos]);
+
     // Kalkulasi Harga Akhir
     const memberDiscount = selectedCustomer?.isMember ? (cartTotal * 0.05) : 0;
 
     const calculatePromoDiscount = () => {
         if (!appliedPromo) return 0;
+        if (appliedPromo.promoMode === 'basic' || appliedPromo.promoMode === 'specific_item' || !appliedPromo.promoMode) {
+            return 0; // Sudah dihandle oleh per-item discount
+        }
         if (appliedPromo.type === 'Persen') {
             return (cartTotal - memberDiscount) * (appliedPromo.value / 100);
         }
@@ -284,7 +336,7 @@ const POSPage = () => {
     const promoDiscount = calculatePromoDiscount();
 
     const tax = 0;
-    const finalTotal = Math.max(0, (cartTotal - memberDiscount - promoDiscount)) + (selectedCustomer?.needsMemberFee ? 50000 : 0);
+    const finalTotal = Math.max(0, (cartTotal - memberDiscount - totalItemDiscount - promoDiscount)) + (selectedCustomer?.needsMemberFee ? 50000 : 0);
 
     const handleApplyPromo = (codeToApply = promoInput) => {
         if (!codeToApply.trim()) {
@@ -613,23 +665,8 @@ const POSPage = () => {
                                 const isPriceNotSet = !basePrice || basePrice <= 0;
                                 const isUnavailable = isOutOfStock || isPriceNotSet;
                                 
-                                let finalPrice = basePrice;
-                                let isDiscounted = false;
-
-                                const activeBasicPromo = getActivePromos().find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(product.id) || p.targetItems?.includes(product.name)));
-                                const promoToUse = (appliedPromo && (appliedPromo.promoMode === 'basic' || !appliedPromo.promoMode)) ? appliedPromo : activeBasicPromo;
-
-                                if (promoToUse && !isUnavailable) {
-                                    const targets = promoToUse.targetItems || [];
-                                    if (targets.length === 0 || targets.includes(product.id) || targets.includes(product.name)) {
-                                        if (promoToUse.type === 'Persen') {
-                                            finalPrice = basePrice - (basePrice * (promoToUse.value / 100));
-                                        } else {
-                                            finalPrice = Math.max(0, basePrice - Number(promoToUse.value));
-                                        }
-                                        isDiscounted = true;
-                                    }
-                                }
+                                const { finalPrice, originalPrice, promo: appliedPromoForItem } = getDiscountedPrice(product);
+                                const isDiscounted = finalPrice < originalPrice;
                                 
                                 return (
                                     <button
@@ -836,7 +873,12 @@ const POSPage = () => {
                                         <span className="text-[9px] font-black text-primary">{item.quantity}</span>
                                         <button onClick={() => updateQuantity(item.id, 1)} className="p-0.5 hover:bg-white rounded transition-all"><Plus className="w-2.5 h-2.5 text-primary/40" /></button>
                                     </div>
-                                    <span className="text-[11px] font-black text-primary tracking-tighter">Rp {(getProductPrice(item) * item.quantity).toLocaleString('id-ID')}</span>
+                                    <span className="text-[11px] font-black text-primary tracking-tighter flex flex-col items-end">
+                                        {getDiscountedPrice(item).finalPrice < getDiscountedPrice(item).originalPrice && (
+                                            <span className="line-through text-red-400/60 text-[9px]">Rp {(getDiscountedPrice(item).originalPrice * item.quantity).toLocaleString('id-ID')}</span>
+                                        )}
+                                        Rp {(getDiscountedPrice(item).finalPrice * item.quantity).toLocaleString('id-ID')}
+                                    </span>
                                 </div>
                             </div>
                         ))
@@ -863,7 +905,10 @@ const POSPage = () => {
                         </button>
                         {isPromoDropdownOpen && (
                             <div className="absolute top-auto bottom-full mb-2 left-0 right-0 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden animate-fade-in max-h-[160px] overflow-y-auto custom-scrollbar">
-                                {getActivePromos().filter(p => p.code.toLowerCase().includes(promoInput.toLowerCase()) || p.name.toLowerCase().includes(promoInput.toLowerCase())).map(promo => (
+                                {getActivePromos()
+                                    .filter(p => p.isVoucher || p.promoMode === 'min_order' || p.promoMode === 'bundle')
+                                    .filter(p => p.code.toLowerCase().includes(promoInput.toLowerCase()) || p.name.toLowerCase().includes(promoInput.toLowerCase()))
+                                    .map(promo => (
                                     <button
                                         key={promo.code}
                                         onClick={() => { handleApplyPromo(promo.code); setIsPromoDropdownOpen(false); }}
@@ -899,9 +944,15 @@ const POSPage = () => {
                                 <span>- Rp {memberDiscount.toLocaleString('id-ID')}</span>
                             </div>
                         )}
-                        {appliedPromo && (
+                        {totalItemDiscount > 0 && (
                             <div className="flex justify-between text-green-500 font-bold text-[9px] uppercase tracking-widest px-1">
-                                <span>Promo ({appliedPromo.code})</span>
+                                <span>Diskon Promo Item</span>
+                                <span>- Rp {totalItemDiscount.toLocaleString('id-ID')}</span>
+                            </div>
+                        )}
+                        {appliedPromo && promoDiscount > 0 && (
+                            <div className="flex justify-between text-green-500 font-bold text-[9px] uppercase tracking-widest px-1">
+                                <span>Promo Global ({appliedPromo.code})</span>
                                 <span>- Rp {promoDiscount.toLocaleString('id-ID')}</span>
                             </div>
                         )}

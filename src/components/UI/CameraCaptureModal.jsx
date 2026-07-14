@@ -39,6 +39,10 @@ const CameraCaptureModal = ({ isOpen, onClose, onCapture, facingMode = 'environm
             }
         } catch (err) {
             console.error("Camera access error:", err);
+            // Handle if navigator.mediaDevices is undefined (HTTP issue)
+            if (!navigator.mediaDevices) {
+                alert("Kamera diblokir: Browser mewajibkan koneksi HTTPS (Secure) atau localhost untuk mengakses kamera di perangkat mobile.");
+            }
             setCameraError(err.message || 'Kamera tidak dapat diakses');
             setScanStatus('error');
         }

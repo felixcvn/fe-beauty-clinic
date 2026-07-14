@@ -98,6 +98,10 @@ const FaceScanModal = ({ isOpen, onClose, onScanSuccess, type, employeeShift, is
             }
         } catch (err) {
             console.error("Error mengakses kamera:", err);
+            // Handle if navigator.mediaDevices is undefined (HTTP issue)
+            if (!navigator.mediaDevices) {
+                alert("Kamera diblokir: Browser mewajibkan koneksi HTTPS (Secure) atau localhost untuk mengakses kamera di perangkat mobile.");
+            }
             setScanStatus('error');
         }
     };
