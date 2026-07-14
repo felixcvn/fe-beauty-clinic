@@ -75,7 +75,7 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
                     </div>
                     <button
                         onClick={handleCloseAttempt}
-                        className="absolute top-4 right-4 p-2 rounded-xl bg-white/20 text-white hover:bg-white/40 transition-all z-10"
+                        className="absolute top-4 right-4 p-2 rounded-xl bg-white/20 text-white hover:bg-white/40 transition-all z-20"
                     >
                         <X className="w-4 h-4" />
                     </button>
@@ -204,11 +204,11 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
                         Kirim ke HRD
                     </button>
                 </div>
-                <ConfirmModal
-                    config={confirmConfig}
-                    onClose={() => setConfirmConfig(null)}
-                />
             </div>
+            <ConfirmModal
+                config={confirmConfig}
+                onClose={() => setConfirmConfig(null)}
+            />
         </div>,
         document.body
     );
