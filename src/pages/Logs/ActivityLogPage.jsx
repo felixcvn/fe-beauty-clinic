@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Search, ShieldAlert, Clock, User, Filter, AlertTriangle, AlertCircle, Info, Hash, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Activity, Search, ShieldAlert, Clock, User, Filter, AlertTriangle, AlertCircle, Info, Hash, ChevronLeft, ChevronRight, Loader2, Calendar } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { activityLogsAPI } from '../../services/api';
 
@@ -13,6 +13,8 @@ const ActivityLogPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [totalLogs, setTotalLogs] = useState(0);
 
+    const [dateFilter, setDateFilter] = useState('');
+
     // Debounce search
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -24,7 +26,7 @@ const ActivityLogPage = () => {
 
     const fetchLogs = async () => {
         setIsLoading(true);
-        const result = await activityLogsAPI.getAll(user?.token, page, debouncedSearch);
+        const result = await activityLogsAPI.getAll(user?.token, page, debouncedSearch, dateFilter);
         if (result.success) {
             setLogs(result.data.data || []);
             setTotalPages(result.data.last_page || 1);
@@ -39,7 +41,7 @@ const ActivityLogPage = () => {
         if (user?.token) {
             fetchLogs();
         }
-    }, [page, debouncedSearch, user?.token]);
+    }, [page, debouncedSearch, dateFilter, user?.token]);
 
     const getActionBadgeClass = (action) => {
         const type = action?.toUpperCase() || '';
@@ -96,7 +98,7 @@ const ActivityLogPage = () => {
 
             {/* Filter & Search Bar */}
             <div className="bg-white rounded-[2rem] border border-primary/5 p-4 md:p-6 shadow-2xl shadow-primary/5 flex flex-col md:flex-row gap-4 items-center">
-                <div className="relative w-full group">
+                <div className="relative w-full md:flex-1 group">
                     <Search className="w-5 h-5 text-primary/20 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors" />
                     <input
                         type="text"
@@ -106,6 +108,29 @@ const ActivityLogPage = () => {
                         onChange={(e) => setSearchTerm(e.target.value)}
                     />
                 </div>
+                <div className="relative w-full md:w-auto group">
+                    <Calendar className="w-5 h-5 text-primary/20 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors pointer-events-none" />
+                    <input
+                        type="date"
+                        className="w-full md:w-48 pl-12 pr-4 py-4 bg-gray-50/50 border border-primary/5 rounded-2xl text-primary placeholder:text-primary/20 focus:ring-4 focus:ring-primary/5 transition-all outline-none font-medium text-sm shadow-sm cursor-pointer [&::-webkit-calendar-picker-indicator]:cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-50 hover:[&::-webkit-calendar-picker-indicator]:opacity-100"
+                        value={dateFilter}
+                        onChange={(e) => {
+                            setDateFilter(e.target.value);
+                            setPage(1); // Reset page when date changes
+                        }}
+                    />
+                </div>
+                {dateFilter && (
+                    <button
+                        onClick={() => {
+                            setDateFilter('');
+                            setPage(1);
+                        }}
+                        className="w-full md:w-auto px-6 py-4 bg-red-50/50 hover:bg-red-50 text-red-600 rounded-2xl border border-red-100 font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                    >
+                        Hapus Filter Tanggal
+                    </button>
+                )}
             </div>
 
             {/* Activity List */}

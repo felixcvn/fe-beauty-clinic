@@ -197,7 +197,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
             onClick={handleRequestClose} // Klik background gelap untuk tutup
         >
             <div 
-                className="relative w-full max-w-lg bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                className="relative w-full max-w-3xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()} // Mencegah klik di dalam modal ikut menutup modal
             >
                 <button
@@ -240,7 +240,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                             <label className="text-[10px] font-black uppercase tracking-widest text-primary/40 ml-1">Nama Promo</label>
                             <input 
                                 type="text" 
-                                placeholder="Contoh: Diskon Ramadhan" 
+                                placeholder="Masukkan nama promo..." 
                                 value={formState.name}
                                 onChange={(e) => { setFormState({ ...formState, name: e.target.value }); setErrors({ ...errors, name: null }); }}
                                 className={`w-full px-5 py-4 rounded-2xl bg-secondary/20 border outline-none text-primary font-medium text-sm focus:ring-4 focus:ring-primary/5 transition-all shadow-sm ${errors.name ? 'border-red-400 focus:border-red-400' : 'border-primary/5'}`} 

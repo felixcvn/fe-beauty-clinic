@@ -520,49 +520,47 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
                 {/* Bottom Actions */}
                 <div className="p-8 bg-white border-t border-primary/5 flex gap-4 shrink-0">
-                    {(user?.role?.toLowerCase() === 'gudang umum' || user?.role?.toLowerCase() === 'super admin') ? (
-                        transaction.status === 'Pending' && (
-                            <button 
-                                onClick={async () => {
-                                    try {
-                                        const payload = {
-                                            details: editableItems.map(item => ({
-                                                id: item.id,
-                                                qty: item.qty,
-                                                subtotal: item.rawPrice * item.qty,
-                                                itemable_id: item.item_id,
-                                                itemable_type: item.item_type || 'App\\Models\\StokProduk',
-                                                nama_item: item.name,
-                                                harga: item.rawPrice
-                                            }))
-                                        };
-                                        if (alamat !== initialAlamat) {
-                                            payload.alamat_pengiriman = alamat;
-                                        }
-                                        const res = await transaksiAPI.approve(user.token, transaction.raw.id, payload);
-                                        if (res.success) {
-                                            showToast('PO Berhasil di-ACC dan Stok Berkurang', 'success');
-                                            if (onApproveSuccess) onApproveSuccess();
-                                        } else {
-                                            showToast(res.message || 'Gagal ACC PO', 'error');
-                                        }
-                                    } catch (error) {
-                                        showToast('Terjadi kesalahan jaringan', 'error');
-                                    }
-                                }}
-                                className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
-                            >
-                                <CheckCircle2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                                <span>Tandai Selesai / ACC PO</span>
-                            </button>
-                        )
-                    ) : (
+                    <button 
+                        onClick={generateThermalReceipt}
+                        className={`flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl transition-all font-black text-[10px] uppercase tracking-widest active:scale-95 group ${(user?.role?.toLowerCase() === 'gudang umum' || user?.role?.toLowerCase() === 'super admin') && transaction.status === 'Pending' ? 'bg-secondary/20 text-primary hover:bg-secondary/40 border border-primary/5' : 'bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20'}`}
+                    >
+                        <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                        <span>Cetak Bukti Transaksi</span>
+                    </button>
+
+                    {(user?.role?.toLowerCase() === 'gudang umum' || user?.role?.toLowerCase() === 'super admin') && transaction.status === 'Pending' && (
                         <button 
-                            onClick={generateThermalReceipt}
+                            onClick={async () => {
+                                try {
+                                    const payload = {
+                                        details: editableItems.map(item => ({
+                                            id: item.id,
+                                            qty: item.qty,
+                                            subtotal: item.rawPrice * item.qty,
+                                            itemable_id: item.item_id,
+                                            itemable_type: item.item_type || 'App\\Models\\StokProduk',
+                                            nama_item: item.name,
+                                            harga: item.rawPrice
+                                        }))
+                                    };
+                                    if (alamat !== initialAlamat) {
+                                        payload.alamat_pengiriman = alamat;
+                                    }
+                                    const res = await transaksiAPI.approve(user.token, transaction.raw.id, payload);
+                                    if (res.success) {
+                                        showToast('PO Berhasil di-ACC dan Stok Berkurang', 'success');
+                                        if (onApproveSuccess) onApproveSuccess();
+                                    } else {
+                                        showToast(res.message || 'Gagal ACC PO', 'error');
+                                    }
+                                } catch (error) {
+                                    showToast('Terjadi kesalahan jaringan', 'error');
+                                }
+                            }}
                             className="flex-1 flex items-center justify-center gap-3 py-4 rounded-2xl bg-primary text-white hover:bg-primary/90 transition-all font-black text-[10px] uppercase tracking-widest shadow-xl shadow-primary/20 active:scale-95 group"
                         >
-                            <Printer className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                            <span>Cetak Semua Struk</span>
+                            <CheckCircle2 className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                            <span>Tandai Selesai / ACC PO</span>
                         </button>
                     )}
                     <ConfirmModal

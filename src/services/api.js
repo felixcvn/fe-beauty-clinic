@@ -1490,9 +1490,10 @@ export const paketTreatmentAPI = {
    Activity Logs API
 ───────────────────────────────────────────────────────────── */
 export const activityLogsAPI = {
-    getAll: async (token, page = 1, search = '') => {
+    getAll: async (token, page = 1, search = '', date = '') => {
         try {
-            const queryParams = search ? `&search=${encodeURIComponent(search)}` : '';
+            let queryParams = search ? `&search=${encodeURIComponent(search)}` : '';
+            if (date) queryParams += `&date=${encodeURIComponent(date)}`;
             const response = await fetch(`${BASE_URL}/activity-logs?page=${page}${queryParams}`, {
                 method: 'GET',
                 headers: getHeaders(token),
