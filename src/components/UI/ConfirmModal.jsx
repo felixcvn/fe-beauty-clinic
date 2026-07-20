@@ -31,7 +31,7 @@ const ConfirmModal = ({ config, onClose }) => {
         >
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+                className="absolute inset-0 bg-black/40"
                 onClick={onClose}
             />
 

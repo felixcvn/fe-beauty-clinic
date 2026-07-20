@@ -2,8 +2,9 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, ArrowRight, CheckCircle2, Minus, Plus, Trash2, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { transaksiAPI, stokProdukAPI } from '../../services/api';
+import { transaksiAPI, stokProdukAPI, treatmentAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useMockData } from '../../context/MockDataContext';
 import ConfirmModal from './ConfirmModal';
 
 const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess }) => {
@@ -29,31 +30,111 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         });
     };
 
+    const { promos: contextPromos } = useMockData();
+    const SYSTEM_PROMOS = contextPromos || [];
+
+    const getActivePromos = () => {
+        const tzoffset = (new Date()).getTimezoneOffset() * 60000;
+        const today = (new Date(Date.now() - tzoffset)).toISOString().split('T')[0];
+        return SYSTEM_PROMOS.filter(p => p.status?.toLowerCase() === 'aktif' && today >= p.startDate && today <= p.endDate);
+    };
+
+    const getDiscountInfo = (item_id, item_name, basePrice) => {
+        let finalPrice = basePrice;
+        let appliedPromo = null;
+
+        const validPromos = getActivePromos();
+        let specificPromo = validPromos.find(p => p.promoMode === 'specific_item' && p.itemDiscounts?.find(d => d.id === item_name || d.id === item_id));
+        let basicPromo = validPromos.find(p => p.promoMode === 'basic' && (p.targetItems?.length === 0 || p.targetItems?.includes(item_id) || p.targetItems?.includes(item_name)));
+
+        const promoToUse = specificPromo || basicPromo;
+
+        if (promoToUse) {
+            if (promoToUse.promoMode === 'specific_item') {
+                const discountConfig = promoToUse.itemDiscounts?.find(d => d.id === item_name || d.id === item_id);
+                if (discountConfig) {
+                    finalPrice = Math.max(0, basePrice - Number(discountConfig.discountValue));
+                    appliedPromo = promoToUse;
+                }
+            } else {
+                const targets = promoToUse.targetItems || [];
+                if (targets.length === 0 || targets.includes(item_id) || targets.includes(item_name)) {
+                    if (promoToUse.type === 'Persen') {
+                        finalPrice = basePrice - (basePrice * (promoToUse.value / 100));
+                    } else {
+                        finalPrice = Math.max(0, basePrice - Number(promoToUse.value));
+                    }
+                    appliedPromo = promoToUse;
+                }
+            }
+        }
+        
+        return { 
+            finalPrice: Math.max(0, finalPrice), 
+            discountValue: Math.max(0, basePrice - finalPrice), 
+            promoName: appliedPromo ? appliedPromo.name : null 
+        };
+    };
+
     React.useEffect(() => {
-        if (isGudang && user?.token) {
+        if (user?.token) {
             stokProdukAPI.getAll(user.token).then(res => {
                 if (res.success) {
                     setProducts(res.data);
                 }
             });
         }
-    }, [isGudang, user?.token]);
+    }, [user?.token]);
 
     React.useEffect(() => {
         if (isOpen && transaction) {
             const txList = transaction.transactions || [transaction.raw || transaction];
             setGroupedTxList(txList);
 
-            const initialItems = transaction.raw?.details ? transaction.raw.details.map(d => ({
-                id: d.id,
-                item_id: d.itemable_id,
-                item_type: d.itemable_type,
-                name: d.nama_item,
-                qty: d.qty,
-                rawPrice: Number(d.harga || d.harga_satuan || 0),
-                rawDetail: d
-            })) : [
-                { id: 'fallback', item_id: null, name: transaction.product || 'Layanan Kesehatan', qty: 1, rawPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')) }
+            const initialItems = transaction.raw?.details ? transaction.raw.details.map(d => {
+                const dHarga = Number(d.harga || d.harga_satuan || 0);
+                const dDiskon = Number(d.diskon || d.nilai_diskon || d.potongan || 0);
+                
+                // Coba temukan produk asli untuk membandingkan harga jika dDiskon = 0
+                const originalProduct = products.find(p => p.id === d.itemable_id || p.Nama_produk === d.nama_item);
+                const basePriceFromProduct = originalProduct ? Number(originalProduct.Harga || originalProduct.harga || 0) : 0;
+                
+                let normP = Number(d.harga_normal || d.harga_awal || 0);
+                let finalP = dHarga;
+                let disc = dDiskon;
+                
+                if (normP === 0) {
+                    if (disc > 0) {
+                        normP = finalP + disc;
+                    } else if (basePriceFromProduct > finalP) {
+                        normP = basePriceFromProduct;
+                        disc = normP - finalP;
+                    } else {
+                        normP = finalP;
+                    }
+                }
+
+                // Cek promo aktif jika item ini di-edit/ditambahkan
+                const { discountValue, promoName } = getDiscountInfo(d.itemable_id, d.nama_item, normP);
+                if (discountValue > disc) {
+                    disc = discountValue;
+                    finalP = Math.max(0, normP - disc);
+                }
+
+                return {
+                    id: d.id,
+                    item_id: d.itemable_id,
+                    item_type: d.itemable_type,
+                    name: d.nama_item,
+                    qty: d.qty,
+                    rawPrice: normP,
+                    discount: disc,
+                    finalPrice: finalP,
+                    promoName: promoName || (disc > 0 ? 'Promo' : null),
+                    rawDetail: d
+                };
+            }) : [
+                { id: 'fallback', item_id: null, name: transaction.product || 'Layanan Kesehatan', qty: 1, rawPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')), discount: 0, finalPrice: parseInt((transaction.amount || '0').replace(/[^0-9]/g, '')) }
             ];
             setEditableItems(initialItems);
             
@@ -105,13 +186,33 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
         // Items
         const txDetails = tx.details || [];
+        let subTotalReceipt = 0;
+        let totalDiscountReceipt = 0;
+        
         txDetails.forEach(item => {
+            const finalP = Number(item.harga || item.harga_setelah_diskon || 0);
+            const disc = Number(item.diskon || item.nilai_diskon || 0);
+            const normP = Number(item.harga_normal || item.harga_awal || (finalP + disc) || 0);
+            
+            subTotalReceipt += (normP * item.qty);
+            totalDiscountReceipt += (disc * item.qty);
+
             receiptText += leftRightText(item.nama_item.substring(0, 18), `${item.qty}x`) + '\n';
-            receiptText += leftRightText('', `Rp ${Number(item.harga).toLocaleString('id-ID')}`) + '\n';
+            if (disc > 0) {
+                receiptText += leftRightText('  Hrg Normal', `Rp ${normP.toLocaleString('id-ID')}`) + '\n';
+                receiptText += leftRightText('  Diskon', `-Rp ${disc.toLocaleString('id-ID')}`) + '\n';
+                receiptText += leftRightText('  Hrg Final', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
+            } else {
+                receiptText += leftRightText('', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
+            }
         });
 
         receiptText += line + '\n';
-        const total = Number(tx.total_keseluruhan || 0);
+        if (totalDiscountReceipt > 0) {
+            receiptText += leftRightText('SUBTOTAL', `Rp ${subTotalReceipt.toLocaleString('id-ID')}`) + '\n';
+            receiptText += leftRightText('TOTAL DISKON', `-Rp ${totalDiscountReceipt.toLocaleString('id-ID')}`) + '\n';
+        }
+        const total = Number(tx.total_keseluruhan || (subTotalReceipt - totalDiscountReceipt));
         receiptText += leftRightText('TOTAL', `Rp ${total.toLocaleString('id-ID')}`) + '\n';
         receiptText += line + '\n';
         
@@ -143,11 +244,16 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
 
         setEditableItems(prev => prev.map(item => {
             if (item.id === id) {
+                const normP = Number(product.Harga || product.harga || 0);
+                const { finalPrice, discountValue, promoName } = getDiscountInfo(product.id, product.Nama_produk || product.nama_produk, normP);
                 return {
                     ...item,
                     item_id: product.id,
                     name: product.Nama_produk || product.nama_produk,
-                    rawPrice: Number(product.Harga || product.harga || 0)
+                    rawPrice: normP,
+                    discount: discountValue,
+                    finalPrice: finalPrice,
+                    promoName: promoName
                 };
             }
             return item;
@@ -159,8 +265,8 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
     };
 
     const subtotal = editableItems.reduce((sum, item) => sum + (item.rawPrice * item.qty), 0);
-    const tax = 0;
-    const finalTotal = subtotal;
+    const totalDiscount = editableItems.reduce((sum, item) => sum + (item.discount * item.qty), 0);
+    const finalTotal = editableItems.reduce((sum, item) => sum + (item.finalPrice * item.qty), 0);
 
 
     const getStatusStyle = (status) => {
@@ -215,16 +321,36 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         receiptText += line + '\n';
 
         // Items
+        let subTotalReceipt = 0;
+        let totalDiscountReceipt = 0;
         const grandTotal = txList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0);
+        
         txList.forEach(tx => {
             const details = tx.details || [];
             details.forEach(item => {
+                const finalP = Number(item.harga || item.harga_setelah_diskon || 0);
+                const disc = Number(item.diskon || item.nilai_diskon || 0);
+                const normP = Number(item.harga_normal || item.harga_awal || (finalP + disc) || 0);
+                
+                subTotalReceipt += (normP * item.qty);
+                totalDiscountReceipt += (disc * item.qty);
+
                 receiptText += leftRightText(item.nama_item.substring(0, 18), `${item.qty}x`) + '\n';
-                receiptText += leftRightText('', `Rp ${Number(item.harga).toLocaleString('id-ID')}`) + '\n';
+                if (disc > 0) {
+                    receiptText += leftRightText('  Hrg Normal', `Rp ${normP.toLocaleString('id-ID')}`) + '\n';
+                    receiptText += leftRightText('  Diskon', `-Rp ${disc.toLocaleString('id-ID')}`) + '\n';
+                    receiptText += leftRightText('  Hrg Final', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
+                } else {
+                    receiptText += leftRightText('', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
+                }
             });
         });
 
         receiptText += doubleLine + '\n';
+        if (totalDiscountReceipt > 0) {
+            receiptText += leftRightText('SUBTOTAL', `Rp ${subTotalReceipt.toLocaleString('id-ID')}`) + '\n';
+            receiptText += leftRightText('TOTAL DISKON', `-Rp ${totalDiscountReceipt.toLocaleString('id-ID')}`) + '\n';
+        }
         receiptText += leftRightText('TOTAL BELANJA', `Rp ${grandTotal.toLocaleString('id-ID')}`) + '\n';
         receiptText += doubleLine + '\n';
         
@@ -376,21 +502,36 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                             <table className="w-full text-left font-bold text-xs text-primary">
                                                 <thead>
                                                     <tr className="text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
-                                                        <th className="py-2">Item</th>
-                                                        <th className="py-2 text-center">Qty</th>
-                                                        <th className="py-2 text-right">Harga</th>
+                                                        <th className="px-2 py-2">Item</th>
+                                                        <th className="px-2 py-2 text-center">Qty</th>
+                                                        <th className="px-2 py-2 text-right">Harga Normal</th>
+                                                        <th className="px-2 py-2 text-right">Diskon</th>
+                                                        <th className="px-2 py-2 text-right whitespace-nowrap">Harga Final</th>
+                                                        <th className="px-2 py-2 text-right whitespace-nowrap">Sub Total</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-primary/5">
-                                                    {details.map((d, dIdx) => (
+                                                    {details.map((d, dIdx) => {
+                                                        const finalP = Number(d.harga || d.harga_setelah_diskon || 0);
+                                                        const disc = Number(d.diskon || d.nilai_diskon || 0);
+                                                        const normP = Number(d.harga_normal || d.harga_awal || (finalP + disc) || 0);
+                                                        const subTotalItem = finalP * d.qty;
+                                                        
+                                                        return (
                                                         <tr key={d.id || dIdx} className="hover:bg-secondary/5 transition-colors">
-                                                            <td className="py-3 font-semibold uppercase tracking-tight">{d.nama_item}</td>
-                                                            <td className="py-3 text-center">
+                                                            <td className="px-2 py-3 font-semibold uppercase tracking-tight">{d.nama_item}</td>
+                                                            <td className="px-2 py-3 text-center">
                                                                 <span className="inline-block px-2 py-0.5 rounded bg-primary/5 text-primary/80 font-black text-[10px]">{d.qty}x</span>
                                                             </td>
-                                                            <td className="py-3 text-right">Rp {Number(d.harga * d.qty).toLocaleString('id-ID')}</td>
+                                                            <td className="px-2 py-3 text-right whitespace-nowrap">Rp {normP.toLocaleString('id-ID')}</td>
+                                                            <td className="px-2 py-3 text-right text-red-500 whitespace-nowrap">
+                                                                {disc > 0 ? `-Rp ${disc.toLocaleString('id-ID')}` : '-'}
+                                                            </td>
+                                                            <td className="px-2 py-3 text-right whitespace-nowrap">Rp {finalP.toLocaleString('id-ID')}</td>
+                                                            <td className="px-2 py-3 text-right whitespace-nowrap">Rp {subTotalItem.toLocaleString('id-ID')}</td>
                                                         </tr>
-                                                    ))}
+                                                        );
+                                                    })}
                                                     {details.length === 0 && (
                                                         <tr>
                                                             <td colSpan="3" className="py-4 text-center text-primary/30 text-[10px] font-bold uppercase tracking-widest">
@@ -418,20 +559,22 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                 <table className="w-full text-left">
                                     <thead className="bg-secondary/10 text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
                                         <tr>
-                                            <th className="px-8 py-5">Sublayanan / Stok</th>
-                                            <th className="px-8 py-5 text-center">Qty</th>
-                                            <th className="px-8 py-5 text-right">Harga</th>
+                                            <th className="px-4 py-4 w-1/3">Sublayanan / Stok</th>
+                                            <th className="px-4 py-4 text-center">Qty</th>
+                                            <th className="px-4 py-4 text-right">Harga Normal</th>
+                                            <th className="px-4 py-4 text-right">Diskon</th>
+                                            <th className="px-4 py-4 text-right whitespace-nowrap">Sub Total</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-primary/5 font-bold">
                                         {editableItems.map((item, idx) => (
                                             <tr key={item.id || idx} className="text-xs text-primary group hover:bg-secondary/10 transition-colors">
-                                                <td className="px-8 py-5 font-black uppercase tracking-tight">
+                                                <td className="px-4 py-4 font-black uppercase tracking-tight">
                                                     {isGudang && item.item_type === 'App\\Models\\StokProduk' ? (
                                                         <select 
                                                             value={item.item_id || ''}
                                                             onChange={(e) => handleProductChange(item.id, e.target.value)}
-                                                            className="w-full max-w-[200px] bg-primary/5 border border-primary/10 rounded-lg p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
+                                                            className="w-full max-w-[180px] bg-primary/5 border border-primary/10 rounded-lg p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
                                                         >
                                                             <option value="" disabled>Pilih Produk</option>
                                                             {products.map(p => (
@@ -441,8 +584,15 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                                     ) : (
                                                         item.name
                                                     )}
+                                                    {item.promoName && (
+                                                        <div className="mt-1">
+                                                            <span className="inline-block px-2 py-0.5 bg-red-100 text-red-600 text-[8px] font-black uppercase tracking-wider rounded-md">
+                                                                {item.promoName}
+                                                            </span>
+                                                        </div>
+                                                    )}
                                                 </td>
-                                                <td className="px-8 py-5 text-center">
+                                                <td className="px-4 py-4 text-center">
                                                     {isGudang ? (
                                                         <div className="flex items-center justify-center gap-2">
                                                             <button 
@@ -461,9 +611,15 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                                         <span className="inline-block px-3 py-1 rounded-lg bg-primary/5 text-primary/80 font-black text-sm">{item.qty}x</span>
                                                     )}
                                                 </td>
-                                                <td className="px-8 py-5 text-right font-black italic text-sm">
-                                                    <div className="flex items-center justify-end gap-4">
-                                                        <span>{`Rp ${(item.rawPrice * item.qty).toLocaleString('id-ID')}`}</span>
+                                                <td className="px-4 py-4 text-right font-black italic text-sm whitespace-nowrap">
+                                                    Rp {item.rawPrice.toLocaleString('id-ID')}
+                                                </td>
+                                                <td className="px-4 py-4 text-right font-black text-sm text-red-500 whitespace-nowrap">
+                                                    {item.discount > 0 ? `-Rp ${item.discount.toLocaleString('id-ID')}` : '-'}
+                                                </td>
+                                                <td className="px-4 py-4 text-right font-black italic text-sm whitespace-nowrap">
+                                                    <div className="flex items-center justify-end gap-3">
+                                                        <span>{`Rp ${(item.finalPrice * item.qty).toLocaleString('id-ID')}`}</span>
                                                         {isGudang && (
                                                             <button 
                                                                 onClick={() => handleRemoveItem(item.id)}
@@ -495,17 +651,34 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                         </div>
                         <div className="relative z-10 space-y-5">
                              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
-                                <span className="opacity-50">Subtotal</span>
-                                <span className="text-sm italic">Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0) : subtotal).toLocaleString('id-ID')}</span>
-                             </div>
+                                                <span className="opacity-50">Subtotal</span>
+                                                <span className="text-sm italic">Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => {
+                                                    return sum + (tx.details || []).reduce((s, d) => {
+                                                        const finalP = Number(d.harga || d.harga_setelah_diskon || 0);
+                                                        const disc = Number(d.diskon || d.nilai_diskon || 0);
+                                                        const normP = Number(d.harga_normal || d.harga_awal || (finalP + disc) || 0);
+                                                        return s + (normP * d.qty);
+                                                    }, 0);
+                                                }, 0) : subtotal).toLocaleString('id-ID')}</span>
+                                             </div>
+                                             {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => {
+                                                    return sum + (tx.details || []).reduce((s, d) => s + (Number(d.diskon || d.nilai_diskon || 0) * d.qty), 0);
+                                                }, 0) : totalDiscount) > 0 && (
+                                                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-[0.2em]">
+                                                    <span className="opacity-50">Total Diskon</span>
+                                                    <span className="text-sm italic text-red-300">-Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => {
+                                                        return sum + (tx.details || []).reduce((s, d) => s + (Number(d.diskon || d.nilai_diskon || 0) * d.qty), 0);
+                                                    }, 0) : totalDiscount).toLocaleString('id-ID')}</span>
+                                                </div>
+                                             )}
 
-                             <div className="h-px bg-white/10 my-6" />
-                             <div className="flex justify-between items-center">
-                                <div className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Total Tagihan</div>
-                                <div className="text-3xl font-black tracking-tighter italic text-secondary-light">
-                                    Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0) : finalTotal).toLocaleString('id-ID')}
-                                </div>
-                             </div>
+                                             <div className="h-px bg-white/10 my-6" />
+                                             <div className="flex justify-between items-center">
+                                                <div className="text-[11px] font-black uppercase tracking-[0.3em] opacity-40">Total Tagihan</div>
+                                                <div className="text-3xl font-black tracking-tighter italic text-secondary-light">
+                                                    Rp {(groupedTxList.length > 1 ? groupedTxList.reduce((sum, tx) => sum + Number(tx.total_keseluruhan || 0), 0) : finalTotal).toLocaleString('id-ID')}
+                                                </div>
+                                             </div>
                         </div>
                     </div>
 
@@ -536,11 +709,13 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                         details: editableItems.map(item => ({
                                             id: item.id,
                                             qty: item.qty,
-                                            subtotal: item.rawPrice * item.qty,
+                                            subtotal: item.finalPrice * item.qty,
                                             itemable_id: item.item_id,
                                             itemable_type: item.item_type || 'App\\Models\\StokProduk',
                                             nama_item: item.name,
-                                            harga: item.rawPrice
+                                            harga: item.finalPrice,
+                                            diskon: item.discount,
+                                            harga_normal: item.rawPrice
                                         }))
                                     };
                                     if (alamat !== initialAlamat) {
