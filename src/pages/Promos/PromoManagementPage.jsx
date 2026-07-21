@@ -50,12 +50,16 @@ const PromoManagementPage = () => {
                     status: item.status,
                     targets: item.targets || [],
                     targetItems: (item.targets || []).map(t => t.item_name || String(t.item_id)),
+                    targetIds: (item.targets || []).map(t => t.item_type === 'Treatment' ? (t.item_name && t.item_name.includes('Paket') ? `PTR-${t.item_id}` : `TRT-${t.item_id}`) : `PRD-${t.item_id}`),
                     bundleConfig: {
                         buyItems: (item.targets || []).filter(t => t.target_type === 'Syarat').map(t => t.item_name || String(t.item_id)),
                         getItems: (item.targets || []).filter(t => t.target_type === 'Benefit').map(t => t.item_name || String(t.item_id)),
+                        buyItemIds: (item.targets || []).filter(t => t.target_type === 'Syarat').map(t => t.item_type === 'Treatment' ? (t.item_name && t.item_name.includes('Paket') ? `PTR-${t.item_id}` : `TRT-${t.item_id}`) : `PRD-${t.item_id}`),
+                        getItemIds: (item.targets || []).filter(t => t.target_type === 'Benefit').map(t => t.item_type === 'Treatment' ? (t.item_name && t.item_name.includes('Paket') ? `PTR-${t.item_id}` : `TRT-${t.item_id}`) : `PRD-${t.item_id}`),
                     },
                     itemDiscounts: (item.targets || []).filter(t => t.target_type === 'Spesifik').map(t => ({
                         id: t.item_name || String(t.item_id),
+                        itemId: t.item_type === 'Treatment' ? (t.item_name && t.item_name.includes('Paket') ? `PTR-${t.item_id}` : `TRT-${t.item_id}`) : `PRD-${t.item_id}`,
                         discountValue: t.nilai_diskon_spesifik || 0
                     }))
                 }));

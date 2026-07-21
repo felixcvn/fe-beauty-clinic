@@ -117,7 +117,15 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
             if (initialData) {
                 setFormState({
                     ...initialData,
-                    targetItems: initialData.targetItems || []
+                    targetItems: initialData.targetIds || initialData.targetItems || [],
+                    bundleConfig: {
+                        buyItems: initialData.bundleConfig?.buyItemIds || initialData.bundleConfig?.buyItems || [],
+                        getItems: initialData.bundleConfig?.getItemIds || initialData.bundleConfig?.getItems || []
+                    },
+                    itemDiscounts: (initialData.itemDiscounts || []).map(item => ({
+                        id: item.itemId || item.id,
+                        discountValue: item.discountValue
+                    }))
                 });
             } else {
                 setFormState({
@@ -438,7 +446,7 @@ const PromoFormModal = ({ isOpen, onClose, onSave, initialData, defaultCategory 
                                                     <p className="text-xs font-black text-primary truncate tracking-tight">{item.name}</p>
                                                     <p className="text-[8px] font-bold text-primary/30 uppercase tracking-widest">{item.id}</p>
                                                 </div>
-                                                <span className="text-[10px] font-bold text-primary/60">Rp {item.price.toLocaleString('id-ID')}</span>
+                                                <span className="text-xs font-black text-primary/70">Rp {item.price.toLocaleString('id-ID')}</span>
                                             </div>
                                             )
                                         })

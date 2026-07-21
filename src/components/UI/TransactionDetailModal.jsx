@@ -76,6 +76,37 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         };
     };
 
+    const getEnhancedItemInfo = (d) => {
+        const dHarga = Number(d.harga || d.harga_satuan || d.harga_setelah_diskon || 0);
+        let dDiskon = Number(d.diskon || d.nilai_diskon || d.potongan || 0);
+        
+        const originalProduct = products.find(p => String(p.id) === String(d.itemable_id) || p.Nama_produk === d.nama_item);
+        const basePriceFromProduct = originalProduct ? Number(originalProduct.Harga || originalProduct.harga || 0) : 0;
+        
+        let normP = Number(d.harga_normal || d.harga_awal || 0);
+        let finalP = dHarga;
+        let disc = dDiskon;
+        
+        if (normP === 0) {
+            if (disc > 0) {
+                normP = finalP + disc;
+            } else if (basePriceFromProduct > finalP) {
+                normP = basePriceFromProduct;
+                disc = normP - finalP;
+            } else {
+                normP = finalP;
+            }
+        }
+
+        const { discountValue, promoName } = getDiscountInfo(d.itemable_id, d.nama_item, normP);
+        if (discountValue > disc) {
+            disc = discountValue;
+            finalP = Math.max(0, normP - disc);
+        }
+
+        return { normP, disc, finalP, promoName };
+    };
+
     React.useEffect(() => {
         if (user?.token) {
             stokProdukAPI.getAll(user.token).then(res => {
@@ -190,28 +221,18 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         let totalDiscountReceipt = 0;
         
         txDetails.forEach(item => {
-            const finalP = Number(item.harga || item.harga_setelah_diskon || 0);
-            const disc = Number(item.diskon || item.nilai_diskon || 0);
-            const normP = Number(item.harga_normal || item.harga_awal || (finalP + disc) || 0);
+            const { finalP, disc, normP } = getEnhancedItemInfo(item);
             
             subTotalReceipt += (normP * item.qty);
             totalDiscountReceipt += (disc * item.qty);
 
             receiptText += leftRightText(item.nama_item.substring(0, 18), `${item.qty}x`) + '\n';
-            if (disc > 0) {
-                receiptText += leftRightText('  Hrg Normal', `Rp ${normP.toLocaleString('id-ID')}`) + '\n';
-                receiptText += leftRightText('  Diskon', `-Rp ${disc.toLocaleString('id-ID')}`) + '\n';
-                receiptText += leftRightText('  Hrg Final', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
-            } else {
-                receiptText += leftRightText('', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
-            }
+            receiptText += leftRightText('', `Rp ${normP.toLocaleString('id-ID')}`) + '\n';
         });
 
         receiptText += line + '\n';
-        if (totalDiscountReceipt > 0) {
-            receiptText += leftRightText('SUBTOTAL', `Rp ${subTotalReceipt.toLocaleString('id-ID')}`) + '\n';
-            receiptText += leftRightText('TOTAL DISKON', `-Rp ${totalDiscountReceipt.toLocaleString('id-ID')}`) + '\n';
-        }
+        receiptText += leftRightText('SUBTOTAL', `Rp ${subTotalReceipt.toLocaleString('id-ID')}`) + '\n';
+        receiptText += leftRightText('TOTAL DISKON', `-Rp ${totalDiscountReceipt.toLocaleString('id-ID')}`) + '\n';
         const total = Number(tx.total_keseluruhan || (subTotalReceipt - totalDiscountReceipt));
         receiptText += leftRightText('TOTAL', `Rp ${total.toLocaleString('id-ID')}`) + '\n';
         receiptText += line + '\n';
@@ -328,29 +349,19 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
         txList.forEach(tx => {
             const details = tx.details || [];
             details.forEach(item => {
-                const finalP = Number(item.harga || item.harga_setelah_diskon || 0);
-                const disc = Number(item.diskon || item.nilai_diskon || 0);
-                const normP = Number(item.harga_normal || item.harga_awal || (finalP + disc) || 0);
+                const { finalP, disc, normP } = getEnhancedItemInfo(item);
                 
                 subTotalReceipt += (normP * item.qty);
                 totalDiscountReceipt += (disc * item.qty);
 
                 receiptText += leftRightText(item.nama_item.substring(0, 18), `${item.qty}x`) + '\n';
-                if (disc > 0) {
-                    receiptText += leftRightText('  Hrg Normal', `Rp ${normP.toLocaleString('id-ID')}`) + '\n';
-                    receiptText += leftRightText('  Diskon', `-Rp ${disc.toLocaleString('id-ID')}`) + '\n';
-                    receiptText += leftRightText('  Hrg Final', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
-                } else {
-                    receiptText += leftRightText('', `Rp ${finalP.toLocaleString('id-ID')}`) + '\n';
-                }
+                receiptText += leftRightText('', `Rp ${normP.toLocaleString('id-ID')}`) + '\n';
             });
         });
 
         receiptText += doubleLine + '\n';
-        if (totalDiscountReceipt > 0) {
-            receiptText += leftRightText('SUBTOTAL', `Rp ${subTotalReceipt.toLocaleString('id-ID')}`) + '\n';
-            receiptText += leftRightText('TOTAL DISKON', `-Rp ${totalDiscountReceipt.toLocaleString('id-ID')}`) + '\n';
-        }
+        receiptText += leftRightText('SUBTOTAL', `Rp ${subTotalReceipt.toLocaleString('id-ID')}`) + '\n';
+        receiptText += leftRightText('TOTAL DISKON', `-Rp ${totalDiscountReceipt.toLocaleString('id-ID')}`) + '\n';
         receiptText += leftRightText('TOTAL BELANJA', `Rp ${grandTotal.toLocaleString('id-ID')}`) + '\n';
         receiptText += doubleLine + '\n';
         
