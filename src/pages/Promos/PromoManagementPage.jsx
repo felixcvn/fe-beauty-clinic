@@ -45,6 +45,8 @@ const PromoManagementPage = () => {
                     generatedCodes: item.vouchers ? item.vouchers.map(v => ({ code: v.kode_voucher, is_used: v.is_used })) : [], 
                     quota: item.kuota_global || '',
                     used: item.kuota_terpakai || 0,
+                    totalOmset: item.total_omset ? Number(item.total_omset) : 0,
+                    totalDiskon: item.total_diskon ? Number(item.total_diskon) : 0,
                     status: item.status,
                     targets: item.targets || [],
                     targetItems: (item.targets || []).map(t => t.item_name || String(t.item_id)),

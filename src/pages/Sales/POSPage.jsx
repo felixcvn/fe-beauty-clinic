@@ -391,6 +391,8 @@ const POSPage = () => {
             catatan_pesanan: '',
             status: isOnlyTreatments ? 'Selesai' : 'Pending',
             metode_pembayaran: paymentMethod,
+            promo_code: appliedPromo?.appliedVoucherCode || appliedPromo?.code || null,
+            diskon_promo: totalItemDiscount + promoDiscount,
             details: cart.map(item => ({
                 item_type: item.category === 'Treatment' ? (item.isPackage ? 'PaketTreatment' : 'Treatment') : (item.category === 'Racikan' ? 'StokRacikan' : 'StokProduk'),
                 item_id: String(item.id).replace(/[^0-9]/g, '') || 1, // Jika ID mock seperti PRD-001, ambil angkanya saja

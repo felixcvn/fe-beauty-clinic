@@ -295,9 +295,16 @@ export const exportAttendanceToExcel = async (data, activeTab, title, filename) 
         titleCell.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF154734' } };
         titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-        // 2. Add Date
+        // 2. Add Subtitle
         worksheet.mergeCells(`A2:${endColLetter}2`);
-        const dateCell = worksheet.getCell('A2');
+        const subtitleCell = worksheet.getCell('A2');
+        subtitleCell.value = `REKAP PENGAJUAN KESELURUHAN`;
+        subtitleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF154734' } };
+        subtitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // 3. Add Date Export
+        worksheet.mergeCells(`A3:${endColLetter}3`);
+        const dateCell = worksheet.getCell('A3');
         dateCell.value = `Tanggal Export: ${new Date().toLocaleDateString('id-ID', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         })}`;
@@ -391,9 +398,16 @@ export const exportAttendanceToExcel = async (data, activeTab, title, filename) 
         titleCell.font = { name: 'Arial', size: 16, bold: true, color: { argb: 'FF154734' } };
         titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
 
-        // 2. Add Date
+        // 2. Add Subtitle
         worksheet.mergeCells(`A2:${endColLetter}2`);
-        const dateCell = worksheet.getCell('A2');
+        const subtitleCell = worksheet.getCell('A2');
+        subtitleCell.value = `REKAP PENGAJUAN KESELURUHAN`;
+        subtitleCell.font = { name: 'Arial', size: 14, bold: true, color: { argb: 'FF154734' } };
+        subtitleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        // 3. Add Date Export
+        worksheet.mergeCells(`A3:${endColLetter}3`);
+        const dateCell = worksheet.getCell('A3');
         dateCell.value = `Tanggal Export: ${new Date().toLocaleDateString('id-ID', {
             weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
         })}`;

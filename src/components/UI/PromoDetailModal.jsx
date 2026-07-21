@@ -107,6 +107,31 @@ const PromoDetailModal = ({ isOpen, promo, onClose }) => {
                         </div>
                     </div>
 
+                    {/* Financial Performance Section */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white p-5 rounded-3xl border border-primary/5 shadow-sm flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center shrink-0">
+                                <FileText className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Total Omset</p>
+                                <p className="text-xl font-black text-indigo-600 mt-1">Rp {(promo.totalOmset || 0).toLocaleString('id-ID')}</p>
+                                <p className="text-[9px] font-bold text-primary/40 mt-1">Pendapatan bersih dari promo ini</p>
+                            </div>
+                        </div>
+                        
+                        <div className="bg-white p-5 rounded-3xl border border-primary/5 shadow-sm flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+                                <Gift className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-black text-primary/40 uppercase tracking-widest">Total Diskon (Spent)</p>
+                                <p className="text-xl font-black text-orange-600 mt-1">Rp {(promo.totalDiskon || 0).toLocaleString('id-ID')}</p>
+                                <p className="text-[9px] font-bold text-primary/40 mt-1">Total diskon yang telah diberikan</p>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Target / Mode Info */}
                     <div className="bg-white p-6 rounded-3xl border border-primary/5 shadow-sm space-y-4">
                         <div className="flex items-center gap-3">

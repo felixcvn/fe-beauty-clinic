@@ -215,15 +215,18 @@ const AttendancePage = () => {
                 const res = await lemburAPI.getAll(user?.token);
                 if (res.success && res.data) {
                     const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
-                    const mapped = dataArray.map(item => ({
-                        id: item.id,
-                        staffName: item.karyawan?.nama_lengkap || item.Nama_Karyawan || 'Karyawan',
-                        role: item.karyawan?.Jabatan || item.Jabatan || '-',
-                        primaryType: item.Status_Absen || item.jenis_lembur || 'Lembur',
-                        notes: item.alasan_keterangan || (item.durasi ? `${item.durasi} menit` : '-'),
-                        date: item.Tanggal || item.tanggal || new Date().toISOString().split('T')[0],
-                        status: item.status_pengajuan === 'DISETUJUI' ? 'Disetujui' : (item.status_pengajuan === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
-                    }));
+                    const mapped = dataArray.map(item => {
+                        const statusRaw = item.Status_pengajuan || item.status_pengajuan;
+                        return {
+                            id: item.pengajuan_id || item.id,
+                            staffName: item.karyawan?.nama_lengkap || item.Nama_Karyawan || 'Karyawan',
+                            role: item.karyawan?.Jabatan || item.Jabatan || '-',
+                            primaryType: item.Status_Absen || item.jenis_lembur || 'Lembur',
+                            notes: item.alasan_keterangan || (item.durasi ? `${item.durasi} menit` : '-'),
+                            date: item.Tanggal || item.tanggal || new Date().toISOString().split('T')[0],
+                            status: statusRaw === 'DISETUJUI' ? 'Disetujui' : (statusRaw === 'DITOLAK' ? 'Ditolak' : 'Menunggu HRD')
+                        };
+                    });
                     setOvertimeRequests(mapped);
                 }
             }
