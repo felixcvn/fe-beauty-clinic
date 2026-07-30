@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Check, Activity, Stethoscope, FileText, Package, FlaskConical, Pill, User, ArrowRight, ArrowLeft, Heart, History, ListChecks } from 'lucide-react';
+import { XMarkIcon as X, CheckCircleIcon as CheckCircle2, CheckIcon as Check, ChartBarIcon as Activity, SparklesIcon as Stethoscope, DocumentTextIcon as FileText, CubeIcon as Package, BeakerIcon as FlaskConical, SparklesIcon as Pill, UserIcon as User, ArrowRightIcon as ArrowRight, ArrowLeftIcon as ArrowLeft, HeartIcon as Heart, ClockIcon as History, ClipboardDocumentCheckIcon as ListChecks } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import CustomDatePicker from './CustomDatePicker';
@@ -665,7 +665,7 @@ const MedicalRecordFormModal = ({ isOpen, onClose, patientId = null, patientName
                                         </div>
 
                                         {/* Resep / Stok */}
-                                        <div className="bg-secondary/30 rounded-[2rem] p-6 space-y-6 border border-primary/5">
+                                        <div className="bg-secondary/30 rounded-card p-6 space-y-6 border border-primary/5">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <Pill className="w-4 h-4 text-primary/40" />
                                                 <span className="text-[10px] font-black text-primary uppercase tracking-widest">Resep / Stok Mandiri</span>

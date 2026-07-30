@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, User, AlertCircle, Clock, FileText, ArrowLeft, Plus } from 'lucide-react';
+import { CalendarIcon as Calendar, UserIcon as User, ExclamationCircleIcon as AlertCircle, ClockIcon as Clock, DocumentTextIcon as FileText, ArrowLeftIcon as ArrowLeft, PlusIcon as Plus } from '@heroicons/react/24/outline';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
@@ -156,7 +156,7 @@ const PatientDetail = () => {
             </div>
 
             {/* Patient Header Profile */}
-            <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
+            <div className="bg-white p-6 md:p-10 rounded-card md:rounded-[2.5rem] border border-primary/10 shadow-primary/5 flex flex-col lg:flex-row gap-8 items-start lg:items-center justify-between">
                 <div className="flex flex-col sm:flex-row items-center sm:items-start lg:items-center gap-6 text-center sm:text-left">
                     <div className="w-24 h-24 md:w-28 md:h-28 rounded-3xl bg-secondary flex items-center justify-center text-primary font-black text-3xl border border-primary/5 relative shrink-0">
                         {patient.name.split(' ').map(n => n[0]).join('')}
@@ -173,7 +173,7 @@ const PatientDetail = () => {
             </div>
 
             {/* Medical History Timeline */}
-            <div className="bg-white p-6 md:p-12 rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5">
+            <div className="bg-white p-6 md:p-12 rounded-card md:rounded-[2.5rem] border border-primary/10 elevation-2">
                 <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-12 gap-4">
                     <h3 className="text-2xl md:text-3xl font-black text-primary tracking-tighter flex items-center gap-3">
                         <Clock className="w-7 h-7 text-primary/20" /> Riwayat Medis
@@ -215,7 +215,7 @@ const PatientDetail = () => {
                                     <div key={record.id} className="relative pl-10 sm:pl-16 group">
                                         <div className="absolute left-0 sm:left-3 top-2 w-6 h-6 bg-white border-4 border-secondary shadow-md group-hover:border-primary rounded-full z-10 transition-colors duration-500"></div>
 
-                                        <div className="bg-secondary/10 p-6 sm:p-10 rounded-[2rem] border border-primary/5 hover:bg-white hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
+                                        <div className="bg-secondary/10 p-6 sm:p-10 rounded-card border border-primary/5 hover:bg-white hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500">
                                             <div className="flex flex-col xl:flex-row justify-between items-start gap-6 mb-8">
                                                 <div className="space-y-3">
                                                     <h4 className="text-xl md:text-2xl font-black text-primary tracking-tight">{treatmentStr}</h4>
@@ -261,7 +261,7 @@ const PatientDetail = () => {
                                             {(beforeImg || afterImg) && (
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
                                                     {beforeImg && (
-                                                    <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/5 aspect-square">
+                                                    <div className="group/photo relative overflow-hidden rounded-card shadow-xl border border-primary/5 aspect-square">
                                                         <img 
                                                             src={getImageUrl(beforeImg)} 
                                                             alt="Before" 
@@ -273,7 +273,7 @@ const PatientDetail = () => {
                                                     </div>
                                                     )}
                                                     {afterImg && (
-                                                    <div className="group/photo relative overflow-hidden rounded-[2rem] shadow-xl border border-primary/10 aspect-square">
+                                                    <div className="group/photo relative overflow-hidden rounded-card shadow-xl border border-primary/10 aspect-square">
                                                         <img 
                                                             src={getImageUrl(afterImg)} 
                                                             alt="After" 

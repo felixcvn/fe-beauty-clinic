@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalendarIcon, CheckCircle2 } from 'lucide-react';
+import { ChevronLeftIcon as ChevronLeft, ChevronRightIcon as ChevronRight, PlusIcon as Plus, XMarkIcon as X, CalendarIcon, CheckCircleIcon as CheckCircle2 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../../context/AuthContext';
 import { hariLiburAPI } from '../../../services/api';
 import { useToast } from '../../../context/ToastContext';

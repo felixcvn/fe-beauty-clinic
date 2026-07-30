@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, UserPlus, Hash, CreditCard, MapPin, Calendar, Mail, Phone, Home } from 'lucide-react';
+import { XMarkIcon as X, CheckCircleIcon as CheckCircle2, UserIcon as User, UserPlusIcon as UserPlus, HashtagIcon as Hash, CreditCardIcon as CreditCard, MapPinIcon as MapPin, CalendarIcon as Calendar, EnvelopeIcon as Mail, PhoneIcon as Phone, HomeIcon as Home } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { useAuth } from '../../context/AuthContext';

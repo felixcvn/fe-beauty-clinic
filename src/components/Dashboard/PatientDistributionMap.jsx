@@ -104,14 +104,14 @@ const PatientDistributionMap = () => {
 
     if (isLoading) {
         return (
-            <div className="w-full h-full min-h-[400px] rounded-[2rem] bg-gray-50 flex items-center justify-center">
+            <div className="w-full h-full min-h-[400px] rounded-card bg-gray-50 flex items-center justify-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="w-full h-full min-h-[400px] rounded-[2rem] overflow-hidden relative z-0">
+        <div className="w-full h-full min-h-[400px] rounded-card overflow-hidden relative z-0">
             <MapContainer center={[-8.1691, 113.7020]} zoom={10} className="w-full h-full" scrollWheelZoom={false}>
                 <TileLayer
                     url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"

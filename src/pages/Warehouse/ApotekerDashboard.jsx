@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Beaker, Package, AlertTriangle, Activity, RefreshCw, Calendar, TrendingUp, ClipboardList, Wand2, Coins, CheckCircle, FileText, FlaskConical, X } from 'lucide-react';
+import { BeakerIcon as Beaker, CubeIcon as Package, ExclamationTriangleIcon as AlertTriangle, ChartBarIcon as Activity, ArrowPathIcon as RefreshCw, CalendarIcon as Calendar, ArrowTrendingUpIcon as TrendingUp, ClipboardDocumentListIcon as ClipboardList, SparklesIcon as Wand2, CircleStackIcon as Coins, CheckCircleIcon as CheckCircle, DocumentTextIcon as FileText, BeakerIcon as FlaskConical, XMarkIcon as X } from '@heroicons/react/24/outline';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -227,7 +227,7 @@ const ApotekerDashboard = () => {
                 {antreanRacikan && antreanRacikan.filter(req => req.status === 'Pending').length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {antreanRacikan.filter(req => req.status === 'Pending').map(req => (
-                            <div key={req.id} className="bg-white p-6 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 flex flex-col justify-between group">
+                            <div key={req.id} className="bg-white p-6 rounded-card border border-primary/5 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 flex flex-col justify-between group">
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -254,7 +254,7 @@ const ApotekerDashboard = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white p-8 rounded-[2rem] border border-dashed border-amber-200/80 flex flex-col items-center justify-center text-center py-10 shadow-inner">
+                    <div className="bg-white p-8 rounded-card border border-dashed border-amber-200/80 flex flex-col items-center justify-center text-center py-10 shadow-inner">
                         <ClipboardList className="w-12 h-12 text-amber-300 mb-3 animate-[pulse_2s_infinite]" />
                         <p className="font-black text-xs uppercase tracking-widest text-primary/60 mb-1 leading-none">Tidak Ada Antrean Resep</p>
                         <p className="text-primary/30 text-[10px] font-bold mt-1.5 leading-none">Semua antrean resep racikan telah selesai diproses oleh Apoteker.</p>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, LabelList, LineChart, Line } from 'recharts';
-import { DollarSign, Users, Activity, BarChart3, Calendar, Download, ArrowUpRight, ArrowDownRight, Search } from 'lucide-react';
+import { CurrencyDollarIcon as DollarSign, UsersIcon as Users, ChartBarIcon as Activity, ChartBarIcon as BarChart3, CalendarIcon as Calendar, ArrowDownTrayIcon as Download, ArrowUpRightIcon as ArrowUpRight, ArrowDownRightIcon as ArrowDownRight, MagnifyingGlassIcon as Search } from '@heroicons/react/24/outline';
 import TableSkeleton from '../../components/UI/TableSkeleton';
 import EmptyState from '../../components/UI/EmptyState';
 import StatsCard from '../Dashboard/StatsCard';
@@ -174,7 +174,7 @@ const ReportsPage = () => {
             {/* Charts Section */}
             <div className="flex flex-col gap-10">
                 {/* 1. Full Width Revenue Chart */}
-                <div className="w-full bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5">
+                <div className="w-full bg-white p-6 md:p-10 rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tighter">Performa Pendapatan</h3>
@@ -232,7 +232,7 @@ const ReportsPage = () => {
 
                 {/* 2. Two Columns: Treatment & Product */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                    <div className="bg-white p-6 md:p-10 rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2 flex flex-col">
                         <div className="flex justify-between items-start mb-10">
                             <div>
                                 <h3 className="text-xl font-black text-primary tracking-tighter">Penjualan Treatment</h3>
@@ -298,7 +298,7 @@ const ReportsPage = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                    <div className="bg-white p-6 md:p-10 rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2 flex flex-col">
                         <div className="flex justify-between items-start mb-10">
                             <div>
                                 <h3 className="text-xl font-black text-primary tracking-tighter">Penjualan Stok</h3>
@@ -367,7 +367,7 @@ const ReportsPage = () => {
             </div>
 
             {/* Detailed Table Section (Option A Layout) */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden mt-10">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden mt-10">
                 <div className="p-6 md:p-10 border-b border-primary/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                     <div>
                         <h3 className="text-xl font-black text-primary tracking-tighter">Detail Transaksi</h3>

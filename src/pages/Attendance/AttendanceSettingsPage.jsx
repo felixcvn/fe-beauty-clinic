@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeftIcon as ArrowLeft } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import EmployeeLocationTab from './tabs/EmployeeLocationTab';
 import HolidayCalendarTab from './tabs/HolidayCalendarTab';
@@ -50,7 +50,7 @@ const AttendanceSettingsPage = () => {
             </div>
 
             {/* Tab Content */}
-            <div className="bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 p-6 md:p-8">
+            <div className="bg-white rounded-card border border-primary/5 shadow-xl shadow-primary/5 p-6 md:p-8">
                 {activeTab === 'employee' && <EmployeeLocationTab />}
                 {activeTab === 'holiday' && <HolidayCalendarTab />}
             </div>

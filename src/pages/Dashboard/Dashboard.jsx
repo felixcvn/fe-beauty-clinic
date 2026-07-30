@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Users, DollarSign, CalendarCheck, TrendingUp, Plus } from 'lucide-react';
+import { UsersIcon as Users, CurrencyDollarIcon as DollarSign, CalendarDaysIcon as CalendarCheck, ArrowTrendingUpIcon as TrendingUp, PlusIcon as Plus } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import AnalysisChart from './AnalysisChart';
 import { useAuth } from '../../context/AuthContext';
@@ -64,7 +64,7 @@ const Dashboard = () => {
                     <AnalysisChart />
                 </div>
 
-                <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 flex flex-col">
+                <div className="bg-white p-6 md:p-8 rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2 flex flex-col">
                     <div className="flex justify-between items-center mb-6 md:mb-10">
                         <div>
                             <h3 className="text-lg md:text-xl font-black text-primary tracking-tight">Appointments</h3>

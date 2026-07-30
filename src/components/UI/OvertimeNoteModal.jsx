@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Clock, MapPin, AlertTriangle, MessageSquare, Send } from 'lucide-react';
+import { XMarkIcon as X, ClockIcon as Clock, MapPinIcon as MapPin, ExclamationTriangleIcon as AlertTriangle, ChatBubbleBottomCenterTextIcon as MessageSquare, PaperAirplaneIcon as Send } from '@heroicons/react/24/outline';
 import { formatDuration } from '../../utils/shiftConfig';
 import ConfirmModal from './ConfirmModal';
 
@@ -65,7 +65,7 @@ const OvertimeNoteModal = ({ isOpen, onClose, onSubmit, anomalyData, employeeNam
             onClick={handleCloseAttempt}
         >
             <div
-                className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+                className="relative w-full max-w-md bg-white rounded-card shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Clock, CheckCircle2, Calendar, MapPin, ArrowRight, UserCircle, BellRing } from 'lucide-react';
+import { ClockIcon as Clock, CheckCircleIcon as CheckCircle2, CalendarIcon as Calendar, MapPinIcon as MapPin, ArrowRightIcon as ArrowRight, UserCircleIcon as UserCircle, BellAlertIcon as BellRing } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 
@@ -60,7 +60,7 @@ const SimpleStaffDashboard = () => {
                     </div>
 
                     <div className="space-y-4">
-                        <div className="p-6 rounded-[2rem] bg-gray-50/50 border border-primary/5 flex items-start gap-4 group cursor-pointer hover:bg-white hover:shadow-lg transition-all duration-300">
+                        <div className="p-6 rounded-card bg-gray-50/50 border border-primary/5 flex items-start gap-4 group cursor-pointer hover:bg-white hover:shadow-lg transition-all duration-300">
                             <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary transition-colors">
                                 <Clock className="w-5 h-5" />
                             </div>
@@ -69,7 +69,7 @@ const SimpleStaffDashboard = () => {
                                 <p className="text-xs text-primary/40 font-medium leading-relaxed mt-1">Mulai minggu depan, jam operasional hari Sabtu diperpanjang hingga pukul 20:00 WIB.</p>
                             </div>
                         </div>
-                        <div className="p-6 rounded-[2rem] bg-gray-50/50 border border-primary/5 flex items-start gap-4 group cursor-pointer hover:bg-white hover:shadow-lg transition-all duration-300">
+                        <div className="p-6 rounded-card bg-gray-50/50 border border-primary/5 flex items-start gap-4 group cursor-pointer hover:bg-white hover:shadow-lg transition-all duration-300">
                             <div className="w-10 h-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-secondary transition-colors">
                                 <MapPin className="w-5 h-5" />
                             </div>
@@ -82,7 +82,7 @@ const SimpleStaffDashboard = () => {
                 </div>
 
                 {/* Profile Quick Link */}
-                <div className="bg-primary p-8 rounded-[2.5rem] shadow-2xl shadow-primary/20 flex flex-col justify-between group relative overflow-hidden">
+                <div className="bg-primary p-8 rounded-[2.5rem] elevation-3 flex flex-col justify-between group relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32 group-hover:bg-white/10 transition-all duration-700" />
                     <div className="relative z-10">
                         <div className="flex items-center gap-4 mb-8">

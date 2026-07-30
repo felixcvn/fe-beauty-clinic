@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Filter, Edit2, MapPin, Clock, X, Settings, CheckCircle2 } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, FunnelIcon as Filter, PencilIcon as Edit2, MapPinIcon as MapPin, ClockIcon as Clock, XMarkIcon as X, Cog6ToothIcon as Settings, CheckCircleIcon as CheckCircle2 } from '@heroicons/react/24/outline';
 import { karyawanAPI, absensiConfigAPI } from '../../../services/api';
 import { getActiveShift, getShiftOptionsByDivisi } from '../../../utils/shiftConfig';
 import { useAuth } from '../../../context/AuthContext';

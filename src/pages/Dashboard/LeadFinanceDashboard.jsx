@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Wallet, ShoppingCart, Fingerprint, Briefcase, TrendingUp, ArrowRight, DollarSign, CreditCard, PlusCircle, ClipboardList, CheckCircle, X, AlertCircle, Phone, Mail, User, Coins } from 'lucide-react';
+import { WalletIcon as Wallet, ShoppingCartIcon as ShoppingCart, IdentificationIcon as Fingerprint, BriefcaseIcon as Briefcase, ArrowTrendingUpIcon as TrendingUp, ArrowRightIcon as ArrowRight, CurrencyDollarIcon as DollarSign, CreditCardIcon as CreditCard, PlusCircleIcon as PlusCircle, ClipboardDocumentListIcon as ClipboardList, CheckCircleIcon as CheckCircle, XMarkIcon as X, ExclamationCircleIcon as AlertCircle, PhoneIcon as Phone, EnvelopeIcon as Mail, UserIcon as User, CircleStackIcon as Coins } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -161,7 +161,7 @@ const LeadFinanceDashboard = () => {
                 ) : distributors && distributors.filter(d => Number(d.Sisa_Deposit || 0) === 0).length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {distributors.filter(d => Number(d.Sisa_Deposit || 0) === 0).map(d => (
-                            <div key={d.id} className="bg-white p-6 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 flex flex-col justify-between group">
+                            <div key={d.id} className="bg-white p-6 rounded-card border border-primary/5 shadow-sm hover:shadow-md hover:border-blue-300 transition-all duration-300 flex flex-col justify-between group">
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div className="flex items-center gap-3">
@@ -200,7 +200,7 @@ const LeadFinanceDashboard = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white p-8 rounded-[2rem] border border-dashed border-blue-200/80 flex flex-col items-center justify-center text-center py-10 shadow-inner">
+                    <div className="bg-white p-8 rounded-card border border-dashed border-blue-200/80 flex flex-col items-center justify-center text-center py-10 shadow-inner">
                         <ClipboardList className="w-12 h-12 text-blue-300 mb-3 animate-[pulse_2s_infinite]" />
                         <p className="font-black text-xs uppercase tracking-widest text-primary/60 mb-1 leading-none">Tidak Ada Antrean</p>
                         <p className="text-primary/30 text-[10px] font-bold mt-1.5 leading-none">Semua distributor baru terdaftar telah memiliki deposit.</p>
@@ -284,7 +284,7 @@ const LeadFinanceDashboard = () => {
                         <button
                             key={item.path}
                             onClick={() => navigate(item.path)}
-                            className="group relative bg-white p-7 rounded-[2rem] border border-primary/10 shadow-xl shadow-primary/[0.04] hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:-translate-y-1 transition-all duration-500 flex flex-col items-start gap-4 text-left"
+                            className="group relative bg-white p-7 rounded-card border border-primary/10 shadow-xl shadow-primary/[0.04] hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/20 hover:-translate-y-1 transition-all duration-500 flex flex-col items-start gap-4 text-left"
                         >
                             <div className={`w-12 h-12 rounded-2xl ${item.color} ${item.shadow} shadow-lg flex items-center justify-center text-white group-hover:scale-110 transition-transform duration-300`}>
                                 <item.icon className="w-6 h-6" />
@@ -299,7 +299,7 @@ const LeadFinanceDashboard = () => {
                 </div>
 
                 {/* Finance Summary Card */}
-                <div className="bg-primary p-8 rounded-[2rem] shadow-2xl shadow-primary/20 flex flex-col justify-between relative overflow-hidden group">
+                <div className="bg-primary p-8 rounded-card elevation-3 flex flex-col justify-between relative overflow-hidden group">
                     <div className="absolute inset-0 opacity-10 z-0">
                         <div className="absolute top-0 left-0 w-full h-full" style={{ background: 'radial-gradient(circle, #E5D5B0 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
                     </div>

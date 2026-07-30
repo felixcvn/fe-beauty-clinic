@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { CheckCircle, XCircle, X } from 'lucide-react';
+import { CheckCircleIcon as CheckCircle, XCircleIcon as XCircle, XMarkIcon as X } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 
 const Toast = () => {

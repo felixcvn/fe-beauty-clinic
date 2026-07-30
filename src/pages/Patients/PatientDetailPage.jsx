@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Calendar, FileText, Gift } from 'lucide-react';
+import { ChevronLeftIcon as ChevronLeft, CalendarIcon as Calendar, DocumentTextIcon as FileText, GiftIcon as Gift } from '@heroicons/react/24/outline';
 import { useMockData } from '../../context/MockDataContext';
 import { useAuth } from '../../context/AuthContext';
 import { pasienAPI, wilayahAPI } from '../../services/api';
@@ -163,7 +163,7 @@ const PatientDetailPage = () => {
                 {/* KOLOM KIRI: Identitas */}
                 <div className="lg:col-span-1 space-y-6">
                     {/* Kartu Profil */}
-                    <div className="bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 p-8 relative overflow-hidden">
+                    <div className="bg-white rounded-card border border-primary/5 shadow-xl shadow-primary/5 p-8 relative overflow-hidden">
                         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
 
                         {/* Avatar */}
@@ -218,7 +218,7 @@ const PatientDetailPage = () => {
                 </div>
 
                 {/* KOLOM KANAN: Riwayat Transaksi */}
-                <div className="lg:col-span-2 bg-white rounded-[2rem] border border-primary/5 shadow-xl shadow-primary/5 overflow-hidden flex flex-col h-full">
+                <div className="lg:col-span-2 bg-white rounded-card border border-primary/5 shadow-xl shadow-primary/5 overflow-hidden flex flex-col h-full">
                     <div className="flex items-center justify-between border-b border-primary/5 p-4 md:p-6 bg-primary/5">
                         <div className="flex gap-2 sm:gap-4">
                             <button 

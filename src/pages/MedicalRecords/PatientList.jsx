@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Plus, FileText, ChevronRight } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, DocumentTextIcon as FileText, ChevronRightIcon as ChevronRight } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import { rekamMedisAPI } from '../../services/api';
@@ -90,7 +90,7 @@ const PatientList = () => {
                 </button>
             </div>
 
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                     {/* ... (Search & Select bars) ... */}
                     <div className="relative flex-1 group">

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, CalendarDays, CheckCircle2, XCircle, Image as ImageIcon, FileText, Paperclip } from 'lucide-react';
+import { XMarkIcon as X, CalendarDaysIcon as CalendarDays, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, PhotoIcon as ImageIcon, DocumentTextIcon as FileText, PaperClipIcon as Paperclip } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 
 const LeaveApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, showActions = true }) => {

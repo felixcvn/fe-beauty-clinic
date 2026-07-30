@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'; 
-import { Users, DollarSign, Activity, TrendingUp, PieChart, BarChart3, ArrowUpRight, ArrowDownRight, ShoppingBag, Target, ClipboardList } from 'lucide-react';
+import { UsersIcon as Users, CurrencyDollarIcon as DollarSign, ClipboardDocumentListIcon as ClipboardList, ShoppingBagIcon as ShoppingBag } from '@heroicons/react/24/outline';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart as RechartsPieChart, Pie, Cell, Legend } from 'recharts'; 
 import StatsCard from './StatsCard'; 
 import { useAuth } from '../../context/AuthContext'; 
@@ -116,17 +116,17 @@ const OwnerDashboard = () => {
         <div className="space-y-6 md:space-y-10 animate-fade-in pb-12"> 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-bold text-primary tracking-tighter leading-none">Dashboard Owner</h2>
-                    <p className="text-primary/40 mt-3 font-medium text-sm flex items-center gap-2">
+                    <h2 className="text-display text-primary">Dashboard Owner</h2>
+                    <p className="text-primary/40 mt-3 text-label flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-accent-gold animate-pulse"></span>
                         {user?.role} 
                     </p>
                 </div>
                 <div className="flex gap-4">
-                    <button className="px-6 py-3 md:py-4 bg-white text-primary border border-primary/10 rounded-2xl font-bold text-sm shadow-xl shadow-primary/5 hover:scale-105 active:scale-95 transition-all duration-300">
+                    <button className="btn-secondary py-3 md:py-4">
                         Bulan Ini
                     </button>
-                    <button className="px-6 py-3 md:py-4 bg-primary text-secondary rounded-2xl font-bold text-sm shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300">
+                    <button className="btn-primary py-3 md:py-4">
                         Unduh Laporan Executive
                     </button>
                 </div>
@@ -151,15 +151,15 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Antrean Resep Racikan Masuk (View Only for Superadmin) */}
-            <div className="bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-8 rounded-[3rem] border border-amber-200/60 shadow-xl shadow-amber-500/[0.02]">
+            <div className="card bg-gradient-to-br from-amber-50/50 to-orange-50/30 p-8 border-amber-200/60 shadow-amber-500/[0.02]">
                 <div className="flex justify-between items-center mb-6">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600">
                             <ClipboardList className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-primary tracking-tight leading-none">Antrean Resep Racikan Masuk</h3>
-                            <p className="text-[9px] font-bold text-amber-700 uppercase tracking-widest mt-1.5 leading-none">Menunggu Diproses Oleh Apoteker</p>
+                            <h3 className="text-title font-black text-primary leading-none">Antrean Resep Racikan Masuk</h3>
+                            <p className="text-caption text-amber-700 mt-1.5 leading-none">Menunggu Diproses Oleh Apoteker</p>
                         </div>
                     </div>
                     <span className="px-3.5 py-1.5 text-[9px] font-black uppercase tracking-widest bg-amber-500 text-white rounded-full shadow-lg shadow-amber-500/25">
@@ -170,7 +170,7 @@ const OwnerDashboard = () => {
                 {antreanRacikan && antreanRacikan.filter(req => req.status === 'Pending').length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {antreanRacikan.filter(req => req.status === 'Pending').map(req => (
-                            <div key={req.id} className="bg-white p-6 rounded-[2rem] border border-primary/5 shadow-sm hover:shadow-md hover:border-amber-300 transition-all duration-300 flex flex-col justify-between group">
+                            <div key={req.id} className="card p-6 border-primary/5 elevation-1 hover:elevation-2 hover:border-amber-300 transition-all group flex flex-col justify-between">
                                 <div className="space-y-4">
                                     <div className="flex justify-between items-start">
                                         <div>
@@ -190,7 +190,7 @@ const OwnerDashboard = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="bg-white p-8 rounded-[2rem] border border-dashed border-amber-200/80 flex flex-col items-center justify-center text-center py-10 shadow-inner">
+                    <div className="card p-8 border-dashed border-amber-200/80 elevation-0 flex flex-col items-center justify-center text-center py-10">
                         <ClipboardList className="w-12 h-12 text-amber-300 mb-3 animate-[pulse_2s_infinite]" />
                         <p className="font-black text-xs uppercase tracking-widest text-primary/60 mb-1 leading-none">Tidak Ada Antrean Resep</p>
                         <p className="text-primary/30 text-[10px] font-bold mt-1.5 leading-none">Semua antrean resep racikan telah selesai diproses oleh Apoteker.</p>
@@ -201,11 +201,11 @@ const OwnerDashboard = () => {
             {/* Main Charts Area */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Revenue vs Target Trend - spanning 2 columns */}
-                <div className="lg:col-span-2 bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white">
+                <div className="lg:col-span-2 card p-8">
                     <div className="flex justify-between items-center mb-8">
                         <div>
-                            <h3 className="text-xl font-semibold text-primary tracking-tight">Pendapatan vs Target</h3>
-                            <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Dalam Jutaan Rupiah</span>
+                            <h3 className="text-title text-primary">Pendapatan vs Target</h3>
+                            <span className="text-caption mt-1 block">Dalam Jutaan Rupiah</span>
                         </div>
                         <div className="flex items-center gap-4">
                             <div className="flex items-center gap-2">
@@ -246,10 +246,10 @@ const OwnerDashboard = () => {
                 </div>
 
                 {/* Sales Sources Pie Chart */}
-                <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] flex flex-col">
+                <div className="card p-8 flex flex-col">
                     <div>
-                        <h3 className="text-xl font-semibold text-primary tracking-tight">Sumber Penjualan</h3>
-                        <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Distribusi Saluran (Juta Rp)</span>
+                        <h3 className="text-title text-primary">Sumber Penjualan</h3>
+                        <span className="text-caption mt-1 block">Distribusi Saluran (Juta Rp)</span>
                     </div>
                     <div className="h-[250px] w-full mt-4 flex-1">
                         <ResponsiveContainer width="100%" height="100%">
@@ -320,11 +320,11 @@ const OwnerDashboard = () => {
             {/* Breakdown */}
             <div className="w-full">
                 {/* Top Selling Items (Dynamic) */}
-                <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] bg-white">
+                <div className="card p-8">
                      <div className="flex justify-between items-center mb-6">
                         <div>
-                            <h3 className="text-xl font-semibold text-primary tracking-tight">Perilaku Pelanggan</h3>
-                            <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Item Paling Banyak Diminati</span>
+                            <h3 className="text-title text-primary">Perilaku Pelanggan</h3>
+                            <span className="text-caption mt-1 block">Item Paling Banyak Diminati</span>
                         </div>
                         <div className="p-3 bg-secondary rounded-2xl">
                             <ShoppingBag className="w-5 h-5 text-primary" />
@@ -337,12 +337,12 @@ const OwnerDashboard = () => {
             </div>
 
             {/* Map Section */}
-            <div className="bg-white p-8 rounded-[3rem] border border-primary/15 shadow-xl shadow-primary/[0.08] flex flex-col">
+            <div className="card p-8 flex flex-col">
                 <div className="mb-6">
-                    <h3 className="text-xl font-semibold text-primary tracking-tight">Peta Kepadatan Pasien</h3>
-                    <span className="text-primary/40 text-[10px] font-semibold uppercase tracking-widest mt-1 block">Distribusi Pasien Berdasarkan Kecamatan</span>
+                    <h3 className="text-title text-primary">Peta Kepadatan Pasien</h3>
+                    <span className="text-caption mt-1 block">Distribusi Pasien Berdasarkan Kecamatan</span>
                 </div>
-                <div className="h-[500px] w-full rounded-[2rem] overflow-hidden border border-primary/10">
+                <div className="h-[500px] w-full rounded-card overflow-hidden border border-primary/10">
                     <PatientDistributionMap />
                 </div>
             </div>

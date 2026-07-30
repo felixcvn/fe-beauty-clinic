@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { ChevronDown, Check, Search } from 'lucide-react';
+import { ChevronDownIcon as ChevronDown, CheckIcon as Check, MagnifyingGlassIcon as Search } from '@heroicons/react/24/outline';
 
 const CustomSelect = ({ label, value, onChange, options, placeholder = "Pilih salah satu...", icon: Icon, required, searchable = false, className = "", direction = "down" }) => {
     const [isOpen, setIsOpen] = useState(false);

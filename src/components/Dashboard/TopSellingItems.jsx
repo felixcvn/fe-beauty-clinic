@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Sparkles, Beaker, Trophy, TrendingUp, DollarSign } from 'lucide-react';
+import { CubeIcon as Package, SparklesIcon as Sparkles, BeakerIcon as Beaker, TrophyIcon as Trophy, ArrowTrendingUpIcon as TrendingUp, CurrencyDollarIcon as DollarSign } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { dashboardAPI } from '../../services/api';
 
@@ -65,7 +65,7 @@ const TopSellingItems = () => {
                 {items.map((item, index) => {
                     const percent = Math.min((Number(item.total_terjual) / maxSold) * 100, 100);
                     return (
-                        <div key={item.id || index} className="relative flex items-center justify-between p-4 rounded-2xl bg-white border border-gray-100 hover:border-primary/20 transition-all group shadow-sm hover:shadow-md overflow-hidden">
+                        <div key={item.id || index} className="relative flex items-center justify-between p-4 card elevation-0 hover:border-primary/20 transition-all group hover:elevation-1 overflow-hidden">
                             {/* Visual Progress Bar Indicator */}
                             <div 
                                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-primary/5 to-primary/10 rounded-2xl transition-all duration-1000 ease-out" 
@@ -119,9 +119,9 @@ const TopSellingItems = () => {
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-300 ${
+                            className={`flex items-center gap-2 px-4 py-2.5 rounded-btn text-sm font-medium transition-all duration-300 ${
                                 isActive 
-                                    ? 'bg-primary text-secondary shadow-md scale-100' 
+                                    ? 'bg-primary text-secondary shadow-level-1 scale-100' 
                                     : 'bg-gray-50 text-gray-500 hover:bg-gray-100 hover:text-gray-700 scale-95 hover:scale-100'
                             }`}
                         >

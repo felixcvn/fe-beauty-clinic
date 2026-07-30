@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Clock, MapPin, CheckCircle2, XCircle, User, MessageSquare, AlertTriangle } from 'lucide-react';
+import { XMarkIcon as X, ClockIcon as Clock, MapPinIcon as MapPin, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, UserIcon as User, ChatBubbleBottomCenterTextIcon as MessageSquare, ExclamationTriangleIcon as AlertTriangle } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 import { formatDuration, SHIFTS } from '../../utils/shiftConfig';
 
@@ -59,7 +59,7 @@ const OvertimeApprovalModal = ({ isOpen, onClose, requestData, onUpdateStatus, s
             onClick={handleClose}
         >
             <div
-                className="relative w-full max-w-md bg-white rounded-[2rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+                className="relative w-full max-w-md bg-white rounded-card shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}

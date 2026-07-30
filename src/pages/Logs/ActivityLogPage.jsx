@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Activity, Search, ShieldAlert, Clock, User, Filter, AlertTriangle, AlertCircle, Info, Hash, ChevronLeft, ChevronRight, Loader2, Calendar } from 'lucide-react';
+import { ChartBarIcon as Activity, MagnifyingGlassIcon as Search, ShieldExclamationIcon as ShieldAlert, ClockIcon as Clock, UserIcon as User, FunnelIcon as Filter, ExclamationTriangleIcon as AlertTriangle, ExclamationCircleIcon as AlertCircle, InformationCircleIcon as Info, HashtagIcon as Hash, ChevronLeftIcon as ChevronLeft, ChevronRightIcon as ChevronRight, ArrowPathIcon as Loader2, CalendarIcon as Calendar } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { activityLogsAPI } from '../../services/api';
 
@@ -86,7 +86,7 @@ const ActivityLogPage = () => {
                     </p>
                 </div>
                 <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-4">
-                    <div className="bg-primary/5 text-primary px-6 py-4 rounded-[2rem] border border-primary/10 flex items-center gap-3">
+                    <div className="bg-primary/5 text-primary px-6 py-4 rounded-card border border-primary/10 flex items-center gap-3">
                         <Activity className="w-5 h-5" />
                         <div>
                             <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Total Aktivitas</p>
@@ -97,7 +97,7 @@ const ActivityLogPage = () => {
             </div>
 
             {/* Filter & Search Bar */}
-            <div className="bg-white rounded-[2rem] border border-primary/5 p-4 md:p-6 shadow-2xl shadow-primary/5 flex flex-col md:flex-row gap-4 items-center">
+            <div className="bg-white rounded-card border border-primary/5 p-4 md:p-6 elevation-2 flex flex-col md:flex-row gap-4 items-center">
                 <div className="relative w-full md:flex-1 group">
                     <Search className="w-5 h-5 text-primary/20 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors" />
                     <input
@@ -134,7 +134,7 @@ const ActivityLogPage = () => {
             </div>
 
             {/* Activity List */}
-            <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card border border-primary/5 elevation-2 overflow-hidden">
                 <div className="hidden lg:block overflow-x-auto scrollbar-hide min-h-[400px] relative">
                     {isLoading && (
                         <div className="absolute inset-0 bg-white/50 backdrop-blur-sm z-10 flex items-center justify-center">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, CalendarCheck, ArrowRight, Loader2 } from 'lucide-react';
+import { UsersIcon as Users, UserPlusIcon as UserPlus, CalendarDaysIcon as CalendarCheck, ArrowRightIcon as ArrowRight, ArrowPathIcon as Loader2 } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -109,7 +109,7 @@ const CSDashboard = () => {
             </div>
 
             {/* Recent Reservations - Full Width */}
-            <div className="bg-white p-6 md:p-7 rounded-[2rem] md:rounded-[2.5rem] border border-primary/15 shadow-xl shadow-primary/[0.04] flex flex-col transition-all hover:border-primary/20">
+            <div className="bg-white p-6 md:p-7 rounded-card md:rounded-[2.5rem] border border-primary/15 shadow-xl shadow-primary/[0.04] flex flex-col transition-all hover:border-primary/20">
                 <div className="flex justify-between items-center mb-8">
                     <div>
                         <h3 className="text-xl font-black text-primary tracking-tight italic">Reservasi Terbaru</h3>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, CreditCard, Calendar, Hash, Package, Clock, Receipt, Printer, ArrowRight, CheckCircle2, Minus, Plus, Trash2, MapPin } from 'lucide-react';
+import { XMarkIcon as X, UserIcon as User, CreditCardIcon as CreditCard, CalendarIcon as Calendar, HashtagIcon as Hash, CubeIcon as Package, ClockIcon as Clock, ReceiptRefundIcon as Receipt, PrinterIcon as Printer, ArrowRightIcon as ArrowRight, CheckCircleIcon as CheckCircle2, MinusIcon as Minus, PlusIcon as Plus, TrashIcon as Trash2, MapPinIcon as MapPin } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { transaksiAPI, stokProdukAPI, treatmentAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
@@ -389,7 +389,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
             onClick={handleRequestClose}
         >
             <div 
-                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+                className="relative w-full max-w-2xl bg-white rounded-card elevation-3 border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Floating Close Button */}
@@ -428,7 +428,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                 <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-hide bg-gray-50/30">
                     {/* Customer & Info Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="p-6 rounded-3xl bg-white border border-primary/5 space-y-4 shadow-sm group hover:border-primary/20 transition-all">
+                        <div className="p-6 card border-primary/5 space-y-4 elevation-0 hover:border-primary/20 transition-all hover:elevation-1">
                             <div className="flex items-center gap-2 mb-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
                                 <User className="w-3 h-3 text-primary/40" /> Info Konsumen
                             </div>
@@ -443,7 +443,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                             </div>
                         </div>
 
-                        <div className="p-6 rounded-3xl bg-white border border-primary/5 space-y-4 shadow-sm">
+                        <div className="p-6 card border-primary/5 space-y-4 elevation-0">
                             <div className="flex items-center gap-2 mb-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
                                 <Calendar className="w-3 h-3 text-primary/40" /> Info Waktu
                             </div>
@@ -463,7 +463,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                     </div>
 
                     {/* Alamat Pengiriman Card */}
-                    <div className="p-6 rounded-3xl bg-white border border-primary/5 space-y-4 shadow-sm">
+                    <div className="p-6 card border-primary/5 space-y-4 elevation-0">
                         <div className="flex items-center gap-2 mb-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
                             <MapPin className="w-3 h-3 text-primary/40" /> Alamat Pengiriman
                         </div>
@@ -471,7 +471,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                             <textarea 
                                 value={alamat}
                                 onChange={(e) => setAlamat(e.target.value)}
-                                className="w-full bg-white border border-primary/10 rounded-xl p-4 text-sm font-semibold text-primary outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none min-h-[80px]"
+                                className="w-full bg-white border border-primary/10 rounded-input p-4 text-sm font-semibold text-primary outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none min-h-[80px]"
                                 placeholder="Masukkan detail alamat pengiriman..."
                             />
                         ) : (
@@ -491,7 +491,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                 const details = tx.details || [];
                                 const totalTx = Number(tx.total_keseluruhan || 0);
                                 return (
-                                    <div key={tx.id || txIdx} className="p-6 rounded-[2rem] border border-primary/5 bg-white shadow-sm space-y-4">
+                                    <div key={tx.id || txIdx} className="p-6 card border-primary/5 elevation-0 space-y-4">
                                         <div className="flex justify-between items-center pb-3 border-b border-primary/5">
                                             <div>
                                                 <span className="inline-block px-2.5 py-1 text-[8px] font-black uppercase tracking-wider bg-primary/10 text-primary rounded-lg border border-primary/5 mb-1.5">
@@ -566,7 +566,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                             <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
                                 <Package className="w-3 h-3 text-primary/40" /> Daftar Layanan & Stok
                             </div>
-                            <div className="rounded-[2rem] border border-primary/5 overflow-hidden shadow-sm bg-white">
+                            <div className="rounded-card border border-primary/5 overflow-hidden shadow-sm bg-white">
                                 <table className="w-full text-left">
                                     <thead className="bg-secondary/10 text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
                                         <tr>
@@ -585,7 +585,7 @@ const TransactionDetailModal = ({ isOpen, onClose, transaction, onApproveSuccess
                                                         <select 
                                                             value={item.item_id || ''}
                                                             onChange={(e) => handleProductChange(item.id, e.target.value)}
-                                                            className="w-full max-w-[180px] bg-primary/5 border border-primary/10 rounded-lg p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
+                                                            className="w-full max-w-[180px] bg-primary/5 border border-primary/10 rounded-input p-2 text-primary font-bold text-xs uppercase tracking-tight focus:ring-2 focus:ring-primary/20 outline-none transition-all cursor-pointer"
                                                         >
                                                             <option value="" disabled>Pilih Produk</option>
                                                             {products.map(p => (

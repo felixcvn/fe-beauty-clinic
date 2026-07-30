@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, User, Calendar, MapPin, Receipt, Package, ClipboardList, Clock } from 'lucide-react';
+import { XMarkIcon as X, UserIcon as User, CalendarIcon as Calendar, MapPinIcon as MapPin, ReceiptRefundIcon as Receipt, CubeIcon as Package, ClipboardDocumentListIcon as ClipboardList, ClockIcon as Clock } from '@heroicons/react/24/outline';
 
 const ReportDetailModal = ({ isOpen, onClose, reportData }) => {
     if (!isOpen || !reportData) return null;
@@ -124,7 +124,7 @@ const ReportDetailModal = ({ isOpen, onClose, reportData }) => {
                         <div className="flex items-center gap-2 text-primary/30 uppercase tracking-[0.2em] font-black text-[9px]">
                             <Package className="w-3 h-3 text-primary/40" /> Rincian Item
                         </div>
-                        <div className="rounded-[2rem] border border-primary/5 overflow-hidden shadow-sm bg-white">
+                        <div className="rounded-card border border-primary/5 overflow-hidden shadow-sm bg-white">
                             <table className="w-full text-left">
                                 <thead className="bg-secondary/10 text-[8px] font-black uppercase tracking-[0.2em] text-primary/40 border-b border-primary/5">
                                     <tr>

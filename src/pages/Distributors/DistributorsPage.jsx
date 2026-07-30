@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, User, Edit3, Briefcase, X, CheckCircle2, PlusCircle, Wallet } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, UserIcon as User, PencilIcon as Edit3, BriefcaseIcon as Briefcase, XMarkIcon as X, CheckCircleIcon as CheckCircle2, PlusCircleIcon as PlusCircle, WalletIcon as Wallet } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
 import { distributorAPI } from '../../services/api';
@@ -294,7 +294,7 @@ const DistributorsPage = () => {
             )}
 
             {/* Main Content Area */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 {/* Search */}
                 <div className="p-4 md:p-8 border-b border-primary/5 bg-primary/5">
                     <div className="relative group w-full">

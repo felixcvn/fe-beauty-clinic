@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Calendar as CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CalendarIcon, ChevronLeftIcon as ChevronLeft, ChevronRightIcon as ChevronRight } from '@heroicons/react/24/outline';
 
 const CustomDatePicker = ({
     label,

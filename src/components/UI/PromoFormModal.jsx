@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Tag } from 'lucide-react';
+import { XMarkIcon as X, CheckCircleIcon as CheckCircle2, TagIcon as Tag } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { useAuth } from '../../context/AuthContext';
 import { ROLES } from '../../utils/rbac';
 import { stokProdukAPI, treatmentAPI, paketTreatmentAPI } from '../../services/api';
-import { Search } from 'lucide-react';
+import { MagnifyingGlassIcon as Search } from '@heroicons/react/24/outline';
 import ConfirmModal from './ConfirmModal';
 
 const getTodayString = () => {

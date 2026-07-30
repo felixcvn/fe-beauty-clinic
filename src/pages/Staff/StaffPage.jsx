@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, Plus, Filter, Phone, Trash2, Edit3, AlertTriangle, CheckCircle2, Building2, Mail, ShieldCheck, Wifi, WifiOff, Lock } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, FunnelIcon as Filter, PhoneIcon as Phone, TrashIcon as Trash2, PencilIcon as Edit3, ExclamationTriangleIcon as AlertTriangle, CheckCircleIcon as CheckCircle2, BuildingOffice2Icon as Building2, EnvelopeIcon as Mail, ShieldCheckIcon as ShieldCheck, WifiIcon as Wifi, SignalSlashIcon as WifiOff, LockClosedIcon as Lock } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -377,7 +377,7 @@ const StaffPage = () => {
             </div>
 
             {/* Search & Filter */}
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-6 flex flex-col md:flex-row items-stretch md:items-center gap-4">
+            <div className="bg-white rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2 p-4 md:p-6 flex flex-col md:flex-row items-stretch md:items-center gap-4">
                 <div className="relative flex-1 group">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />
                     <input
@@ -385,13 +385,13 @@ const StaffPage = () => {
                         placeholder="Cari karyawan..."
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50/50 border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-4 focus:ring-primary/5 transition-all"
+                        className="w-full pl-12 pr-6 py-3.5 rounded-2xl bg-gray-50/50 border border-primary/5 outline-none text-primary placeholder:text-primary/20 font-bold text-sm focus:ring-2 focus:ring-emerald-700/50 focus:shadow-md transition-all"
                     />
                 </div>
             </div>
 
             {/* Table */}
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2 overflow-hidden">
 
                 {isLoading ? (
                     <TableSkeleton rows={itemsPerPage} columns={isReadOnly ? 4 : 5} />
@@ -415,7 +415,7 @@ const StaffPage = () => {
                                     {currentStaff.map((staff) => (
                                         <tr
                                             key={staff.id}
-                                            className="hover:bg-primary/[0.02] transition-colors cursor-pointer"
+                                            className="hover:bg-slate-50 transition-colors duration-200 cursor-pointer"
                                             onClick={() => handleOpenDetail(staff)}
                                         >
                                             <td className="px-6 py-3.5">

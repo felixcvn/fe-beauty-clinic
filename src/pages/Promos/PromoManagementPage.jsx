@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom'; // Untuk modal konfirmasi
-import { Search, Plus, Tag, CheckCircle2, XCircle, Edit3, Trash2, AlertTriangle, Copy } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, TagIcon as Tag, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, PencilIcon as Edit3, TrashIcon as Trash2, ExclamationTriangleIcon as AlertTriangle, DocumentDuplicateIcon as Copy } from '@heroicons/react/24/outline';
 import CustomSelect from '../../components/UI/CustomSelect';
 import { useToast } from '../../context/ToastContext';
 import PromoFormModal from '../../components/UI/PromoFormModal';
@@ -332,7 +332,7 @@ const PromoManagementPage = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2">
                 {/* Filter & Search */}
                 <div className="relative z-50 p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5 rounded-t-[2rem] md:rounded-t-[1rem]">
                     <div className="relative flex-1 group">

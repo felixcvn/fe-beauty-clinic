@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Package, Beaker } from 'lucide-react';
+import { XMarkIcon as X, CheckCircleIcon as CheckCircle2, CubeIcon as Package, BeakerIcon as Beaker } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import { bahanTreatmentAPI, bahanMedisAPI, bahanInfusAPI, barangApotekAPI } from '../../services/api';
 import ConfirmModal from './ConfirmModal';

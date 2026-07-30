@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Search, Plus, ChevronRight, Pencil, Wifi, WifiOff } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, ChevronRightIcon as ChevronRight, PencilIcon as Pencil, WifiIcon as Wifi, SignalSlashIcon as WifiOff } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -259,7 +259,7 @@ const PatientsPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                     <div className="relative flex-1 group">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-primary/30 group-focus-within:text-primary transition-colors" />

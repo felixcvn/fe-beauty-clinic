@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Edit2, Check, X, Clock } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PencilIcon as Edit2, CheckIcon as Check, XMarkIcon as X, ClockIcon as Clock } from '@heroicons/react/24/outline';
 import { useMockData } from '../../../context/MockDataContext';
 import { getActiveShift, getShiftOptionsByDivisi } from '../../../utils/shiftConfig';
 

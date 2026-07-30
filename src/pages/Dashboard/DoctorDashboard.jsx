@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Calendar, ClipboardList, Activity, ArrowRight, UserCheck } from 'lucide-react';
+import { UsersIcon as Users, CalendarIcon as Calendar, ClipboardDocumentListIcon as ClipboardList, ChartBarIcon as Activity, ArrowRightIcon as ArrowRight, UserPlusIcon as UserCheck } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -62,7 +62,7 @@ const DoctorDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Appointment List */}
-                <div className="lg:col-span-2 bg-white p-6 md:p-7 rounded-[2rem] md:rounded-[2.5rem] border border-primary/15 shadow-xl shadow-primary/[0.04] bg-white flex flex-col transition-all hover:border-primary/20">
+                <div className="lg:col-span-2 bg-white p-6 md:p-7 rounded-card md:rounded-[2.5rem] border border-primary/15 shadow-xl shadow-primary/[0.04] bg-white flex flex-col transition-all hover:border-primary/20">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tight">Antrean Pasien</h3>

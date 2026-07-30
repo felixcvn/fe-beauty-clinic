@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Clock, CalendarX, ArrowRight, CheckCircle, XCircle, Calendar } from 'lucide-react';
+import { UsersIcon as Users, UserPlusIcon as UserPlus, ClockIcon as Clock, CalendarIcon as CalendarX, ArrowRightIcon as ArrowRight, CheckCircleIcon as CheckCircle, XCircleIcon as XCircle, CalendarIcon as Calendar } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';

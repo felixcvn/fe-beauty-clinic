@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, ClipboardList, AlertTriangle, Activity, RefreshCw } from 'lucide-react';
+import { CubeIcon as Package, ClipboardDocumentListIcon as ClipboardList, ExclamationTriangleIcon as AlertTriangle, ChartBarIcon as Activity, ArrowPathIcon as RefreshCw } from '@heroicons/react/24/outline';
 import StatsCard from '../Dashboard/StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
@@ -109,7 +109,7 @@ const WarehouseDashboard = () => {
                 <StatsCard title="Stok Menipis" value={stats.lowStockCount} change={stats.lowStockCount > 0 ? "Check now" : "All safe"} trend={stats.lowStockCount > 0 ? "down" : "up"} icon={AlertTriangle} />
             </div>
 
-            <div className="bg-white p-6 md:p-8 rounded-[2rem] md:rounded-[3rem] border border-primary/15 shadow-2xl shadow-primary/[0.04] bg-white flex flex-col transition-all hover:border-primary/20">
+            <div className="bg-white p-6 md:p-8 rounded-card md:rounded-[3rem] border border-primary/15 shadow-2xl shadow-primary/[0.04] bg-white flex flex-col transition-all hover:border-primary/20">
                 <div className="flex justify-between items-center mb-8">
                     <h3 className="text-xl font-black text-primary tracking-tight italic">Peringatan Stok Rendah</h3>
                     <div className="flex items-center gap-3">

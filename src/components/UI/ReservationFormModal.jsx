@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, User, Phone, Clock, FileText, CheckCircle2, Edit3, Package, Sparkles } from 'lucide-react';
+import { XMarkIcon as X, CalendarIcon as Calendar, UserIcon as User, PhoneIcon as Phone, ClockIcon as Clock, DocumentTextIcon as FileText, CheckCircleIcon as CheckCircle2, PencilIcon as Edit3, CubeIcon as Package, SparklesIcon as Sparkles } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { pasienAPI, karyawanAPI, treatmentAPI, paketBundlingsAPI, reservasiAPI } from '../../services/api';
@@ -541,7 +541,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                 </div>
                                 <div className="space-y-1">
                                     <label className={labelClass}>Pilih Jam Reservasi</label>
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 bg-white p-5 rounded-[2rem] border border-primary/5 shadow-sm">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2.5 bg-white p-5 rounded-card border border-primary/5 shadow-sm">
                                         {availableSlots.map((slot) => {
                                             const isSelected = formData.Jam_reservasi && formData.Jam_reservasi.substring(0, 5) === slot.time;
                                             const slotCount = bookingCountByTime[slot.time] || 0;

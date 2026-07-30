@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, ArrowLeft, Filter, Tag, User, X, FileText, Loader2, AlertCircle } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, ShoppingCartIcon as ShoppingCart, PlusIcon as Plus, MinusIcon as Minus, TrashIcon as Trash2, CreditCardIcon as CreditCard, BanknotesIcon as Banknote, CheckCircleIcon as CheckCircle2, CubeIcon as Package, ArrowLeftIcon as ArrowLeft, FunnelIcon as Filter, TagIcon as Tag, UserIcon as User, XMarkIcon as X, DocumentTextIcon as FileText, ArrowPathIcon as Loader2, ExclamationCircleIcon as AlertCircle } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -614,7 +614,7 @@ const POSPage = () => {
     return (
         <div className="flex flex-col xl:flex-row min-h-[calc(100vh-150px)] xl:h-[calc(100vh-150px)] gap-6 animate-fade-in relative z-10 pb-24 xl:pb-0">
             {/* Left Side: Stok Selection */}
-            <div className="flex-1 flex flex-col bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden min-h-0">
+            <div className="flex-1 flex flex-col bg-white rounded-card md:rounded-[2.5rem] border border-primary/10 elevation-2 overflow-hidden min-h-0">
                 <div className="p-5 md:p-8 bg-secondary/10 border-b border-primary/5 flex items-center justify-between">
                     <div className="flex items-center gap-3 md:gap-4">
                         <button
@@ -675,7 +675,7 @@ const POSPage = () => {
                                         key={product.id}
                                         onClick={() => addToCart(product)}
                                         disabled={isUnavailable}
-                                        className={`p-4 rounded-[2rem] bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 transition-all duration-300 text-left group flex flex-col justify-between h-full relative ${
+                                        className={`p-4 rounded-card bg-white border-2 border-primary/10 shadow-lg shadow-primary/10 transition-all duration-300 text-left group flex flex-col justify-between h-full relative ${
                                             isUnavailable 
                                                 ? 'opacity-50 cursor-not-allowed border-gray-200' 
                                                 : 'hover:bg-primary/5 hover:border-primary/20 hover:shadow-xl hover:shadow-primary/20 hover:-translate-y-1'
@@ -735,7 +735,7 @@ const POSPage = () => {
             </div>
 
             {/* Right Side: Unified Cart & Summary (E-commerce Style) */}
-            <div id="cart-section" className="w-full xl:w-[540px] bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 flex flex-col overflow-hidden h-fit xl:h-full">
+            <div id="cart-section" className="w-full xl:w-[540px] bg-white rounded-card md:rounded-[2.5rem] border border-primary/10 elevation-2 flex flex-col overflow-hidden h-fit xl:h-full">
 
                 {/* 1. Transaction Info Section (Top - Fixed) */}
                 <div className="p-4 md:p-5 bg-secondary/10 border-b border-primary/5 space-y-3.5">
@@ -862,7 +862,7 @@ const POSPage = () => {
                         </div>
                     ) : (
                         cart.map(item => (
-                            <div key={item.id} className="p-3.5 rounded-3xl bg-white border border-primary/5 shadow-sm animate-fade-in flex flex-col gap-2 group hover:border-primary/20 transition-all">
+                            <div key={item.id} className="p-3.5 card elevation-1 animate-fade-in flex flex-col gap-2 group hover:border-primary/20 transition-all">
                                 <div className="flex justify-between items-start">
                                     <h4 className="text-[10px] font-semibold text-primary tracking-tight leading-tight uppercase flex-1 line-clamp-1">{item.name}</h4>
                                     <button onClick={() => removeFromCart(item.id)} className="p-1 text-primary/20 hover:text-red-500 transition-all">
@@ -968,7 +968,7 @@ const POSPage = () => {
                     <button
                         disabled={cart.length === 0 || isProcessing}
                         onClick={handleCheckout}
-                        className={`w-full py-5 rounded-[2rem] font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 relative overflow-hidden group ${cart.length === 0 ? 'bg-primary/5 text-primary/10 pointer-events-none' : 'bg-primary text-secondary hover:scale-[1.02] active:scale-95 shadow-primary/20 hover:shadow-primary/40'}`}
+                        className={`w-full py-5 rounded-card font-black text-xs uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 relative overflow-hidden group ${cart.length === 0 ? 'bg-primary/5 text-primary/10 pointer-events-none' : 'bg-primary text-secondary hover:scale-[1.02] active:scale-95 shadow-primary/20 hover:shadow-primary/40'}`}
                     >
                         <div className="relative z-10 flex items-center justify-center gap-3">
                             {isProcessing ? (
@@ -994,7 +994,7 @@ const POSPage = () => {
                         onClick={() => setDetectedRacikan(null)}
                     />
                     
-                    <div className="bg-white rounded-[2rem] w-full max-w-sm flex flex-col overflow-hidden shadow-2xl animate-scale-up relative z-10">
+                    <div className="bg-white rounded-card w-full max-w-sm flex flex-col overflow-hidden shadow-2xl animate-scale-up relative z-10">
                         {/* Header: Dark Green */}
                         <div className="bg-[#0A2E1F] pt-12 pb-10 flex justify-center items-center relative">
                             {/* Circle with Icon */}

@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {
-    CalendarDays, Clock, UserCheck, UserMinus, Search, Filter,
-    MoreHorizontal, CheckCircle2, XCircle, LogOut, Camera,
-    Calendar, Edit3, Download, FileText, ChevronRight, Moon,
-    AlertTriangle, MapPin, Briefcase, Settings
-} from 'lucide-react';
+import { CalendarDaysIcon as CalendarDays, ClockIcon as Clock, UserPlusIcon as UserCheck, UserMinusIcon as UserMinus, MagnifyingGlassIcon as Search, FunnelIcon as Filter, EllipsisHorizontalIcon as MoreHorizontal, CheckCircleIcon as CheckCircle2, XCircleIcon as XCircle, ArrowRightOnRectangleIcon as LogOut, CameraIcon as Camera, CalendarIcon as Calendar, PencilIcon as Edit3, ArrowDownTrayIcon as Download, DocumentTextIcon as FileText, ChevronRightIcon as ChevronRight, MoonIcon as Moon, ExclamationTriangleIcon as AlertTriangle, MapPinIcon as MapPin, BriefcaseIcon as Briefcase, Cog6ToothIcon as Settings } from '@heroicons/react/24/outline';
 import FaceScanModal from '../../components/UI/FaceScanModal';
 import AttendanceDetailModal from '../../components/UI/AttendanceDetailModal';
 import LeaveRequestModal from '../../components/UI/LeaveRequestModal';
@@ -715,7 +710,7 @@ const AttendancePage = () => {
                     )}
 
                     {/* Table Area */}
-                    <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                    <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                         {/* Filters */}
                         <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                             {canAccessReports ? (
@@ -909,7 +904,7 @@ const AttendancePage = () => {
             {/* â•â•â• TAB 2: CUTI / IZIN â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
             {/* ————————————————————————————— TAB 2: CUTI / IZIN ————————————————————————————————————————————— */}
             {activeTab === 'leave' && (
-                <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                     {canAccessReports && (
                         <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-secondary/10">
                             <div className="relative flex-1">
@@ -1039,7 +1034,7 @@ const AttendancePage = () => {
                         </div>
                     )}
 
-                    <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+                    <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                         {/* Search */}
                         <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                             <div className="relative flex-1">

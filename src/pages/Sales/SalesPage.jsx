@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ShoppingCart, TrendingUp, Users, Package, Search, Filter, ArrowUpRight, ArrowDownRight, MoreHorizontal, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { ShoppingCartIcon as ShoppingCart, ArrowTrendingUpIcon as TrendingUp, UsersIcon as Users, CubeIcon as Package, MagnifyingGlassIcon as Search, FunnelIcon as Filter, ArrowUpRightIcon as ArrowUpRight, ArrowDownRightIcon as ArrowDownRight, EllipsisHorizontalIcon as MoreHorizontal, CheckCircleIcon as CheckCircle2, ClockIcon as Clock, XCircleIcon as XCircle } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -159,12 +159,12 @@ const SalesPage = () => {
         <div className="space-y-8 md:space-y-12 animate-fade-in pb-12">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                 <div>
-                    <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Transaksi</h2>
-                    <p className="text-primary/40 mt-3 md:mt-4 font-bold text-sm tracking-tight">Monitor dan kelola seluruh transaksi penjualan klinik</p>
+                    <h2 className="text-display text-primary">Transaksi</h2>
+                    <p className="text-label text-primary/40 mt-3 md:mt-4">Monitor dan kelola seluruh transaksi penjualan klinik</p>
                 </div>
                 <button
                     onClick={() => navigate('/sales/pos')}
-                    className="w-full sm:w-auto flex items-center justify-center gap-3 bg-primary text-secondary px-8 py-4 md:py-5 rounded-2xl md:rounded-[2rem] hover:scale-105 active:scale-95 transition-all duration-500 font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/20"
+                    className="w-full sm:w-auto btn-primary py-4 md:py-5 uppercase tracking-widest font-black text-xs"
                 >
                     <ShoppingCart className="w-4 h-4" />
                     <span>Transaksi Baru</span>
@@ -186,7 +186,7 @@ const SalesPage = () => {
             </div>
 
             {/* Recent Sales Table */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="card border-primary/5 elevation-1 overflow-hidden">
                 <div className="p-6 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row items-stretch lg:items-center gap-6 bg-secondary/10">
                     <div className="flex flex-col sm:flex-row flex-1 gap-4 items-stretch sm:items-center">
                         <div className="relative group flex-1">
@@ -196,11 +196,11 @@ const SalesPage = () => {
                                 placeholder="Cari invoice atau konsumen..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-12 pr-6 py-4 rounded-2xl bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary/60 shadow-sm"
+                                className="w-full pl-12 pr-6 py-4 rounded-input bg-white border border-primary/5 outline-none focus:ring-4 focus:ring-primary/5 transition-all text-sm font-medium text-primary/60 shadow-sm"
                             />
                         </div>
                         <div className="flex items-center gap-3">
-                            <button className="flex-1 sm:flex-none p-4 rounded-2xl bg-white border border-primary/5 text-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm">
+                            <button className="flex-1 sm:flex-none p-4 rounded-input bg-white border border-primary/5 text-primary/30 hover:text-primary hover:bg-primary/5 transition-all duration-300 shadow-sm">
                                 <Filter className="w-5 h-5 mx-auto" />
                             </button>
                         </div>
@@ -276,7 +276,7 @@ const SalesPage = () => {
                                 </span>
                             </div>
 
-                            <div className="space-y-3 bg-secondary/30 p-4 rounded-2xl border border-primary/5">
+                            <div className="space-y-3 bg-secondary/30 p-4 rounded-card border border-primary/5">
                                 <div className="flex justify-between items-center">
                                     <p className="text-[9px] font-black text-primary/30 uppercase tracking-widest">Layanan/Stok</p>
                                     <p className="text-[10px] font-bold text-primary">{sale.product}</p>
@@ -294,7 +294,7 @@ const SalesPage = () => {
                             <div className="flex gap-3">
                                 <button 
                                     onClick={() => handleOpenDetail(sale)}
-                                    className="w-full py-3 text-[10px] font-black text-primary/70 uppercase tracking-widest border border-primary/15 bg-primary/5 hover:bg-primary/10 rounded-xl transition-all shadow-sm"
+                                    className="w-full py-3 text-[10px] font-black text-primary/70 uppercase tracking-widest border border-primary/15 bg-primary/5 hover:bg-primary/10 rounded-btn transition-all shadow-sm"
                                 >
                                     Detail Invoice
                                 </button>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { AlertTriangle, Check } from 'lucide-react';
+import { ExclamationTriangleIcon as AlertTriangle, CheckIcon as Check } from '@heroicons/react/24/outline';
 
 /* ─────────────────────────────────────────────────────────────
    Reusable Confirm Dialog - Redesigned to match image
@@ -37,7 +37,7 @@ const ConfirmModal = ({ config, onClose }) => {
 
             {/* Card */}
             <div
-                className="relative w-full max-w-[340px] bg-white rounded-[2rem] overflow-hidden shadow-2xl text-center flex flex-col"
+                className="relative w-full max-w-[340px] bg-white rounded-card overflow-hidden shadow-2xl text-center flex flex-col"
                 style={{ animation: 'confirmPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards' }}
             >
                 {/* Header Section (Colored) */}

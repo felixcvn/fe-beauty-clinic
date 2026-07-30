@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Sparkles, Scissors, Clock, TrendingUp, Calendar, CheckCircle2, AlertCircle, ArrowRight, Percent, Zap } from 'lucide-react';
+import { SparklesIcon as Sparkles, ScissorsIcon as Scissors, ClockIcon as Clock, ArrowTrendingUpIcon as TrendingUp, CalendarIcon as Calendar, CheckCircleIcon as CheckCircle2, ExclamationCircleIcon as AlertCircle, ArrowRightIcon as ArrowRight, ReceiptRefundIcon as Percent, BoltIcon as Zap } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -99,7 +99,7 @@ const TreatmentDashboard = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {todaySessions.map((item, index) => (
-                            <div key={index} className="flex flex-col p-6 bg-gray-50/50 hover:bg-white hover:shadow-xl hover:shadow-primary/5 rounded-[2rem] transition-all border border-transparent hover:border-primary/5 group cursor-pointer">
+                            <div key={index} className="flex flex-col p-6 bg-gray-50/50 hover:bg-white hover:shadow-xl hover:shadow-primary/5 rounded-card transition-all border border-transparent hover:border-primary/5 group cursor-pointer">
                                 <div className="flex justify-between items-start mb-4">
                                     <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center text-secondary shadow-lg shadow-primary/20 group-hover:scale-110 transition-transform">
                                         <span className="text-xs font-black">{item.time}</span>

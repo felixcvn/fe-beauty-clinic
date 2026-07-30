@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Check, Search, X } from 'lucide-react';
+import { ChevronDownIcon as ChevronDown, CheckIcon as Check, MagnifyingGlassIcon as Search, XMarkIcon as X } from '@heroicons/react/24/outline';
 
 const CustomMultiSelect = ({ label, values = [], onChange, options, placeholder = "Pilih beberapa...", icon: Icon, required, searchable = false, className = "" }) => {
     const [isOpen, setIsOpen] = useState(false);

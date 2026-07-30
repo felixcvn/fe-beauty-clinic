@@ -175,7 +175,7 @@ const ProfilePage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Avatar Card */}
-                <div className="bg-white rounded-[2rem] border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8 flex flex-col items-center text-center gap-4">
+                <div className="bg-white rounded-card border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8 flex flex-col items-center text-center gap-4">
                     {/* Avatar */}
                     <div className="relative">
                         <div className="w-28 h-28 md:w-36 md:h-36 rounded-full border-4 border-primary/10 overflow-hidden bg-secondary flex items-center justify-center">
@@ -216,7 +216,7 @@ const ProfilePage = () => {
                 </div>
 
                 {/* Right: Info Card */}
-                <div className="lg:col-span-2 bg-white rounded-[2rem] border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8">
+                <div className="lg:col-span-2 bg-white rounded-card border border-primary/10 shadow-[0_10px_35px_rgba(0,0,0,0.08)] p-8">
                     <h4 className="text-lg font-black text-primary tracking-tight mb-2">Informasi Pribadi</h4>
                     <p className="text-xs font-bold text-primary/30 mb-6">Detail kontak dan informasi tempat kerja Anda</p>
 

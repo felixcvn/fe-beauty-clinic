@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import { useAuth } from '../../context/AuthContext';
-import { User, Calendar, Hash, CreditCard, MapPin, Mail, Phone, Home } from 'lucide-react';
+import { UserIcon as User, CalendarIcon as Calendar, HashtagIcon as Hash, CreditCardIcon as CreditCard, MapPinIcon as MapPin, EnvelopeIcon as Mail, PhoneIcon as Phone, HomeIcon as Home } from '@heroicons/react/24/outline';
 import CustomSelect from '../../components/UI/CustomSelect';
 import CustomDatePicker from '../../components/UI/CustomDatePicker';
 import { pasienAPI, wilayahAPI } from '../../services/api';
@@ -169,7 +169,7 @@ const PatientForm = () => {
 
     return (
         <div className="w-full mx-auto pb-12">
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/10 shadow-2xl shadow-primary/5 overflow-hidden animate-fade-in">
+            <div className="bg-white rounded-card md:rounded-[2.5rem] border border-primary/10 elevation-2 overflow-hidden animate-fade-in">
                 <div className="p-8 md:p-12 border-b border-primary/5 bg-primary/5 flex flex-col sm:flex-row justify-between items-start sm:items-end gap-6 sm:gap-0">
                     <div>
                         <h2 className="text-3xl md:text-4xl font-black text-primary tracking-tighter leading-none">Registrasi Pasien</h2>

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { Upload, X, Image as ImageIcon, Camera } from 'lucide-react';
+import { ArrowUpTrayIcon as Upload, XMarkIcon as X, PhotoIcon as ImageIcon, CameraIcon as Camera } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 import CameraCaptureModal from './CameraCaptureModal';
 

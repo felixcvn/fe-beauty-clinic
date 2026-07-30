@@ -1,23 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import {
-    Calendar,
-    Plus,
-    Search,
-    Phone,
-    User,
-    Clock,
-    Info,
-    CheckCircle2,
-    Clock4,
-    AlertCircle,
-    XCircle,
-    Edit3,
-    Trash2,
-    Star,
-    Award,
-    Sparkles
-} from 'lucide-react';
+import { CalendarIcon as Calendar, PlusIcon as Plus, MagnifyingGlassIcon as Search, PhoneIcon as Phone, UserIcon as User, ClockIcon as Clock, InformationCircleIcon as Info, CheckCircleIcon as CheckCircle2, ClockIcon as Clock4, ExclamationCircleIcon as AlertCircle, XCircleIcon as XCircle, PencilIcon as Edit3, TrashIcon as Trash2, StarIcon as Star, TrophyIcon as Award, SparklesIcon as Sparkles } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
 import { reservasiAPI } from '../../services/api';
@@ -295,7 +278,7 @@ const ReservationsPage = () => {
                 <div className="w-full lg:w-auto flex flex-col sm:flex-row gap-4">
                     <button
                         onClick={openAddModal}
-                        className="flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-5 rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all duration-300 group"
+                        className="flex items-center justify-center gap-3 bg-primary text-secondary px-10 py-5 rounded-card font-black text-xs uppercase tracking-widest elevation-3 hover:scale-[1.02] active:scale-95 transition-all duration-300 group"
                     >
                         <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                         Tambah Reservasi
@@ -313,7 +296,7 @@ const ReservationsPage = () => {
 
             {/* Available Slots Management Panel */}
             {canManageSlots && (
-                <div className="bg-white rounded-[2rem] border border-primary/5 p-6 md:p-8 shadow-2xl shadow-primary/5 animate-fade-in-up space-y-6">
+                <div className="bg-white rounded-card border border-primary/5 p-6 md:p-8 elevation-2 animate-fade-in-up space-y-6">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-primary/5 pb-4">
                         <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center text-primary">
@@ -354,7 +337,7 @@ const ReservationsPage = () => {
             )}
 
             {/* Table Section */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 <div className="p-4 md:p-6 border-b border-primary/5 bg-gray-50/30">
                     <div className="relative w-full group">
                         <Search className="w-5 h-5 text-primary/20 absolute left-4 top-1/2 -translate-y-1/2 group-focus-within:text-primary transition-colors" />

@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, FileText, Download, Printer } from 'lucide-react';
+import { XMarkIcon as X, DocumentTextIcon as FileText, ArrowDownTrayIcon as Download, PrinterIcon as Printer } from '@heroicons/react/24/outline';
 
 const ReportModal = ({ isOpen, onClose, data, type = 'patient' }) => {
     const reportRef = useRef(null);

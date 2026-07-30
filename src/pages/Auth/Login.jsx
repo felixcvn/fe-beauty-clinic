@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Lock, User, LogIn, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { LockClosedIcon as Lock, UserIcon as User, ArrowLeftOnRectangleIcon as LogIn, EyeIcon as Eye, EyeSlashIcon as EyeOff, ShieldCheckIcon as ShieldCheck } from '@heroicons/react/24/outline';
 import logo from '../../assets/logo.png';
 import bgImage from '../../assets/gambar-pb.png';
 

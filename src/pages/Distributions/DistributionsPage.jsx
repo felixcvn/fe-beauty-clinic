@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Truck, Edit3, Trash2, MapPin, Box, CheckCircle2, Clock } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, TruckIcon as Truck, PencilIcon as Edit3, TrashIcon as Trash2, MapPinIcon as MapPin, CubeIcon as Box, CheckCircleIcon as CheckCircle2, ClockIcon as Clock } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from '../../components/UI/CustomSelect';
 
@@ -104,7 +104,7 @@ const DistributionsPage = () => {
             </div>
 
             {/* Main Content Area */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 {/* Filter & Search */}
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col md:flex-row items-stretch md:items-center gap-4 md:gap-6 bg-primary/5">
                     <div className="relative flex-1 group">

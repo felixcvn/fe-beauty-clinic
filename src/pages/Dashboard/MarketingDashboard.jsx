@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tag, TrendingUp, ShoppingBag, Target, ArrowRight, Zap, Gift } from 'lucide-react';
+import { TagIcon as Tag, ArrowTrendingUpIcon as TrendingUp, ShoppingBagIcon as ShoppingBag, ViewfinderCircleIcon as Target, ArrowRightIcon as ArrowRight, BoltIcon as Zap, GiftIcon as Gift } from '@heroicons/react/24/outline';
 import StatsCard from './StatsCard';
 import { useAuth } from '../../context/AuthContext';
 import { useMockData } from '../../context/MockDataContext';
@@ -57,7 +57,7 @@ const MarketingDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                 {/* Active Campaigns List */}
-                <div className="lg:col-span-2 bg-white p-6 md:p-7 rounded-[2rem] md:rounded-[2.5rem] border border-primary/15 shadow-xl shadow-primary/[0.04] bg-white flex flex-col transition-all hover:border-primary/20">
+                <div className="lg:col-span-2 bg-white p-6 md:p-7 rounded-card md:rounded-[2.5rem] border border-primary/15 shadow-xl shadow-primary/[0.04] bg-white flex flex-col transition-all hover:border-primary/20">
                     <div className="flex justify-between items-center mb-8">
                         <div>
                             <h3 className="text-xl font-black text-primary tracking-tight">Campaign & Promo Saat Ini</h3>
@@ -99,7 +99,7 @@ const MarketingDashboard = () => {
 
                 {/* Marketing Insights */}
                 <div className="space-y-8">
-                    <div className="bg-primary p-8 rounded-[2.5rem] shadow-2xl shadow-primary/20 flex flex-col group cursor-pointer hover:scale-[1.02] transition-all duration-500">
+                    <div className="bg-primary p-8 rounded-[2.5rem] elevation-3 flex flex-col group cursor-pointer hover:scale-[1.02] transition-all duration-500">
                         <div className="flex items-center gap-3 mb-6">
                             <Target className="w-5 h-5 text-secondary" />
                             <h4 className="text-secondary text-sm font-black uppercase tracking-widest">Target Bulanan</h4>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, Package, Activity, Beaker } from 'lucide-react';
+import { XMarkIcon as X, CheckCircleIcon as CheckCircle2, CubeIcon as Package, ChartBarIcon as Activity, BeakerIcon as Beaker } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import CustomMultiSelect from './CustomMultiSelect';
 import { useMockData } from '../../context/MockDataContext';

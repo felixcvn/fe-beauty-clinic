@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Mail, Phone, ShieldCheck, User, Calendar, MapPin, Hash, Building2 } from 'lucide-react';
+import { XMarkIcon as X, EnvelopeIcon as Mail, PhoneIcon as Phone, ShieldCheckIcon as ShieldCheck, UserIcon as User, CalendarIcon as Calendar, MapPinIcon as MapPin, HashtagIcon as Hash, BuildingOffice2Icon as Building2 } from '@heroicons/react/24/outline';
 
 const StaffDetailModal = ({ isOpen, onClose, staff }) => {
     if (!isOpen || !staff) return null;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Package, Search, Filter, MoreHorizontal, CheckCircle2, Clock, XCircle } from 'lucide-react';
+import { CubeIcon as Package, MagnifyingGlassIcon as Search, FunnelIcon as Filter, EllipsisHorizontalIcon as MoreHorizontal, CheckCircleIcon as CheckCircle2, ClockIcon as Clock, XCircleIcon as XCircle } from '@heroicons/react/24/outline';
 import { useNavigate, useLocation } from 'react-router-dom';
 import TransactionDetailModal from '../../components/UI/TransactionDetailModal';
 import TableSkeleton from '../../components/UI/TableSkeleton';
@@ -129,7 +129,7 @@ const WarehouseTransactionsPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 <div className="p-6 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row items-stretch lg:items-center gap-6 bg-secondary/10">
                     <div className="flex flex-col sm:flex-row flex-1 gap-4 items-stretch sm:items-center">
                         <div className="relative group flex-1">

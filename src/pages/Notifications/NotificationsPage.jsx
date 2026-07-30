@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MailOpen, Trash2, ShoppingBag } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, EnvelopeOpenIcon as MailOpen, TrashIcon as Trash2, ShoppingBagIcon as ShoppingBag } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { transaksiAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
@@ -114,7 +114,7 @@ const NotificationsPage = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-[2rem] md:rounded-[2.5rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[2.5rem] border border-primary/5 elevation-2 overflow-hidden">
                 <div className="p-4 md:p-8 border-b border-primary/5 flex flex-col lg:flex-row justify-between items-stretch lg:items-center gap-6 bg-secondary/10">
                     <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2 lg:pb-0">
                         {['Semua', 'Belum Dibaca', 'Penting'].map((opt, idx) => {

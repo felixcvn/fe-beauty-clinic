@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Calendar, FileText, Send, CalendarDays, CheckCircle2, Upload, Paperclip, Image as ImageIcon } from 'lucide-react';
+import { XMarkIcon as X, CalendarIcon as Calendar, DocumentTextIcon as FileText, PaperAirplaneIcon as Send, CalendarDaysIcon as CalendarDays, CheckCircleIcon as CheckCircle2, ArrowUpTrayIcon as Upload, PaperClipIcon as Paperclip, PhotoIcon as ImageIcon } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';

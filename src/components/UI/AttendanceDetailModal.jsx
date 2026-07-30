@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Clock, MapPin, Camera, User, BadgeCheck, Calendar } from 'lucide-react';
+import { XMarkIcon as X, ClockIcon as Clock, MapPinIcon as MapPin, CameraIcon as Camera, UserIcon as User, CheckBadgeIcon as BadgeCheck, CalendarIcon as Calendar } from '@heroicons/react/24/outline';
 
 const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
     if (!isOpen || !staffData) return null;
@@ -12,7 +12,7 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
         >
             {/* Modal Content */}
             <div 
-                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] md:rounded-[3.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
+                className="relative w-full max-w-2xl bg-white rounded-[2.5rem] md:rounded-card shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up"
                 onClick={(e) => e.stopPropagation()}
             >
                 <button
@@ -30,8 +30,8 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
                     </div>
 
                     <div className="absolute -bottom-12 left-8 md:left-12 flex items-end gap-6 pr-12">
-                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-[2rem] md:rounded-[2.5rem] bg-white p-2 shadow-2xl">
-                            <div className="w-full h-full rounded-[1.5rem] md:rounded-[2rem] bg-secondary-light flex items-center justify-center text-2xl md:text-4xl font-black text-primary border border-primary/5 overflow-hidden">
+                        <div className="w-24 h-24 md:w-32 md:h-32 rounded-card md:rounded-[2.5rem] bg-white p-2 shadow-2xl">
+                            <div className="w-full h-full rounded-[1.5rem] md:rounded-card bg-secondary-light flex items-center justify-center text-2xl md:text-4xl font-black text-primary border border-primary/5 overflow-hidden">
                                 {staffData.name.split(' ').map(n => n[0]).join('')}
                             </div>
                         </div>
@@ -96,7 +96,7 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
                             <div className="flex gap-4">
                                 {/* Check-in Photo */}
                                 <div className="flex-1 space-y-3">
-                                    <div className="aspect-[3/4] rounded-[2rem] bg-secondary/40 border-2 border-primary/5 overflow-hidden shadow-inner group">
+                                    <div className="aspect-[3/4] rounded-card bg-secondary/40 border-2 border-primary/5 overflow-hidden shadow-inner group">
                                         {staffData.photoIn ? (
                                             <img src={staffData.photoIn} alt="Check-in" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         ) : (
@@ -111,7 +111,7 @@ const AttendanceDetailModal = ({ isOpen, onClose, staffData }) => {
 
                                 {/* Check-out Photo */}
                                 <div className="flex-1 space-y-3">
-                                    <div className="aspect-[3/4] rounded-[2rem] bg-secondary/40 border-2 border-primary/5 overflow-hidden shadow-inner group">
+                                    <div className="aspect-[3/4] rounded-card bg-secondary/40 border-2 border-primary/5 overflow-hidden shadow-inner group">
                                         {staffData.photoOut ? (
                                             <img src={staffData.photoOut} alt="Check-out" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                                         ) : (

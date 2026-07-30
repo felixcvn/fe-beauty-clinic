@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Search, ShoppingCart, Plus, Minus, Trash2, CreditCard, Banknote, CheckCircle2, Package, Star, Filter } from 'lucide-react';
+import { XMarkIcon as X, MagnifyingGlassIcon as Search, ShoppingCartIcon as ShoppingCart, PlusIcon as Plus, MinusIcon as Minus, TrashIcon as Trash2, CreditCardIcon as CreditCard, BanknotesIcon as Banknote, CheckCircleIcon as CheckCircle2, CubeIcon as Package, StarIcon as Star, FunnelIcon as Filter, TagIcon as Tag } from '@heroicons/react/24/outline';
 import { useToast } from '../../context/ToastContext';
 import { useMockData } from '../../context/MockDataContext';
 
@@ -211,7 +211,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
 
     return createPortal(
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4 md:p-6 bg-black/40 backdrop-blur-sm animate-fade-in" onClick={onClose}>
-            <div className="relative w-full h-full sm:h-[90vh] md:h-auto md:max-w-7xl md:rounded-[3.5rem] bg-white shadow-2xl overflow-hidden flex flex-col lg:flex-row animate-fade-in-up border border-primary/5" onClick={(e) => e.stopPropagation()}>
+            <div className="relative w-full h-full sm:h-[90vh] md:h-auto md:max-w-7xl md:rounded-card bg-white elevation-3 overflow-hidden flex flex-col lg:flex-row animate-fade-in-up border border-primary/5" onClick={(e) => e.stopPropagation()}>
 
 
                 {/* Left Side: Product Selection */}
@@ -236,7 +236,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                     placeholder="Cari stok..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="w-full pl-12 pr-6 py-3.5 md:py-4 rounded-2xl bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all text-xs md:text-sm"
+                                    className="w-full pl-12 pr-6 py-3.5 md:py-4 rounded-input bg-secondary/20 border border-primary/5 outline-none text-primary font-bold focus:ring-4 focus:ring-primary/5 transition-all text-xs md:text-sm"
                                 />
                             </div>
                             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-2">
@@ -262,7 +262,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                 <button
                                     key={product.id}
                                     onClick={() => addToCart(product)}
-                                    className="p-4 rounded-3xl bg-secondary/10 border border-primary/5 hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full relative"
+                                    className="p-4 card bg-secondary/10 border-primary/5 hover:bg-white hover:elevation-2 hover:-translate-y-1 transition-all duration-300 text-left group flex flex-col justify-between h-full relative"
                                 >
                                     {isDiscounted && (
                                         <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-lg z-10 animate-pulse">
@@ -334,7 +334,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                         value={customerSearch}
                                         onChange={(e) => { setCustomerSearch(e.target.value); setIsCustomerDropdownOpen(true); }}
                                         onFocus={() => setIsCustomerDropdownOpen(true)}
-                                        className="w-full pl-11 pr-6 py-3 rounded-xl bg-secondary/10 border border-primary/5 outline-none text-[10px] font-bold text-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                                        className="w-full pl-11 pr-6 py-3 rounded-input bg-secondary/10 border border-primary/5 outline-none text-[10px] font-bold text-primary focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                                     />
                                     {isCustomerDropdownOpen && customerSearch && (
                                         <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-primary/5 shadow-2xl z-50 overflow-hidden max-h-[160px] overflow-y-auto scrollbar-hide">
@@ -364,7 +364,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                                     value={promoInput}
                                     onChange={(e) => { setPromoInput(e.target.value.toUpperCase()); setIsPromoDropdownOpen(true); }}
                                     onFocus={() => setIsPromoDropdownOpen(true)}
-                                    className="w-full pl-11 pr-6 py-3 rounded-xl bg-secondary/10 border border-primary/5 outline-none text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
+                                    className="w-full pl-11 pr-6 py-3 rounded-input bg-secondary/10 border border-primary/5 outline-none text-[10px] font-black uppercase tracking-widest focus:ring-4 focus:ring-primary/5 transition-all shadow-sm"
                                 />
                             </div>
                             <button onClick={() => handleApplyPromo()} className="px-5 py-3 bg-primary text-secondary rounded-xl text-[9px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-lg shadow-primary/10">
@@ -408,7 +408,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                             </div>
                         ) : (
                             cart.map(item => (
-                                <div key={item.id} className="p-4 rounded-3xl bg-white border border-primary/5 shadow-sm animate-fade-in flex gap-4 hover:border-primary/10 transition-all">
+                                <div key={item.id} className="p-4 card elevation-0 border-primary/5 animate-fade-in flex gap-4 hover:border-primary/10 transition-all hover:elevation-1">
                                     <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-sm flex-shrink-0 bg-secondary/10">
                                         <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                                     </div>
@@ -472,7 +472,7 @@ const SalesPOSModal = ({ isOpen, onClose, onTransactionSuccess }) => {
                         <button
                             disabled={cart.length === 0 || isProcessing}
                             onClick={handleCheckout}
-                            className={`w-full py-5 rounded-[2rem] font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 relative overflow-hidden group ${cart.length === 0 ? 'bg-primary/10 text-primary/20 pointer-events-none' : 'bg-primary text-secondary hover:scale-[1.02] active:scale-95 shadow-primary/20 hover:shadow-primary/40'}`}
+                            className={`w-full py-5 rounded-card font-black text-[11px] uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 relative overflow-hidden group ${cart.length === 0 ? 'bg-primary/10 text-primary/20 pointer-events-none' : 'bg-primary text-secondary hover:scale-[1.02] active:scale-95 shadow-primary/20 hover:shadow-primary/40'}`}
                         >
                             <div className="relative z-10 flex items-center justify-center gap-3">
                                 {isProcessing ? (

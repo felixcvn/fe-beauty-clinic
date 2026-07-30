@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Trash2, Edit3, AlertTriangle, Package, Activity, Inbox, ChevronDown, Beaker, Download } from 'lucide-react';
+import { MagnifyingGlassIcon as Search, PlusIcon as Plus, TrashIcon as Trash2, PencilIcon as Edit3, ExclamationTriangleIcon as AlertTriangle, CubeIcon as Package, ChartBarIcon as Activity, InboxIcon as Inbox, ChevronDownIcon as ChevronDown, BeakerIcon as Beaker, ArrowDownTrayIcon as Download } from '@heroicons/react/24/outline';
 import { useMockData } from '../../context/MockDataContext';
 import { useToast } from '../../context/ToastContext';
 import WarehouseFormModal from '../../components/UI/WarehouseFormModal';
@@ -519,7 +519,7 @@ const SuperAdminInventoryPage = () => {
             </div>
 
             {/* Controls (Filters & Search) */}
-            <div className="bg-white rounded-[2rem] border border-primary/5 shadow-2xl shadow-primary/5 p-4 md:p-6 flex flex-col items-stretch gap-6">
+            <div className="bg-white rounded-card border border-primary/5 elevation-2 p-4 md:p-6 flex flex-col items-stretch gap-6">
                 <div className="flex flex-wrap gap-3">
                     <button onClick={() => setActiveFilter('all')} className={`flex items-center justify-center px-4 py-2 rounded-full border transition-all duration-300 ${activeFilter === 'all' ? 'bg-primary border-primary text-secondary shadow-lg shadow-primary/20 scale-105' : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100'}`}>
                         <span className="text-[10px] font-black uppercase tracking-widest">Semua</span>
@@ -555,7 +555,7 @@ const SuperAdminInventoryPage = () => {
             </div>
 
             {/* Data Table / List */}
-            <div className="bg-white rounded-[2rem] md:rounded-[1rem] border border-primary/5 shadow-2xl shadow-primary/5 overflow-hidden">
+            <div className="bg-white rounded-card md:rounded-[1rem] border border-primary/5 elevation-2 overflow-hidden">
                 {isLoading ? (
                     <TableSkeleton rows={8} columns={6} />
                 ) : (

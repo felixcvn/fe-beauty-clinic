@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Tag, CheckCircle2, Calendar, FileText, ShoppingBag, Gift } from 'lucide-react';
+import { XMarkIcon as X, TagIcon as Tag, CheckCircleIcon as CheckCircle2, CalendarIcon as Calendar, DocumentTextIcon as FileText, ShoppingBagIcon as ShoppingBag, GiftIcon as Gift } from '@heroicons/react/24/outline';
 
 const PromoDetailModal = ({ isOpen, promo, onClose }) => {
     if (!isOpen || !promo) return null;

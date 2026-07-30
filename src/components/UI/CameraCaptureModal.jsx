@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, X, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { CameraIcon as Camera, XMarkIcon as X, CheckCircleIcon as CheckCircle2, ExclamationCircleIcon as AlertCircle, ArrowPathIcon as Loader2 } from '@heroicons/react/24/outline';
 
 const CameraCaptureModal = ({ isOpen, onClose, onCapture, facingMode = 'environment' }) => {
     const videoRef = useRef(null);
@@ -108,7 +108,7 @@ const CameraCaptureModal = ({ isOpen, onClose, onCapture, facingMode = 'environm
 
             {/* Modal Content */}
             <div 
-                className="relative w-full max-w-lg bg-white rounded-[2rem] md:rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
+                className="relative w-full max-w-lg bg-white rounded-card md:rounded-[2.5rem] shadow-2xl border border-primary/5 overflow-hidden animate-fade-in-up flex flex-col max-h-[90vh]"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Header */}
@@ -131,7 +131,7 @@ const CameraCaptureModal = ({ isOpen, onClose, onCapture, facingMode = 'environm
 
                 {/* Camera View */}
                 <div className="p-5 md:p-8 flex-1 overflow-y-auto scrollbar-hide bg-gray-50/50">
-                    <div className={`relative aspect-[3/4] sm:aspect-square mx-auto w-full max-w-sm rounded-[1.5rem] md:rounded-[2rem] bg-secondary/20 border-4 border-primary/5 overflow-hidden group shadow-inner`}>
+                    <div className={`relative aspect-[3/4] sm:aspect-square mx-auto w-full max-w-sm rounded-[1.5rem] md:rounded-card bg-secondary/20 border-4 border-primary/5 overflow-hidden group shadow-inner`}>
                         {/* Video Feed */}
                         <video
                             ref={videoRef}

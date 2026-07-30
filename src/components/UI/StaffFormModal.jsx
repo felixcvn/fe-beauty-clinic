@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, CheckCircle2, User, UserPlus, ArrowRight, ArrowLeft, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { XMarkIcon as X, CheckCircleIcon as CheckCircle2, UserIcon as User, UserPlusIcon as UserPlus, ArrowRightIcon as ArrowRight, ArrowLeftIcon as ArrowLeft, EyeIcon as Eye, EyeSlashIcon as EyeOff, ShieldCheckIcon as ShieldCheck } from '@heroicons/react/24/outline';
 import CustomSelect from './CustomSelect';
 import CustomDatePicker from './CustomDatePicker';
 import { ROLES } from '../../utils/rbac';
