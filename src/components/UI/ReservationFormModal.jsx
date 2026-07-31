@@ -137,6 +137,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
     const [options, setOptions] = useState({
         patients: [],
         staff: [],
+        doctors: [],
         treatments: [],
         paketTreatments: []
     });
@@ -179,10 +180,8 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                 if (sRes.success && sRes.data) {
                     const responseData = sRes.data.data || sRes.data;
                     const sData = Array.isArray(responseData) ? responseData : (responseData.data || []);
-                    
-                    setOptions(prev => ({ 
-                        ...prev, 
-                        staff: sData
+                    setOptions(prev => {
+                        const staffOpts = sData
                             .filter(s => {
                                 if (!s) return false;
                                 const status = String(s.status || s.Status_karyawan || s.Status || '').toLowerCase();
@@ -195,8 +194,32 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                     label: String(s.NamaLengkap_karyawan || s.nama_lengkap || s.NamaLengkap || s.name || `Karyawan ${idVal || ''}`) 
                                 };
                             })
-                            .filter(opt => opt.value !== '' && opt.value !== 'undefined')
-                    }));
+                            .filter(opt => opt.value !== '' && opt.value !== 'undefined');
+                            
+                        const dData = sData
+                            .filter(s => {
+                                if (!s) return false;
+                                const status = String(s.status || s.Status_karyawan || s.Status || '').toLowerCase();
+                                const isAktif = !status || status === 'aktif';
+                                const roleField = String(s.divisi || s.Divisi || s.jabatan || s.Jabatan || s.posisi || '').toLowerCase();
+                                const isDokterAtauTerapis = roleField.includes('dokter') || roleField.includes('terapis') || roleField.includes('dr.');
+                                return isAktif && isDokterAtauTerapis;
+                            })
+                            .map(s => {
+                                const idVal = s.id || s.id_karyawan || s.id_user || s.ID;
+                                return { 
+                                    value: idVal ? String(idVal) : '', 
+                                    label: String(s.NamaLengkap_karyawan || s.nama_lengkap || s.NamaLengkap || s.name || `Dokter ${idVal || ''}`) 
+                                };
+                            })
+                            .filter(opt => opt.value !== '' && opt.value !== 'undefined');
+                            
+                        return { 
+                            ...prev, 
+                            staff: staffOpts,
+                            doctors: dData
+                        };
+                    });
                 }
 
                 if (tRes.success && tRes.data) {
@@ -271,8 +294,16 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                 initialKaryawanId = String(initialData.karyawan.id || initialData.karyawan.id_karyawan);
             } else if (initialData.id_karyawan) {
                 initialKaryawanId = String(initialData.id_karyawan);
-            } else if (initialData.dokter_id) {
-                initialKaryawanId = String(initialData.dokter_id);
+            }
+
+            // Extract dokter_id robustly
+            let initialDokterId = '';
+            if (initialData.dokter_id) {
+                initialDokterId = String(initialData.dokter_id);
+            } else if (initialData.dokter && (initialData.dokter.id || initialData.dokter.id_dokter)) {
+                initialDokterId = String(initialData.dokter.id || initialData.dokter.id_dokter);
+            } else if (initialData.id_dokter) {
+                initialDokterId = String(initialData.id_dokter);
             }
 
             setFormData({
@@ -282,6 +313,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                 Nama_pasien: initialData.Nama_pasien || '',
                 No_Telp: initialData.No_Telp || '',
                 karyawan_id: initialKaryawanId,
+                dokter_id: initialDokterId,
                 treatment_ids: initialTreatmentIds,
                 paket_treatment_ids: initialPaketTreatmentIds,
                 Keterangan: initialData.Keterangan || '',
@@ -296,6 +328,7 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                 Nama_pasien: '',
                 No_Telp: '',
                 karyawan_id: '',
+                dokter_id: '',
                 treatment_ids: [],
                 paket_treatment_ids: [],
                 Keterangan: '',
@@ -332,7 +365,10 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
         if (!formData.No_Telp?.trim()) newErrors.No_Telp = 'Nomor telepon wajib diisi';
         
         if (isInvalidId(formData.karyawan_id)) {
-            newErrors.karyawan_id = 'Pilih pegawai terlebih dahulu';
+            newErrors.karyawan_id = 'Pilih pendaftar terlebih dahulu';
+        }
+        if (isInvalidId(formData.dokter_id)) {
+            newErrors.dokter_id = 'Pilih dokter/terapis terlebih dahulu';
         }
         if ((!formData.treatment_ids || formData.treatment_ids.length === 0) && (!formData.paket_treatment_ids || formData.paket_treatment_ids.length === 0)) {
             newErrors.treatment = 'Pilih salah satu antara Treatment atau Paket';
@@ -673,16 +709,29 @@ const ReservationFormModal = ({ isOpen, onClose, initialData, bookings = [], onS
                                 <h4 className="text-[10px] font-black uppercase tracking-widest text-primary/40">Layanan &amp; Petugas</h4>
                             </div>
 
-                            <div className="space-y-1">
-                                <label className={labelClass}>Pegawai</label>
-                                <CustomSelect
-                                    options={options.staff}
-                                    value={formData.karyawan_id}
-                                    onChange={(val) => setFormData({ ...formData, karyawan_id: val })}
-                                    placeholder="Pilih Pegawai..."
-                                    searchable={true}
-                                />
-                                {errors.karyawan_id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.karyawan_id}</p>}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className={labelClass}>Dokter / Terapis</label>
+                                    <CustomSelect
+                                        options={options.doctors}
+                                        value={formData.dokter_id}
+                                        onChange={(val) => setFormData({ ...formData, dokter_id: val })}
+                                        placeholder="Pilih Dokter..."
+                                        searchable={true}
+                                    />
+                                    {errors.dokter_id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.dokter_id}</p>}
+                                </div>
+                                <div className="space-y-1">
+                                    <label className={labelClass}>Pendaftar / Marketing</label>
+                                    <CustomSelect
+                                        options={options.staff}
+                                        value={formData.karyawan_id}
+                                        onChange={(val) => setFormData({ ...formData, karyawan_id: val })}
+                                        placeholder="Pilih Pendaftar..."
+                                        searchable={true}
+                                    />
+                                    {errors.karyawan_id && <p className="text-red-500 text-[10px] font-bold mt-1 ml-1">{errors.karyawan_id}</p>}
+                                </div>
                             </div>
 
                             <div className="space-y-1">
